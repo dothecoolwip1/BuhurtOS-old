@@ -169,13 +169,84 @@ select throws_ok(
 );
 
 select throws_ok(
-  $$select public.save_bracket_plan(
+  $select public.save_bracket_plan(
     '{"id":"71000000-0000-0000-0000-000000000230","eventId":"71000000-0000-0000-0000-000000000030","fightCardId":"","divisionId":"","name":"Unrecorded Random","format":"single_elimination","category":"Longsword","metadata":{"generationConfig":{"seedMethod":"random"}}}'::jsonb,
     '[{"id":"71000000-0000-0000-0000-000000000231","label":"Final","category":"Longsword","matchType":"longsword","scoringConfig":{"kind":"duel","roundsRequired":1},"status":"scheduled","stage":"final","scheduledOrder":1,"participants":[]}]'::jsonb
-  )$$,
+  )$,
   'P0001',
   'Random tournament generation requires a recorded seed',
   'random publication is rejected unless its seed is recorded'
+);
+
+select lives_ok(
+  $select public.save_bracket_plan(
+    '{
+      "id":"71000000-0000-0000-0000-000000000250",
+      "eventId":"71000000-0000-0000-0000-000000000030",
+      "fightCardId":"",
+      "divisionId":"",
+      "name":"Pack 7 Replacement Draw",
+      "format":"single_elimination",
+      "category":"Longsword",
+      "metadata":{
+        "supersedesBracketId":"71000000-0000-0000-0000-000000000200",
+        "generationHash":"replacement1",
+        "generationConfig":{"seedMethod":"manual"}
+      }
+    }'::jsonb,
+    '[
+      {
+        "id":"71000000-0000-0000-0000-000000000251",
+        "label":"Replacement Final",
+        "category":"Longsword",
+        "matchType":"longsword",
+        "scoringConfig":{"kind":"duel","roundsRequired":1,"allowDrawRound":false},
+        "status":"scheduled",
+        "stage":"final",
+        "scheduledOrder":1,
+        "participants":[
+          {"rosterEntryId":"71000000-0000-0000-0000-000000000101","sideIndex":1,"seed":1},
+          {"rosterEntryId":"71000000-0000-0000-0000-000000000102","sideIndex":2,"seed":2}
+        ]
+      }
+    ]'::jsonb
+  )$,
+  'an unstarted published draw can be safely replaced without deleting history'
+);
+
+select is(
+  (select generation_state from public.brackets where id='71000000-0000-0000-0000-000000000200'),
+  'superseded',
+  'replaced draw is retained as superseded history'
+);
+
+select is(
+  (select status::text from public.matches where id='71000000-0000-0000-0000-000000000201'),
+  'cancelled',
+  'unstarted matches from the superseded draw are closed'
+);
+
+update public.matches
+set status='active'
+where id='71000000-0000-0000-0000-000000000251';
+
+select throws_ok(
+  $select public.save_bracket_plan(
+    '{
+      "id":"71000000-0000-0000-0000-000000000260",
+      "eventId":"71000000-0000-0000-0000-000000000030",
+      "fightCardId":"",
+      "divisionId":"",
+      "name":"Forbidden Rewrite",
+      "format":"single_elimination",
+      "category":"Longsword",
+      "metadata":{"supersedesBracketId":"71000000-0000-0000-0000-000000000250"}
+    }'::jsonb,
+    '[{"id":"71000000-0000-0000-0000-000000000261","label":"Final","category":"Longsword","matchType":"longsword","scoringConfig":{"kind":"duel","roundsRequired":1},"status":"scheduled","stage":"final","scheduledOrder":1,"participants":[]}]'::jsonb
+  )$,
+  'P0001',
+  'Tournament has recorded competition and cannot be regenerated',
+  'regeneration is blocked after real competition has started'
 );
 
 reset role;
