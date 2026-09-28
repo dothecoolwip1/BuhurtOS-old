@@ -55,6 +55,10 @@ describe('Pack 7 tournament generation',()=>{
     expect(first.seededEntries.map(item=>item.entry.id)).not.toEqual(second.seededEntries.map(item=>item.entry.id));
   });
 
+  test('rejects tournament fields smaller than two entrants',()=>{
+    expect(()=>seedTournamentEntries([entries[0]],{method:'manual',values:{[entries[0].id]:1}})).toThrow(/at least two competitors/i);
+  });
+
   test('rejects incomplete and ambiguous manual seeding',()=>{
     expect(()=>seedTournamentEntries(entries,{method:'manual',values:{}})).toThrow(/every selected competitor/i);
     const duplicate=Object.fromEntries(entries.map((entry,index)=>[entry.id,index<2?1:index+1]));
