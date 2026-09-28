@@ -44,7 +44,7 @@ insert into public.event_roster_entries(
 ) values
 ('71000000-0000-0000-0000-000000000101','71000000-0000-0000-0000-000000000010','71000000-0000-0000-0000-000000000030','fighter','Alpha',true,true,true,true,true,true,'approved','{}'),
 ('71000000-0000-0000-0000-000000000102','71000000-0000-0000-0000-000000000010','71000000-0000-0000-0000-000000000030','fighter','Bravo',true,true,true,true,true,true,'approved','{}'),
-('71000000-0000-0000-0000-000000000103','71000000-0000-0000-0000-000000000010','71000000-0000-0000-0000-000000000030','fighter','Withdrawn',true,true,true,true,true,true,'withdrawn','{}');
+('71000000-0000-0000-0000-000000000103','71000000-0000-0000-0000-000000000010','71000000-0000-0000-0000-000000000030','fighter','Withdrawn',true,true,true,true,true,true,'approved','{}');
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub','71000000-0000-0000-0000-000000000001',true);
@@ -259,8 +259,8 @@ select throws_ok(
     '[{"id":"71000000-0000-0000-0000-000000000241","label":"Final","category":"Longsword","matchType":"longsword","scoringConfig":{"kind":"duel","roundsRequired":1},"status":"scheduled","stage":"final","scheduledOrder":1,"participants":[]}]'::jsonb
   )$$,
   'P0001',
-  'Not authorized to create brackets',
-  'administrator from another organization cannot publish a tournament'
+  'Event not found',
+  'administrator from another organization cannot see or publish another organization tournament'
 );
 
 reset role;
@@ -303,10 +303,10 @@ select ok(
 select throws_ok(
   $$select public.set_tournament_disqualification_guarded(
     '71000000-0000-0000-0000-000000000102',
-    current_setting('pack7.bravo_updated')::timestamptz,
+    '2000-01-01T00:00:00Z'::timestamptz,
     false,
     null
-  )$$,
+  )$,
   'P0001',
   'Roster entry changed on another device',
   'stale disqualification changes are rejected'
@@ -365,6 +365,10 @@ insert into public.match_participants(match_id,roster_entry_id,side_index,seed,i
 values
 ('71000000-0000-0000-0000-000000000301','71000000-0000-0000-0000-000000000101',1,1,false),
 ('71000000-0000-0000-0000-000000000301','71000000-0000-0000-0000-000000000103',2,2,false);
+
+update public.event_roster_entries
+set attendance_status='withdrawn'
+where id='71000000-0000-0000-0000-000000000103';
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub','71000000-0000-0000-0000-000000000001',true);
