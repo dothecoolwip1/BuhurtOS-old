@@ -402,5 +402,18 @@ select is(
   'withdrawn walkover loser is not advanced into the lower bracket'
 );
 
+select throws_ok(
+  $select public.submit_match_result(
+    '71000000-0000-0000-0000-000000000301',
+    '[]'::jsonb,
+    2,
+    'duplicate progression attempt',
+    'active'
+  )$,
+  'P0001',
+  'Match changed since it was loaded',
+  'a repeated stale progression attempt cannot advance the bracket twice'
+);
+
 select * from finish();
 rollback;
