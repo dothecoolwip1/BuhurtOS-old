@@ -66,8 +66,16 @@ begin
     return old;
   end if;
 
+  if old.generation_state='published'
+    and new.generation_state='superseded'
+    and coalesce(current_setting('buhurtos.pack7_allow_supersede',true),'')='1'
+  then
+    return new;
+  end if;
+
   if old.generation_state='published' and (
-    old.event_id is distinct from new.event_id
+    old.generation_state is distinct from new.generation_state
+    or old.event_id is distinct from new.event_id
     or old.fight_card_id is distinct from new.fight_card_id
     or old.division_id is distinct from new.division_id
     or old.ruleset_snapshot_id is distinct from new.ruleset_snapshot_id
@@ -127,6 +135,7 @@ declare
   v_random_seed text := nullif(v_generation->>'randomSeed','');
   v_generation_hash text := nullif(p_bracket->'metadata'->>'generationHash','');
   v_fight_card_id uuid := nullif(p_bracket->>'fightCardId','')::uuid;
+  v_supersedes uuid := nullif(p_bracket->'metadata'->>'supersedesBracketId','')::uuid;
 begin
   perform pg_advisory_xact_lock(hashtext('pack7-generation:'||v_event_id::text||':'||coalesce(v_division_id::text,'none')));
 
@@ -145,6 +154,32 @@ begin
 
   if exists(select 1 from public.brackets where id=v_bracket_id) then
     raise exception 'Bracket ID already exists; published brackets cannot be regenerated in place';
+  end if;
+
+  if v_supersedes is not null then
+    if not exists(
+      select 1 from public.brackets b
+      where b.id=v_supersedes
+        and b.event_id=v_event_id
+        and b.generation_state='published'
+        and b.division_id is not distinct from v_division_id
+        and b.format=p_bracket->>'format'
+        and b.category=p_bracket->>'category'
+    ) then
+      raise exception 'Replacement bracket must reference a published structure for the same event, division, format, and category';
+    end if;
+
+    if exists(
+      select 1 from public.matches m
+      where m.bracket_id=v_supersedes
+        and (
+          m.status in ('active','completed','forfeit')
+          or (m.status='finalized' and coalesce(m.result_summary->>'resultType','')<>'bye')
+          or exists(select 1 from public.match_rounds mr where mr.match_id=m.id)
+        )
+    ) then
+      raise exception 'Tournament has recorded competition and cannot be regenerated';
+    end if;
   end if;
 
   if v_fight_card_id is not null and not exists(
@@ -275,7 +310,7 @@ begin
     (select auth.uid()),
     'published',v_generation_method,v_random_seed,v_generation_hash,v_generation,v_tiebreak,
     coalesce(p_bracket->'metadata'->'qualificationPolicy','{}'::jsonb),1,timezone('utc',now()),
-    nullif(p_bracket->'metadata'->>'supersedesBracketId','')::uuid
+    v_supersedes
   );
 
   for v_match in select value from jsonb_array_elements(p_matches)
@@ -341,6 +376,28 @@ begin
       );
     end loop;
   end loop;
+
+  if v_supersedes is not null then
+    perform set_config('buhurtos.pack7_allow_supersede','1',true);
+    update public.brackets
+    set generation_state='superseded',last_edited_by=(select auth.uid())
+    where id=v_supersedes;
+    perform set_config('buhurtos.pack7_allow_supersede','0',true);
+
+    update public.matches
+    set status='cancelled',last_edited_by=(select auth.uid())
+    where bracket_id=v_supersedes
+      and (
+        status in ('scheduled','on_deck','in_the_hole')
+        or (status='finalized' and coalesce(result_summary->>'resultType','')='bye')
+      );
+
+    insert into public.audit_log(organization_id,event_id,actor_user_id,table_name,record_id,action,payload)
+    values (
+      v_event.organization_id,v_event_id,(select auth.uid()),'brackets',v_supersedes,'supersede_tournament',
+      jsonb_build_object('replacementBracketId',v_bracket_id)
+    );
+  end if;
 
   insert into public.audit_log(organization_id,event_id,actor_user_id,table_name,record_id,action,payload)
   values (
