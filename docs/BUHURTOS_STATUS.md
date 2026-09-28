@@ -210,6 +210,37 @@ Security and verification:
 * The database job rebuilt Supabase from every migration and passed all pgTAP suites.
 * PR #9 merged Pack 5 to `main` as `178874356d4a8c4076d1deaa3ffd742d6490f515`.
 
+## Pack 6 completed and merged
+
+Events and registration:
+
+* Events now carry governed venue, timezone, dates, registration windows, capacity, waitlist behavior, public description, publication provenance, lifecycle timestamps, divisions, and locked ruleset context.
+* Event lifecycle changes are guarded server-side through draft, published, live/closed where applicable, cancelled, completed, and archived history rather than relying on frontend controls.
+* Individual and team registrations use formal event divisions and preserve registration kind, roster size, eligibility decisions, eligibility reasons, and the locked competition context used to evaluate them.
+* Registration approval does not invent permanent fighter identities from submitted display text.
+* Approval, rejection, waitlisting, withdrawal, physical check-in, equipment/medical/waiver/weigh-in clearance, and final competition clearance remain separate states.
+* Team roster changes recalculate eligibility before approval.
+* Withdrawals preserve history and remove affected roster entries from active competition.
+
+Capacity, concurrency, and privacy:
+
+* PostgreSQL enforces registration deadlines, duplicate active entries, event and division capacity, and waitlist behavior.
+* Registration and approval paths use row locks plus transaction advisory locking to prevent concurrent overbooking.
+* Guarded organizer writes reject stale record versions instead of silently overwriting another device or staff member.
+* Cross-organization registration review is denied.
+* Anonymous spectators can read published event and event-division information without receiving private registration contacts, emergency details, waiver state, organizer notes, youth facts, or account identifiers.
+* Public registration writes go through governed RPCs; direct anonymous registration-table inserts are not permitted.
+* Registration and roster mutations are audited.
+* Existing paid registration behavior remains fail closed; Pack 6 did not add a payment provider.
+
+Verification:
+
+* Verified implementation head `789cca1daf8208a6732863409639546744acf52e` passed GitHub Actions workflow `36080004581`.
+* The frontend job passed TypeScript, unit/regression tests, and the production Vite build.
+* The database job started local Supabase, rebuilt the schema from every migration, and passed all pgTAP suites.
+* Pack 6 database coverage includes deadlines, duplicate submissions, eligibility and needs-review handling, team roster changes, cross-organization denial, stale reviews, capacity, waitlists, withdrawal capability tokens, separate physical and final marshal clearance, cancellation, archiving, and historical immutability.
+* PR #10 merged Pack 6 to `main` as `c6bbd937ed9a08592ca633325a848e2e765f4382`.
+
 ## Verification status
 
 Verified in GitHub Actions on an earlier Pack 2 branch head:
@@ -224,7 +255,7 @@ Added for final Pack 2 verification:
 * `supabase/tests/database/accounts_permissions.test.sql` performs direct anonymous and authenticated access attempts across two unrelated organizations and includes revoked membership and self-escalation cases.
 * The repository CI rebuilds local Supabase from all migrations and runs pgTAP tests.
 
-Final Pack 2 head `bef3d41c7fd509269535f13a85b2555961edd483` passed GitHub Actions workflow run `35945001693`. Pack 3 implementation head `2ffab73e9e403ab8c0325ef18a441ed5fe09319e` then passed GitHub Actions workflow run `35954642255`, including frontend checks, a clean rebuild through the Pack 3 migration, and all database tests. PR #6 merged that verified implementation as `e6fde086939f3c4e74353affb5a82a4aa1977a45`. Mega Pack 4 implementation head `07107630551711945284cabfac3de1c3ca86cc58` passed workflow `35999176785` with frontend, production-build, clean-migration, and pgTAP verification. Pack 5 implementation head `d357c6414edeabc2f0034c420207ca1d29fa36ae` passed workflow `36069252396` with the same frontend and clean-database verification, then merged in PR #9 as `178874356d4a8c4076d1deaa3ffd742d6490f515`.
+Final Pack 2 head `bef3d41c7fd509269535f13a85b2555961edd483` passed GitHub Actions workflow run `35945001693`. Pack 3 implementation head `2ffab73e9e403ab8c0325ef18a441ed5fe09319e` then passed GitHub Actions workflow run `35954642255`, including frontend checks, a clean rebuild through the Pack 3 migration, and all database tests. PR #6 merged that verified implementation as `e6fde086939f3c4e74353affb5a82a4aa1977a45`. Mega Pack 4 implementation head `07107630551711945284cabfac3de1c3ca86cc58` passed workflow `35999176785` with frontend, production-build, clean-migration, and pgTAP verification. Pack 5 implementation head `d357c6414edeabc2f0034c420207ca1d29fa36ae` passed workflow `36069252396` with the same frontend and clean-database verification, then merged in PR #9 as `178874356d4a8c4076d1deaa3ffd742d6490f515`. Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e` passed workflow `36080004581`, including the clean Supabase rebuild and pgTAP suites, then merged in PR #10 as `c6bbd937ed9a08592ca633325a848e2e765f4382`.
 
 ## Explicitly unverified infrastructure
 
