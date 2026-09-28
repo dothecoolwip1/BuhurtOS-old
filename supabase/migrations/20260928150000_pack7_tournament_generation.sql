@@ -60,7 +60,7 @@ set search_path=''
 as $$
 begin
   if tg_op='DELETE' then
-    if old.generation_state='published' then
+    if old.generation_state in ('published','superseded') then
       raise exception 'Published tournament structures are historical records and cannot be deleted';
     end if;
     return old;
@@ -73,7 +73,7 @@ begin
     return new;
   end if;
 
-  if old.generation_state='published' and (
+  if old.generation_state in ('published','superseded') and (
     old.generation_state is distinct from new.generation_state
     or old.event_id is distinct from new.event_id
     or old.fight_card_id is distinct from new.fight_card_id
