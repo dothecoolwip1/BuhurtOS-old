@@ -264,6 +264,55 @@ select throws_ok(
 );
 
 reset role;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','71000000-0000-0000-0000-000000000001',true);
+select set_config(
+  'pack7.bravo_updated',
+  (select updated_at::text from public.event_roster_entries where id='71000000-0000-0000-0000-000000000102'),
+  false
+);
+
+select throws_ok(
+  $select public.set_tournament_disqualification_guarded(
+    '71000000-0000-0000-0000-000000000102',
+    current_setting('pack7.bravo_updated')::timestamptz,
+    true,
+    null
+  )$,
+  'P0001',
+  'Disqualification reason is required',
+  'tournament disqualification requires an auditable reason'
+);
+
+select lives_ok(
+  $select public.set_tournament_disqualification_guarded(
+    '71000000-0000-0000-0000-000000000102',
+    current_setting('pack7.bravo_updated')::timestamptz,
+    true,
+    'unsafe conduct'
+  )$,
+  'authorized marshal scope can disqualify an entrant'
+);
+
+select ok(
+  (select metadata->>'tournamentDisqualified'='true' and not competition_cleared
+   from public.event_roster_entries where id='71000000-0000-0000-0000-000000000102'),
+  'disqualification is explicit and revokes final competition clearance'
+);
+
+select throws_ok(
+  $select public.set_tournament_disqualification_guarded(
+    '71000000-0000-0000-0000-000000000102',
+    current_setting('pack7.bravo_updated')::timestamptz,
+    false,
+    null
+  )$,
+  'P0001',
+  'Roster entry changed on another device',
+  'stale disqualification changes are rejected'
+);
+
+reset role;
 
 insert into public.brackets(
   id,event_id,name,format,category,generation_state,generation_method,published_at
