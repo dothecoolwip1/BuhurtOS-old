@@ -106,6 +106,81 @@ create trigger pack7_bracket_history_guard
 before update or delete on public.brackets
 for each row execute function private.pack7_protect_published_bracket();
 
+create or replace function private.pack7_guard_bracket_insert()
+returns trigger
+language plpgsql
+security invoker
+set search_path=''
+as $guard$
+begin
+  if current_user in ('anon','authenticated')
+    and coalesce(current_setting('buhurtos.pack7_publish',true),'')<>'1'
+  then
+    raise exception 'Use the governed tournament publication workflow';
+  end if;
+  new.published_at:=coalesce(new.published_at,timezone('utc',now()));
+  return new;
+end;
+$guard$;
+
+create or replace function private.pack7_guard_match_insert()
+returns trigger
+language plpgsql
+security invoker
+set search_path=''
+as $guard$
+begin
+  if new.bracket_id is not null
+    and current_user in ('anon','authenticated')
+    and coalesce(current_setting('buhurtos.pack7_publish',true),'')<>'1'
+  then
+    raise exception 'Bracket matches must be created by the governed tournament publication workflow';
+  end if;
+  return new;
+end;
+$guard$;
+
+create or replace function private.pack7_guard_participant_mutation()
+returns trigger
+language plpgsql
+security invoker
+set search_path=''
+as $guard$
+declare
+  v_match_id uuid:=case when tg_op='DELETE' then old.match_id else new.match_id end;
+  v_bracket_id uuid;
+begin
+  select bracket_id into v_bracket_id from public.matches where id=v_match_id;
+  if v_bracket_id is not null
+    and current_user in ('anon','authenticated')
+    and coalesce(current_setting('buhurtos.pack7_publish',true),'')<>'1'
+    and coalesce(current_setting('buhurtos.pack7_progression',true),'')<>'1'
+  then
+    raise exception 'Bracket participants can only change through tournament publication or match progression';
+  end if;
+  return case when tg_op='DELETE' then old else new end;
+end;
+$guard$;
+
+revoke execute on function private.pack7_guard_bracket_insert() from public,anon,authenticated;
+revoke execute on function private.pack7_guard_match_insert() from public,anon,authenticated;
+revoke execute on function private.pack7_guard_participant_mutation() from public,anon,authenticated;
+
+drop trigger if exists pack7_bracket_insert_guard on public.brackets;
+create trigger pack7_bracket_insert_guard
+before insert on public.brackets
+for each row execute function private.pack7_guard_bracket_insert();
+
+drop trigger if exists pack7_match_insert_guard on public.matches;
+create trigger pack7_match_insert_guard
+before insert on public.matches
+for each row execute function private.pack7_guard_match_insert();
+
+drop trigger if exists pack7_participant_mutation_guard on public.match_participants;
+create trigger pack7_participant_mutation_guard
+before insert or update or delete on public.match_participants
+for each row execute function private.pack7_guard_participant_mutation();
+
 create or replace function public.save_bracket_plan(p_bracket jsonb, p_matches jsonb)
 returns uuid
 language plpgsql
@@ -298,6 +373,8 @@ begin
     ) then raise exception 'A match cannot contain the same competitor on both sides'; end if;
   end loop;
 
+  perform set_config('buhurtos.pack7_publish','1',true);
+
   insert into public.brackets(
     id,event_id,fight_card_id,division_id,ruleset_snapshot_id,name,format,category,metadata,created_by,
     generation_state,generation_method,random_seed,generation_hash,generation_config,tiebreak_policy,
@@ -398,6 +475,8 @@ begin
       jsonb_build_object('replacementBracketId',v_bracket_id)
     );
   end if;
+
+  perform set_config('buhurtos.pack7_publish','0',true);
 
   insert into public.audit_log(organization_id,event_id,actor_user_id,table_name,record_id,action,payload)
   values (
@@ -633,6 +712,7 @@ begin
   where id=p_match_id;
 
   if v_winner is not null then
+    perform set_config('buhurtos.pack7_progression','1',true);
     if v_match.bracket_slot='GF-1' and v_match.winner_advances_to_match_id is not null then
       if v_winner=1 then
         update public.matches set status='cancelled',last_edited_by=(select auth.uid())
@@ -680,6 +760,7 @@ begin
         );
       end if;
     end if;
+    perform set_config('buhurtos.pack7_progression','0',true);
   end if;
 
   insert into public.audit_log(organization_id,event_id,actor_user_id,table_name,record_id,action,payload)
