@@ -2,15 +2,18 @@ import { useEffect, useState } from 'react';
 import { useAppState } from '../features/AppState';
 import type { DisciplineCard } from '../types';
 import { supabase } from '../lib/supabase';
+import { setTournamentDisqualification } from '../lib/tournamentAdmin';
 
 const DEMO_KEY = 'buhurtos-demo-discipline';
 const demoSeed: DisciplineCard[] = [{ id: 'dc-1', eventId: 'event-hacsa-demo', seasonId: 'season-2026', rosterEntryId: 'r3', color: 'yellow', reason: 'Unsafe strike warning', notes: 'First warning', issuedAt: '2026-09-20T16:40:00.000Z' }];
 
 export function DisciplinePage() {
-  const { event, roster, user } = useAppState();
+  const { event, roster, user, reload } = useAppState();
   const [cards, setCards] = useState<DisciplineCard[]>([]);
   const [form, setForm] = useState({ rosterEntryId: '', color: 'yellow' as 'yellow'|'red', reason: '', notes: '' });
   const [message, setMessage] = useState('');
+  const [dqForm,setDqForm]=useState({rosterEntryId:'',reason:''});
+  const [busy,setBusy]=useState(false);
   useEffect(() => {
     if (!event) return;
     if (!supabase) {
@@ -38,5 +41,17 @@ export function DisciplinePage() {
     setForm({ rosterEntryId:'',color:'yellow',reason:'',notes:'' }); setMessage('Card recorded in the season history.');
   };
   const name=(id?:string)=>roster.find(r=>r.id===id)?.displayName??'Unknown fighter';
-  return <><section className="section-head"><div><span className="eyebrow">Season discipline</span><h1>Cards & Warnings</h1><p>Cards stay tied to both the event and season so repeat issues can be reviewed across events.</p></div></section><div className="admin-grid"><section className="panel-card"><h2>Issue card</h2><div className="form-stack"><label>Competitor<select value={form.rosterEntryId} onChange={e=>setForm(f=>({...f,rosterEntryId:e.target.value}))}><option value="">Choose competitor</option>{roster.filter(r=>r.fighterId).map(r=><option key={r.id} value={r.id}>{r.displayName}</option>)}</select></label><label>Card<select value={form.color} onChange={e=>setForm(f=>({...f,color:e.target.value as 'yellow'|'red'}))}><option value="yellow">Yellow</option><option value="red">Red</option></select></label><label>Reason<input value={form.reason} onChange={e=>setForm(f=>({...f,reason:e.target.value}))}/></label><label>Notes<textarea value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))}/></label><button className="primary big" onClick={save}>Record Card</button></div></section><section className="panel-card"><h2>Season history</h2><div className="discipline-list">{cards.map(card=><article key={card.id}><span className={`card-dot ${card.color}`}></span><div><b>{name(card.rosterEntryId)}</b><p>{card.reason}</p><small>{new Date(card.issuedAt).toLocaleString()}</small></div></article>)}</div></section></div>{message&&<div className="auth-message">{message}</div>}</>;
+  const setDq=async(disqualified:boolean)=>{
+    const entry=roster.find(row=>row.id===dqForm.rosterEntryId);
+    if(!entry)return setMessage('Choose a competitor first.');
+    setBusy(true);setMessage('');
+    try{
+      await setTournamentDisqualification(entry,disqualified,dqForm.reason);
+      await reload();
+      setDqForm({rosterEntryId:'',reason:''});
+      setMessage(disqualified?'Competitor disqualified from this tournament. Existing history was preserved.':'Tournament disqualification cleared. Competition clearance must still be granted again before fighting.');
+    }catch(error){setMessage(error instanceof Error?error.message:'Unable to change tournament disqualification.');}
+    finally{setBusy(false);}
+  };
+  return <><section className="section-head"><div><span className="eyebrow">Season discipline</span><h1>Cards & Warnings</h1><p>Cards stay tied to both the event and season so repeat issues can be reviewed across events.</p></div></section><div className="admin-grid"><section className="panel-card"><h2>Issue card</h2><div className="form-stack"><label>Competitor<select value={form.rosterEntryId} onChange={e=>setForm(f=>({...f,rosterEntryId:e.target.value}))}><option value="">Choose competitor</option>{roster.filter(r=>r.fighterId).map(r=><option key={r.id} value={r.id}>{r.displayName}</option>)}</select></label><label>Card<select value={form.color} onChange={e=>setForm(f=>({...f,color:e.target.value as 'yellow'|'red'}))}><option value="yellow">Yellow</option><option value="red">Red</option></select></label><label>Reason<input value={form.reason} onChange={e=>setForm(f=>({...f,reason:e.target.value}))}/></label><label>Notes<textarea value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))}/></label><button className="primary big" onClick={save}>Record Card</button></div></section><section className="panel-card"><h2>Tournament disqualification</h2><p>A DQ stops future advancement without deleting registration, cards, or completed match history.</p><div className="form-stack"><label>Competitor<select value={dqForm.rosterEntryId} onChange={e=>{const entry=roster.find(row=>row.id===e.target.value);setDqForm({rosterEntryId:e.target.value,reason:String(entry?.metadata?.tournamentDisqualificationReason??'')});}}><option value="">Choose competitor</option>{roster.map(entry=><option key={entry.id} value={entry.id}>{entry.displayName}{entry.metadata?.tournamentDisqualified===true?' · disqualified':''}</option>)}</select></label><label>Reason<input value={dqForm.reason} onChange={e=>setDqForm(form=>({...form,reason:e.target.value}))} placeholder="Required when disqualifying"/></label><div className="header-actions"><button className="primary" disabled={busy||!dqForm.rosterEntryId||!dqForm.reason.trim()} onClick={()=>setDq(true)}>Disqualify</button><button disabled={busy||!dqForm.rosterEntryId} onClick={()=>setDq(false)}>Clear DQ</button></div></div></section><section className="panel-card"><h2>Season history</h2><div className="discipline-list">{cards.map(card=><article key={card.id}><span className={`card-dot ${card.color}`}></span><div><b>{name(card.rosterEntryId)}</b><p>{card.reason}</p><small>{new Date(card.issuedAt).toLocaleString()}</small></div></article>)}</div></section></div>{message&&<div className="auth-message">{message}</div>}</>;
 }
