@@ -21,8 +21,20 @@ export async function addGhostFighter(event: EventRecord, displayName: string, t
 export async function saveBracketPlan(event: EventRecord, plan: GeneratedBracket, options: { id: string; name: string; fightCardId?: string; divisionId?: string; category: string; format?: Bracket['format']; metadata?: Record<string, unknown> }): Promise<string> {
   if (!supabase) {
     const existing = JSON.parse(localStorage.getItem('buhurtos-demo-bracket-matches') ?? '[]');
-    const ids = new Set(plan.matches.map(match => match.id));
-    localStorage.setItem('buhurtos-demo-bracket-matches', JSON.stringify([...existing.filter((match: any) => !ids.has(match.id)), ...plan.matches]));
+    if (existing.some((match: any) => match.bracketId === options.id)) throw new Error('Published demo brackets cannot be regenerated in place. Create a new preview instead.');
+    localStorage.setItem('buhurtos-demo-bracket-matches', JSON.stringify([...existing, ...plan.matches]));
+    const brackets = JSON.parse(localStorage.getItem('buhurtos-demo-brackets') ?? '[]');
+    localStorage.setItem('buhurtos-demo-brackets', JSON.stringify([...brackets, {
+      id: options.id,
+      eventId: event.id,
+      fightCardId: options.fightCardId,
+      divisionId: options.divisionId,
+      name: options.name,
+      format: options.format ?? 'single_elimination',
+      category: options.category,
+      metadata: options.metadata ?? {},
+      publishedAt: new Date().toISOString()
+    }]));
     return options.id;
   }
   const { data, error } = await supabase.rpc('save_bracket_plan', {
