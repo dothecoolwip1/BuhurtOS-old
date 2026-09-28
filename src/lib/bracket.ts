@@ -497,6 +497,8 @@ export function generateDoubleElimination(params: {
 }
 
 
+export type PoolTiebreakCriterion = 'standing_points' | 'wins' | 'head_to_head' | 'differential' | 'points_for' | 'seed';
+
 export interface PoolStanding {
   pool: string;
   rosterEntryId: UUID;
@@ -509,6 +511,7 @@ export interface PoolStanding {
   pointsAgainst: number;
   differential: number;
   standingPoints: number;
+  seed?: number;
 }
 
 export interface PoolQualificationState {
@@ -516,6 +519,8 @@ export interface PoolQualificationState {
   incompleteMatchIds: UUID[];
   pools: Array<{ name: string; standings: PoolStanding[] }>;
   qualifiers: SeededEntry[];
+  tiebreakPolicy: PoolTiebreakCriterion[];
+  unresolvedTies: string[];
 }
 
 function poolNameForMatch(match: MatchRecord): string {
@@ -529,8 +534,20 @@ export function computePoolQualificationState(
   matches: MatchRecord[],
   roster: RosterEntry[],
   bracketId: UUID,
-  qualifiersPerPool = 2
+  qualifiersOrOptions: number | {
+    qualifiersPerPool?: number;
+    tiebreakPolicy?: PoolTiebreakCriterion[];
+  } = 2
 ): PoolQualificationState {
+  const qualifiersPerPool = typeof qualifiersOrOptions === 'number'
+    ? qualifiersOrOptions
+    : qualifiersOrOptions.qualifiersPerPool ?? 2;
+  const tiebreakPolicy: PoolTiebreakCriterion[] = typeof qualifiersOrOptions === 'number'
+    ? ['standing_points','wins','head_to_head','differential','points_for','seed']
+    : qualifiersOrOptions.tiebreakPolicy?.length
+      ? qualifiersOrOptions.tiebreakPolicy
+      : ['standing_points','wins','head_to_head','differential','points_for','seed'];
+
   const poolMatches = matches.filter(match => match.bracketId === bracketId && match.stage === 'pool' && match.status !== 'cancelled');
   const incompleteMatchIds = poolMatches.filter(match => match.status !== 'finalized').map(match => match.id);
   const byPool = new Map<string, MatchRecord[]>();
@@ -540,9 +557,10 @@ export function computePoolQualificationState(
     byPool.get(pool)!.push(match);
   }
 
+  const unresolvedTies: string[] = [];
   const pools = [...byPool.entries()].sort(([a],[b]) => a.localeCompare(b)).map(([pool,poolItems]) => {
     const rows = new Map<UUID, PoolStanding>();
-    const ensure = (id: UUID) => {
+    const ensure = (id: UUID, seed?: number) => {
       if (!rows.has(id)) {
         rows.set(id, {
           pool,
@@ -555,18 +573,26 @@ export function computePoolQualificationState(
           pointsFor: 0,
           pointsAgainst: 0,
           differential: 0,
-          standingPoints: 0
+          standingPoints: 0,
+          seed
         });
+      } else if (seed != null && rows.get(id)!.seed == null) {
+        rows.get(id)!.seed = seed;
       }
       return rows.get(id)!;
     };
 
-    for (const match of poolItems.filter(item => item.status === 'finalized')) {
-      const side1Id = match.participants.find(p => p.sideIndex === 1)?.rosterEntryId;
-      const side2Id = match.participants.find(p => p.sideIndex === 2)?.rosterEntryId;
-      if (!side1Id || !side2Id || !match.resultSummary || match.resultSummary.resultType === 'bye') continue;
-      const left = ensure(side1Id);
-      const right = ensure(side2Id);
+    for (const match of poolItems) {
+      const side1 = match.participants.find(p => p.sideIndex === 1);
+      const side2 = match.participants.find(p => p.sideIndex === 2);
+      if (side1?.rosterEntryId) ensure(side1.rosterEntryId, side1.seed);
+      if (side2?.rosterEntryId) ensure(side2.rosterEntryId, side2.seed);
+      if (match.status !== 'finalized' || !match.resultSummary || match.resultSummary.resultType === 'bye') continue;
+      const side1Id = side1?.rosterEntryId;
+      const side2Id = side2?.rosterEntryId;
+      if (!side1Id || !side2Id) continue;
+      const left = ensure(side1Id, side1?.seed);
+      const right = ensure(side2Id, side2?.seed);
       left.played += 1;
       right.played += 1;
       left.pointsFor += match.resultSummary.side1Total;
@@ -582,15 +608,43 @@ export function computePoolQualificationState(
       }
     }
 
+    const headToHead = (a: PoolStanding, b: PoolStanding): number => {
+      const match = poolItems.find(item => {
+        if (item.status !== 'finalized' || !item.resultSummary) return false;
+        const ids = item.participants.filter(p => p.rosterEntryId).map(p => p.rosterEntryId);
+        return ids.includes(a.rosterEntryId) && ids.includes(b.rosterEntryId);
+      });
+      if (!match?.resultSummary?.winnerSide) return 0;
+      const winnerId = match.participants.find(p => p.sideIndex === match.resultSummary!.winnerSide)?.rosterEntryId;
+      if (winnerId === a.rosterEntryId) return -1;
+      if (winnerId === b.rosterEntryId) return 1;
+      return 0;
+    };
+
+    const compare = (a: PoolStanding, b: PoolStanding, includeStableFallback = true): number => {
+      for (const criterion of tiebreakPolicy) {
+        let result = 0;
+        if (criterion === 'standing_points') result = b.standingPoints - a.standingPoints;
+        else if (criterion === 'wins') result = b.wins - a.wins;
+        else if (criterion === 'head_to_head') result = headToHead(a,b);
+        else if (criterion === 'differential') result = b.differential - a.differential;
+        else if (criterion === 'points_for') result = b.pointsFor - a.pointsFor;
+        else if (criterion === 'seed') result = (a.seed ?? Number.MAX_SAFE_INTEGER) - (b.seed ?? Number.MAX_SAFE_INTEGER);
+        if (result) return result;
+      }
+      return includeStableFallback ? a.rosterEntryId.localeCompare(b.rosterEntryId) : 0;
+    };
+
     const standings = [...rows.values()]
       .map(row => ({ ...row, differential: row.pointsFor - row.pointsAgainst }))
-      .sort((a,b) =>
-        b.standingPoints - a.standingPoints ||
-        b.wins - a.wins ||
-        b.differential - a.differential ||
-        b.pointsFor - a.pointsFor ||
-        a.name.localeCompare(b.name)
-      );
+      .sort((a,b) => compare(a,b));
+
+    for (let index = 1; index < standings.length; index += 1) {
+      if (compare(standings[index - 1],standings[index],false) === 0) {
+        unresolvedTies.push(pool + ': ' + standings[index - 1].name + ' and ' + standings[index].name);
+      }
+    }
+
     return { name: pool, standings };
   });
 
@@ -598,12 +652,24 @@ export function computePoolQualificationState(
   let seed = 1;
   for (let rank = 0; rank < qualifiersPerPool; rank += 1) {
     for (const pool of pools) {
-      const standing = pool.standings[rank];
+      const available = pool.standings.filter(standing => {
+        const entry = roster.find(item => item.id === standing.rosterEntryId);
+        return entry && entry.attendanceStatus !== 'withdrawn' && entry.attendanceStatus !== 'no_show' && entry.metadata?.tournamentDisqualified !== true;
+      });
+      const standing = available[rank];
       if (!standing) continue;
       const entry = roster.find(item => item.id === standing.rosterEntryId);
       if (entry) qualifiers.push({ entry, seed: seed++ });
     }
   }
 
-  return { ready: poolMatches.length > 0 && incompleteMatchIds.length === 0, incompleteMatchIds, pools, qualifiers };
+  return {
+    ready: poolMatches.length > 0 && incompleteMatchIds.length === 0 && unresolvedTies.length === 0,
+    incompleteMatchIds,
+    pools,
+    qualifiers,
+    tiebreakPolicy,
+    unresolvedTies
+  };
 }
+
