@@ -12,6 +12,7 @@ export interface GeneratedBracket {
 }
 
 const uuid = (): UUID => globalThis.crypto?.randomUUID?.() ?? `local-${Math.random().toString(36).slice(2)}-${Date.now()}`;
+const newId = (factory?: () => UUID): UUID => factory?.() ?? uuid();
 
 function nextPowerOfTwo(value: number): number {
   let n = 1;
@@ -43,6 +44,18 @@ function sameTeamCost(slots: Array<SeededEntry | null>, size: number): number {
     }
   }
   return cost;
+}
+
+export function placeSeedsStandard(entries: SeededEntry[]): Array<SeededEntry | null> {
+  const size = nextPowerOfTwo(Math.max(2, entries.length));
+  const slots: Array<SeededEntry | null> = Array(size).fill(null);
+  const ordered = [...entries].sort((a, b) => a.seed - b.seed || a.entry.displayName.localeCompare(b.entry.displayName));
+  const order = bracketSeedOrder(size);
+  ordered.forEach((candidate, index) => {
+    const slot = order.indexOf(index + 1);
+    slots[slot] = candidate;
+  });
+  return slots;
 }
 
 export function placeSeedsAntiFratricide(entries: SeededEntry[]): Array<SeededEntry | null> {
@@ -104,9 +117,11 @@ export function generateSingleElimination(params: {
   matchType: string;
   entries: SeededEntry[];
   scoringConfig: MatchRecord['scoringConfig'];
+  idFactory?: () => UUID;
+  antiFratricide?: boolean;
 }): GeneratedBracket {
   if (params.entries.length < 2) throw new Error('At least two competitors are required to generate a bracket.');
-  const slots = placeSeedsAntiFratricide(params.entries);
+  const slots = params.antiFratricide === false ? placeSeedsStandard(params.entries) : placeSeedsAntiFratricide(params.entries);
   const size = slots.length;
   const rounds = Math.log2(size);
   const matchesByRound: MatchRecord[][] = [];
@@ -116,7 +131,7 @@ export function generateSingleElimination(params: {
     const roundMatches: MatchRecord[] = [];
     for (let index = 0; index < count; index += 1) {
       roundMatches.push({
-        id: uuid(),
+        id: newId(params.idFactory),
         organizationId: params.organizationId,
         seasonId: params.seasonId,
         eventId: params.eventId,
@@ -229,6 +244,7 @@ export function generateRoundRobin(params: {
   scoringConfig: MatchRecord['scoringConfig'];
   labelPrefix?: string;
   orderOffset?: number;
+  idFactory?: () => UUID;
 }): GeneratedBracket {
   if (params.entries.length < 2) throw new Error('At least two competitors are required to generate a round robin.');
   const ordered = [...params.entries].sort((a,b) => a.seed - b.seed || a.entry.displayName.localeCompare(b.entry.displayName));
@@ -238,7 +254,7 @@ export function generateRoundRobin(params: {
     for (let right = left + 1; right < ordered.length; right += 1) {
       order += 1;
       matches.push({
-        id: uuid(),
+        id: newId(params.idFactory),
         organizationId: params.organizationId,
         seasonId: params.seasonId,
         eventId: params.eventId,
@@ -279,6 +295,8 @@ export function generateRoundRobinPools(params: {
   entries: SeededEntry[];
   scoringConfig: MatchRecord['scoringConfig'];
   targetPoolSize?: number;
+  idFactory?: () => UUID;
+  antiFratricide?: boolean;
 }): GeneratedPools {
   if (params.entries.length < 3) throw new Error('At least three competitors are required to generate pools.');
   const targetPoolSize = Math.max(3, params.targetPoolSize ?? 4);
@@ -312,7 +330,8 @@ export function generateRoundRobinPools(params: {
       entries: pool,
       scoringConfig: params.scoringConfig,
       labelPrefix: poolName,
-      orderOffset
+      orderOffset,
+      idFactory: params.idFactory
     });
     generated.matches.forEach(match => {
       match.scheduledOrder = matches.length + 1;
@@ -341,6 +360,8 @@ export function generateDoubleElimination(params: {
   matchType: string;
   entries: SeededEntry[];
   scoringConfig: MatchRecord['scoringConfig'];
+  idFactory?: () => UUID;
+  antiFratricide?: boolean;
 }): GeneratedBracket {
   if (params.entries.length < 4) throw new Error('Double elimination requires at least four competitors.');
   if (nextPowerOfTwo(params.entries.length) !== params.entries.length) throw new Error('Double elimination currently requires a power-of-two field (4, 8, 16, 32). Use pools first when the field size is uneven.');
@@ -360,7 +381,7 @@ export function generateDoubleElimination(params: {
     const roundMatches: MatchRecord[] = [];
     for (let index = 0; index < count; index += 1) {
       roundMatches.push({
-        id: uuid(),
+        id: newId(params.idFactory),
         organizationId: params.organizationId,
         seasonId: params.seasonId,
         eventId: params.eventId,
@@ -424,7 +445,7 @@ export function generateDoubleElimination(params: {
   const upperFinal = (upperByRound.get(upperRounds) ?? [])[0];
   const lowerFinal = lowerByRound[lowerByRound.length - 1][0];
   const grandFinal: MatchRecord = {
-    id: uuid(),
+    id: newId(params.idFactory),
     organizationId: params.organizationId,
     seasonId: params.seasonId,
     eventId: params.eventId,
@@ -447,7 +468,7 @@ export function generateDoubleElimination(params: {
   };
   const resetFinal: MatchRecord = {
     ...structuredClone(grandFinal),
-    id: uuid(),
+    id: newId(params.idFactory),
     label: 'Grand Final Reset • If Required',
     status: 'cancelled',
     scheduledOrder: 9001,
