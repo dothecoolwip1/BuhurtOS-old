@@ -1,20 +1,54 @@
 # BuhurtOS Handoff
 
-Last updated: 2026-09-24
+Last updated: 2026-09-28
 
 ## Resume here
 
-Pack 5 is complete and merged to `main` in PR #9.
+Pack 6 is complete and merged to `main` in PR #10.
 
-Verified Pack 5 implementation head: `d357c6414edeabc2f0034c420207ca1d29fa36ae`.
+Verified Pack 6 implementation head: `789cca1daf8208a6732863409639546744acf52e`.
 
-Successful Pack 5 verification workflow: `36069252396`.
+Successful Pack 6 verification workflow: `36080004581`.
 
-Pack 5 merge commit: `178874356d4a8c4076d1deaa3ffd742d6490f515`.
+Pack 6 merge commit: `c6bbd937ed9a08592ca633325a848e2e765f4382`.
 
 That workflow passed both required jobs: frontend typecheck/tests/production build and a clean Supabase rebuild with all pgTAP database tests.
 
 Do not apply BuhurtOS migrations to the currently connected Supabase project unless it is independently confirmed to be a dedicated BuhurtOS project. The project inspected during Pack 2 contains Northborn, Mallard, and Reavers data and is not the BuhurtOS target.
+
+## Pack 6 files to know
+
+Event and registration workflows:
+
+* `src/lib/eventAdmin.ts`
+* `src/lib/registration.ts`
+* `src/features/AppState.tsx`
+* `src/lib/compliance.ts`
+* `src/pages/EventManagementPage.tsx`
+* `src/pages/RegistrationPage.tsx`
+* `src/pages/RosterPage.tsx`
+* `src/pages/PublicPage.tsx`
+* `src/types.ts`
+
+Database and tests:
+
+* `supabase/migrations/20260925003000_pack6_events_registration.sql`
+* `supabase/tests/database/pack6_events_registration.test.sql`
+* `tests/pack6EventsRegistration.test.ts`
+
+## Pack 6 rules that must remain
+
+* Event registration must use governed event divisions and locked competition context when formal divisions exist.
+* Missing eligibility facts must remain needs-review rather than silently qualifying an entrant.
+* Ineligible or needs-review entrants cannot be approved without the required explicit organizer review path.
+* Event and division capacity must be enforced in PostgreSQL under concurrency, not only in the UI.
+* Duplicate active registrations must remain database-protected.
+* Registration approval, physical check-in, individual clearances, and final marshal competition clearance must remain separate states.
+* Revoking a required physical clearance must revoke final competition clearance.
+* Withdrawal must preserve registration history while preventing further competition.
+* Registration contacts, emergency details, youth facts, waiver information, organizer notes, and account identifiers must not become spectator data.
+* Organizer mutations must remain guarded, auditable, organization-scoped, and stale-write aware.
+* Do not enable paid registration until a real payment provider and verified webhook are implemented.
 
 ## Pack 5 files to know
 
@@ -198,7 +232,7 @@ A dedicated BuhurtOS Supabase project is still required before any remote migrat
 
 Read `BUHURTOS_PLAN.md`, `BUHURTOS_STATUS.md`, and this handoff before continuing.
 
-Treat Pack 5 implementation head `d357c6414edeabc2f0034c420207ca1d29fa36ae`, workflow `36069252396`, and merge commit `178874356d4a8c4076d1deaa3ffd742d6490f515` as the verified governance checkpoint.
+Treat Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e`, workflow `36080004581`, and merge commit `c6bbd937ed9a08592ca633325a848e2e765f4382` as the verified events-and-registration checkpoint.
 
 Before any hosted production claim, select a dedicated BuhurtOS Supabase project and complete the existing hosted verification checklist. Do not use the Northborn/Mallard/Reavers project as a BuhurtOS target.
 
