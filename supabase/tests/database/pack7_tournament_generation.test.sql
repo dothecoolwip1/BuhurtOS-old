@@ -312,6 +312,21 @@ select throws_ok(
   'stale disqualification changes are rejected'
 );
 
+select lives_ok(
+  format(
+    'select public.set_tournament_disqualification_guarded(%L::uuid,%L::timestamptz,false,null)',
+    '71000000-0000-0000-0000-000000000102',
+    (select updated_at::text from public.event_roster_entries where id='71000000-0000-0000-0000-000000000102')
+  ),
+  'disqualification can be cleared without restoring competition clearance'
+);
+
+select ok(
+  (select metadata->>'tournamentDisqualified'='false' and not competition_cleared
+   from public.event_roster_entries where id='71000000-0000-0000-0000-000000000102'),
+  'clearing DQ still requires a fresh final competition clearance'
+);
+
 reset role;
 
 insert into public.brackets(
