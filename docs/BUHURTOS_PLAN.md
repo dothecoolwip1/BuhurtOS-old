@@ -146,7 +146,13 @@ Workflow `36069252396` passed both jobs on the verified implementation head. Hos
 
 ## Pack 6: Events and registration
 
-Status: in progress on branch `pack6-events-registration`.
+Status: complete and merged to `main` in PR #10.
+
+Verified Pack 6 implementation head: `789cca1daf8208a6732863409639546744acf52e`.
+
+Successful Pack 6 verification workflow: `36080004581`.
+
+Pack 6 merge commit: `c6bbd937ed9a08592ca633325a848e2e765f4382`.
 
 Scope:
 
@@ -163,18 +169,20 @@ Scope:
 * Test unrelated organizations, ordinary members, organizers, fighters, anonymous users, deadlines, capacity, duplicate submissions, concurrent edits, withdrawals, cancellation, and historical preservation.
 * Do not expand payment processing in this pack. Existing paid registration behavior remains fail closed until a real provider and verified webhook exist.
 
-Pack 6 is complete only when the final branch head passes both repository CI jobs:
+Pack 6 completion verification passed both required repository CI jobs on the final implementation head:
 
 1. Typecheck, tests and production build.
 2. Clean Supabase startup, database reset from all migrations, and all pgTAP database tests.
 
+Workflow `36080004581` passed both jobs before PR #10 was merged.
+
 ## Later packs
 
-Later product work should start from the verified Pack 5 checkpoint. Preserve the completed identity, authorization, release-hardening, governance, division, and season foundations unless a targeted defect requires change.
+Later product work should start from the verified Pack 6 checkpoint. Preserve the completed identity, authorization, release hardening, governance, division, season, event lifecycle, registration, eligibility, capacity, withdrawal, clearance, privacy, and concurrency foundations unless a targeted defect requires change.
 
 Before starting a later pack:
 
 * Read `BUHURTOS_STATUS.md`.
 * Read `BUHURTOS_HANDOFF.md`.
-* Confirm Pack 5 CI is green on verified implementation head `d357c6414edeabc2f0034c420207ca1d29fa36ae` and that PR #9 is merged.
+* Confirm Pack 6 CI is green on verified implementation head `789cca1daf8208a6732863409639546744acf52e` and that PR #10 is merged.
 * Confirm a dedicated BuhurtOS Supabase project is selected before applying migrations remotely.
