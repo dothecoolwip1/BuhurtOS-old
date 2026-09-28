@@ -419,6 +419,68 @@ $pack7$;
 revoke execute on function public.save_bracket_plan(jsonb,jsonb) from public,anon;
 grant execute on function public.save_bracket_plan(jsonb,jsonb) to authenticated;
 
+create or replace function public.set_tournament_disqualification_guarded(
+  p_roster_entry_id uuid,
+  p_expected_updated_at timestamptz,
+  p_disqualified boolean,
+  p_reason text default null
+)
+returns timestamptz
+language plpgsql
+security invoker
+set search_path=''
+as $pack7dq$
+declare
+  v_entry public.event_roster_entries%rowtype;
+  v_updated timestamptz;
+begin
+  select * into v_entry
+  from public.event_roster_entries
+  where id=p_roster_entry_id
+  for update;
+  if not found then raise exception 'Roster entry not found'; end if;
+
+  if not (
+    private.is_platform_admin((select auth.uid()))
+    or private.has_org_role((select auth.uid()),v_entry.organization_id,array['organization_admin']::public.organization_role[])
+    or private.has_event_role((select auth.uid()),v_entry.event_id,array['event_organizer','field_marshal']::public.event_role[])
+  ) then raise exception 'Not authorized to change tournament disqualification'; end if;
+
+  if p_expected_updated_at is null or v_entry.updated_at<>p_expected_updated_at then
+    raise exception 'Roster entry changed on another device';
+  end if;
+  if p_disqualified and length(trim(coalesce(p_reason,'')))=0 then
+    raise exception 'Disqualification reason is required';
+  end if;
+
+  update public.event_roster_entries
+  set metadata=jsonb_set(
+        jsonb_set(
+          jsonb_set(coalesce(metadata,'{}'::jsonb),'{tournamentDisqualified}',to_jsonb(p_disqualified),true),
+          '{tournamentDisqualificationReason}',to_jsonb(case when p_disqualified then trim(p_reason) else null end),true
+        ),
+        '{tournamentDisqualifiedAt}',to_jsonb(case when p_disqualified then timezone('utc',now())::text else null end),true
+      ),
+      competition_cleared=case when p_disqualified then false else competition_cleared end,
+      competition_cleared_at=case when p_disqualified then null else competition_cleared_at end,
+      last_edited_by=(select auth.uid())
+  where id=p_roster_entry_id
+  returning updated_at into v_updated;
+
+  insert into public.audit_log(organization_id,event_id,actor_user_id,table_name,record_id,action,payload)
+  values (
+    v_entry.organization_id,v_entry.event_id,(select auth.uid()),'event_roster_entries',v_entry.id,
+    case when p_disqualified then 'tournament_disqualify' else 'tournament_disqualification_clear' end,
+    jsonb_build_object('reason',case when p_disqualified then trim(p_reason) else null end)
+  );
+
+  return v_updated;
+end;
+$pack7dq$;
+
+revoke all on function public.set_tournament_disqualification_guarded(uuid,timestamptz,boolean,text) from public,anon;
+grant execute on function public.set_tournament_disqualification_guarded(uuid,timestamptz,boolean,text) to authenticated;
+
 -- Pack 7 allows the forfeiting side to be unavailable, while the winner must remain cleared.
 -- A withdrawn/no-show competitor is not advanced to a lower bracket after the walkover.
 create or replace function public.submit_match_result(
