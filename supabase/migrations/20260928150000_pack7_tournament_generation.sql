@@ -457,9 +457,9 @@ begin
   set metadata=jsonb_set(
         jsonb_set(
           jsonb_set(coalesce(metadata,'{}'::jsonb),'{tournamentDisqualified}',to_jsonb(p_disqualified),true),
-          '{tournamentDisqualificationReason}',to_jsonb(case when p_disqualified then trim(p_reason) else null end),true
+          '{tournamentDisqualificationReason}',case when p_disqualified then to_jsonb(trim(p_reason)) else 'null'::jsonb end,true
         ),
-        '{tournamentDisqualifiedAt}',to_jsonb(case when p_disqualified then timezone('utc',now())::text else null end),true
+        '{tournamentDisqualifiedAt}',case when p_disqualified then to_jsonb(timezone('utc',now())::text) else 'null'::jsonb end,true
       ),
       competition_cleared=case when p_disqualified then false else competition_cleared end,
       competition_cleared_at=case when p_disqualified then null else competition_cleared_at end,
