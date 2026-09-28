@@ -169,17 +169,17 @@ select throws_ok(
 );
 
 select throws_ok(
-  $select public.save_bracket_plan(
+  $$select public.save_bracket_plan(
     '{"id":"71000000-0000-0000-0000-000000000230","eventId":"71000000-0000-0000-0000-000000000030","fightCardId":"","divisionId":"","name":"Unrecorded Random","format":"single_elimination","category":"Longsword","metadata":{"generationConfig":{"seedMethod":"random"}}}'::jsonb,
     '[{"id":"71000000-0000-0000-0000-000000000231","label":"Final","category":"Longsword","matchType":"longsword","scoringConfig":{"kind":"duel","roundsRequired":1},"status":"scheduled","stage":"final","scheduledOrder":1,"participants":[]}]'::jsonb
-  )$,
+  )$$,
   'P0001',
   'Random tournament generation requires a recorded seed',
   'random publication is rejected unless its seed is recorded'
 );
 
 select lives_ok(
-  $select public.save_bracket_plan(
+  $$select public.save_bracket_plan(
     '{
       "id":"71000000-0000-0000-0000-000000000250",
       "eventId":"71000000-0000-0000-0000-000000000030",
@@ -210,7 +210,7 @@ select lives_ok(
         ]
       }
     ]'::jsonb
-  )$,
+  )$$,
   'an unstarted published draw can be safely replaced without deleting history'
 );
 
@@ -231,7 +231,7 @@ set status='active'
 where id='71000000-0000-0000-0000-000000000251';
 
 select throws_ok(
-  $select public.save_bracket_plan(
+  $$select public.save_bracket_plan(
     '{
       "id":"71000000-0000-0000-0000-000000000260",
       "eventId":"71000000-0000-0000-0000-000000000030",
@@ -243,7 +243,7 @@ select throws_ok(
       "metadata":{"supersedesBracketId":"71000000-0000-0000-0000-000000000250"}
     }'::jsonb,
     '[{"id":"71000000-0000-0000-0000-000000000261","label":"Final","category":"Longsword","matchType":"longsword","scoringConfig":{"kind":"duel","roundsRequired":1},"status":"scheduled","stage":"final","scheduledOrder":1,"participants":[]}]'::jsonb
-  )$,
+  )$$,
   'P0001',
   'Tournament has recorded competition and cannot be regenerated',
   'regeneration is blocked after real competition has started'
@@ -273,24 +273,24 @@ select set_config(
 );
 
 select throws_ok(
-  $select public.set_tournament_disqualification_guarded(
+  $$select public.set_tournament_disqualification_guarded(
     '71000000-0000-0000-0000-000000000102',
     current_setting('pack7.bravo_updated')::timestamptz,
     true,
     null
-  )$,
+  )$$,
   'P0001',
   'Disqualification reason is required',
   'tournament disqualification requires an auditable reason'
 );
 
 select lives_ok(
-  $select public.set_tournament_disqualification_guarded(
+  $$select public.set_tournament_disqualification_guarded(
     '71000000-0000-0000-0000-000000000102',
     current_setting('pack7.bravo_updated')::timestamptz,
     true,
     'unsafe conduct'
-  )$,
+  )$$,
   'authorized marshal scope can disqualify an entrant'
 );
 
@@ -301,12 +301,12 @@ select ok(
 );
 
 select throws_ok(
-  $select public.set_tournament_disqualification_guarded(
+  $$select public.set_tournament_disqualification_guarded(
     '71000000-0000-0000-0000-000000000102',
     current_setting('pack7.bravo_updated')::timestamptz,
     false,
     null
-  )$,
+  )$$,
   'P0001',
   'Roster entry changed on another device',
   'stale disqualification changes are rejected'
