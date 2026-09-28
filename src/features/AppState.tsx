@@ -6,6 +6,7 @@ import { isSupabaseConfigured, subscribeToEvent, supabase } from '../lib/supabas
 import { authNoticeForEvent, finishExternalAuthReturn, readExternalAuthReturn, type AuthNotice } from '../lib/auth';
 import { validateScore } from '../lib/scoring';
 import { advanceOutcome } from '../lib/bracket';
+import { checkCompliance } from '../lib/compliance';
 import { enqueueMutation, flushMutationQueue, listMutations } from '../lib/offlineQueue';
 import { loadUserContext } from '../lib/userContext';
 
@@ -268,7 +269,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const winnerId = match.participants.find(p => p.sideIndex === winnerSide)?.rosterEntryId;
       const loserSide = winnerSide === 1 ? 2 : 1;
       const loserId = match.participants.find(p => p.sideIndex === loserSide)?.rosterEntryId;
-      if (winnerId) next = advanceOutcome(next, matchId, winnerId, loserId);
+      const loserEntry = roster.find(entry => entry.id === loserId);
+      const loserCanContinue = Boolean(
+        loserEntry
+        && loserEntry.attendanceStatus !== 'withdrawn'
+        && loserEntry.attendanceStatus !== 'no_show'
+        && loserEntry.metadata?.tournamentDisqualified !== true
+        && checkCompliance(loserEntry).eligible
+      );
+      if (winnerId) next = advanceOutcome(next, matchId, winnerId, loserCanContinue ? loserId : undefined);
     }
     setMatches(next);
     if (!supabase) { localStorage.setItem('buhurtos-demo-matches', JSON.stringify(next)); return; }
