@@ -299,6 +299,16 @@ export interface Bracket {
   format: 'single_elimination' | 'double_elimination' | 'round_robin' | 'pools_to_bracket';
   category: string;
   metadata?: Record<string, unknown>;
+  generationState?: 'published' | 'superseded';
+  generationMethod?: 'legacy' | 'manual' | 'ranking' | 'season' | 'placement' | 'random';
+  randomSeed?: string;
+  generationHash?: string;
+  generationConfig?: Record<string, unknown>;
+  tiebreakPolicy?: string[];
+  qualificationPolicy?: Record<string, unknown>;
+  generationRevision?: number;
+  publishedAt?: string;
+  supersedesBracketId?: UUID;
 }
 
 export interface MatchParticipant {
