@@ -109,7 +109,7 @@ export function AdminPage() {
     const category=selectedEventDivision
       ? String(selectedEventDivision.divisionSnapshot?.name||preset.name)
       : preset.name;
-    const numericValues = Object.fromEntries(chosen.map(entry => [entry.id, Number(seedValues[entry.id])]));
+    const numericValues = Object.fromEntries(chosen.map(entry => [entry.id, seedValues[entry.id]?.trim() ? Number(seedValues[entry.id]) : Number.NaN]));
     return { chosen, governedPreset, category, numericValues };
   };
 
