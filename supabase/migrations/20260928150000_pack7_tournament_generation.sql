@@ -327,7 +327,7 @@ begin
         where r.id=v_roster
           and r.event_id=v_event_id
           and r.can_compete
-          and (v_event_division.id is null or r.event_division_id=v_event_division.id)
+          and (v_event_division.id is null or r.event_division_id is null or r.event_division_id=v_event_division.id)
       ) then raise exception 'Bracket contains a competitor who is not cleared for this event division'; end if;
 
       insert into public.match_participants(
