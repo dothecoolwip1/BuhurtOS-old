@@ -7,7 +7,10 @@ export type PublicDirectoryTeam = {
   email?:string; websiteUrl?:string; contactUrl?:string; latitude?:number; longitude?:number;
   sourceKind?:'hacsa'|'bi_teams'|'bi_ranking'; sourceUrl?:string; verifiedAt?:string;
 };
-export type PublicRosterMember={identityId:string;displayName:string;nickname?:string;avatarPath?:string;bio?:string;publicRegion?:string;role?:string};
+export type PublicRosterMember={
+  identityId?:string; displayName:string; nickname?:string; avatarPath?:string; bio?:string; publicRegion?:string; role?:string;
+  sourceKind?:'buhurtos'|'bi_teams'|'hacsa'|string;
+};
 export type TeamDirectoryFilters={organizationShortName?:string;continentCode?:string;countryCode?:string;adminAreaCode?:string;teamSlug?:string};
 
 export function hacsaFallbackDirectory():PublicDirectoryTeam[]{return hacsaTeams.map(team=>({
@@ -38,6 +41,6 @@ export async function loadPublicTeamDirectory(filters:TeamDirectoryFilters={}):P
 export async function loadPublicTeamRoster(teamId:string):Promise<PublicRosterMember[]>{
  if(!publicSupabase)return[];
  const {data,error}=await publicSupabase.rpc('public_team_roster',{p_team_id:teamId}); if(error)throw error;
- return (data??[]).map((row:any)=>({identityId:row.identity_id,displayName:row.display_name,nickname:row.nickname??undefined,avatarPath:row.avatar_path??undefined,
-  bio:row.bio??undefined,publicRegion:row.public_region??undefined,role:row.role??undefined}));
+ return (data??[]).map((row:any)=>({identityId:row.identity_id??undefined,displayName:row.display_name,nickname:row.nickname??undefined,avatarPath:row.avatar_path??undefined,
+  bio:row.bio??undefined,publicRegion:row.public_region??undefined,role:row.role??undefined,sourceKind:row.source_kind??undefined}));
 }
