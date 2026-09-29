@@ -64,6 +64,7 @@ test('event permissions stay scoped to the assigned event and organization', () 
   const marshal: UserContext = {
     userId: 'marshal',
     displayName: 'Marshal',
+    hasPlatformAccess: true,
     platformRoles: [],
     organizationRoles: [],
     eventRoles: [{ eventId: 'event-a', role: 'field_marshal' }]
@@ -75,6 +76,7 @@ test('event permissions stay scoped to the assigned event and organization', () 
   const orgAdmin: UserContext = {
     userId: 'admin',
     displayName: 'Org Admin',
+    hasPlatformAccess: true,
     platformRoles: [],
     organizationRoles: [{ organizationId: 'org', role: 'organization_admin' }],
     eventRoles: []
