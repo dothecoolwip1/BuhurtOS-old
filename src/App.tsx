@@ -71,7 +71,8 @@ function RouteFallback() {
 
 export function App(){
   return <HashRouter><Suspense fallback={<RouteFallback/>}><Routes>
-    <Route path="/" element={<MarketingHome/>}/>
+    <Route path="/" element={<Navigate to="/public" replace/>}/>
+    <Route path="/about" element={<MarketingHome/>}/>
     <Route element={<ShowcaseShell/>}>
       <Route path="/public" element={<ShowcasePublicPage/>}/>
       <Route path="/home" element={<Navigate to="/public" replace/>}/>
