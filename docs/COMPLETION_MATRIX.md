@@ -42,7 +42,7 @@ only credits real, wired functionality.
 
 | Requirement | Status | Evidence |
 |---|---|---|
-| Governing body / federation → org → season → event → fight card → pool/bracket → match | 🟡 | Org/season/event/card/pool/match on `main`; **federation layer only on branch** `pack4-organizations-clubs-teams` (org-parent relationships). Federation-agnostic data (rulesets/divisions sourced from BI/IMCF/HACSA as seed, never hard-coded root) is on `main` (Pack 5). |
+| Governing body / federation → org → season → event → fight card → pool/bracket → match | ✅ | Full chain on `main`: org/season/event/card/pool/match (Packs 1–6) plus the federation layer (`20261001000000_federation_hierarchy.sql`, `20261004000000_flexible_org_relationship_kinds.sql`) with `organization_relationships` kinds `governs`/`recognizes`/`affiliate`/`sanctioned`/`predecessor`. Federation-agnostic data (rulesets/divisions sourced from BI/IMCF/HACSA as seed, never hard-coded root) is on `main` (Pack 5). |
 | Teams, fighters, ghost/guest/mercenary | ✅ | `teams`, `fighters`, `event_roster_entries.entry_type`, ghost fighter creation in `AdminPage`/`FoundationPage` |
 | Match participants, team lineups, rounds | ✅ | `match_participants`, `match_rounds`, team lineups |
 | Discipline records + suspensions | ✅ | NEW this round: `disciplinary_cards` + `suspensions`, guarded RPCs, data-layer enforcement |
@@ -190,7 +190,7 @@ only credits real, wired functionality.
 | Correct bye exclusion | ✅ | standings logic |
 | Configurable standings/ranking logic | ✅ | standings_mode + ruleset ranking policy |
 | Historical season archive | ✅ | seasons immutable + archived events |
-| Team and/or fighter standings per ruleset | 🟡 | fighter standings present; team-standings mode not fully surfaced |
+| Team and/or fighter standings per ruleset | ✅ | fighter standings (`computeEventStandings`) plus an event **team standings** board (`computeTeamStandings` in `src/lib/standings.ts`) surfaced as a Fighters/Teams toggle on `StandingsPage`; team rows aggregate finalized cross-team fighter bouts (3/1/0, differential/points/wins/name tie-breaks, distinct-fighter count), with a scoped `public.event_teams(event)` RPC resolving names for anonymous viewers in Supabase mode |
 | Future analytics | ❌ | not started |
 
 ## Discipline and Safety History
@@ -269,7 +269,7 @@ only credits real, wired functionality.
 |---|---|---|
 | CSV exports | ✅ | `export.ts` (standings, matches/order of play, discipline cards, suspensions, roster report) |
 | PDF / printable reports | ✅ | `openPrintableReport` wired to standings, bracket order of play, discipline report, registration report (browser print / save-as-PDF) |
-| Event results / standings / rosters / fight cards / brackets / discipline exports | 🟡 | standings, bracket order of play, roster report, discipline cards + suspensions CSV all live; fight-card-level exports not built |
+| Event results / standings / rosters / fight cards / brackets / discipline exports | ✅ | standings (incl. team standings), bracket order of play, roster report, discipline cards + suspensions CSV all live; **fight-card-level exports** added — `fightCardCsv` (card metadata + matches table) wired to the ops active-field header ("Export card CSV", "Print / PDF") and to each field row on `EventManagementPage`, plus inline printable cards |
 | Registration/admin reports | ✅ | roster registration report CSV + printable compliance report (`RosterPage`) |
 | Future analytics | ❌ | not started |
 
@@ -337,17 +337,47 @@ only credits real, wired functionality.
 | Public fighter profile (photo, record, season record, tournament history, podiums, upcoming events) | ✅ | public profile (career record, win rate, podiums, incoming events, tournament history, profile details, socials, gallery); demo surfaces carry the DemoNotice banner |
 | Federation hierarchy (intl → national → regional → local → team → captain → fighter) | ✅ | org/governing-body relationships on `main` (`20261001000000_federation_hierarchy.sql`): `organization_kind` + `organization_relationships` with guarded RPCs; federation-aware dashboard surface still showcase-demo |
 | Federation-agnostic (no hard-coded BI/IMCF/HACSA root) | ✅ | verified: BI/IMCF/HACSA appear only as seed/demo data source; rulesets/divisions are governed entities |
-| Governing-body capabilities (create subordinate orgs, sanction, publish rulesets, official records, discipline jurisdiction) | 🟡 | rulesets publication + sanctioned divisions exist; org-level federation admin only on branch |
+| Governing-body capabilities (create subordinate orgs, sanction, publish rulesets, official records, discipline jurisdiction) | 🟡 | federation **data layer** on `main` via guarded RPCs: `governs`/`recognizes`/`affiliate`/`sanctioned`/`predecessor` org relationships, `organization_ancestors`, ruleset publication + sanctioned divisions. A dedicated federation-admin dashboard UI remains roadmap (the federation-aware showcase surface is demo-labeled). |
 | Ruleset inheritance (parent → addendum → event config) | ✅ | Pack 5 inheritance with cycle checks + event snapshots |
-| Sanctioning and event authority (governing body, sanctioning org, host, classification) | 🟡 | event divisions/snapshots modeled; sanctioning-org UI partial |
-| Flexible org relationships (affiliated/sanctioned/recognized/member/regional/national/predecessor) | 🟡 | core kinds (`governs`/`recognizes`/`affiliate`) live on `main` with guarded RPCs; `sanctioned`/`predecessor`-style kinds not modeled |
+| Sanctioning and event authority (governing body, sanctioning org, host, classification) | 🟡 | event divisions/snapshots modeled; `sanctioned` organization-relationship kind on `main` records a parent sanctioning a child; a dedicated sanctioning-org assignment UI remains partial |
+| Flexible org relationships (affiliated/sanctioned/recognized/member/regional/national/predecessor) | ✅ | `organization_relationships` on `main` carries `governs`/`recognizes`/`affiliate`/`sanctioned`/`predecessor` with guarded upsert/end RPCs (bilateral admin consent, active-duplicate refusal, end/reopen lifecycle, cycle protection) and `organization_ancestors` chains; the new kinds flowed through the existing enum-typed RPCs untouched and are covered by the federation pgTAP suite |
 | Historical organizations (inactive status preserved) | ✅ | `org_status` lifecycle; archived events/history preserved |
 
 ---
 
 ## Round notes (this update)
 
-**CI is green on `main`:** workflow `36537529093` on head `b61dccd` passed all three jobs — frontend (typecheck/tests/production build), the authoritative pgTAP database job (10 suites), and the GitHub Pages deploy. Deployed site live at <https://dothecoolwip1.github.io/BuhurtOS/>. (The Round 13 head `a71c1d0` was superseded by the immediate Round 14 push, so the combined head `b61dccd` carries Rounds 13 + 14; Round 12 docs head `d1be2f0` passed workflow `36535932022`.)
+**CI is green on `main`:** workflow `36567325902` on head `c4d1f6f` passed all three jobs — frontend (typecheck/tests/production build), the authoritative pgTAP database job (12 suites), and the GitHub Pages deploy. Deployed site live at <https://dothecoolwip1.github.io/BuhurtOS/>. (The Round 15 head `7f67eab` was superseded by the immediate Round 16 push, so the combined head `c4d1f6f` carries Rounds 15 + 16; the previous checkpoint `b61dccd` carried Rounds 13 + 14 via workflow `36537529093`.)
+
+Round 16 (completed and pushed as `c4d1f6f`):
+- **Flexible organization relationship kinds** — forward-only enum extension
+  (`20261004000000_flexible_org_relationship_kinds.sql`) adds `sanctioned`
+  (parent sanctions/endorses the child) and `predecessor` (parent historically
+  precedes the child) to `organization_relationship_kind`, giving the order
+  `governs, recognizes, affiliate, sanctioned, predecessor`. The guarded
+  upsert/end RPCs, bilateral admin consent, active-duplicate rule and cycle
+  protection already operate on the enum type, so both kinds flow through
+  unchanged. `federation_hierarchy.test.sql` pins the enum order and adds
+  create/duplicate/cycle/ancestor assertions for both kinds; full 12-suite
+  pgTAP replay green locally.
+
+Round 15 (completed and pushed as `7f67eab`, validated on `c4d1f6f`):
+- **Team standings board + fight-card-level exports** — `computeTeamStandings`
+  (`src/lib/standings.ts`) aggregates finalized cross-team fighter bouts per
+  team (3/1/0; differential → points-for → wins → name; distinct-fighter
+  count), excluding intra-team/unaffiliated/non-finalized/`bye` bouts.
+  `StandingsPage` gains a Fighters/Teams toggle (Teams renders only when the
+  event has teams) with team CSV + printable board; the widget stays
+  fighter-only. Supabase-mode names resolve through the new security-definer
+  `public.event_teams(event)` RPC (`20261003000000_event_teams_public_read.sql`,
+  execute granted to anon/authenticated) so public boards never expose the
+  org-wide team catalog; the demo snapshot derives the same list from
+  `demoEventTeams`. `fightCardCsv` (`export.ts`) wires fight-card-level CSV to
+  the ops active-field header ("Export card CSV", "Print / PDF") and each field
+  row on `EventManagementPage`. 6 tests in `tests/standings.test.ts` plus
+  `export.test.ts` additions (57 tests / 12 files); new
+  `event_teams_public_read.test.sql` suite; verified in-browser (empty state →
+  populated board, both CSV downloads).
 
 Round 14 (completed and pushed as `b61dccd`):
 - **Marathon productized** — the `marathon` preset moves from
@@ -449,7 +479,10 @@ Top remaining product gaps (in priority order):
 
 **None — the planned product gaps are closed.** The last frontier items
 (embeddable widgets + fuller public fighter/team profiles, and the Marathon
-verified flow) shipped in Rounds 13 and 14. Ongoing work remains
-maintenance/expansion: enterprise outcomes such as org-level federation admin
-and production-verified livestream embedding stay on the roadmap as noted in
+verified flow) shipped in Rounds 13 and 14; the three subsequently flagged
+items — a team standings board, fight-card-level exports, and
+`sanctioned`/`predecessor` organization relationship kinds — shipped in Rounds
+15 and 16. Ongoing work remains maintenance/expansion: enterprise outcomes
+such as an org-level federation admin UI, production-verified livestream
+embedding, and the profile photo upload flow stay on the roadmap as noted in
 their individual matrix rows.

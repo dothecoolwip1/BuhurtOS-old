@@ -295,19 +295,64 @@ Scope:
 Verification: full suite 49/49, typecheck and build clean; CI green
 end-to-end.
 
+## Round 15: Team standings board + fight-card-level exports
+
+Status: pushed as `7f67eab`; workflow `36567325902` green end-to-end.
+
+Scope:
+
+* Event **team standings** — `computeTeamStandings` in `src/lib/standings.ts`
+  aggregates finalized cross-team fighter bouts per team (3/1/0 scoring,
+  differential → points-for → wins → name tie-breaks, distinct-fighter count);
+  intra-team, unaffiliated/individual, non-finalized and `bye` bouts earn no
+  team points. `StandingsPage` gains a Fighters/Teams toggle (Teams renders
+  only when the event has teams); the embeddable widget stays fighter-only.
+* `public.event_teams(event)` security-definer RPC (`20261003000000`) lets
+  anonymous viewers resolve the names of teams already published on an event
+  roster without exposing the org-wide team catalog; the demo snapshot derives
+  the same list from demo data.
+* Fight-card-level exports — `fightCardCsv` (card metadata + matches table)
+  wired to the ops active-field header ("Export card CSV", "Print / PDF") and
+  to each field row on `EventManagementPage`.
+
+Verification: 6 assertions in `tests/standings.test.ts` plus `export.test.ts`
+additions (57 tests / 12 files), typecheck and build clean; new
+`event_teams_public_read.test.sql` pgTAP suite; in-browser DOM checks of the
+Teams toggle (empty state then populated), both CSV downloads, and the
+manage-page per-field CSV.
+
+## Round 16: Flexible organization relationship kinds
+
+Status: pushed as `c4d1f6f`; workflow `36567325902` green end-to-end.
+
+Scope:
+
+* Forward-only enum extension adds `sanctioned` (the parent sanctions/endorses
+  the child) and `predecessor` (the parent historically precedes the child) to
+  `organization_relationship_kind` (`20261004000000`). The guarded upsert/end
+  RPCs, bilateral admin consent, active-duplicate rule and cycle protection
+  already operate on the enum type, so both kinds flow through unchanged.
+* The federation pgTAP suite pins the new enum order and proves
+  create/duplicate/cycle/ancestor behavior for each kind.
+
+Verification: `federation_hierarchy.test.sql` extended; full 12-suite pgTAP
+replay green locally; CI green end-to-end.
+
 ## Later packs
 
-**All planned rounds are complete.** Rounds 7–14 (discipline/suspensions,
+**All planned rounds are complete.** Rounds 7–16 (discipline/suspensions,
 pack-9 hardening, combined-restore, Long Axe, federation hierarchy, exports,
-audit completeness, widgets/public profiles, Marathon verified flow) are
-shipped on `main`. Preserve the completed identity, authorization, release
-hardening, governance, division, season, event lifecycle, registration,
-eligibility, capacity, withdrawal, clearance, privacy, concurrency,
-discipline, suspension, offline-queue, public-surface-disambiguation, Long
-Axe, federation-hierarchy, exports, audit-completeness, widgets, and Marathon
-foundations unless a targeted defect requires change. Roadmap-only items
-(org-level federation admin, production-verified livestream embedding, photo
-upload flow) remain as noted in their individual matrix rows.
+audit completeness, widgets/public profiles, Marathon verified flow, team
+standings + fight-card exports, flexible org relationships) are shipped on
+`main`. Preserve the completed identity, authorization, release hardening,
+governance, division, season, event lifecycle, registration, eligibility,
+capacity, withdrawal, clearance, privacy, concurrency, discipline,
+suspension, offline-queue, public-surface-disambiguation, Long Axe,
+federation-hierarchy, exports, audit-completeness, widgets, Marathon,
+team-standings, fight-card-export, and org-relationship foundations unless a
+targeted defect requires change. Roadmap-only items (org-level federation
+admin UI, production-verified livestream embedding, photo upload flow) remain
+as noted in their individual matrix rows.
 
 Before starting a later pack:
 

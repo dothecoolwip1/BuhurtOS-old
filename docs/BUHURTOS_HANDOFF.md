@@ -14,9 +14,9 @@ Pack 6 merge commit: `c6bbd937ed9a08592ca633325a848e2e765f4382`.
 
 That workflow passed both required jobs: frontend typecheck/tests/production build and a clean Supabase rebuild with all pgTAP database tests.
 
-### Current state: Rounds 7–14 on `main`
+### Current state: Rounds 7–16 on `main`
 
-The head of `main` is `b61dccd`. Eight rounds are pushed on top of the Pack 6 checkpoint:
+The head of `main` is `c4d1f6f`. Ten rounds are pushed on top of the Pack 6 checkpoint:
 
 **Round 7 — discipline, suspensions, and offline hardening (`27566ef`):**
 
@@ -62,13 +62,39 @@ Local verification on the corrected head: `npm run typecheck` clean, `npm test` 
 * `competitionFormats.ts` promotes `marathon` from `custom_template` to `verified` (Long Axe precedent): a first-class verified endurance category with `duel(1)` scoring deferred to the sourced ruleset. `governance.test.ts` asserts marathon is in `verifiedCompetitionFormats` and not an organization template.
 * With this, the planned product gap list is closed; the remaining matrix items are roadmap-only (see `docs/COMPLETION_MATRIX.md`).
 
-**CI is green on the combined head `b61dccd`: workflow `36537529093` passed the frontend job, the authoritative pgTAP database job (10 suites), and the GitHub Pages deploy (site live at <https://dothecoolwip1.github.io/BuhurtOS/>).** The Round 13 head `a71c1d0` alone was superseded by the immediate Round 14 push, so its CI evidence is this combined-head run.
+**Round 15 — team standings board + fight-card-level exports (`7f67eab`, validated on combined head `c4d1f6f`):**
+
+* `computeTeamStandings` in `src/lib/standings.ts` rolls finalized cross-team fighter bouts up per team (3/1/0; differential → points-for → wins → name; distinct-fighter count). Intra-team, unaffiliated/individual, non-finalized and `bye` bouts earn no points. `StandingsPage` gains a Fighters/Teams toggle (Teams renders only when the event has teams) with team CSV + printable board; the embeddable widget stays fighter-only.
+* `supabase/migrations/20261003000000_event_teams_public_read.sql` — security-definer `public.event_teams(event)` returns the distinct teams referenced by an event roster (id, name, city/region), execute granted to anon/authenticated, so public team names resolve without exposing the org-wide team catalog. Demo snapshot derives the same from `demoEventTeams`.
+* `fightCardCsv`/`FightCardExportView` in `src/lib/export.ts` wire fight-card-level CSV (card metadata + matches table) to the ops active-field header ("Export card CSV", "Print / PDF") and each field row on `EventManagementPage`.
+* `tests/standings.test.ts` (6) + `tests/export.test.ts` additions; `supabase/tests/database/event_teams_public_read.test.sql`; verified in-browser (toggle empty state → populated board, both CSV downloads).
+
+**Round 16 — flexible organization relationship kinds (`c4d1f6f`, workflow `36567325902` green):**
+
+* `supabase/migrations/20261004000000_flexible_org_relationship_kinds.sql` adds `sanctioned` and `predecessor` to `organization_relationship_kind` (order `governs, recognizes, affiliate, sanctioned, predecessor`). No RPC change was needed — the guarded upsert/end functions take the enum type, so bilateral consent, active-duplicate refusal, lifecycle and cycle protection apply to all kinds; `organization_ancestors` walks them.
+* `federation_hierarchy.test.sql` pins the enum order and proves create/duplicate/cycle/ancestor behavior for both kinds. Full 12-suite pgTAP replay green locally.
+
+**CI is green on the combined head `c4d1f6f`: workflow `36567325902` passed the frontend job, the authoritative pgTAP database job (12 suites), and the GitHub Pages deploy (site live at <https://dothecoolwip1.github.io/BuhurtOS/>).** The Round 15 head `7f67eab` was superseded by the immediate Round 16 push, so its CI evidence is this combined-head run.
 
 **pgTAP error-pattern lesson:** the supabase-bundled pgTAP does not treat `%` as a wildcard in `throws_ok` errmsg, and it does not ship `throws_like` at all. `throws_ok` matches the errmsg argument against the **verbatim full `MESSAGE_TEXT`**. Discipline assertions now pass exact messages (e.g. `Not authorized to revoke suspensions`, `Fighter is under an active suspension until 2026-10-01`). Keep new `throws_ok` message arguments verbatim and full — never partial substrings or `%` wrappers.
 
 Do not apply BuhurtOS migrations to the currently connected Supabase project unless it is independently confirmed to be a dedicated BuhurtOS project. The project inspected during Pack 2 contains Northborn, Mallard, and Reavers data and is not the BuhurtOS target.
 
 ## This round — files to know
+
+Rounds 15 + 16 (team standings + fight-card exports, flexible org relationships):
+
+* `src/lib/standings.ts` (`computeTeamStandings`, `TeamStandingRow`)
+* `src/lib/export.ts` (`fightCardCsv`, `FightCardExportView`, `teamStandingsCsv`)
+* `src/pages/StandingsPage.tsx` (Fighters/Teams toggle, team CSV + print)
+* `src/pages/OpsPage.tsx` (active-field "Export card CSV" / "Print / PDF")
+* `src/pages/EventManagementPage.tsx` (per-field `CSV` in `field-row-actions`)
+* `src/data/demo.ts` (`demoEventTeams`), `src/lib/repository.ts` (`EventSnapshot.teams` → `event_teams` RPC), `src/features/AppState.tsx` (`teams`)
+* `supabase/migrations/20261003000000_event_teams_public_read.sql`
+* `supabase/migrations/20261004000000_flexible_org_relationship_kinds.sql`
+* `supabase/tests/database/event_teams_public_read.test.sql`
+* `supabase/tests/database/federation_hierarchy.test.sql` (extended)
+* `tests/standings.test.ts`, `tests/export.test.ts`
 
 Round 14 (Marathon verified flow):
 
@@ -127,6 +153,10 @@ Round 8 (public-surface disambiguation):
 
 ## This round — rules that must remain
 
+* `public.event_teams(uuid)` must stay a read-only security-definer helper scoped to a single event roster. Do not broaden it to the org-wide team catalog or add data beyond id/name/location; its whole purpose is to publish only teams the event already exposes.
+* Team standings (`computeTeamStandings`) score finalized cross-team fighter bouts only. Intra-team, unaffiliated/individual, non-finalized and `bye` bouts must never earn team points; keep the 3/1/0 plus differential → points-for → wins → name ordering.
+* Organization relationship kinds are extended forward-only (`alter type ... add value`, never removing/reordering existing labels), and the guarded `upsert_organization_relationship` / `end_organization_relationship` RPCs stay the only write path. Every kind must keep bilateral admin consent, active-duplicate refusal, cycle protection and audit capture.
+* Fight-card CSV (`fightCardCsv`) and team-standings CSV (`teamStandingsCsv`) stay pure builders in `src/lib/export.ts`; pages only wire them to download/print actions.
 * Discipline and suspension writes happen only through the guarded RPCs. The old `discipline_write` policy was dropped; direct browser inserts into `disciplinary_cards` must never be re-enabled.
 * Active suspensions block competition clearance in the data layer (`prevent_clearance_while_suspended`), not only in the UI. Do not weaken the trigger or the clearance RPC.
 * `revoke_suspension` authorizes against the target row before mutating (`Not authorized` for unauthorized callers holding a valid id).
@@ -329,7 +359,7 @@ supabase test db
 
 Local SQL validation without Docker uses the replay harness: fresh DB → `supabase_minimal_fixture.sql` → all migrations → `pgtap_shim.sql` role switching → suite via `run_suites.ps1` (see the workspace temp folder, not the repo). The CI `database` job remains authoritative.
 
-GitHub Actions workflow `35954642255` passed both jobs on Pack 3 implementation head `2ffab73e9e403ab8c0325ef18a441ed5fe09319e` before merge. Mega Pack 4 workflow `35999176785` passed both jobs on implementation head `07107630551711945284cabfac3de1c3ca86cc58`. Round 7 head `27566ef` passed the frontend job on workflow `36531121109` but its database job failed on the stale `mega4_release_hardening` discipline assertion (corrected in `3b52176`); the discipline suite's error-pattern semantics were corrected in `435b140`/`187862c`; the combined head `187862c` passed **workflow `36533390822` green end-to-end**, Round 10 (federation hierarchy, head `b4b3795`) passed **workflow `36534422890` green end-to-end**, Round 11 (broader exports, head `5e67501`) passed **workflow `36535409276` green end-to-end**, Round 12 (audit completeness, head `de109b9`) passed **workflow `36536214636` green end-to-end**, and Rounds 13 + 14 (widgets/public profiles + Marathon, combined head `b61dccd`) passed **workflow `36537529093` green end-to-end** (frontend job, pgTAP database job with 10 suites from Round 12 on, and GitHub Pages deploy each time; the docs-only heads `f4b7844` and `d1be2f0` passed workflows `36535061871` and `36535932022`; the Round 13 head `a71c1d0` was superseded by the Round 14 push and its evidence is the combined-head run).
+GitHub Actions workflow `35954642255` passed both jobs on Pack 3 implementation head `2ffab73e9e403ab8c0325ef18a441ed5fe09319e` before merge. Mega Pack 4 workflow `35999176785` passed both jobs on implementation head `07107630551711945284cabfac3de1c3ca86cc58`. Round 7 head `27566ef` passed the frontend job on workflow `36531121109` but its database job failed on the stale `mega4_release_hardening` discipline assertion (corrected in `3b52176`); the discipline suite's error-pattern semantics were corrected in `435b140`/`187862c`; the combined head `187862c` passed **workflow `36533390822` green end-to-end**, Round 10 (federation hierarchy, head `b4b3795`) passed **workflow `36534422890` green end-to-end**, Round 11 (broader exports, head `5e67501`) passed **workflow `36535409276` green end-to-end**, Round 12 (audit completeness, head `de109b9`) passed **workflow `36536214636` green end-to-end**, and Rounds 13 + 14 (widgets/public profiles + Marathon, combined head `b61dccd`) passed **workflow `36537529093` green end-to-end** (frontend job, pgTAP database job with 10 suites from Round 12 on, and GitHub Pages deploy each time; the docs-only heads `f4b7844` and `d1be2f0` passed workflows `36535061871` and `36535932022`; the Round 13 head `a71c1d0` was superseded by the Round 14 push and its evidence is the combined-head run), and Rounds 15 + 16 (team standings + fight-card exports, flexible org relationships, combined head `c4d1f6f`) passed **workflow `36567325902` green end-to-end** (frontend job, pgTAP database job now covering 12 suites, and Pages deploy).
 
 The Pack 3 database suite contains 49 identity-specific assertions in addition to the earlier Pack 1 and Pack 2 database suites. It covers public and private access, profile concurrency, youth privacy, claim approval, rejection and disputes, unauthorized edits, affiliation transitions, duplicate suggestions, merge preservation, conflicting owners, rollback, and auditing.
 
@@ -354,9 +384,9 @@ A dedicated BuhurtOS Supabase project is still required before any remote migrat
 
 Read `BUHURTOS_PLAN.md`, `BUHURTOS_STATUS.md`, `docs/COMPLETION_MATRIX.md`, and this handoff before continuing.
 
-Treat Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e`, workflow `36080004581`, and merge commit `c6bbd937ed9a08592ca633325a848e2e765f4382` as the verified events-and-registration checkpoint. Treat Rounds 7–14 (head `b61dccd`, described at the top of this handoff) as the current checkpoint, verified green by workflow `36537529093`.
+Treat Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e`, workflow `36080004581`, and merge commit `c6bbd937ed9a08592ca633325a848e2e765f4382` as the verified events-and-registration checkpoint. Treat Rounds 7–16 (head `c4d1f6f`, described at the top of this handoff) as the current checkpoint, verified green by workflow `36567325902`.
 
-**The planned product gap list is closed.** Rounds 13 (widgets + fuller public profiles) and 14 (Marathon verified flow) cleared the last frontier items. Roadmap-only work remains as noted in `docs/COMPLETION_MATRIX.md` (e.g., org-level federation admin, production-verified livestream embedding, profile photo upload flow).
+**The planned product gap list is closed, including the last three flagged items.** Rounds 13–14 cleared the widgets/public-profiles and Marathon frontier items; Round 15 added the team standings board and fight-card-level exports; Round 16 added the `sanctioned`/`predecessor` organization relationship kinds. Roadmap-only work remains as noted in `docs/COMPLETION_MATRIX.md` (e.g., org-level federation admin UI, production-verified livestream embedding, profile photo upload flow).
 
 Before any hosted production claim, select a dedicated BuhurtOS Supabase project and complete the existing hosted verification checklist. Do not use the Northborn/Mallard/Reavers project as a BuhurtOS target.
 

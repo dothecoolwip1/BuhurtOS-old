@@ -13,7 +13,8 @@ The current project contains:
 * Automatic bye handling
 * Fighter and ghost fighter roster management
 * Event safety and compliance gates
-* Event and season standings support
+* Event, season, and team standings support (fighter and team boards)
+* Fight-card-level CSV exports and printable cards
 * Discipline tracking
 * Team and marshal fight notes
 * Public spectator view and supported livestream embeds
