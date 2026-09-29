@@ -404,7 +404,7 @@ The separate branch `pack4-organizations-clubs-teams` and closed draft PR #7 con
 
 BuhurtOS is now deployed to the dedicated Supabase project `tapfpboszgoftbwcwsmn` in organization `vbxznwtocyorcfghzdfo`. Use this project exclusively for BuhurtOS. Never apply BuhurtOS migrations or functions to the Northborn/Mallard/Reavers project.
 
-All repository migrations plus the hosted privilege-hardening migrations are applied. The four Edge Functions are active, both storage buckets are private, Realtime publication is configured, RLS is enabled on every public table, and production GitHub Pages builds use the modern public publishable key. Secret/service-role credentials remain server-side only.
+All repository migrations plus the hosted privilege-hardening and waiver-policy follow-up migrations are applied. The four Edge Functions are active, both storage buckets are private, Realtime publication is configured, RLS is enabled on every public table, and production GitHub Pages builds use the modern public publishable key. Secret/service-role credentials remain server-side only.
 
 The hosted access hardening intentionally makes new Data API exposure opt-in for objects created by the repository migration role. Keep explicit GRANT statements beside RLS policies in future migrations.
 
