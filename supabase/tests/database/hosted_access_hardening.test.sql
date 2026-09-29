@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(27);
+select plan(28);
 
 select ok(not has_table_privilege('anon','public.club_memberships','SELECT'),
   'anonymous cannot discover club memberships');
@@ -70,6 +70,14 @@ select ok(not has_sequence_privilege('anon','public.__buhurtos_default_acl_probe
   'new public sequences are not auto-usable by anon');
 select ok(not has_sequence_privilege('authenticated','public.__buhurtos_default_acl_probe_seq','USAGE'),
   'new public sequences are not auto-usable by authenticated');
+
+select ok(
+  position(
+    'storage.objects.name'
+    in (select qual from pg_policies where schemaname='storage' and tablename='objects' and policyname='waiver_staff_read')
+  ) > 0,
+  'waiver staff policy compares against the storage object path'
+);
 
 select * from finish();
 rollback;
