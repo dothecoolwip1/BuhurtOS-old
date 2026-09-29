@@ -1,12 +1,13 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { previewRoleLabels, usePreviewMode, type PreviewRole } from '../features/PreviewMode';
+import { DemoNotice } from './DemoNotice';
 
 const navByRole: Record<PreviewRole, Array<[string,string,string]>> = {
   bi_admin: [['/home','Overview','◫'],['/governance','Governance','⌘'],['/teams','Teams','♜'],['/fighters','Fighters','♟'],['/events','Events','⚔'],['/rankings','Rankings','↗'],['/rules','Rulesets','§'],['/public','Public Arena','◎']],
   hacsa_admin: [['/home','Overview','◫'],['/governance','HACSA','⌘'],['/teams','Teams','♜'],['/fighters','Fighters','♟'],['/events','Events','⚔'],['/rankings','Rankings','↗'],['/rules','Rulesets','§'],['/public','Public Arena','◎']],
   captain: [['/home','Captain Home','◫'],['/team-hq','Team HQ','♜'],['/fighters','Roster','♟'],['/events','Events','⚔'],['/rankings','Rankings','↗'],['/public','Public Arena','◎']],
   fighter: [['/home','My Home','◫'],['/me','My Profile','♟'],['/events','Events','⚔'],['/rankings','Rankings','↗'],['/teams','Teams','♜'],['/public','Public Arena','◎']],
-  spectator: [['/public','Live Now','●'],['/events','Events','⚔'],['/rankings','Rankings','↗'],['/fighters','Fighters','♟'],['/teams','Teams','♜']]
+  spectator: [['/public','Public Arena','◎'],['/events','Events','⚔'],['/rankings','Rankings','↗'],['/fighters','Fighters','♟'],['/teams','Teams','♜']]
 };
 
 export function ShowcaseShell(){
@@ -29,10 +30,10 @@ export function ShowcaseShell(){
     <main className="show-main">
       <header className="show-topbar">
         <div className="show-mobile-brand"><span className="show-brand-mark">B</span><b>{activeLabel}</b></div>
-        <div className="show-top-context"><span className="show-live-dot"></span><span>HACSA Fall Open</span><small>Prototype</small></div>
+        <div className="show-top-context"><span className="show-demo-pill">DEMO</span><span>Sample event · HACSA Fall Open</span></div>
         <label className="show-role-picker"><span>Preview as</span><select value={role} onChange={e=>switchRole(e.target.value as PreviewRole)}>{Object.entries(previewRoleLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
       </header>
-      <div className="show-content"><Outlet/></div>
+      <div className="show-content"><DemoNotice compact/><Outlet/></div>
     </main>
     <nav className="show-bottom-nav">{nav.slice(0,5).map(([to,label,icon])=><NavLink key={to} to={to}><span>{icon}</span><small>{label}</small></NavLink>)}</nav>
   </div>;

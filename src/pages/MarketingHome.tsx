@@ -91,9 +91,9 @@ export function MarketingHome(){
         </div>
         <div className="marketing-hero-ui">
           <div className="marketing-window">
-            <div className="marketing-window-top"><span></span><span></span><span></span><b>HACSA Fall Open</b><small>LIVE</small></div>
+            <div className="marketing-window-top"><span></span><span></span><span></span><b>HACSA Fall Open</b><small>DEMO</small></div>
             <div className="marketing-window-body">
-              <div className="marketing-demo-head"><div><small>FIELD 1 • 5V5</small><b>Live now</b></div><strong>00:42</strong></div>
+              <div className="marketing-demo-head"><div><small>FIELD 1 • 5V5</small><b>Sample match</b></div><strong>00:42</strong></div>
               <div className="marketing-demo-score">
                 <div><span className="marketing-team-mark purple">RR</span><b>Red Deer<br/>Reavers</b><strong>1</strong></div>
                 <i>VS</i>
