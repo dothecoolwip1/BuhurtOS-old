@@ -376,6 +376,25 @@ Until a dedicated BuhurtOS project is available, these remain unverified:
 These are infrastructure verification items, not claims of successful production deployment.
 
 
+## Hosted BuhurtOS Supabase deployment
+
+The dedicated hosted backend is now project `tapfpboszgoftbwcwsmn` named **BuhurtOS** inside Supabase organization `vbxznwtocyorcfghzdfo`. This project is the only permitted hosted Supabase target for BuhurtOS. The Northborn/Mallard/Reavers project remains prohibited.
+
+Hosted deployment completed on 2026-09-29:
+
+* Restored the dedicated project and verified it was empty before deployment.
+* Applied all 28 repository migrations in order, then applied two forward hosted-access hardening migrations.
+* Verified all 41 public tables have RLS enabled.
+* Removed legacy automatic anonymous/authenticated write grants from membership, suspension, federation-relationship, and ruleset surfaces according to their intended access models.
+* Disabled automatic Data API grants for future objects created by the repository migration role. Live probes confirm new tables, sequences, and functions are not automatically available to `anon`, `authenticated`, or `service_role`.
+* Deployed all four Edge Functions: `upload-waiver`, `create-registration-checkout`, `fighter-avatar`, and `invite-event-member`.
+* Verified the `waivers` and `fighter-avatars` buckets are private with the intended size/MIME restrictions.
+* Verified `events`, `matches`, `fight_cards`, `event_roster_entries`, and `announcements` are in the Realtime publication.
+* Generated hosted TypeScript schema types successfully.
+* Security Advisor warnings remaining are deliberate API visibility / SECURITY DEFINER warnings for RLS-backed public sporting data and guarded public helper functions; accidental anonymous membership/suspension visibility was removed.
+
+GitHub Pages production builds are configured to use the project URL and modern publishable key. No service-role or secret key is stored in GitHub.
+
 ## Source-backed HACSA teams and BI marshal reference
 
 Implementation branch `feature/hacsa-bi-marshal-reference` replaces fabricated showcase team facts with the 10 public teams currently listed by HACSA, verified 2026-09-29. HACSA is source priority 1; BI Teams and BI Official Ranking are explicitly staged as the next team sources.
