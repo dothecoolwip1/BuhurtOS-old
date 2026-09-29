@@ -1,37 +1,73 @@
-import { useState, type CSSProperties } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { demoFighters, demoTeams } from '../data/showcase';
-import { Avatar, Panel, Pill } from '../components/ShowcaseUI';
-import { shareCurrentPage } from '../lib/share';
+import { getHacsaTeam } from '../data/hacsaTeams';
+import { Panel, Pill } from '../components/ShowcaseUI';
+
+function initials(name: string) {
+  return name
+    .replace(/^The\s+/i, '')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 3)
+    .map(part => part[0]?.toUpperCase())
+    .join('');
+}
 
 export function TeamPage(){
   const {teamId='reavers'}=useParams();
-  const team=demoTeams.find(t=>t.id===teamId)??demoTeams[0];
-  const members=demoFighters.filter(f=>f.teamId===team.id);
-  const [shareMessage,setShareMessage]=useState('');
-  const share=async()=>{
-    try{
-      const result=await shareCurrentPage(team.name,team.bio);
-      setShareMessage(result==='copied'?'Team link copied.':'Team shared.');
-    }catch(error){
-      setShareMessage(error instanceof Error?error.message:'Unable to share this team.');
-    }
-  };
+  const team=getHacsaTeam(teamId);
+
+  if(!team){
+    return <div className="state-card">
+      <h2>Team not found</h2>
+      <p>This team is not in the current HACSA source snapshot.</p>
+      <Link className="show-btn secondary" to="/teams">Back to HACSA teams</Link>
+    </div>;
+  }
+
   return <>
-    <div className="show-profile-hero team" style={{'--profile-accent':team.color} as CSSProperties}><div className="show-team-logo-xl">{team.logoText}</div><div className="grow"><span className="eyebrow">HACSA TEAM</span><h1>{team.name}</h1><p>{team.city} • Founded {team.founded}</p><div className="show-inline-pills"><Pill tone="green">{team.status}</Pill><Pill>{members.length} profiled fighters</Pill></div></div><button className="show-btn secondary" onClick={share}>Share team</button></div>
-    {shareMessage&&<div className="auth-message">{shareMessage}</div>}
+    <div className="show-profile-hero team official-team-hero">
+      <div className="show-team-logo-xl">{initials(team.name)}</div>
+      <div className="grow">
+        <span className="eyebrow">HACSA OFFICIAL DIRECTORY</span>
+        <h1>{team.name}</h1>
+        <p>{team.location}</p>
+        <div className="show-inline-pills"><Pill tone="green">Source-backed</Pill><Pill>Verified {team.verifiedAt}</Pill></div>
+      </div>
+      <a className="show-btn secondary" href={team.sourceUrl} target="_blank" rel="noopener noreferrer">View source ↗</a>
+    </div>
+
     <div className="show-two-col wide-left">
       <div className="show-stack">
-        <Panel title="About"><p className="show-long-copy">{team.bio} The team profile follows the team through seasons and leadership changes, while individual fighter records remain attached to permanent fighter identities.</p></Panel>
-        <Panel title="Fighters" subtitle="Public roster"><div className="show-member-grid">{members.map(f=><Link to={`/fighters/${f.id}`} key={f.id}><Avatar initials={f.name.split(' ').map(x=>x[0]).join('').slice(0,2)} tone={f.photoTone} size="lg"/><div><b>{f.fighterName}</b><small>{f.categories.slice(0,2).join(' • ')}</small><span>{f.record.wins}–{f.record.losses}–{f.record.draws}</span></div></Link>)}</div></Panel>
+        <Panel title="Official HACSA information" subtitle="Only fields published by HACSA are shown as source facts.">
+          <div className="show-detail-rows">
+            <div><span>Team</span><b>{team.name}</b></div>
+            <div><span>Location</span><b>{team.location}</b></div>
+            <div><span>Public email</span><a href={`mailto:${team.email}`}>{team.email}</a></div>
+            <div><span>Source checked</span><b>{team.verifiedAt}</b></div>
+          </div>
+        </Panel>
+
+        <Panel title="BuhurtOS team record">
+          <div className="source-empty-state">
+            <strong>No invented roster or statistics</strong>
+            <p>HACSA's public team directory does not publish a roster, member count, founding year or competition record for this listing. BuhurtOS will attach those fields only when they come from an approved source or from the team itself.</p>
+          </div>
+        </Panel>
       </div>
+
       <div className="show-stack">
-        <Panel title="Team record"><div className="show-record-big"><strong>24–11</strong><span>2026 season</span></div><div className="show-detail-rows"><div><span>HACSA rank</span><b>#2</b></div><div><span>Podiums</span><b>5</b></div><div><span>Events</span><b>7</b></div><div><span>Captain</span><b>{team.captain}</b></div></div></Panel>
-        <Panel title="Next event"><span className="eyebrow">SEP 26–27</span><h3>HACSA Fall Open</h3><p className="muted">Springbrook, AB</p><Link className="show-btn primary full" to="/events/fall-open">View event</Link></Panel>
-        {team.seasonResults && team.seasonResults.length > 0 ? <Panel title="Season results"><div className="show-results-list">{team.seasonResults.map((r,i)=>(
-          <article key={i}><div><div><b>{r.event}</b></div></div><strong>{r.result}</strong></article>
-        ))}</div></Panel> : null}
-        {team.socials && team.socials.length > 0 ? <Panel title="Socials"><div className="show-social-row">{team.socials.map(s=><a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" className="show-btn secondary">{s.label} ↗</a>)}</div></Panel> : null}
+        <Panel title="Contact">
+          <a className="show-btn primary full" href={`mailto:${team.email}`}>Email team</a>
+          {team.websiteUrl?<a className="show-btn secondary full" href={team.websiteUrl} target="_blank" rel="noopener noreferrer">Team website ↗</a>:null}
+          {team.contactUrl?<a className="show-btn secondary full" href={team.contactUrl} target="_blank" rel="noopener noreferrer">Team contact ↗</a>:null}
+        </Panel>
+        <Panel title="Source priority">
+          <div className="source-priority-list">
+            <div className="active"><span>1</span><div><b>HACSA Teams</b><small>Current primary source</small></div></div>
+            <div><span>2</span><div><b>BI Teams</b><small>Next integration</small></div></div>
+            <div><span>3</span><div><b>BI Official Ranking</b><small>Ranking and competition enrichment</small></div></div>
+          </div>
+        </Panel>
       </div>
     </div>
   </>;
