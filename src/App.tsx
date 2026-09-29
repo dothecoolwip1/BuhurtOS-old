@@ -41,6 +41,7 @@ const OrganizationManagementPage = lazy(() => import('./pages/OrganizationManage
 const MembershipInvitePage = lazy(() => import('./pages/MembershipInvitePage').then(module => ({ default: module.MembershipInvitePage })));
 const AccessCodePage = lazy(() => import('./pages/AccessCodePage').then(module => ({ default: module.AccessCodePage })));
 const AccessAdminPage = lazy(() => import('./pages/AccessAdminPage').then(module => ({ default: module.AccessAdminPage })));
+const PlatformControlPage = lazy(() => import('./pages/PlatformControlPage').then(module => ({ default: module.PlatformControlPage })));
 
 function OperationsProvider() {
   return <AppStateProvider><Outlet /></AppStateProvider>;
@@ -106,6 +107,7 @@ export function App(){
         <Route path="invite" element={<MembershipInvitePage/>}/>
         <Route path="access" element={<AccessCodePage/>}/>
         <Route path="access-admin" element={<AccessAdminPage/>}/>
+        <Route path="platform" element={<PlatformControlPage/>}/>
         <Route path="foundation" element={<FoundationPage/>}/>
         <Route path="rulesets" element={<RulesetsPage/>}/>
         <Route path="marshal-reference" element={<ShowcaseRulesPage/>}/>
