@@ -9,7 +9,9 @@
 alter table public.teams
   add column if not exists directory_slug text,
   add column if not exists continent_code text,
+  add column if not exists continent_name text,
   add column if not exists country_code text,
+  add column if not exists country_name text,
   add column if not exists admin_area_code text,
   add column if not exists admin_area_name text;
 
@@ -84,19 +86,19 @@ on conflict (id) do update set
 insert into public.teams (
   id, organization_id, name, city_or_region, is_active, status, visibility,
   public_description, website_url, public_contact_email, directory_slug,
-  continent_code, country_code, admin_area_code, admin_area_name
+  continent_code, continent_name, country_code, country_name, admin_area_code, admin_area_name
 )
 values
-  ('5d10339e-5f1f-5eaf-bd3b-be347e4d7e02','46b106c2-59d3-5053-9ecc-aa71778a581e','The Company of the Silver Gryphons','Calgary (North)',true,'active','public','Current public HACSA team listing.',null,'SilverGryphons@hacsacanada.com','silver-gryphons','NA','CA','AB','Alberta'),
-  ('a650266e-ec13-5f28-b49c-9d714e922b3a','46b106c2-59d3-5053-9ecc-aa71778a581e','Horde','Drayton Valley',true,'active','public','Current public HACSA team listing.',null,'brozell.br@gmail.com','horde','NA','CA','AB','Alberta'),
-  ('bb951b9b-37db-5552-9583-c03e7e4dd6df','46b106c2-59d3-5053-9ecc-aa71778a581e','The Crimson Blades','West Edmonton',true,'active','public','Current public HACSA team listing.',null,'info@hacsacanada.com','crimson-blades','NA','CA','AB','Alberta'),
-  ('c635864d-1912-5f79-8313-bbb221d1ce57','46b106c2-59d3-5053-9ecc-aa71778a581e','The Company of the Black Spears','Lethbridge',true,'active','public','Current public HACSA team listing.',null,'lethbridgeblackspears@gmail.com','black-spears','NA','CA','AB','Alberta'),
-  ('93a5985b-c896-5c47-b298-6770fb49db83','46b106c2-59d3-5053-9ecc-aa71778a581e','Mace Company Manitoba','Winnipeg',true,'active','public','Current public HACSA team listing.','https://macecompany.ca','macecompanymanitoba@gmail.com','mace-company-manitoba','NA','CA','MB','Manitoba'),
-  ('2f2c7b31-e9b6-5e6f-84da-0e95626fbf7c','46b106c2-59d3-5053-9ecc-aa71778a581e','Reavers','Red Deer',true,'active','public','Current public HACSA team listing.',null,'kedrixx.streit@gmail.com','reavers','NA','CA','AB','Alberta'),
-  ('37f2d522-716a-5eae-b134-7621a107edde','46b106c2-59d3-5053-9ecc-aa71778a581e','The Oath Bearers','Regina',true,'active','public','Current public HACSA team listing.',null,'Duster18@hotmail.com','oath-bearers','NA','CA','SK','Saskatchewan'),
-  ('2a3bea9c-6fc1-5b38-8658-fea020b5fd3c','46b106c2-59d3-5053-9ecc-aa71778a581e','Vanguard','Vancouver',true,'active','public','Current public HACSA team listing.',null,'vancityvanguard@gmail.com','vanguard','NA','CA','BC','British Columbia'),
-  ('d11952da-9e05-5628-a6ff-858d4328d4e7','46b106c2-59d3-5053-9ecc-aa71778a581e','Strathcona Warhorse','East Edmonton',true,'active','public','Current public HACSA team listing.',null,'strathconawarhorse@gmail.com','strathcona-warhorse','NA','CA','AB','Alberta'),
-  ('d753ed37-a6f6-5e2c-a14c-ff95eb3105f8','46b106c2-59d3-5053-9ecc-aa71778a581e','Arverni Legion','Alberta Foothills',true,'active','public','Current public HACSA team listing.',null,'Arverni_legion@outlook.com','arverni-legion','NA','CA','AB','Alberta')
+  ('5d10339e-5f1f-5eaf-bd3b-be347e4d7e02','46b106c2-59d3-5053-9ecc-aa71778a581e','The Company of the Silver Gryphons','Calgary (North)',true,'active','public','Current public HACSA team listing.',null,'SilverGryphons@hacsacanada.com','silver-gryphons','NA','North America','CA','Canada','AB','Alberta'),
+  ('a650266e-ec13-5f28-b49c-9d714e922b3a','46b106c2-59d3-5053-9ecc-aa71778a581e','Horde','Drayton Valley',true,'active','public','Current public HACSA team listing.',null,'brozell.br@gmail.com','horde','NA','North America','CA','Canada','AB','Alberta'),
+  ('bb951b9b-37db-5552-9583-c03e7e4dd6df','46b106c2-59d3-5053-9ecc-aa71778a581e','The Crimson Blades','West Edmonton',true,'active','public','Current public HACSA team listing.',null,'info@hacsacanada.com','crimson-blades','NA','North America','CA','Canada','AB','Alberta'),
+  ('c635864d-1912-5f79-8313-bbb221d1ce57','46b106c2-59d3-5053-9ecc-aa71778a581e','The Company of the Black Spears','Lethbridge',true,'active','public','Current public HACSA team listing.',null,'lethbridgeblackspears@gmail.com','black-spears','NA','North America','CA','Canada','AB','Alberta'),
+  ('93a5985b-c896-5c47-b298-6770fb49db83','46b106c2-59d3-5053-9ecc-aa71778a581e','Mace Company Manitoba','Winnipeg',true,'active','public','Current public HACSA team listing.','https://macecompany.ca','macecompanymanitoba@gmail.com','mace-company-manitoba','NA','North America','CA','Canada','MB','Manitoba'),
+  ('2f2c7b31-e9b6-5e6f-84da-0e95626fbf7c','46b106c2-59d3-5053-9ecc-aa71778a581e','Reavers','Red Deer',true,'active','public','Current public HACSA team listing.',null,'kedrixx.streit@gmail.com','reavers','NA','North America','CA','Canada','AB','Alberta'),
+  ('37f2d522-716a-5eae-b134-7621a107edde','46b106c2-59d3-5053-9ecc-aa71778a581e','The Oath Bearers','Regina',true,'active','public','Current public HACSA team listing.',null,'Duster18@hotmail.com','oath-bearers','NA','North America','CA','Canada','SK','Saskatchewan'),
+  ('2a3bea9c-6fc1-5b38-8658-fea020b5fd3c','46b106c2-59d3-5053-9ecc-aa71778a581e','Vanguard','Vancouver',true,'active','public','Current public HACSA team listing.',null,'vancityvanguard@gmail.com','vanguard','NA','North America','CA','Canada','BC','British Columbia'),
+  ('d11952da-9e05-5628-a6ff-858d4328d4e7','46b106c2-59d3-5053-9ecc-aa71778a581e','Strathcona Warhorse','East Edmonton',true,'active','public','Current public HACSA team listing.',null,'strathconawarhorse@gmail.com','strathcona-warhorse','NA','North America','CA','Canada','AB','Alberta'),
+  ('d753ed37-a6f6-5e2c-a14c-ff95eb3105f8','46b106c2-59d3-5053-9ecc-aa71778a581e','Arverni Legion','Alberta Foothills',true,'active','public','Current public HACSA team listing.',null,'Arverni_legion@outlook.com','arverni-legion','NA','North America','CA','Canada','AB','Alberta')
 on conflict (id) do update set
   organization_id = excluded.organization_id,
   name = excluded.name,
@@ -109,7 +111,9 @@ on conflict (id) do update set
   public_contact_email = excluded.public_contact_email,
   directory_slug = excluded.directory_slug,
   continent_code = excluded.continent_code,
+  continent_name = excluded.continent_name,
   country_code = excluded.country_code,
+  country_name = excluded.country_name,
   admin_area_code = excluded.admin_area_code,
   admin_area_name = excluded.admin_area_name,
   updated_at = timezone('utc', now());
@@ -160,7 +164,9 @@ returns table(
   team_name text,
   city_or_region text,
   continent_code text,
+  continent_name text,
   country_code text,
+  country_name text,
   admin_area_code text,
   admin_area_name text,
   public_contact_email text,
@@ -184,7 +190,9 @@ as $$
     t.name,
     t.city_or_region,
     t.continent_code,
+    t.continent_name,
     t.country_code,
+    t.country_name,
     t.admin_area_code,
     t.admin_area_name,
     coalesce(src.source_contact_email, t.public_contact_email),
