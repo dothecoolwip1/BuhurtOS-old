@@ -398,3 +398,12 @@ Treat Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e`, wor
 Before any hosted production claim, select a dedicated BuhurtOS Supabase project and complete the existing hosted verification checklist. Do not use the Northborn/Mallard/Reavers project as a BuhurtOS target.
 
 The separate branch `pack4-organizations-clubs-teams` and closed draft PR #7 contain preserved feature work that is not part of the verified Pack 5 line unless deliberately reviewed and integrated later.
+
+
+## HACSA teams and BI marshal reference checkpoint
+
+PR #12 on `feature/hacsa-bi-marshal-reference` is the HACSA-first team-source and BI marshal-reference work. Team facts shown on `/teams` and `/teams/:teamId` now come from the HACSA public team directory snapshot verified 2026-09-29; missing roster, member count, founding year or competition history is deliberately left blank rather than fabricated. BI Teams and BI Official Ranking are the next enrichment sources.
+
+BI rules are available at `/rules` and `/ops/marshal-reference`. The live Marshal Console links the active match to `/ops/marshal-reference?format=<category>`, so the reference opens on the applicable fight family. Keep the source/version/section provenance visible when extending the corpus. The current indexed fight corpus is Buhurt Rules 26.4.1, Buhurt Regulations 26.4, Duels Rules 26.4, Duels Regulations 26.4, Outrance Rules and Regulations 26.4, and Weapons / Shield Chart 26.2.1.
+
+When adding BI Teams and rankings, reconcile them into source-aware records instead of silently overwriting HACSA facts. Preserve the source priority and add field-level provenance where sources disagree.
