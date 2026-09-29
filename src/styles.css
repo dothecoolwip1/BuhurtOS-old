@@ -838,3 +838,13 @@ button.ghost:hover{color:var(--text);border-color:#3d4c59;background:#111920}
 .team-about-copy{font-size:.84rem;line-height:1.65;color:var(--soft);margin-bottom:14px}.detail-row-wide{grid-column:1/-1}.detail-row-wide b{font-weight:600;line-height:1.5}
 .team-tournament-list{display:flex;flex-direction:column}.team-tournament-list article{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line)}.team-tournament-list article:last-child{border-bottom:0}.team-tournament-list article>div{display:flex;flex-direction:column}.team-tournament-list article>div:last-child{text-align:right;flex:none}.team-tournament-list b{font-size:.8rem}.team-tournament-list small{font-size:.65rem;color:var(--muted)}
 @media(max-width:720px){.show-team-logo-image{width:72px;height:72px;border-radius:16px}.official-team-hero{align-items:flex-start;flex-wrap:wrap}.official-team-hero>.show-btn{width:100%}}
+
+/* Real public team map */
+.team-leaflet-map{height:min(72vh,720px);min-height:480px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#101820;box-shadow:var(--shadow)}
+.team-leaflet-map .leaflet-control-zoom a{background:#111a23;color:white;border-color:#2b3947}
+.team-leaflet-map .leaflet-control-attribution{background:rgba(12,18,24,.82);color:#9fb0bf}
+.team-leaflet-map .leaflet-control-attribution a{color:#ffab63}
+.team-leaflet-map .leaflet-popup-content-wrapper,.team-leaflet-map .leaflet-popup-tip{background:#111922;color:white}
+.team-leaflet-map .leaflet-popup-content{margin:12px 14px}
+.buhurt-map-popup{display:flex;flex-direction:column;gap:4px;min-width:150px}.buhurt-map-popup strong{font-size:.86rem}.buhurt-map-popup span{font-size:.7rem;color:#a7b4c0}.buhurt-map-popup a{margin-top:5px;color:#ff9a45;font-size:.72rem;font-weight:850;text-decoration:none}
+@media(max-width:720px){.team-leaflet-map{height:62vh;min-height:460px;border-radius:14px}}
