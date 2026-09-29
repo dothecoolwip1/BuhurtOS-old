@@ -1,8 +1,31 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAppState } from '../features/AppState';
-import { createGovernanceClub, createGovernanceTeam, createMembershipInvitation, loadGovernanceSnapshot } from '../lib/organizationAdmin';
-import { createPlatformOrganization, listPlatformOrganizations } from '../lib/platformControl';
-import type { ClubRole, EntityVisibility, Organization, OrganizationKind, TeamRole } from '../types';
+import {
+  createGovernanceClub,
+  createGovernanceTeam,
+  createMembershipInvitation,
+  createOrganizationRelationship,
+  loadGovernanceSnapshot
+} from '../lib/organizationAdmin';
+import {
+  createPlatformOrganization,
+  listPlatformOrganizations,
+  setPlatformOrganizationStatus,
+  updatePlatformOrganization
+} from '../lib/platformControl';
+import { createEvent, createSeason, listEvents, listSeasons, setSeasonStatus, type SetupSeason } from '../lib/setup';
+import type {
+  ClubRole,
+  EntityVisibility,
+  EventType,
+  Organization,
+  OrganizationKind,
+  OrganizationRelationship,
+  OrganizationRelationshipKind,
+  StandingsMode,
+  TeamRole
+} from '../types';
 
 const organizationKinds: OrganizationKind[] = [
   'international_federation',
@@ -12,15 +35,23 @@ const organizationKinds: OrganizationKind[] = [
   'independent_organization'
 ];
 
+const relationshipKinds: OrganizationRelationshipKind[] = ['governs', 'recognizes', 'affiliate', 'sanctioned', 'predecessor'];
+const eventTypes: EventType[] = ['ranked_competitive', 'demo_fun', 'exhibition', 'clinic_training', 'custom'];
+const standingsModes: StandingsMode[] = ['season_and_event', 'event_only', 'no_standings'];
+
 const label = (value: string) => value.replaceAll('_', ' ').replace(/\b\w/g, letter => letter.toUpperCase());
 
 export function PlatformControlPage() {
   const { user, dataMode } = useAppState();
   const isSuperAdmin = Boolean(user?.platformRoles.includes('platform_super_admin'));
+
   const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [relationships, setRelationships] = useState<OrganizationRelationship[]>([]);
   const [selectedOrganizationId, setSelectedOrganizationId] = useState('');
   const [clubs, setClubs] = useState<Array<{ id: string; name: string }>>([]);
   const [teams, setTeams] = useState<Array<{ id: string; name: string }>>([]);
+  const [seasons, setSeasons] = useState<SetupSeason[]>([]);
+  const [events, setEvents] = useState<Array<{ id: string; name: string; venue: string; startsAt: string; status: string }>>([]);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -32,6 +63,34 @@ export function PlatformControlPage() {
     visibility: 'public' as EntityVisibility,
     countryCode: ''
   });
+  const [editOrgForm, setEditOrgForm] = useState({
+    name: '',
+    shortName: '',
+    region: '',
+    kind: 'independent_organization' as OrganizationKind,
+    visibility: 'members' as EntityVisibility,
+    countryCode: ''
+  });
+  const [relationshipForm, setRelationshipForm] = useState({
+    parentId: '',
+    childId: '',
+    kind: 'governs' as OrganizationRelationshipKind
+  });
+  const [seasonForm, setSeasonForm] = useState({
+    name: '2026 Season',
+    startsAt: '2026-01-01T00:00',
+    endsAt: '2026-12-31T23:59'
+  });
+  const [eventForm, setEventForm] = useState({
+    seasonId: '',
+    name: '',
+    venue: '',
+    startsAt: '',
+    endsAt: '',
+    timezone: 'America/Edmonton',
+    eventType: 'ranked_competitive' as EventType,
+    standingsMode: 'season_and_event' as StandingsMode
+  });
   const [clubForm, setClubForm] = useState({ name: '', shortName: '', region: '' });
   const [teamForm, setTeamForm] = useState({ name: '', shortName: '', region: '', clubId: '' });
   const [inviteForm, setInviteForm] = useState({
@@ -42,21 +101,40 @@ export function PlatformControlPage() {
   });
   const [inviteLink, setInviteLink] = useState('');
 
+  const selectedOrganization = useMemo(
+    () => organizations.find(row => row.id === selectedOrganizationId),
+    [organizations, selectedOrganizationId]
+  );
+
   const refreshOrganizations = async () => {
     const rows = await listPlatformOrganizations();
     setOrganizations(rows);
-    setSelectedOrganizationId(current => current || rows[0]?.id || '');
+    setSelectedOrganizationId(current => current || rows.find(row => row.name === 'Red Deer Reavers')?.id || rows[0]?.id || '');
   };
 
   const refreshSelected = async (organizationId: string) => {
     if (!organizationId) {
+      setRelationships([]);
       setClubs([]);
       setTeams([]);
+      setSeasons([]);
+      setEvents([]);
       return;
     }
-    const snapshot = await loadGovernanceSnapshot(organizationId);
+    const [snapshot, seasonRows, eventRows] = await Promise.all([
+      loadGovernanceSnapshot(organizationId),
+      listSeasons(organizationId),
+      listEvents(organizationId)
+    ]);
+    setRelationships(snapshot.relationships);
     setClubs(snapshot.clubs.map(row => ({ id: row.id, name: row.name })));
     setTeams(snapshot.teams.map(row => ({ id: row.id, name: row.name })));
+    setSeasons(seasonRows);
+    setEvents(eventRows);
+    setEventForm(form => ({
+      ...form,
+      seasonId: seasonRows.some(row => row.id === form.seasonId) ? form.seasonId : seasonRows[0]?.id || ''
+    }));
   };
 
   useEffect(() => {
@@ -68,10 +146,18 @@ export function PlatformControlPage() {
     refreshSelected(selectedOrganizationId).catch(error => setMessage(error instanceof Error ? error.message : 'Unable to load organization resources.'));
   }, [selectedOrganizationId]);
 
-  const selectedOrganization = useMemo(
-    () => organizations.find(row => row.id === selectedOrganizationId),
-    [organizations, selectedOrganizationId]
-  );
+  useEffect(() => {
+    if (!selectedOrganization) return;
+    setEditOrgForm({
+      name: selectedOrganization.name,
+      shortName: selectedOrganization.shortName,
+      region: selectedOrganization.region,
+      kind: selectedOrganization.kind || 'independent_organization',
+      visibility: selectedOrganization.visibility || 'members',
+      countryCode: selectedOrganization.countryCode || ''
+    });
+    setRelationshipForm(form => ({ ...form, parentId: form.parentId || selectedOrganization.id }));
+  }, [selectedOrganization?.id]);
 
   useEffect(() => {
     const rows = inviteForm.scope === 'club' ? clubs : teams;
@@ -105,12 +191,14 @@ export function PlatformControlPage() {
     ? (['club_admin', 'coach', 'member'] as ClubRole[])
     : (['team_admin', 'captain', 'coach', 'fighter', 'support'] as TeamRole[]);
 
+  const activeRelationships = relationships.filter(row => !row.endsOn);
+
   return <>
     <section className="section-head">
       <div>
         <span className="eyebrow">Platform owner</span>
         <h1>BuhurtOS Platform Control</h1>
-        <p>You sit above every sporting organization in BuhurtOS. BI, HACSA, national federations, regional bodies, clubs and teams are managed underneath the platform rather than owning it.</p>
+        <p>Full platform-level control above BI, HACSA and every other organization, with organization, hierarchy, season, event, team, member and access administration from one place.</p>
       </div>
       <div className="header-actions">
         <span className="status-chip">{dataMode === 'supabase' ? 'Live DB' : 'Demo'}</span>
@@ -120,10 +208,21 @@ export function PlatformControlPage() {
 
     {message && <div className="auth-message">{message}</div>}
 
+    <section className="panel-card">
+      <h2>Owner shortcuts</h2>
+      <div className="header-actions">
+        <Link className="button" to="/ops/access-admin">Accounts & Early Access</Link>
+        <Link className="button" to="/ops/rulesets">Rulesets</Link>
+        <Link className="button" to="/ops/identity-review">Identity Review</Link>
+        <Link className="button" to="/ops/foundation">Fighters & Divisions</Link>
+        <Link className="button" to="/ops/setup">Event Setup</Link>
+      </div>
+    </section>
+
     <div className="admin-grid">
       <section className="panel-card">
         <h2>Create top-level organization</h2>
-        <p>Create another organization at the same platform level as BI or HACSA. Relationships between organizations can be added later without changing BuhurtOS ownership.</p>
+        <p>Create another organization at the same platform level as BI or HACSA.</p>
         <div className="form-stack">
           <input placeholder="Organization name" value={orgForm.name} onChange={e => setOrgForm(form => ({ ...form, name: e.target.value }))}/>
           <input placeholder="Short name" value={orgForm.shortName} onChange={e => setOrgForm(form => ({ ...form, shortName: e.target.value }))}/>
@@ -150,18 +249,165 @@ export function PlatformControlPage() {
       </section>
 
       <section className="panel-card">
-        <h2>Manage any organization</h2>
+        <h2>Edit any organization</h2>
         <label>Organization
           <select value={selectedOrganizationId} onChange={e => setSelectedOrganizationId(e.target.value)}>
             <option value="">Choose organization</option>
             {organizations.map(org => <option key={org.id} value={org.id}>{org.name} ({org.shortName})</option>)}
           </select>
         </label>
-        {selectedOrganization && <div className="state-card">
-          <strong>{selectedOrganization.name}</strong><br/>
-          {label(selectedOrganization.kind || 'independent_organization')} · {selectedOrganization.region}
+        {selectedOrganization && <div className="form-stack">
+          <input value={editOrgForm.name} onChange={e => setEditOrgForm(form => ({ ...form, name: e.target.value }))}/>
+          <input value={editOrgForm.shortName} onChange={e => setEditOrgForm(form => ({ ...form, shortName: e.target.value }))}/>
+          <input value={editOrgForm.region} onChange={e => setEditOrgForm(form => ({ ...form, region: e.target.value }))}/>
+          <input placeholder="Country code" maxLength={2} value={editOrgForm.countryCode} onChange={e => setEditOrgForm(form => ({ ...form, countryCode: e.target.value }))}/>
+          <label>Type
+            <select value={editOrgForm.kind} onChange={e => setEditOrgForm(form => ({ ...form, kind: e.target.value as OrganizationKind }))}>
+              {organizationKinds.map(kind => <option key={kind} value={kind}>{label(kind)}</option>)}
+            </select>
+          </label>
+          <label>Visibility
+            <select value={editOrgForm.visibility} onChange={e => setEditOrgForm(form => ({ ...form, visibility: e.target.value as EntityVisibility }))}>
+              <option value="public">Public</option>
+              <option value="members">Members</option>
+              <option value="private">Private</option>
+            </select>
+          </label>
+          <button disabled={busy} onClick={() => run(
+            () => updatePlatformOrganization({ id: selectedOrganization.id, ...editOrgForm }),
+            'Organization updated.'
+          )}>Save Organization</button>
+          <button disabled={busy} onClick={() => run(
+            () => setPlatformOrganizationStatus(selectedOrganization.id, selectedOrganization.status === 'active' ? 'inactive' : 'active'),
+            selectedOrganization.status === 'active' ? 'Organization deactivated.' : 'Organization activated.'
+          )}>{selectedOrganization.status === 'active' ? 'Deactivate Organization' : 'Activate Organization'}</button>
         </div>}
+      </section>
 
+      <section className="panel-card">
+        <h2>Organization hierarchy</h2>
+        <p>Define who governs, recognizes, affiliates with or sanctions whom. BuhurtOS remains above the entire tree.</p>
+        <div className="form-stack">
+          <label>Parent
+            <select value={relationshipForm.parentId} onChange={e => setRelationshipForm(form => ({ ...form, parentId: e.target.value }))}>
+              <option value="">Choose parent</option>
+              {organizations.map(org => <option key={org.id} value={org.id}>{org.name}</option>)}
+            </select>
+          </label>
+          <label>Child
+            <select value={relationshipForm.childId} onChange={e => setRelationshipForm(form => ({ ...form, childId: e.target.value }))}>
+              <option value="">Choose child</option>
+              {organizations.map(org => <option key={org.id} value={org.id}>{org.name}</option>)}
+            </select>
+          </label>
+          <label>Relationship
+            <select value={relationshipForm.kind} onChange={e => setRelationshipForm(form => ({ ...form, kind: e.target.value as OrganizationRelationshipKind }))}>
+              {relationshipKinds.map(kind => <option key={kind} value={kind}>{label(kind)}</option>)}
+            </select>
+          </label>
+          <button disabled={busy || !relationshipForm.parentId || !relationshipForm.childId || relationshipForm.parentId === relationshipForm.childId} onClick={() => run(
+            () => createOrganizationRelationship(selectedOrganizationId, relationshipForm.parentId, relationshipForm.childId, relationshipForm.kind).then(() => undefined),
+            'Organization relationship created.'
+          )}>Add Relationship</button>
+        </div>
+        <div className="membership-list">
+          {activeRelationships.length === 0 ? <div className="state-card">No active organization relationships.</div> : activeRelationships.map(row => {
+            const parent = organizations.find(org => org.id === row.parentOrganizationId);
+            const child = organizations.find(org => org.id === row.childOrganizationId);
+            return <article key={row.id}><div>
+              <strong>{parent?.name || 'Organization'} → {child?.name || 'Organization'}</strong>
+              <small>{label(row.relationshipKind)}</small>
+            </div></article>;
+          })}
+        </div>
+      </section>
+
+      <section className="panel-card">
+        <h2>Seasons</h2>
+        <div className="form-stack">
+          <input placeholder="Season name" value={seasonForm.name} onChange={e => setSeasonForm(form => ({ ...form, name: e.target.value }))}/>
+          <label>Starts<input type="datetime-local" value={seasonForm.startsAt} onChange={e => setSeasonForm(form => ({ ...form, startsAt: e.target.value }))}/></label>
+          <label>Ends<input type="datetime-local" value={seasonForm.endsAt} onChange={e => setSeasonForm(form => ({ ...form, endsAt: e.target.value }))}/></label>
+          <button disabled={busy || !selectedOrganizationId || !seasonForm.name.trim()} onClick={() => run(async () => {
+            await createSeason({
+              organizationId: selectedOrganizationId,
+              name: seasonForm.name,
+              startsAt: new Date(seasonForm.startsAt).toISOString(),
+              endsAt: new Date(seasonForm.endsAt).toISOString(),
+              userId: user.userId
+            });
+          }, 'Season created.')}>Create Season</button>
+        </div>
+        <div className="membership-list">
+          {seasons.length === 0 ? <div className="state-card">No seasons yet.</div> : seasons.map(season => <article key={season.id}>
+            <div className="grow">
+              <strong>{season.name}</strong>
+              <small>{label(season.status)} · {new Date(season.startsAt).toLocaleDateString()} – {new Date(season.endsAt).toLocaleDateString()}</small>
+            </div>
+            {season.status !== 'active' && <button disabled={busy} onClick={() => run(
+              () => setSeasonStatus(selectedOrganizationId, season.id, 'active', season.updatedAt),
+              'Season activated.'
+            )}>Activate</button>}
+            {season.status === 'active' && <button disabled={busy} onClick={() => run(
+              () => setSeasonStatus(selectedOrganizationId, season.id, 'archived', season.updatedAt),
+              'Season archived.'
+            )}>Archive</button>}
+          </article>)}
+        </div>
+      </section>
+
+      <section className="panel-card">
+        <h2>Events</h2>
+        <div className="form-stack">
+          <label>Season
+            <select value={eventForm.seasonId} onChange={e => setEventForm(form => ({ ...form, seasonId: e.target.value }))}>
+              <option value="">Choose season</option>
+              {seasons.map(season => <option key={season.id} value={season.id}>{season.name}</option>)}
+            </select>
+          </label>
+          <input placeholder="Event name" value={eventForm.name} onChange={e => setEventForm(form => ({ ...form, name: e.target.value }))}/>
+          <input placeholder="Venue" value={eventForm.venue} onChange={e => setEventForm(form => ({ ...form, venue: e.target.value }))}/>
+          <label>Starts<input type="datetime-local" value={eventForm.startsAt} onChange={e => setEventForm(form => ({ ...form, startsAt: e.target.value }))}/></label>
+          <label>Ends<input type="datetime-local" value={eventForm.endsAt} onChange={e => setEventForm(form => ({ ...form, endsAt: e.target.value }))}/></label>
+          <label>Event type
+            <select value={eventForm.eventType} onChange={e => setEventForm(form => ({ ...form, eventType: e.target.value as EventType }))}>
+              {eventTypes.map(type => <option key={type} value={type}>{label(type)}</option>)}
+            </select>
+          </label>
+          <label>Standings
+            <select value={eventForm.standingsMode} onChange={e => setEventForm(form => ({ ...form, standingsMode: e.target.value as StandingsMode }))}>
+              {standingsModes.map(mode => <option key={mode} value={mode}>{label(mode)}</option>)}
+            </select>
+          </label>
+          <button disabled={busy || !selectedOrganizationId || !eventForm.seasonId || !eventForm.name.trim() || !eventForm.venue.trim() || !eventForm.startsAt || !eventForm.endsAt} onClick={() => run(async () => {
+            await createEvent({
+              organizationId: selectedOrganizationId,
+              seasonId: eventForm.seasonId,
+              name: eventForm.name,
+              venue: eventForm.venue,
+              startsAt: new Date(eventForm.startsAt).toISOString(),
+              endsAt: new Date(eventForm.endsAt).toISOString(),
+              timezone: eventForm.timezone,
+              eventType: eventForm.eventType,
+              standingsMode: eventForm.standingsMode,
+              userId: user.userId
+            });
+            setEventForm(form => ({ ...form, name: '', venue: '', startsAt: '', endsAt: '' }));
+          }, 'Draft event created.')}>Create Draft Event</button>
+        </div>
+        <div className="membership-list">
+          {events.length === 0 ? <div className="state-card">No events yet.</div> : events.map(event => <article key={event.id}>
+            <div className="grow">
+              <strong>{event.name}</strong>
+              <small>{event.venue} · {label(event.status)} · {new Date(event.startsAt).toLocaleString()}</small>
+            </div>
+            <Link className="button" to={'/ops?event=' + event.id}>Open</Link>
+          </article>)}
+        </div>
+      </section>
+
+      <section className="panel-card">
+        <h2>Clubs & teams</h2>
         <h3>Create club</h3>
         <div className="form-stack">
           <input placeholder="Club name" value={clubForm.name} onChange={e => setClubForm(form => ({ ...form, name: e.target.value }))}/>
@@ -200,11 +446,12 @@ export function PlatformControlPage() {
             setTeamForm({ name: '', shortName: '', region: '', clubId: '' });
           }, 'Team created.')}>Create Team</button>
         </div>
+        <small>{clubs.length} clubs · {teams.length} teams in the selected organization</small>
       </section>
 
       <section className="panel-card">
         <h2>Add people</h2>
-        <p>Create secure invitations for administrators, captains, coaches, fighters, support staff or club members. They create their own personal account, then the invitation grants the scoped role.</p>
+        <p>Invite admins, captains, coaches, fighters, support staff or club members. Their account remains personal while the role is scoped to the organization structure you choose.</p>
         <div className="form-stack">
           <label>Scope
             <select value={inviteForm.scope} onChange={e => setInviteForm({
@@ -246,13 +493,13 @@ export function PlatformControlPage() {
       </section>
 
       <section className="panel-card">
-        <h2>Current hierarchy</h2>
+        <h2>Platform inventory</h2>
         <p>{organizations.length} organizations are currently registered in BuhurtOS.</p>
         <div className="membership-list">
           {organizations.map(org => <article key={org.id}>
             <div className="grow">
               <strong>{org.name}</strong>
-              <small>{org.shortName} · {label(org.kind || 'independent_organization')} · {org.region}</small>
+              <small>{org.shortName} · {label(org.kind || 'independent_organization')} · {org.region} · {label(org.status)}</small>
             </div>
             <button disabled={busy} onClick={() => setSelectedOrganizationId(org.id)}>Manage</button>
           </article>)}
