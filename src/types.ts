@@ -603,6 +603,7 @@ export interface Announcement {
 export interface UserContext {
   userId: UUID;
   displayName: string;
+  hasPlatformAccess: boolean;
   platformRoles: PlatformRole[];
   organizationRoles: Array<{ organizationId: UUID; role: OrganizationRole }>;
   eventRoles: Array<{ eventId: UUID; role: EventRole; teamId?: UUID }>;
