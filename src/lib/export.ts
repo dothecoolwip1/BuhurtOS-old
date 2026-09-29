@@ -1,5 +1,5 @@
 import type { MatchRecord, RosterEntry } from '../types';
-import type { StandingRow } from './standings';
+import type { StandingRow, TeamStandingRow } from './standings';
 
 function csvCell(value: unknown): string {
   const text = String(value ?? '');
@@ -14,6 +14,26 @@ export function standingsCsv(rows: StandingRow[]): string {
   const header = ['Rank', 'Competitor', 'Matches', 'Wins', 'Losses', 'Draws', 'Points For', 'Points Against', 'Differential', 'Standing Points'];
   const lines = rows.map((r, index) => [index + 1, r.name, r.matches, r.wins, r.losses, r.draws, r.pointsFor, r.pointsAgainst, r.differential, r.standingPoints]);
   return csv(header, lines);
+}
+
+export function teamStandingsCsv(rows: TeamStandingRow[]): string {
+  const header = ['Rank', 'Team', 'Fighters', 'Matches', 'Wins', 'Losses', 'Draws', 'Points For', 'Points Against', 'Differential', 'Standing Points'];
+  const lines = rows.map((r, index) => [index + 1, r.name, r.fighters, r.matches, r.wins, r.losses, r.draws, r.pointsFor, r.pointsAgainst, r.differential, r.standingPoints]);
+  return csv(header, lines);
+}
+
+export interface FightCardExportView {
+  name: string;
+  status: string;
+}
+
+export function fightCardCsv(card: FightCardExportView, matches: MatchRecord[]): string {
+  const meta = csv(['Field', 'Value'], [
+    ['Fight Card', card.name],
+    ['Status', card.status],
+    ['Matches', String(matches.length)]
+  ]);
+  return `${meta}\n\n${matchesCsv(matches)}`;
 }
 
 export function matchesCsv(matches: MatchRecord[]): string {

@@ -1,4 +1,4 @@
-import type { Announcement, EventRecord, MatchRecord, RosterEntry, UserContext } from '../types';
+import type { Announcement, EventRecord, EventTeam, MatchRecord, RosterEntry, UserContext } from '../types';
 
 export const demoEvent: EventRecord = {
   id: 'event-hacsa-demo',
@@ -64,6 +64,12 @@ export const demoMatches: MatchRecord[] = [
       { sideIndex: 2, isPlaceholder: true, placeholderLabel: 'Winner Quarterfinal 2', sourceMatchId: 'm2', sourceSlot: 2, isWinnerSource: true }
     ], rounds: []
   }
+];
+
+export const demoEventTeams: EventTeam[] = [
+  { id: 'team-reavers', name: 'Red Deer Reavers', cityOrRegion: 'Red Deer, AB' },
+  { id: 'team-north', name: 'North Garrison', cityOrRegion: 'Edmonton, AB' },
+  { id: 'team-west', name: 'Westshield', cityOrRegion: 'Calgary, AB' }
 ];
 
 export const demoAnnouncements: Announcement[] = [

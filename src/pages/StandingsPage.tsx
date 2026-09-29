@@ -1,16 +1,27 @@
 import { useState } from 'react';
 import { useAppState } from '../features/AppState';
-import { computeEventStandings } from '../lib/standings';
-import { downloadText, openPrintableReport, standingsCsv } from '../lib/export';
+import { computeEventStandings, computeTeamStandings } from '../lib/standings';
+import { downloadText, openPrintableReport, standingsCsv, teamStandingsCsv } from '../lib/export';
 import { widgetEmbedCode, widgetStandingsUrl } from '../lib/embed';
 
+type StandingsView = 'fighters' | 'teams';
+
 export function StandingsPage() {
-  const { event, matches, roster } = useAppState();
+  const { event, matches, roster, teams } = useAppState();
+  const [view, setView] = useState<StandingsView>('fighters');
   const [embedMessage, setEmbedMessage] = useState('');
   if (!event) return null;
-  const rows = computeEventStandings(event, matches, roster);
+  const fighterRows = computeEventStandings(event, matches, roster);
+  const teamRows = computeTeamStandings(event, matches, roster, teams);
+  const hasTeams = teams.length > 0;
+  const activeView: StandingsView = view === 'teams' && !hasTeams ? 'fighters' : view;
+  const shownRows = activeView === 'teams' ? teamRows : fighterRows;
   const embedCode = widgetEmbedCode(widgetStandingsUrl(), { title: `${event.name} standings` });
-  const print = () => openPrintableReport(`${event.name} Standings`, `<table><thead><tr><th>Rank</th><th>Competitor</th><th>W</th><th>L</th><th>D</th><th>Pts</th></tr></thead><tbody>${rows.map((r,i) => `<tr><td>${i+1}</td><td>${r.name}</td><td>${r.wins}</td><td>${r.losses}</td><td>${r.draws}</td><td>${r.standingPoints}</td></tr>`).join('')}</tbody></table>`);
+  const print = () => openPrintableReport(`${event.name} ${activeView === 'teams' ? 'Team' : ''} Standings`, `<table><thead><tr><th>Rank</th><th>${activeView === 'teams' ? 'Team' : 'Competitor'}</th><th>W</th><th>L</th><th>D</th><th>Pts</th></tr></thead><tbody>${shownRows.map((r: any, i) => `<tr><td>${i+1}</td><td>${r.name}</td><td>${r.wins}</td><td>${r.losses}</td><td>${r.draws}</td><td>${r.standingPoints}</td></tr>`).join('')}</tbody></table>`);
+  const exportCsv = () => downloadText(
+    activeView === 'teams' ? 'buhurtos-team-standings.csv' : 'buhurtos-standings.csv',
+    activeView === 'teams' ? teamStandingsCsv(teamRows) : standingsCsv(fighterRows)
+  );
   const copyEmbed = async () => {
     try {
       await navigator.clipboard.writeText(embedCode);
@@ -20,8 +31,9 @@ export function StandingsPage() {
     }
   };
   return <>
-    <section className="section-head"><div><span className="eyebrow">{event.standingsMode.replaceAll('_',' ')}</span><h1>Standings</h1><p>Only finalized matches from standings-enabled events are counted.</p></div><div className="header-actions"><button onClick={() => downloadText('buhurtos-standings.csv', standingsCsv(rows))}>Export CSV</button><button onClick={print}>Print / PDF</button><button onClick={copyEmbed}>Embed widget</button></div></section>
-    {rows.length === 0 ? <div className="state-card">This event is configured with no standings, or no finalized matches exist yet.</div> : <div className="table-wrap"><table><thead><tr><th>#</th><th>Competitor</th><th>W</th><th>L</th><th>D</th><th>PF</th><th>PA</th><th>Diff</th><th>Pts</th></tr></thead><tbody>{rows.map((r,i) => <tr key={r.rosterEntryId}><td>{i+1}</td><td><strong>{r.name}</strong></td><td>{r.wins}</td><td>{r.losses}</td><td>{r.draws}</td><td>{r.pointsFor}</td><td>{r.pointsAgainst}</td><td>{r.differential}</td><td><b>{r.standingPoints}</b></td></tr>)}</tbody></table></div>}
+    <section className="section-head"><div><span className="eyebrow">{event.standingsMode.replaceAll('_',' ')}</span><h1>Standings</h1><p>Only finalized matches from standings-enabled events are counted. The team board aggregates fighter bouts between opposing teams.</p></div><div className="header-actions"><button onClick={exportCsv}>Export CSV</button><button onClick={print}>Print / PDF</button><button onClick={copyEmbed}>Embed widget</button></div></section>
+    {hasTeams && <div className="field-tabs standings-view-toggle" role="tablist" aria-label="Standings view"><button className={activeView==='fighters'?'selected':''} onClick={()=>setView('fighters')}><b>Fighters</b></button><button className={activeView==='teams'?'selected':''} onClick={()=>setView('teams')}><b>Teams</b></button></div>}
+    {shownRows.length === 0 ? <div className="state-card">{event.standingsMode === 'no_standings' ? 'This event is configured with no standings.' : activeView === 'teams' ? 'No finalized team-vs-team bouts yet. Intramural or unaffiliated bouts earn neither team any points.' : 'This event is configured with no standings, or no finalized matches exist yet.'}</div> : <div className="table-wrap"><table><thead><tr><th>#</th><th>{activeView === 'teams' ? 'Team' : 'Competitor'}</th>{activeView === 'teams' ? <th>Ftrs</th> : null}<th>W</th><th>L</th><th>D</th><th>PF</th><th>PA</th><th>Diff</th><th>Pts</th></tr></thead><tbody>{shownRows.map((r: any, i) => <tr key={activeView === 'teams' ? r.teamId : r.rosterEntryId}><td>{i+1}</td><td><strong>{r.name}</strong></td>{activeView === 'teams' ? <td>{r.fighters}</td> : null}<td>{r.wins}</td><td>{r.losses}</td><td>{r.draws}</td><td>{r.pointsFor}</td><td>{r.pointsAgainst}</td><td>{r.differential}</td><td><b>{r.standingPoints}</b></td></tr>)}</tbody></table></div>}
     {embedMessage ? <div className="auth-message">{embedMessage}</div> : null}
     <details className="embed-block">
       <summary>Embed this standings board as a widget</summary>

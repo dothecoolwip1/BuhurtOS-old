@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { Announcement, EventRecord, FightCard, MatchRecord, MatchStatus, RosterEntry, ScoreRound, UserContext } from '../types';
+import type { Announcement, EventRecord, EventTeam, FightCard, MatchRecord, MatchStatus, RosterEntry, ScoreRound, UserContext } from '../types';
 import { demoUser } from '../data/demo';
 import { loadEventSnapshot } from '../lib/repository';
 import { isSupabaseConfigured, subscribeToEvent, supabase } from '../lib/supabase';
@@ -18,6 +18,7 @@ interface AppStateValue {
   matches: MatchRecord[];
   roster: RosterEntry[];
   fightCards: FightCard[];
+  teams: EventTeam[];
   announcements: Announcement[];
   user: UserContext | null;
   online: boolean;
@@ -59,6 +60,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [matches, setMatches] = useState<MatchRecord[]>([]);
   const [roster, setRoster] = useState<RosterEntry[]>([]);
   const [fightCards, setFightCards] = useState<FightCard[]>([]);
+  const [teams, setTeams] = useState<EventTeam[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [user, setUser] = useState<UserContext | null>(isSupabaseConfigured ? null : demoUser);
   const [online, setOnline] = useState(typeof navigator === 'undefined' ? true : navigator.onLine);
@@ -85,6 +87,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setMatches(snap.matches);
       setRoster(snap.roster);
       setFightCards(snap.fightCards);
+      setTeams(snap.teams);
       setAnnouncements(snap.announcements);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to load event data.');
@@ -427,7 +430,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return () => navigator.serviceWorker.removeEventListener('message', handler);
   }, [syncNow]);
 
-  const value = useMemo<AppStateValue>(() => ({ loading, authReady, authNotice, error, event, matches, roster, fightCards, announcements, user, online, pendingCount, dataMode: isSupabaseConfigured ? 'supabase' : 'demo', reload, updateCompliance, setCompetitionClearance, finalizeResult, reorderMatch, setMatchStatus, syncNow, refreshQueue: refreshPending }), [loading, authReady, authNotice, error, event, matches, roster, fightCards, announcements, user, online, pendingCount, reload, updateCompliance, setCompetitionClearance, finalizeResult, reorderMatch, setMatchStatus, syncNow, refreshPending]);
+  const value = useMemo<AppStateValue>(() => ({ loading, authReady, authNotice, error, event, matches, roster, fightCards, teams, announcements, user, online, pendingCount, dataMode: isSupabaseConfigured ? 'supabase' : 'demo', reload, updateCompliance, setCompetitionClearance, finalizeResult, reorderMatch, setMatchStatus, syncNow, refreshQueue: refreshPending }), [loading, authReady, authNotice, error, event, matches, roster, fightCards, teams, announcements, user, online, pendingCount, reload, updateCompliance, setCompetitionClearance, finalizeResult, reorderMatch, setMatchStatus, syncNow, refreshPending]);
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;
 }
 

@@ -1,14 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import {
   disciplineCsv,
+  fightCardCsv,
   htmlTable,
   matchesCsv,
   rosterCsv,
   standingsCsv,
   suspensionsCsv,
+  teamStandingsCsv,
 } from '../src/lib/export';
 import type { MatchRecord, RosterEntry } from '../src/types';
-import type { StandingRow } from '../src/lib/standings';
+import type { StandingRow, TeamStandingRow } from '../src/lib/standings';
 
 const standingsRow = (overrides: Partial<StandingRow> = {}): StandingRow => ({
   rosterEntryId: 'row-1',
@@ -115,5 +117,26 @@ describe('export CSV builders', () => {
       .toContain('<td>Bran</td><td>yes</td>');
     expect(htmlTable(['Name', 'Clear'], [['Bran', true], ['Tara', false], ['Unknown', 'maybe']]))
       .toContain('<td>Tara</td><td>no</td>');
+  });
+
+  it('teamStandingsCsv emits team header with a fighters column', () => {
+    const row: TeamStandingRow = { teamId: 'team-a', name: 'Red Deer Reavers', fighters: 7, matches: 3, wins: 2, losses: 1, draws: 0, pointsFor: 18, pointsAgainst: 11, differential: 7, standingPoints: 6 };
+    const [header, line] = teamStandingsCsv([row]).split('\n');
+    expect(header).toBe(['Rank', 'Team', 'Fighters', 'Matches', 'Wins', 'Losses', 'Draws', 'Points For', 'Points Against', 'Differential', 'Standing Points'].join(','));
+    expect(line).toBe('1,Red Deer Reavers,7,3,2,1,0,18,11,7,6');
+  });
+
+  it('fightCardCsv prefixes fight-card metadata then the card matches table', () => {
+    const csv = fightCardCsv({ name: 'Field One', status: 'live' }, [
+      matchRecord(),
+      matchRecord({ id: 'm2', label: 'Bout with, comma', status: 'scheduled' }),
+    ]);
+    const lines = csv.split('\n');
+    expect(lines[0]).toBe('Field,Value');
+    expect(lines[1]).toBe('Fight Card,Field One');
+    expect(csv).toContain('\nStatus,live\n');
+    expect(csv).toContain('\nMatches,2\n');
+    expect(csv).toContain('\n\n' + ['Order', 'Label', 'Category', 'Stage', 'Status', 'Winner Side', 'Side 1 Total', 'Side 2 Total'].join(','));
+    expect(csv).toContain('"Bout with, comma"');
   });
 });

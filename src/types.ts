@@ -86,6 +86,12 @@ export interface Team {
   cityOrRegion?: string;
 }
 
+export interface EventTeam {
+  id: UUID;
+  name: string;
+  cityOrRegion?: string;
+}
+
 export interface Fighter {
   id: UUID;
   organizationId: UUID;

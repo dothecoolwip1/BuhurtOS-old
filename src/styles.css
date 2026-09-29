@@ -673,6 +673,10 @@ small{color:var(--muted)}
 .field-tabs b{font-size:.8rem}.field-tabs small{font-size:.62rem}
 .field-admin-list{display:flex;flex-direction:column;gap:10px}
 .field-admin-list article{display:flex;gap:12px;align-items:flex-end;padding:12px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.018)}
+.field-row-actions{display:flex;gap:7px}
+.field-row-actions button{min-height:var(--tap);border-radius:11px;border:1px solid #354450;background:#1d2832;color:white;padding:0 14px;font-weight:800}
+.standings-view-toggle{width:100%;padding-bottom:0;margin-bottom:6px}
+.standings-view-toggle button{min-width:110px;flex-direction:row;align-items:center;justify-content:center}
 .public-event-nav{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
 .public-event-nav a{border:1px solid var(--line);border-radius:9px;padding:9px 12px;background:var(--panel);font-size:.72rem;font-weight:800}
 .public-field-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}

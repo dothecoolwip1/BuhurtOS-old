@@ -1,5 +1,5 @@
-import type { Announcement, EventRecord, FightCard, MatchRecord, RosterEntry } from '../types';
-import { demoAnnouncements, demoEvent, demoMatches, demoRoster } from '../data/demo';
+import type { Announcement, EventRecord, EventTeam, FightCard, MatchRecord, RosterEntry } from '../types';
+import { demoAnnouncements, demoEvent, demoEventTeams, demoMatches, demoRoster } from '../data/demo';
 import { publicSupabase, supabase } from './supabase';
 
 export interface EventSnapshot {
@@ -8,6 +8,7 @@ export interface EventSnapshot {
   roster: RosterEntry[];
   fightCards: FightCard[];
   announcements: Announcement[];
+  teams: EventTeam[];
 }
 
 function snakeMatch(row: Record<string, any>): MatchRecord {
@@ -58,7 +59,9 @@ export async function loadEventSnapshot(eventId?: string, accessMode: 'public' |
     const savedFightCards = typeof localStorage === 'undefined' ? [] : JSON.parse(localStorage.getItem('buhurtos-demo-fight-cards-' + demoEvent.id) ?? '[]');
     const fightCardIds = [...new Set(allMatches.map((match: any) => match.fightCardId).filter(Boolean))] as string[];
     const fightCards: FightCard[] = savedFightCards.length ? savedFightCards : fightCardIds.map((id,index) => ({ id, eventId: demoEvent.id, name: 'Field ' + (index + 1), listName: 'Field ' + (index + 1), status: 'live', sortOrder: index }));
-    return { event, matches: allMatches, roster, fightCards, announcements };
+    const rosterTeamIds = new Set(roster.map(r => r.teamId).filter((id): id is string => Boolean(id)));
+    const teams: EventTeam[] = demoEventTeams.filter(t => rosterTeamIds.has(t.id)).map(t => ({ id: t.id, name: t.name, cityOrRegion: t.cityOrRegion }));
+    return { event, matches: allMatches, roster, fightCards, announcements, teams };
   }
 
   const client = accessMode === 'public' ? publicSupabase : supabase;
@@ -89,15 +92,16 @@ export async function loadEventSnapshot(eventId?: string, accessMode: 'public' |
     ? 'id,event_id,title,body,is_public,scheduled_for,created_at'
     : '*';
 
-  const [eventQuery, rosterQuery, fightCardQuery, matchQuery, announcementQuery] = await Promise.all([
+  const [eventQuery, rosterQuery, fightCardQuery, matchQuery, announcementQuery, teamQuery] = await Promise.all([
     client.from('events').select(eventColumns).eq('id', resolvedEventId).single(),
     client.from('event_roster_entries').select(rosterColumns).eq('event_id', resolvedEventId).order('display_name'),
     client.from('fight_cards').select(fightCardColumns).eq('event_id', resolvedEventId).order('sort_order'),
     client.from('matches').select(matchColumns).eq('event_id', resolvedEventId).order('scheduled_order'),
-    client.from('announcements').select(announcementColumns).eq('event_id', resolvedEventId).order('created_at', { ascending: false })
+    client.from('announcements').select(announcementColumns).eq('event_id', resolvedEventId).order('created_at', { ascending: false }),
+    client.rpc('event_teams', { p_event_id: resolvedEventId })
   ]);
 
-  const error = eventQuery.error || rosterQuery.error || fightCardQuery.error || matchQuery.error || announcementQuery.error;
+  const error = eventQuery.error || rosterQuery.error || fightCardQuery.error || matchQuery.error || announcementQuery.error || teamQuery.error;
   if (error) throw error;
   const e: any = eventQuery.data;
   return {
@@ -122,6 +126,7 @@ export async function loadEventSnapshot(eventId?: string, accessMode: 'public' |
     })),
     fightCards: (fightCardQuery.data ?? []).map((card: any) => ({ id: card.id, eventId: card.event_id, name: card.name, listName: card.list_name, status: card.status, sortOrder: card.sort_order, updatedAt: card.updated_at ?? undefined })),
     matches: (matchQuery.data ?? []).map(snakeMatch),
-    announcements: (announcementQuery.data ?? []).map((a: any) => ({ id: a.id, eventId: a.event_id, title: a.title, body: a.body, isPublic: a.is_public, scheduledFor: a.scheduled_for ?? undefined, createdAt: a.created_at }))
+    announcements: (announcementQuery.data ?? []).map((a: any) => ({ id: a.id, eventId: a.event_id, title: a.title, body: a.body, isPublic: a.is_public, scheduledFor: a.scheduled_for ?? undefined, createdAt: a.created_at })),
+    teams: (teamQuery.data ?? []).map((t: any) => ({ id: t.id, name: t.name, cityOrRegion: t.city_or_region ?? undefined }))
   };
 }
