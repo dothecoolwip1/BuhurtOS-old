@@ -29,7 +29,8 @@ values
 ('f0000000-0000-0000-0000-000000000011','Regional Beta','RB','Test','active'),
 ('f0000000-0000-0000-0000-000000000012','Local Gamma','LG','Test','active'),
 ('f0000000-0000-0000-0000-000000000013','Independent Delta','ID','Test','active'),
-('f0000000-0000-0000-0000-000000000014','Inactive Echo','IE','Test','inactive');
+('f0000000-0000-0000-0000-000000000014','Inactive Echo','IE','Test','inactive'),
+('f0000000-0000-0000-0000-000000000015','Heritage League','HL','Test','active');
 
 insert into public.organization_memberships(organization_id,user_id,role)
 values
@@ -37,6 +38,7 @@ values
 ('f0000000-0000-0000-0000-000000000011','f0000000-0000-0000-0000-000000000001','organization_admin'),
 ('f0000000-0000-0000-0000-000000000012','f0000000-0000-0000-0000-000000000001','organization_admin'),
 ('f0000000-0000-0000-0000-000000000013','f0000000-0000-0000-0000-000000000001','organization_admin'),
+('f0000000-0000-0000-0000-000000000015','f0000000-0000-0000-0000-000000000001','organization_admin'),
 ('f0000000-0000-0000-0000-000000000011','f0000000-0000-0000-0000-000000000002','organization_admin'),
 ('f0000000-0000-0000-0000-000000000010','f0000000-0000-0000-0000-000000000003','organization_staff'),
 ('f0000000-0000-0000-0000-000000000013','f0000000-0000-0000-0000-000000000004','organization_admin');
@@ -60,8 +62,8 @@ select is(
   (select string_agg(enumlabel, ',' order by enumsortorder) from pg_enum e
     join pg_type t on e.enumtypid = t.oid
     where t.typname = 'organization_relationship_kind'),
-  'governs,recognizes,affiliate',
-  'relationship kinds match the pack-4 federation design'
+  'governs,recognizes,affiliate,sanctioned,predecessor',
+  'relationship kinds cover governing, recognition, affiliation, sanctioning and lineage'
 );
 
 select is(
@@ -291,14 +293,96 @@ select is(
 );
 
 -- ---------------------------------------------------------------------------
+-- Flexible relationship kinds (sanctioned + predecessor)
+-- ---------------------------------------------------------------------------
+
+-- A sanctioning relationship between two organizations the officer administers.
+select lives_ok(
+  $$select public.upsert_organization_relationship(
+    'f0000000-0000-0000-0000-000000000010','f0000000-0000-0000-0000-000000000013','sanctioned')$$,
+  'federation officer records a sanctioned relationship'
+);
+
+select is(
+  (select relationship_kind::text from public.organization_relationships
+    where parent_organization_id='f0000000-0000-0000-0000-000000000010'
+      and child_organization_id='f0000000-0000-0000-0000-000000000013'
+      and relationship_kind='sanctioned'),
+  'sanctioned',
+  'sanctioned relationship recorded'
+);
+
+select throws_ok(
+  $$select public.upsert_organization_relationship(
+    'f0000000-0000-0000-0000-000000000010','f0000000-0000-0000-0000-000000000013','sanctioned')$$,
+  null, 'That organization relationship is already active',
+  'the active-duplicate rule applies to sanctioned relationships'
+);
+
+select throws_ok(
+  $$select public.upsert_organization_relationship(
+    'f0000000-0000-0000-0000-000000000012','f0000000-0000-0000-0000-000000000010','sanctioned')$$,
+  null, 'Organization hierarchy cycle detected',
+  'the cycle guard applies to sanctioned relationships too'
+);
+
+-- A lineage link from an established organization to a younger one that is
+-- not part of the governing chain (013 -> 015), so the chain stays acyclic.
+select lives_ok(
+  $$select public.upsert_organization_relationship(
+    'f0000000-0000-0000-0000-000000000013','f0000000-0000-0000-0000-000000000015','predecessor')$$,
+  'federation officer records a predecessor lineage link'
+);
+
+select is(
+  (select relationship_kind::text from public.organization_relationships
+    where parent_organization_id='f0000000-0000-0000-0000-000000000013'
+      and child_organization_id='f0000000-0000-0000-0000-000000000015'
+      and relationship_kind='predecessor'),
+  'predecessor',
+  'predecessor relationship recorded'
+);
+
+select throws_ok(
+  $$select public.upsert_organization_relationship(
+    'f0000000-0000-0000-0000-000000000013','f0000000-0000-0000-0000-000000000015','predecessor')$$,
+  null, 'That organization relationship is already active',
+  'the active-duplicate rule applies to predecessor relationships'
+);
+
+select throws_ok(
+  $$select public.upsert_organization_relationship(
+    'f0000000-0000-0000-0000-000000000015','f0000000-0000-0000-0000-000000000013','predecessor')$$,
+  null, 'Organization hierarchy cycle detected',
+  'a predecessor link back down the chain is refused by the cycle guard'
+);
+
+-- The ancestor helper surfaces both new kinds with their own direction.
+select ok(
+  exists(
+    select 1 from public.organization_ancestors('f0000000-0000-0000-0000-000000000013')
+    where relationship_kind = 'sanctioned'
+  ),
+  'the sanctioning body appears among the sanctioned organization ancestors'
+);
+
+select ok(
+  exists(
+    select 1 from public.organization_ancestors('f0000000-0000-0000-0000-000000000015')
+    where relationship_kind = 'predecessor'
+  ),
+  'the predecessor appears among the successor ancestors'
+);
+
+-- ---------------------------------------------------------------------------
 -- Audit and public reads
 -- ---------------------------------------------------------------------------
 
 select is(
   (select count(*)::integer from public.audit_log
     where table_name='organization_relationships' and action='insert'),
-  3,
-  'relationship creation is written to the audit log (three creates)'
+  5,
+  'relationship creation is written to the audit log (five creates)'
 );
 
 select ok(
@@ -318,7 +402,7 @@ select is(
 
 select is(
   (select count(*)::integer from public.organization_relationships),
-  3,
+  5,
   'anonymous can read the full public relationship set'
 );
 
