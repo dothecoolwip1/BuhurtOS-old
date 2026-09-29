@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { MatchCard } from '../components/MatchCard';
 import { ScoreDialog } from '../components/ScoreDialog';
 import { useAppState } from '../features/AppState';
@@ -11,6 +11,7 @@ export function OpsPage() {
   const { loading, error, matches, roster, fightCards, finalizeResult, reorderMatch, setMatchStatus, user, event } = useAppState();
   const [scoring, setScoring] = useState<MatchRecord | null>(null);
   const [selectedField, setSelectedField] = useState<string>('');
+  const isPlatformSuperAdmin = Boolean(user?.platformRoles.includes('platform_super_admin'));
   const canScore = Boolean(event && hasPermission(user, 'match.score', event.id, event.organizationId));
   const canReorder = Boolean(event && hasPermission(user, 'match.manage', event.id, event.organizationId));
 
@@ -53,6 +54,7 @@ export function OpsPage() {
   };
 
   if (loading) return <div className="state-card">Loading tournament operations…</div>;
+  if (isPlatformSuperAdmin) return <Navigate to="/ops/platform" replace/>;
   if (error) return <div className="state-card error">{error}</div>;
 
   return <>
