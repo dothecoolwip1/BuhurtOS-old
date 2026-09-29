@@ -4,6 +4,13 @@ Last updated: 2026-09-29
 
 ## Resume here
 
+The historical checkpoint below is superseded. Current `main` includes Round 17
+Pack 7 tournament generation (`7b9a736`), Round 18 Pack 4 data layer
+(`ff82c3f`), and Round 18 UI/workflow completion (`901257c`). The next pending
+release adds secure fighter-avatar storage. Its local verification must never be
+mistaken for hosted Supabase/Edge verification: a dedicated BuhurtOS project is
+not yet confirmed, and the Northborn/Mallard/Reavers project is prohibited.
+
 Pack 6 is complete and merged to `main` in PR #10.
 
 Verified Pack 6 implementation head: `789cca1daf8208a6732863409639546744acf52e`.

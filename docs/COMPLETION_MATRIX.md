@@ -252,7 +252,7 @@ only credits real, wired functionality.
 | Team captain assignments | ✅ | event member roles |
 | Event publishing/archiving | ✅ | guarded lifecycle |
 | Multi-field/list configuration | ✅ | fields |
-| (Org/team admin panel) | 🟡 | only on branch `pack4-organizations-clubs-teams`, not merged |
+| Org/team admin panel | ✅ | secured `/ops/governance` workflow: organization relationships, clubs, teams, captain/team roles, invitation links, applications, lifecycle actions; Pack 4 pgTAP suite |
 
 ## Announcements
 
@@ -326,14 +326,14 @@ only credits real, wired functionality.
 
 | Requirement | Status | Evidence |
 |---|---|---|
-| Org-controlled team creation / captains / team administration | 🟡 | modeled (`teams`, memberships); full org→team admin UI only on branch `pack4-organizations-clubs-teams` |
-| Captain invite existing members / no-account invites | 🟡 | existing-account assignment works (`invite-event-member`); no-account invite links not built |
-| Captain temporary/pending members, remove members, roles | 🟡 | roster management partial |
-| Team membership requests / affiliation confirm/reject | 🟡 | affiliation workflow exists; request flow partial |
+| Org-controlled team creation / captains / team administration | ✅ | guarded Pack 4 RPCs and `/ops/governance` UI cover team creation, approval, role assignment, membership lifecycle, and audit records |
+| Captain invite existing members / no-account invites | ✅ | expiring email-bound club/team invitation links; recipients can sign up with the invited address and then accept through `/ops/invite` |
+| Captain temporary/pending members, remove members, roles | ✅ | role-scoped invitation/application, review, role-change, and end-membership workflows enforced in PostgreSQL |
+| Team membership requests / affiliation confirm/reject | ✅ | team/club applications and invitations with pending/accepted/rejected/cancelled/expired lifecycle |
 | Team tournament lineups | ✅ | lineups in match participants |
 | Guest/mercenary for an event | ✅ | entry types |
 | Member self-service profile | ✅ | IdentityPage (display, legal, nickname, region, bio, socials, achievements, experience, visibility) |
-| Profile photos upload/replace/reorder/remove | 🟡 | photo fields modeled; upload flow partial |
+| Profile photos upload/replace/reorder/remove | 🟡 | private avatar upload/replace/remove with identity-control checks, short-lived signed URLs, client/server MIME+size validation, and audit records; gallery/reorder remains unimplemented; hosted Edge Function verification requires the dedicated project |
 | Public fighter profile (photo, record, season record, tournament history, podiums, upcoming events) | ✅ | public profile (career record, win rate, podiums, incoming events, tournament history, profile details, socials, gallery); demo surfaces carry the DemoNotice banner |
 | Federation hierarchy (intl → national → regional → local → team → captain → fighter) | ✅ | org/governing-body relationships on `main` (`20261001000000_federation_hierarchy.sql`): `organization_kind` + `organization_relationships` with guarded RPCs; federation-aware dashboard surface still showcase-demo |
 | Federation-agnostic (no hard-coded BI/IMCF/HACSA root) | ✅ | verified: BI/IMCF/HACSA appear only as seed/demo data source; rulesets/divisions are governed entities |
@@ -346,6 +346,8 @@ only credits real, wired functionality.
 ---
 
 ## Round notes (this update)
+
+**Current local checkpoint:** Round 18 UI/workflow integration is `901257c`; the following profile-avatar work is pending its own commit. Local replay is green with 28 migrations and 14 pgTAP suites. Hosted Supabase Edge Function verification remains blocked until a dedicated BuhurtOS project is confirmed; do not deploy to the Northborn/Mallard/Reavers project.
 
 **CI is green on `main`:** workflow `36567325902` on head `c4d1f6f` passed all three jobs — frontend (typecheck/tests/production build), the authoritative pgTAP database job (11 suites), and the GitHub Pages deploy. Deployed site live at <https://dothecoolwip1.github.io/BuhurtOS/>. (The Round 15 head `7f67eab` was superseded by the immediate Round 16 push, so the combined head `c4d1f6f` carries Rounds 15 + 16; the previous checkpoint `b61dccd` carried Rounds 13 + 14 via workflow `36537529093`.)
 

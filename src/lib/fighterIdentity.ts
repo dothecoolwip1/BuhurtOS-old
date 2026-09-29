@@ -42,6 +42,51 @@ export function validateFighterPublicProfile(input: {
   return errors;
 }
 
+export function validateFighterAvatar(file: Pick<File, 'type' | 'size'>): string[] {
+  const errors: string[] = [];
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    errors.push('Avatar must be a JPEG, PNG, or WebP image.');
+  }
+  if (file.size < 1 || file.size > 5 * 1024 * 1024) {
+    errors.push('Avatar image must be between 1 byte and 5 MB.');
+  }
+  return errors;
+}
+
+async function avatarFunction(form: FormData): Promise<{ url?: string }> {
+  if (!supabase) throw new Error('Avatar uploads require a configured BuhurtOS server.');
+  const { data, error } = await supabase.functions.invoke('fighter-avatar', { body: form });
+  if (error) throw error;
+  if (!data || typeof data !== 'object') throw new Error('Avatar service returned an invalid response.');
+  if ('error' in data && typeof data.error === 'string') throw new Error(data.error);
+  return data as { url?: string };
+}
+
+export async function loadFighterAvatarUrl(identityId: string): Promise<string | null> {
+  const form = new FormData();
+  form.set('action', 'signed-url');
+  form.set('identityId', identityId);
+  const data = await avatarFunction(form);
+  return data.url || null;
+}
+
+export async function uploadFighterAvatar(identityId: string, file: File): Promise<void> {
+  const errors = validateFighterAvatar(file);
+  if (errors.length) throw new Error(errors.join(' '));
+  const form = new FormData();
+  form.set('action', 'upload');
+  form.set('identityId', identityId);
+  form.set('file', file, file.name);
+  await avatarFunction(form);
+}
+
+export async function removeFighterAvatar(identityId: string): Promise<void> {
+  const form = new FormData();
+  form.set('action', 'remove');
+  form.set('identityId', identityId);
+  await avatarFunction(form);
+}
+
 function rowToIdentity(row: any): FighterIdentity {
   return {
     id: row.id,

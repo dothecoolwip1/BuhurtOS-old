@@ -4,6 +4,14 @@ Last updated: 2026-09-29
 
 ## Current recovery point
 
+The historical Pack 2–16 notes below are preserved for provenance but are not the
+current implementation head. `main` includes Pack 7 tournament generation and
+Pack 4 organization/team/captain membership workflows through `901257c`.
+Profile-avatar storage work follows as a separate, locally verified release.
+
+Do not deploy migrations or Edge Functions to the Northborn/Mallard/Reavers
+Supabase project; a dedicated BuhurtOS project is still required.
+
 Repository: `dothecoolwip1/BuhurtOS`
 
 Base branch: `main`

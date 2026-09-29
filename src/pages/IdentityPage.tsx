@@ -7,8 +7,11 @@ import {
   listMyFighterIdentities,
   listMyIdentityClaims,
   loadFighterPrivateProfile,
+  loadFighterAvatarUrl,
+  removeFighterAvatar,
   searchClaimableFighterIdentities,
   submitFighterIdentityClaim,
+  uploadFighterAvatar,
   updateFighterPrivateProfile,
   updateFighterPublicProfile
 } from '../lib/fighterIdentity';
@@ -40,6 +43,7 @@ export function IdentityPage() {
     profileVisibility: 'private' as FighterProfileVisibility
   });
   const [privateForm, setPrivateForm] = useState<FighterIdentityPrivateProfile>(emptyPrivate());
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<FighterIdentitySearchResult[]>([]);
   const [claimRelationship, setClaimRelationship] = useState<IdentityAccountRole>('self');
@@ -69,6 +73,7 @@ export function IdentityPage() {
     if (!selected) {
       setPublicForm({ displayName: '', nickname: '', bio: '', publicRegion: '', profileVisibility: 'private' });
       setPrivateForm(emptyPrivate());
+      setAvatarUrl(null);
       return;
     }
     setPublicForm({
@@ -81,6 +86,13 @@ export function IdentityPage() {
     loadFighterPrivateProfile(selected.id)
       .then(row => setPrivateForm(row || { ...emptyPrivate(), identityId: selected.id }))
       .catch(error => setMessage(error instanceof Error ? error.message : 'Unable to load private fighter information.'));
+    if (!selected.avatarPath) {
+      setAvatarUrl(null);
+    } else {
+      loadFighterAvatarUrl(selected.id)
+        .then(setAvatarUrl)
+        .catch(() => setAvatarUrl(null));
+    }
   }, [selected?.id, selected?.profileRevision]);
 
   if (!user) return <div className="state-card">Sign in to manage your fighter identity.</div>;
@@ -135,6 +147,23 @@ export function IdentityPage() {
       const reloaded = await loadFighterPrivateProfile(selected.id);
       setPrivateForm(reloaded || { ...emptyPrivate(), identityId: selected.id });
     }, 'Private fighter information saved. It is not part of the public sports profile.');
+  };
+
+  const uploadAvatar = (file?: File) => {
+    if (!selected || !file) return;
+    return run(async () => {
+      await uploadFighterAvatar(selected.id, file);
+      await refresh(selected.id);
+    }, 'Profile photo uploaded. It is stored privately and only exposed through short-lived authorized URLs.');
+  };
+
+  const removeAvatar = () => {
+    if (!selected) return;
+    return run(async () => {
+      await removeFighterAvatar(selected.id);
+      setAvatarUrl(null);
+      await refresh(selected.id);
+    }, 'Profile photo removed.');
   };
 
   const search = () => run(async () => {
@@ -207,6 +236,18 @@ export function IdentityPage() {
           <label>Bio<textarea rows={5} value={publicForm.bio} onChange={event => setPublicForm(form => ({ ...form, bio: event.target.value }))}/></label>
           <button className="primary big" disabled={busy} onClick={savePublic}>Save Public Profile</button>
           <small>Revision {selected.profileRevision}. If another device changes this profile first, your save is rejected instead of overwriting it.</small>
+        </div>}
+      </section>
+
+      <section className="panel-card">
+        <h2>Profile photo</h2>
+        <p>Your image stays in private storage. It is available publicly only while this fighter profile is public; otherwise it is available only to accounts that control this identity.</p>
+        {!selected ? <div className="state-card">Create or claim an identity to manage its profile photo.</div> : <div className="form-stack">
+          {avatarUrl ? <img src={avatarUrl} alt={`${selected.displayName}'s profile`} style={{ width: 160, height: 160, objectFit: 'cover', borderRadius: '50%' }}/> : <div className="state-card">No profile photo uploaded.</div>}
+          <label>JPEG, PNG, or WebP (maximum 5 MB)
+            <input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={event => uploadAvatar(event.target.files?.[0])}/>
+          </label>
+          {selected.avatarPath && <button disabled={busy} onClick={removeAvatar}>Remove Profile Photo</button>}
         </div>}
       </section>
 
