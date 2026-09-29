@@ -80,30 +80,18 @@ await mkdir(new URL('../src/data/', import.meta.url), { recursive: true });
 await writeFile(OUTPUT, JSON.stringify(payload, null, 2) + '\n', 'utf8');
 console.log(`Discovered ${teamUrls.length} Buhurt International team profiles.`);
 
-
-function readableText(html) {
-  return html
-    .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&#39;|&apos;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
 for (const sample of teamUrls.slice(0, 2)) {
   const html = await fetchText(sample);
-  const text = readableText(html);
-  const marker = Math.max(0, ['Conference', 'Country', 'City']
-    .map(label => text.indexOf(label))
-    .filter(index => index >= 0)
-    .reduce((min, index) => Math.min(min, index), Number.POSITIVE_INFINITY));
+  const needles = ['conference', 'country', 'city', decodeURIComponent(new URL(sample).pathname.split('/').pop() ?? '')];
+  const snippets = {};
+  for (const needle of needles) {
+    const lower = html.toLowerCase();
+    const at = lower.indexOf(needle.toLowerCase());
+    snippets[needle] = at >= 0 ? html.slice(Math.max(0, at - 900), at + 1800) : null;
+  }
   console.log('BI_PROFILE_PROBE', JSON.stringify({
     url: sample,
-    title: (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? '').trim(),
-    text: text.slice(Number.isFinite(marker) ? Math.max(0, marker - 500) : 0, Number.isFinite(marker) ? marker + 1800 : 2300)
+    length: html.length,
+    snippets
   }));
 }
