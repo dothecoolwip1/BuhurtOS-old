@@ -1,0 +1,41 @@
+name: Geocode BI public team locations
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/geocode-bi-teams.mjs"
+      - ".github/workflows/geocode-bi-teams.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: geocode-bi-teams
+  cancel-in-progress: true
+
+jobs:
+  geocode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Geocode published BI city and country
+        run: node scripts/geocode-bi-teams.mjs
+      - name: Commit geocode cache and SQL
+        run: |
+          git config user.name "buhurtos-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add src/data/biTeamGeocodes.json scripts/generated/bi-geocodes
+          if git diff --cached --quiet; then
+            echo "No geocode changes"
+            exit 0
+          fi
+          git commit -m "Refresh BI public team geocodes"
+          git push
