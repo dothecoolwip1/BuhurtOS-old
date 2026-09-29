@@ -38,7 +38,7 @@ export const externalTeamSources: ExternalTeamSource[] = [
     id: 'bi-teams',
     label: 'Buhurt International Teams',
     url: 'https://www.buhurtinternational.com/teams',
-    status: 'next',
+    status: 'current',
     priority: 2
   },
   {
