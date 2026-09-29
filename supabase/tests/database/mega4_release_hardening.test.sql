@@ -148,7 +148,7 @@ select lives_ok(
   'organization admin can publish operational announcements'
 );
 
-select lives_ok(
+select throws_ok(
   $$insert into public.disciplinary_cards(
       organization_id,season_id,event_id,color,card_reason,issued_by
     ) values(
@@ -157,7 +157,9 @@ select lives_ok(
       '44000000-0000-0000-0000-000000000030',
       'yellow','Test card','44000000-0000-0000-0000-000000000001'
     )$$,
-  'organization admin can perform discipline actions allowed by the app'
+  '42501',
+  NULL,
+  'direct discipline card writes are RPC-only (organization admin is blocked)'
 );
 
 select lives_ok(
