@@ -14,9 +14,9 @@ Pack 6 merge commit: `c6bbd937ed9a08592ca633325a848e2e765f4382`.
 
 That workflow passed both required jobs: frontend typecheck/tests/production build and a clean Supabase rebuild with all pgTAP database tests.
 
-### Current state: Rounds 7–11 on `main`
+### Current state: Rounds 7–12 on `main`
 
-The head of `main` is `5e67501`. Five rounds are pushed on top of the Pack 6 checkpoint:
+The head of `main` is `de109b9`. Six rounds are pushed on top of the Pack 6 checkpoint:
 
 **Round 7 — discipline, suspensions, and offline hardening (`27566ef`):**
 
@@ -45,13 +45,23 @@ The head of `main` is `5e67501`. Five rounds are pushed on top of the Pack 6 che
 * `export.ts` shares one `csv()` routine (commas/quotes/newline escaping) across standings, matches/order of play, discipline cards, suspensions, and roster-report builders, plus an `htmlTable` helper. BracketPage wires `matchesCsv` (Export CSV) and a printable order of play; DisciplinePage exports cards + suspensions CSV and a combined printable report; RosterPage exports the registration report CSV and a printable compliance report.
 * `tests/export.test.ts` — 6 assertions; full suite 42/42, typecheck and production build clean; buttons verified in-browser on the ops pages.
 
-Local verification on the corrected head: `npm run typecheck` clean, `npm test` 42/42, production build clean, in-browser DOM assertions confirm the Export/Print buttons on the ops pages, and the full 9-suite pgTAP replay is green with real role switching + RLS semantics. **CI is green on the combined head `5e67501`: workflow `36535409276` passed the frontend job, the authoritative pgTAP database job (9 suites), and the GitHub Pages deploy (site live at <https://dothecoolwip1.github.io/BuhurtOS/>).**
+**Round 12 — audit completeness (`de109b9`, workflow `36536214636` green):**
+
+* `supabase/migrations/20261002000000_audit_completeness.sql` — the shared `audit_change` trigger (→ `public.audit_log`) is wired onto brackets, organizations, seasons, events, rulesets, ruleset_sources, event_ruleset_snapshots, and profiles. Announcements and event_registrations were already audited (operational hardening) and gain regression guards. Org scope resolves from the row's `organization_id`, falling back to the owning event; org-less rows (organizations themselves, profiles, ruleset_sources) stay platform-admin-visible only.
+* `supabase/tests/database/audit_completeness.test.sql` — 26 assertions (trigger presence, insert/update/delete capture, event-derived org scope, unscoped-row behavior).
+
+Local verification on the corrected head: `npm run typecheck` clean, `npm test` 42/42, production build clean, in-browser DOM assertions confirm the Export/Print buttons on the ops pages, and the full 10-suite pgTAP replay is green with real role switching + RLS semantics. **CI is green on the combined head `de109b9`: workflow `36536214636` passed the frontend job, the authoritative pgTAP database job (10 suites), and the GitHub Pages deploy (site live at <https://dothecoolwip1.github.io/BuhurtOS/>).**
 
 **pgTAP error-pattern lesson:** the supabase-bundled pgTAP does not treat `%` as a wildcard in `throws_ok` errmsg, and it does not ship `throws_like` at all. `throws_ok` matches the errmsg argument against the **verbatim full `MESSAGE_TEXT`**. Discipline assertions now pass exact messages (e.g. `Not authorized to revoke suspensions`, `Fighter is under an active suspension until 2026-10-01`). Keep new `throws_ok` message arguments verbatim and full — never partial substrings or `%` wrappers.
 
 Do not apply BuhurtOS migrations to the currently connected Supabase project unless it is independently confirmed to be a dedicated BuhurtOS project. The project inspected during Pack 2 contains Northborn, Mallard, and Reavers data and is not the BuhurtOS target.
 
 ## This round — files to know
+
+Round 12 (audit completeness):
+
+* `supabase/migrations/20261002000000_audit_completeness.sql`
+* `supabase/tests/database/audit_completeness.test.sql`
 
 Round 11 (broader exports):
 
@@ -294,7 +304,7 @@ supabase test db
 
 Local SQL validation without Docker uses the replay harness: fresh DB → `supabase_minimal_fixture.sql` → all migrations → `pgtap_shim.sql` role switching → suite via `run_suites.ps1` (see the workspace temp folder, not the repo). The CI `database` job remains authoritative.
 
-GitHub Actions workflow `35954642255` passed both jobs on Pack 3 implementation head `2ffab73e9e403ab8c0325ef18a441ed5fe09319e` before merge. Mega Pack 4 workflow `35999176785` passed both jobs on implementation head `07107630551711945284cabfac3de1c3ca86cc58`. Round 7 head `27566ef` passed the frontend job on workflow `36531121109` but its database job failed on the stale `mega4_release_hardening` discipline assertion (corrected in `3b52176`); the discipline suite's error-pattern semantics were corrected in `435b140`/`187862c`; the combined head `187862c` passed **workflow `36533390822` green end-to-end**, Round 10 (federation hierarchy, head `b4b3795`) passed **workflow `36534422890` green end-to-end**, and Round 11 (broader exports, head `5e67501`) passed **workflow `36535409276` green end-to-end** (frontend job, pgTAP database job with 9 suites, and GitHub Pages deploy each time; the docs-only head `f4b7844` passed workflow `36535061871`).
+GitHub Actions workflow `35954642255` passed both jobs on Pack 3 implementation head `2ffab73e9e403ab8c0325ef18a441ed5fe09319e` before merge. Mega Pack 4 workflow `35999176785` passed both jobs on implementation head `07107630551711945284cabfac3de1c3ca86cc58`. Round 7 head `27566ef` passed the frontend job on workflow `36531121109` but its database job failed on the stale `mega4_release_hardening` discipline assertion (corrected in `3b52176`); the discipline suite's error-pattern semantics were corrected in `435b140`/`187862c`; the combined head `187862c` passed **workflow `36533390822` green end-to-end**, Round 10 (federation hierarchy, head `b4b3795`) passed **workflow `36534422890` green end-to-end**, Round 11 (broader exports, head `5e67501`) passed **workflow `36535409276` green end-to-end**, and Round 12 (audit completeness, head `de109b9`) passed **workflow `36536214636` green end-to-end** (frontend job, pgTAP database job with 10 suites from Round 12 on, and GitHub Pages deploy each time; the docs-only heads `f4b7844` and `d1be2f0` passed workflows `36535061871` and `36535932022`).
 
 The Pack 3 database suite contains 49 identity-specific assertions in addition to the earlier Pack 1 and Pack 2 database suites. It covers public and private access, profile concurrency, youth privacy, claim approval, rejection and disputes, unauthorized edits, affiliation transitions, duplicate suggestions, merge preservation, conflicting owners, rollback, and auditing.
 
@@ -319,13 +329,12 @@ A dedicated BuhurtOS Supabase project is still required before any remote migrat
 
 Read `BUHURTOS_PLAN.md`, `BUHURTOS_STATUS.md`, `docs/COMPLETION_MATRIX.md`, and this handoff before continuing.
 
-Treat Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e`, workflow `36080004581`, and merge commit `c6bbd937ed9a08592ca633325a848e2e765f4382` as the verified events-and-registration checkpoint. Treat Rounds 7–11 (head `5e67501`, described at the top of this handoff) as the current checkpoint, verified green by workflow `36535409276`.
+Treat Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e`, workflow `36080004581`, and merge commit `c6bbd937ed9a08592ca633325a848e2e765f4382` as the verified events-and-registration checkpoint. Treat Rounds 7–12 (head `de109b9`, described at the top of this handoff) as the current checkpoint, verified green by workflow `36536214636`.
 
 Top remaining product gaps (priority order, full detail in `docs/COMPLETION_MATRIX.md`):
 
-1. Audit completeness (brackets, announcements, orgs/seasons/events/rulesets/profiles/registrations).
-2. Embeddable widgets + fuller public fighter/team profiles.
-3. Marathon — productize the `custom_template` into a verified flow.
+1. Embeddable widgets + fuller public fighter/team profiles.
+2. Marathon — productize the `custom_template` into a verified flow.
 
 Before any hosted production claim, select a dedicated BuhurtOS Supabase project and complete the existing hosted verification checklist. Do not use the Northborn/Mallard/Reavers project as a BuhurtOS target.
 

@@ -50,7 +50,7 @@ only credits real, wired functionality.
 | Announcements | ✅ | `EventManagementPage` create/list + `announcements` table |
 | Registrations, waivers | ✅ | Pack 6 registration + waiver Upload/Storage |
 | Payments | ⛔ | fail-closed; requires provider |
-| Audit records | 🟡 | `audit_log`; gaps below |
+| Audit records | ✅ | `audit_log` with `audit_change` trigger across the core entities; covers match/roster/discipline/announcements/registration/org/season/event/ruleset/profile changes |
 | Season table from Day 1 | ✅ | `seasons` since Pack 1 |
 | Audit metadata on operational tables | ✅ | `created_at/updated_at/created_by/last_edited_by` conventions |
 
@@ -296,12 +296,12 @@ only credits real, wired functionality.
 | Match result changes | ✅ | audit trigger |
 | Match state changes | ✅ | audit trigger |
 | Roster/compliance changes | ✅ | audit trigger |
-| Bracket creation/changes | ❌ | not audited |
+| Bracket creation/changes | ✅ | `audit_change` trigger (`20261002000000`); suite verifies insert/update/delete + event-derived org scope |
 | Discipline (cards + suspensions) | ✅ | NEW: `audit_change` trigger on both tables; suites verify |
 | Registration decisions | ✅ | Pack 6 |
 | Event membership/role changes | ✅ | Pack 2 |
-| Announcements | ❌ | not audited |
-| Important administrative changes | 🟡 | org/season/events/rulesets/profiles/registrations NOT yet audited (15 of 34 public tables have triggers) |
+| Announcements | ✅ | audited since operational hardening; regression-guarded in `audit_completeness.test.sql` |
+| Important administrative changes | ✅ | orgs/seasons/events/rulesets/ruleset_sources/snapshots/profiles now audited; org-unscoped rows visible to platform admins only |
 
 ## UX Requirements
 
@@ -347,7 +347,16 @@ only credits real, wired functionality.
 
 ## Round notes (this update)
 
-**CI is green on `main`:** workflow `36535409276` on head `5e67501` passed all three jobs — frontend (typecheck/tests/production build), the authoritative pgTAP database job (all 9 suites), and the GitHub Pages deploy. Deployed site live at <https://dothecoolwip1.github.io/BuhurtOS/>. (The docs-only head `f4b7844` also passed, workflow `36535061871`.)
+**CI is green on `main`:** workflow `36536214636` on head `de109b9` passed all three jobs — frontend (typecheck/tests/production build), the authoritative pgTAP database job (now 10 suites), and the GitHub Pages deploy. Deployed site live at <https://dothecoolwip1.github.io/BuhurtOS/>. (Round 11 docs head `d1be2f0` also passed, workflow `36535932022`.)
+
+Round 12 (completed and pushed as `de109b9`):
+- **Audit completeness** — `20261002000000_audit_completeness.sql` wires the
+  shared `audit_change` trigger onto brackets, organizations, seasons, events,
+  rulesets, ruleset_sources, event_ruleset_snapshots, and profiles.
+  Announcements and event_registrations (already audited) gain regression
+  guards. 26 pgTAP assertions in `audit_completeness.test.sql`: trigger
+  presence, insert/update/delete capture, event-derived org scope, and
+  unscoped-row behavior for org-less entities.
 
 Round 11 (completed and pushed as `5e67501`):
 - **Broader exports** — `export.ts` now shares one `csv()` routine (escapes
@@ -417,7 +426,5 @@ Round 7 (completed and pushed as `27566ef`):
 
 Top remaining product gaps (in priority order):
 
-1. **Audit completeness** — add triggers for brackets, announcements,
-   orgs/seasons/events/rulesets/profiles/registrations.
-2. **Embeddable widgets + fuller public fighter/team profiles.**
-3. **Marathon** — productize the custom template into a verified flow.
+1. **Embeddable widgets + fuller public fighter/team profiles.**
+2. **Marathon** — productize the custom template into a verified flow.

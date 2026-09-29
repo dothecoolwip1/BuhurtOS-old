@@ -247,9 +247,25 @@ Scope:
 Verification: `tests/export.test.ts` (6 assertions), full suite 42/42,
 typecheck and production build clean; buttons verified in-browser.
 
+## Round 12: Audit completeness
+
+Status: pushed as `de109b9`; workflow `36536214636` green end-to-end.
+
+Scope:
+
+* Wire the shared `audit_change` trigger (`private.capture_audit_change` →
+  `public.audit_log`) onto the remaining core entities: brackets,
+  organizations, seasons, events, rulesets, ruleset_sources,
+  event_ruleset_snapshots, and profiles.
+* Org scoping: `organization_id` first, else the owning event's org;
+  org-less rows recorded NULL and platform-admin-visible only.
+
+Verification: 26-assertion `audit_completeness.test.sql` green on the local
+10-suite replay and under real pgTAP in CI; frontend job + deploy green.
+
 ## Later packs
 
-Later product work should start from the Round 11 checkpoint. Preserve the completed identity, authorization, release hardening, governance, division, season, event lifecycle, registration, eligibility, capacity, withdrawal, clearance, privacy, concurrency, discipline, suspension, offline-queue, public-surface-disambiguation, Long-Axe, federation-hierarchy, and exports foundations unless a targeted defect requires change.
+Later product work should start from the Round 12 checkpoint. Preserve the completed identity, authorization, release hardening, governance, division, season, event lifecycle, registration, eligibility, capacity, withdrawal, clearance, privacy, concurrency, discipline, suspension, offline-queue, public-surface-disambiguation, Long-Axe, federation-hierarchy, exports, and audit-completeness foundations unless a targeted defect requires change.
 
 Before starting a later pack:
 
