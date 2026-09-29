@@ -99,7 +99,7 @@ export function App(){
         <Route path="governance" element={<OrganizationManagementPage/>}/>
         <Route path="invite" element={<MembershipInvitePage/>}/>
         <Route path="foundation" element={<FoundationPage/>}/>
-        <Route path="rulesets" element={<RulesetsPage/>}/>
+        <Route path="rulesets" element={<RulesetsPage/>}/>\n        <Route path="marshal-reference" element={<ShowcaseRulesPage/>}/>
         <Route path="sync" element={<SyncPage/>}/>
         <Route path="setup" element={<SetupPage/>}/>
       </Route>
