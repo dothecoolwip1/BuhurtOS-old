@@ -335,19 +335,31 @@ only credits real, wired functionality.
 | Member self-service profile | ✅ | IdentityPage (display, legal, nickname, region, bio, socials, achievements, experience, visibility) |
 | Profile photos upload/replace/reorder/remove | 🟡 | photo fields modeled; upload flow partial |
 | Public fighter profile (photo, record, season record, tournament history, podiums, upcoming events) | 🟡 | identity public fields; career-record surface partial |
-| Federation hierarchy (intl → national → regional → local → team → captain → fighter) | 🟡 | organizations are tenants; parent-org hierarchy only on branch `pack4-organizations-clubs-teams` |
+| Federation hierarchy (intl → national → regional → local → team → captain → fighter) | ✅ | org/governing-body relationships on `main` (`20261001000000_federation_hierarchy.sql`): `organization_kind` + `organization_relationships` with guarded RPCs; federation-aware dashboard surface still showcase-demo |
 | Federation-agnostic (no hard-coded BI/IMCF/HACSA root) | ✅ | verified: BI/IMCF/HACSA appear only as seed/demo data source; rulesets/divisions are governed entities |
 | Governing-body capabilities (create subordinate orgs, sanction, publish rulesets, official records, discipline jurisdiction) | 🟡 | rulesets publication + sanctioned divisions exist; org-level federation admin only on branch |
 | Ruleset inheritance (parent → addendum → event config) | ✅ | Pack 5 inheritance with cycle checks + event snapshots |
 | Sanctioning and event authority (governing body, sanctioning org, host, classification) | 🟡 | event divisions/snapshots modeled; sanctioning-org UI partial |
-| Flexible org relationships (affiliated/sanctioned/recognized/member/regional/national/predecessor) | ❌ | relationship table only on branch `pack4-organizations-clubs-teams` |
+| Flexible org relationships (affiliated/sanctioned/recognized/member/regional/national/predecessor) | 🟡 | core kinds (`governs`/`recognizes`/`affiliate`) live on `main` with guarded RPCs; `sanctioned`/`predecessor`-style kinds not modeled |
 | Historical organizations (inactive status preserved) | ✅ | `org_status` lifecycle; archived events/history preserved |
 
 ---
 
 ## Round notes (this update)
 
-**CI is green on `main`:** workflow `36533390822` on head `187862c` passed all three jobs — frontend (typecheck/tests/production build), the authoritative pgTAP database job (all 8 suites), and the GitHub Pages deploy. Deployed site live at <https://dothecoolwip1.github.io/BuhurtOS/>.
+**CI is green on `main`:** workflow `36534422890` on head `b4b3795` passed all three jobs — frontend (typecheck/tests/production build), the authoritative pgTAP database job (all 9 suites), and the GitHub Pages deploy. Deployed site live at <https://dothecoolwip1.github.io/BuhurtOS/>.
+
+Round 10 (completed and pushed as `b4b3795`):
+- **Federation hierarchy ported to main** — `20261001000000_federation_hierarchy.sql`
+  adds `organization_kind`/`country_code` to organizations and an
+  `organization_relationships` table (governs/recognizes/affiliate) with an
+  active window, a generated org-context mirror for audit, public reads, and
+  RPC-only writes. Guarded `upsert`/`end` RPCs enforce bilateral admin
+  consent, active-org residency, active-duplicate refusal, an end/reopen
+  lifecycle, and hierarchy cycle protection; `organization_ancestors` exposes
+  chains. Anonymous is revoked from the write RPCs. 34 pgTAP assertions in
+  `federation_hierarchy.test.sql` (schema, ACLs, role-gated writes, RLS
+  blocking, lifecycle, cycles, audit, public reads).
 
 Round 9 (completed and pushed as `e3fe92d`):
 - **Long Axe** added as a `verified` BI duel preset in `competitionFormats.ts`
@@ -394,10 +406,8 @@ Round 7 (completed and pushed as `27566ef`):
 
 Top remaining product gaps (in priority order):
 
-1. **Federation hierarchy on main** — port org/governing-body relationships from
-   branch `pack4-organizations-clubs-teams`.
-2. **Broader exports** — PDF/printable + discipline/registration reports.
-3. **Audit completeness** — add triggers for brackets, announcements,
+1. **Broader exports** — PDF/printable + discipline/registration reports.
+2. **Audit completeness** — add triggers for brackets, announcements,
    orgs/seasons/events/rulesets/profiles/registrations.
-4. **Embeddable widgets + fuller public fighter/team profiles.**
-5. **Marathon** — productize the custom template into a verified flow.
+3. **Embeddable widgets + fuller public fighter/team profiles.**
+4. **Marathon** — productize the custom template into a verified flow.

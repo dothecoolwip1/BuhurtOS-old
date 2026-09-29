@@ -214,9 +214,26 @@ Scope:
 
 Verification: governance tests 6/6, typecheck clean, production build clean, CI green end-to-end on `187862c`.
 
+## Round 10: Federation hierarchy
+
+Status: pushed as `b4b3795`; workflow `36534422890` green end-to-end.
+
+Scope:
+
+* Port the Pack 4 org/governing-body relationship model to main
+  (`20261001000000_federation_hierarchy.sql`): `organization_kind` +
+  `country_code` on organizations; `organization_relationships` with an
+  active window, generated org-context mirror, public reads, RPC-only writes.
+* Guarded `upsert`/`end` RPCs: bilateral admin consent, active-org residency,
+  active-duplicate refusal, end/reopen lifecycle, hierarchy cycle protection;
+  `organization_ancestors` read helper; anon revoked from write RPCs.
+
+Verification: 34-assertion `federation_hierarchy.test.sql` green on the local
+9-suite replay and under real pgTAP in CI; frontend job + deploy green.
+
 ## Later packs
 
-Later product work should start from the Round 9 checkpoint. Preserve the completed identity, authorization, release hardening, governance, division, season, event lifecycle, registration, eligibility, capacity, withdrawal, clearance, privacy, concurrency, discipline, suspension, offline-queue, public-surface-disambiguation, and Long-Axe foundations unless a targeted defect requires change.
+Later product work should start from the Round 10 checkpoint. Preserve the completed identity, authorization, release hardening, governance, division, season, event lifecycle, registration, eligibility, capacity, withdrawal, clearance, privacy, concurrency, discipline, suspension, offline-queue, public-surface-disambiguation, Long-Axe, and federation-hierarchy foundations unless a targeted defect requires change.
 
 Before starting a later pack:
 
