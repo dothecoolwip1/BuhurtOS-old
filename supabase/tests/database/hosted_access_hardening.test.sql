@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(24);
+select plan(27);
 
 select ok(not has_table_privilege('anon','public.club_memberships','SELECT'),
   'anonymous cannot discover club memberships');
@@ -62,6 +62,14 @@ language sql
 as $$ select 1 $$;
 select ok(not has_function_privilege('anon','public.__buhurtos_default_acl_probe_fn()','EXECUTE'),
   'new public functions are not auto-executable by anon');
+select ok(not has_function_privilege('authenticated','public.__buhurtos_default_acl_probe_fn()','EXECUTE'),
+  'new public functions are not auto-executable by authenticated');
+
+create sequence public.__buhurtos_default_acl_probe_seq;
+select ok(not has_sequence_privilege('anon','public.__buhurtos_default_acl_probe_seq','USAGE'),
+  'new public sequences are not auto-usable by anon');
+select ok(not has_sequence_privilege('authenticated','public.__buhurtos_default_acl_probe_seq','USAGE'),
+  'new public sequences are not auto-usable by authenticated');
 
 select * from finish();
 rollback;
