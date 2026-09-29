@@ -241,7 +241,7 @@ Verification:
 * Pack 6 database coverage includes deadlines, duplicate submissions, eligibility and needs-review handling, team roster changes, cross-organization denial, stale reviews, capacity, waitlists, withdrawal capability tokens, separate physical and final marshal clearance, cancellation, archiving, and historical immutability.
 * PR #10 merged Pack 6 to `main` as `c6bbd937ed9a08592ca633325a848e2e765f4382`.
 
-## Round 7: Discipline, suspensions, and offline hardening (implemented, committed locally)
+## Round 7: Discipline, suspensions, and offline hardening (pushed as `27566ef`)
 
 Discipline and suspensions data layer:
 
@@ -263,10 +263,20 @@ Offline queue hardening:
 * Automatic retries are capped at 8 attempts with exponential backoff (1s doubling, 60s ceiling); conflicts always require human decision; manual retry resets the attempt counter and backoff.
 * A per-process in-flight guard prevents concurrent flushes racing over the same IndexedDB items.
 
-Verification:
+Round 7 verification:
 
 * Local: `npm run typecheck` clean; `npm test` 36/36; all 18 migrations replay cleanly on a fresh database; `discipline_suspensions.test.sql` passes 27 assertions under the replay harness with genuine role switching and RLS semantics.
-* The CI run for the round commit (frontend job + authoritative pgTAP `database` job) is pending until the round is pushed to `main`.
+* The first CI run for the round exposed a real regression: the pre-existing `mega4_release_hardening.test.sql` still asserted that an organization admin could insert straight into `disciplinary_cards`, contradicting the intentional RPC-only policy. Fixed in `3b52176` by flipping that assertion to the new contract (direct writes RLS-blocked, sqlstate 42501). The local 8-suite replay (every database suite, real role switching + RLS) is green on the corrected head.
+
+## Round 8: Public spectator surface disambiguation (pushed as `c7fab9c`)
+
+The flagship product gap from the completion matrix: showcase surfaces could masquerade as live tournament data.
+
+* New `DemoNotice` component — a persistent banner ("Interactive demo — sample data only… Open the live event view →") rendered on every showcase route: injected into `ShowcaseShell` (all `/home`, `/governance`, `/teams`, `/fighters`, `/events`, `/rankings`, `/rules` views) and directly into `/public`.
+* Every LIVE claim retitled to DEMO/SAMPLE: public hero "LIVE FROM SPRINGBROOK" → "DEMO PREVIEW · SAMPLE DATA"; red `● LIVE` pills → amber `● DEMO`; fake `00:42` clocks → `SAMPLE`; event statusbar "LIVE EVENT — HACSA SANCTIONED" → "DEMO EVENT · SAMPLE DATA"; dashboard "Live tournament / All reporting" → "Tournament preview / Sample data"; marketing mockup badge `LIVE` → `DEMO`.
+* Spectator preview nav `Live Now ●` → `Public Arena ◎`; the live board `/#/live` (real AppState-backed data) is the primary CTA on the public hero and dashboard.
+* Footer claim "Powered by live tournament data" replaced with a sample-data disclaimer.
+* Verified: production build clean, `npm test` 36/36, and in-browser DOM assertions on `/`, `/public`, `/home`, `/events/fall-open`, `/rankings` confirming demo markers present and live claims absent.
 
 ## Verification status
 
@@ -282,7 +292,7 @@ Added for final Pack 2 verification:
 * `supabase/tests/database/accounts_permissions.test.sql` performs direct anonymous and authenticated access attempts across two unrelated organizations and includes revoked membership and self-escalation cases.
 * The repository CI rebuilds local Supabase from all migrations and runs pgTAP tests.
 
-Final Pack 2 head `bef3d41c7fd509269535f13a85b2555961edd483` passed GitHub Actions workflow run `35945001693`. Pack 3 implementation head `2ffab73e9e403ab8c0325ef18a441ed5fe09319e` then passed GitHub Actions workflow run `35954642255`, including frontend checks, a clean rebuild through the Pack 3 migration, and all database tests. PR #6 merged that verified implementation as `e6fde086939f3c4e74353affb5a82a4aa1977a45`. Mega Pack 4 implementation head `07107630551711945284cabfac3de1c3ca86cc58` passed workflow `35999176785` with frontend, production-build, clean-migration, and pgTAP verification. Pack 5 implementation head `d357c6414edeabc2f0034c420207ca1d29fa36ae` passed workflow `36069252396` with the same frontend and clean-database verification, then merged in PR #9 as `178874356d4a8c4076d1deaa3ffd742d6490f515`. Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e` passed workflow `36080004581`, including the clean Supabase rebuild and pgTAP suites, then merged in PR #10 as `c6bbd937ed9a08592ca633325a848e2e765f4382`.
+Final Pack 2 head `bef3d41c7fd509269535f13a85b2555961edd483` passed GitHub Actions workflow run `35945001693`. Pack 3 implementation head `2ffab73e9e403ab8c0325ef18a441ed5fe09319e` then passed GitHub Actions workflow run `35954642255`, including frontend checks, a clean rebuild through the Pack 3 migration, and all database tests. PR #6 merged that verified implementation as `e6fde086939f3c4e74353affb5a82a4aa1977a45`. Mega Pack 4 implementation head `07107630551711945284cabfac3de1c3ca86cc58` passed workflow `35999176785` with frontend, production-build, clean-migration, and pgTAP verification. Pack 5 implementation head `d357c6414edeabc2f0034c420207ca1d29fa36ae` passed workflow `36069252396` with the same frontend and clean-database verification, then merged in PR #9 as `178874356d4a8c4076d1deaa3ffd742d6490f515`. Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e` passed workflow `36080004581`, including the clean Supabase rebuild and pgTAP suites, then merged in PR #10 as `c6bbd937ed9a08592ca633325a848e2e765f4382`. Round 7 (discipline/suspensions/offline, head `27566ef`) passed the frontend job on workflow `36531121109` but its database job failed on a stale `mega4_release_hardening` assertion (direct discipline-card writes no longer allowed); the assertion was corrected in `3b52176` and the head was subsequently advanced with the Round 8 showcase disambiguation (`c7fab9c`).
 
 ## Explicitly unverified infrastructure
 

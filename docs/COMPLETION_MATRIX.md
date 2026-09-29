@@ -232,7 +232,7 @@ only credits real, wired functionality.
 | Read-only fighter/team/event info | 🟡 | public fighter profiles partial (identity public fields) |
 | Shareable public links | ✅ | `share.ts` |
 | Embeddable widgets | ❌ | not started |
-| **Mock-vs-real split** | 🟡 | ⚠️ Flagship gap: some public surfaces are explicitly demo/mock content. Showcase/marketing pages (`Showcase*`) must never be presented as live event data. Clean disambiguation is the top remaining product item. |
+| **Mock-vs-real split** | ✅ | Showcase surfaces are explicitly disambiguated: a `DemoNotice` banner on every showcase route (`ShowcaseShell` + `/public`), DEMO/SAMPLE markers replace all LIVE claims, fake clocks/scoreboards are titled "SAMPLE", the spectator nav opens Public Arena, and `/#/live` (real AppState data) is the primary CTA. Verified in-browser + production build. |
 
 ## Event Management
 
@@ -347,7 +347,21 @@ only credits real, wired functionality.
 
 ## Round notes (this update)
 
-Completed in this round, all verified locally and shipped with commits:
+Round 8 (completed and pushed as `c7fab9c`):
+- **Public-surface disambiguation (flagship gap resolved)**: `DemoNotice`
+  banner on every showcase route (`ShowcaseShell` + `/public`); DEMO/SAMPLE
+  retitling of all LIVE claims (public hero, event statusbar, dashboard
+  panel, marketing mockup); fake clocks/scoreboards marked SAMPLE; spectator
+  nav "Live Now ●" → "Public Arena ◎"; "Open live event view" (`/#/live`,
+  real AppState-backed board) as the primary CTA. Verified in-browser via DOM
+  assertions and a clean production build.
+- **CI database-job regression fix (`3b52176`)**: the discipline round
+  exposed a stale `mega4_release_hardening.test.sql` assertion (org admin
+  direct `disciplinary_cards` insert). Updated to the RPC-only contract —
+  direct writes are RLS-blocked (sqlstate 42501). Full 8-suite pgTAP replay
+  green locally (real role switching + RLS semantics).
+
+Round 7 (completed and pushed as `27566ef`):
 
 - Discipline + suspensions forward migration (`20260930010000_discipline_suspensions.sql`):
   guarded `issue_discipline_card` / `issue_suspension` / `revoke_suspension` RPCs,
@@ -365,13 +379,11 @@ Completed in this round, all verified locally and shipped with commits:
 
 Top remaining product gaps (in priority order):
 
-1. **Public-surface disambiguation** — remove mock-vs-real ambiguity on public
-   pages so showcase content can never masquerade as live event data.
-2. **Federation hierarchy on main** — port org/governing-body relationships from
+1. **Federation hierarchy on main** — port org/governing-body relationships from
    branch `pack4-organizations-clubs-teams`.
-3. **Long Axe** — add as a competition format in `competitionFormats.ts`.
-4. **Broader exports** — PDF/printable + discipline/registration reports.
-5. **Audit completeness** — add triggers for brackets, announcements,
+2. **Long Axe** — add as a competition format in `competitionFormats.ts`.
+3. **Broader exports** — PDF/printable + discipline/registration reports.
+4. **Audit completeness** — add triggers for brackets, announcements,
    orgs/seasons/events/rulesets/profiles/registrations.
-6. **Embeddable widgets + fuller public fighter/team profiles.**
-7. **Marathon** — productize the custom template into a verified flow.
+5. **Embeddable widgets + fuller public fighter/team profiles.**
+6. **Marathon** — productize the custom template into a verified flow.

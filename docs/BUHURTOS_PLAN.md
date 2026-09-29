@@ -178,7 +178,7 @@ Workflow `36080004581` passed both jobs before PR #10 was merged.
 
 ## Round 7: Discipline, suspensions, and offline hardening
 
-Status: implemented and verified locally; committed locally on top of `main` head `91a473c`. CI verification (frontend job + authoritative pgTAP `database` job) is pending until the round is pushed.
+Status: pushed as `27566ef`. CI frontend job green on `36531121109`; the database job failed on a stale `mega4_release_hardening` assertion (direct discipline-card writes now RPC-only) and was corrected in `3b52176` — the combined head with Round 8 is re-verifying in CI.
 
 Scope:
 
@@ -189,16 +189,28 @@ Scope:
 * Offline queue hardening: 30s stale-`syncing` repair, 8-attempt capped auto-retry with exponential backoff, manual retry reset, per-process flush guard.
 * Frontend coverage for the queue hardening and a 27-assertion pgTAP suite for the discipline/suspensions data layer.
 
-Verification completed locally before commit: typecheck clean, 36/36 frontend tests, all 18 migrations replay on a fresh database, discipline suite green under the role-switching harness. The CI `database` job is the authoritative pgTAP run.
+Verification completed locally before commit: typecheck clean, 36/36 frontend tests, all 18 migrations replay on a fresh database, discipline suite green under the role-switching harness. The first CI database run exposed a stale `mega4_release_hardening.test.sql` assertion (direct `disciplinary_cards` writes no longer permitted); `3b52176` flipped it to the RPC-only contract (RLS-blocked, 42501) and the full 8-suite local replay is green.
+
+## Round 8: Public spectator surface disambiguation
+
+Status: pushed as `c7fab9c`. Resolves the flagship mock-vs-real product gap.
+
+Scope:
+
+* `DemoNotice` banner ("Interactive demo — sample data only") on every showcase route via `ShowcaseShell` plus the standalone `/public` server-rendered page; CTA opens the real `/#/live` board.
+* All LIVE claims retitled to DEMO/SAMPLE across the public hero, event statusbar, dashboard panel, and marketing mockup; fake clocks/scoreboards labelled SAMPLE; spectator preview nav `Live Now ●` → `Public Arena ◎`.
+* Sample-data disclaimer replaces "Powered by live tournament data"; live board remains the primary spectator CTA.
+
+Verification: production build clean, 36/36 frontend tests, in-browser DOM assertions across `/`, `/public`, `/home`, `/events/fall-open`, `/rankings` confirm demo markers and no live claims. The CI run for the combined Round 7+8 head must be confirmed green.
 
 ## Later packs
 
-Later product work should start from the Round 7 checkpoint. Preserve the completed identity, authorization, release hardening, governance, division, season, event lifecycle, registration, eligibility, capacity, withdrawal, clearance, privacy, concurrency, discipline, suspension, and offline-queue foundations unless a targeted defect requires change.
+Later product work should start from the Round 8 checkpoint. Preserve the completed identity, authorization, release hardening, governance, division, season, event lifecycle, registration, eligibility, capacity, withdrawal, clearance, privacy, concurrency, discipline, suspension, offline-queue, and public-surface-disambiguation foundations unless a targeted defect requires change.
 
 Before starting a later pack:
 
 * Read `BUHURTOS_STATUS.md`.
 * Read `BUHURTOS_HANDOFF.md`.
 * Read `docs/COMPLETION_MATRIX.md` for the per-requirement source-of-truth status and the ranked list of remaining product gaps.
-* Confirm the Round 7 CI run is green on `main`.
+* Confirm the Round 8 CI run is green on `main`.
 * Confirm a dedicated BuhurtOS Supabase project is selected before applying migrations remotely.
