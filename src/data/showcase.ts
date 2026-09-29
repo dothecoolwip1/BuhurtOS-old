@@ -11,6 +11,8 @@ export type DemoTeam = {
   members: number;
   founded: string;
   bio: string;
+  socials?: Array<{ label: string; url: string }>;
+  seasonResults?: Array<{ event: string; result: string }>;
 };
 
 export type DemoFighter = {
@@ -29,6 +31,11 @@ export type DemoFighter = {
   bio: string;
   achievements: string[];
   photoTone: string;
+  weightClass?: string;
+  experienceYears?: number;
+  experienceLevel?: 'Rising' | 'Experienced' | 'Veteran' | 'Elite';
+  socials?: Array<{ label: string; url: string }>;
+  tournamentHistory?: Array<{ year: string; event: string; category: string; placement: string }>;
 };
 
 export type DemoEvent = {
@@ -60,7 +67,19 @@ export const demoTeams: DemoTeam[] = [
     captain: 'Garrett Robson',
     members: 14,
     founded: '2024',
-    bio: 'Central Alberta armored combat team competing across duel and melee formats.'
+    bio: 'Central Alberta armored combat team competing across duel and melee formats.',
+    socials: [
+      { label: 'Instagram', url: 'https://instagram.com/reddeerreavers.demo' },
+      { label: 'Facebook', url: 'https://facebook.com/reddeerreavers.demo' }
+    ],
+    seasonResults: [
+      { event: 'HACSA Winter Melee', result: '1st — 5v5' },
+      { event: 'Prairie Cup', result: '2nd — mixed' },
+      { event: 'Alberta Invitational', result: '2nd — team duel' },
+      { event: 'HACSA Spring Open', result: '3rd — 5v5' },
+      { event: 'Northern Cup', result: '3rd — mixed' },
+      { event: 'HACSA Summer Clash', result: '4th — 12v12' }
+    ]
   },
   {
     id: 'iron-wolves',
@@ -74,7 +93,17 @@ export const demoTeams: DemoTeam[] = [
     captain: 'Mason Clarke',
     members: 18,
     founded: '2019',
-    bio: 'Demo team used in the BuhurtOS frontend prototype.'
+    bio: 'Demo team used in the BuhurtOS frontend prototype.',
+    socials: [
+      { label: 'Instagram', url: 'https://instagram.com/ironwolves.demo' },
+      { label: 'YouTube', url: 'https://youtube.com/@ironwolves.demo' }
+    ],
+    seasonResults: [
+      { event: 'HACSA Spring Open', result: '1st — 5v5' },
+      { event: 'Prairie Cup', result: '2nd — mixed' },
+      { event: 'HACSA Winter Melee', result: '3rd — 5v5' },
+      { event: 'Alberta Invitational', result: '4th — team duel' }
+    ]
   },
   {
     id: 'vanguard',
@@ -88,7 +117,17 @@ export const demoTeams: DemoTeam[] = [
     captain: 'Alex Morgan',
     members: 11,
     founded: '2022',
-    bio: 'Demo team used in the BuhurtOS frontend prototype.'
+    bio: 'Demo team used in the BuhurtOS frontend prototype.',
+    socials: [
+      { label: 'Instagram', url: 'https://instagram.com/northernvanguard.demo' },
+      { label: 'Facebook', url: 'https://facebook.com/northernvanguard.demo' }
+    ],
+    seasonResults: [
+      { event: 'Northern Cup', result: '1st — 5v5' },
+      { event: 'HACSA Spring Open', result: '2nd — 5v5' },
+      { event: 'Prairie Cup', result: '3rd — mixed' },
+      { event: 'HACSA Summer Clash', result: '3rd — 12v12' }
+    ]
   },
   {
     id: 'badlands',
@@ -122,7 +161,20 @@ export const demoFighters: DemoFighter[] = [
     status: 'Active',
     bio: 'Heavy-hitting duel and melee fighter who prefers close pressure and long exchanges.',
     achievements: ['2026 Spring Open — Gold', '2026 Prairie Cup — Silver', '5v5 Team Captain Award'],
-    photoTone: 'ember'
+    photoTone: 'ember',
+    weightClass: 'Up to 95 kg',
+    experienceYears: 6,
+    experienceLevel: 'Veteran',
+    socials: [
+      { label: 'Instagram', url: 'https://instagram.com/bobmercer.demo' },
+      { label: 'YouTube', url: 'https://youtube.com/@bearmercer.demo' }
+    ],
+    tournamentHistory: [
+      { year: '2026', event: 'HACSA Spring Open', category: 'Longsword', placement: 'Gold' },
+      { year: '2026', event: 'Prairie Cup', category: 'Longsword', placement: 'Silver' },
+      { year: '2025', event: 'HACSA Summer Clash', category: '5v5', placement: 'Semifinalist' },
+      { year: '2025', event: 'Northern Cup', category: 'Longsword', placement: 'Quarterfinalist' }
+    ]
   },
   {
     id: 'garrett',
@@ -139,7 +191,18 @@ export const demoFighters: DemoFighter[] = [
     status: 'Active',
     bio: 'Reavers captain and multi-format competitor.',
     achievements: ['2026 Alberta Invitational — Bronze', 'Team Captain — Red Deer Reavers'],
-    photoTone: 'violet'
+    photoTone: 'violet',
+    weightClass: 'Up to 80 kg',
+    experienceYears: 4,
+    experienceLevel: 'Experienced',
+    socials: [
+      { label: 'Instagram', url: 'https://instagram.com/garrettrobson.demo' }
+    ],
+    tournamentHistory: [
+      { year: '2026', event: 'Alberta Invitational', category: 'Polearm', placement: 'Bronze' },
+      { year: '2026', event: 'HACSA Winter Melee', category: '5v5', placement: 'Winner' },
+      { year: '2025', event: 'Prairie Cup', category: 'Longsword', placement: 'Quarterfinalist' }
+    ]
   },
   {
     id: 'kolby',
@@ -156,7 +219,20 @@ export const demoFighters: DemoFighter[] = [
     status: 'Active',
     bio: 'Experienced duel competitor with strong tournament results.',
     achievements: ['Team Canada qualifier — Silver', 'Multiple regional podiums'],
-    photoTone: 'steel'
+    photoTone: 'steel',
+    weightClass: 'Up to 95 kg',
+    experienceYears: 8,
+    experienceLevel: 'Elite',
+    socials: [
+      { label: 'Instagram', url: 'https://instagram.com/kolbyh.demo' },
+      { label: 'X', url: 'https://x.com/kolbyh.demo' }
+    ],
+    tournamentHistory: [
+      { year: '2026', event: 'Team Canada Qualifier', category: 'Longsword', placement: 'Silver' },
+      { year: '2026', event: 'Prairie Cup', category: 'Longsword', placement: 'Gold' },
+      { year: '2025', event: 'HACSA Winter Melee', category: 'Sword & Shield', placement: 'Winner' },
+      { year: '2025', event: 'HACSA Summer Clash', category: 'Longsword', placement: 'Semifinalist' }
+    ]
   },
   {
     id: 'alex',
@@ -173,7 +249,19 @@ export const demoFighters: DemoFighter[] = [
     status: 'Active',
     bio: 'Fast-paced fighter with a focus on Sword & Buckler.',
     achievements: ['2026 Northern Cup — Gold'],
-    photoTone: 'blue'
+    photoTone: 'blue',
+    weightClass: 'Up to 85 kg',
+    experienceYears: 3,
+    experienceLevel: 'Rising',
+    socials: [
+      { label: 'Instagram', url: 'https://instagram.com/alexmorgan.demo' },
+      { label: 'Facebook', url: 'https://facebook.com/alexmorgan.demo' }
+    ],
+    tournamentHistory: [
+      { year: '2026', event: 'Northern Cup', category: 'Sword & Buckler', placement: 'Gold' },
+      { year: '2025', event: 'HACSA Fall Open', category: 'Sword & Buckler', placement: 'Semifinalist' },
+      { year: '2025', event: 'Alberta Invitational', category: 'Sword & Buckler', placement: 'Quarterfinalist' }
+    ]
   }
 ];
 

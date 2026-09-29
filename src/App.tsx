@@ -36,6 +36,7 @@ const FoundationPage = lazy(() => import('./pages/FoundationPage').then(module =
 const RulesetsPage = lazy(() => import('./pages/RulesetsPage').then(module => ({ default: module.RulesetsPage })));
 const IdentityPage = lazy(() => import('./pages/IdentityPage').then(module => ({ default: module.IdentityPage })));
 const IdentityReviewPage = lazy(() => import('./pages/IdentityReviewPage').then(module => ({ default: module.IdentityReviewPage })));
+const StandingsWidgetPage = lazy(() => import('./pages/StandingsWidgetPage').then(module => ({ default: module.StandingsWidgetPage })));
 
 function OperationsProvider() {
   return <AppStateProvider><Outlet /></AppStateProvider>;
@@ -80,6 +81,7 @@ export function App(){
     <Route element={<OperationsProvider/>}>
       <Route path="/live" element={<PublicPage/>}/>
       <Route path="/register" element={<RegistrationPage/>}/>
+      <Route path="/widget/standings" element={<StandingsWidgetPage/>}/>
       <Route path="/ops/login" element={<LoginPage/>}/>
       <Route path="/ops" element={<OperationalGate/>}>
         <Route index element={<OpsPage/>}/>

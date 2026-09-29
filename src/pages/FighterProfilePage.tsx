@@ -27,12 +27,17 @@ export function FighterProfilePage(){
       <div className="show-stack">
         <Panel title="Fighter bio"><p className="show-long-copy">{fighter.bio}</p></Panel>
         <Panel title="Recent results"><div className="show-results-list"><article><div><span className="show-result-icon win">W</span><div><b>vs. Alex Morgan</b><small>Longsword • HACSA Spring Open • Final</small></div></div><strong>8–5</strong></article><article><div><span className="show-result-icon win">W</span><div><b>vs. Mason Clarke</b><small>Longsword • HACSA Spring Open • Semifinal</small></div></div><strong>7–4</strong></article><article><div><span className="show-result-icon loss">L</span><div><b>vs. Kolby H.</b><small>Longsword • Prairie Cup • Final</small></div></div><strong>5–7</strong></article></div></Panel>
+        {fighter.tournamentHistory && fighter.tournamentHistory.length > 0 ? <Panel title="Tournament history"><div className="show-results-list">{fighter.tournamentHistory.map((h,i)=>(
+          <article key={i}><div><span className="show-result-icon">{(h.placement).slice(0,1)}</span><div><b>{h.event} • {h.year}</b><small>{h.category}</small></div></div><strong>{h.placement}</strong></article>
+        ))}</div></Panel> : null}
         <Panel title="Achievements"><div className="show-achievement-grid">{fighter.achievements.map((a,i)=><article key={a}><span>{i===0?'★':i===1?'◆':'⚔'}</span><b>{a}</b></article>)}</div></Panel>
       </div>
       <div className="show-stack">
         <Panel title="2026 season"><div className="show-record-big"><strong>{fighter.seasonRecord.wins}–{fighter.seasonRecord.losses}–{fighter.seasonRecord.draws}</strong><span>Current season</span></div><div className="show-detail-rows"><div><span>Longsword</span><b>#{fighter.rank}</b></div><div><span>Points</span><b>790</b></div><div><span>Best finish</span><b>Gold</b></div></div></Panel>
+        {fighter.weightClass || fighter.experienceLevel || fighter.experienceYears ? <Panel title="Profile"><div className="show-detail-rows">{fighter.weightClass?<div><span>Weight class</span><b>{fighter.weightClass}</b></div>:null}{fighter.experienceLevel?<div><span>Experience</span><b>{fighter.experienceLevel}</b></div>:null}{fighter.experienceYears?<div><span>Years active</span><b>{fighter.experienceYears}</b></div>:null}</div></Panel> : null}
         <Panel title="Upcoming"><div className="show-upcoming-mini"><span className="show-date-tile"><b>SEP</b><small>26</small></span><div><b>{demoEvents[0].name}</b><small>Longsword • Sword & Buckler • 5v5</small></div></div><Link className="show-btn primary full" to="/events/fall-open">View event</Link></Panel>
         <Panel title="Gallery"><div className="show-gallery-mini"><span className={fighter.photoTone}>Action</span><span className="steel">Podium</span><span className="blue">Team</span><span className="ember">Armor</span></div></Panel>
+        {fighter.socials && fighter.socials.length > 0 ? <Panel title="Socials"><div className="show-social-row">{fighter.socials.map(s=><a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" className="show-btn secondary">{s.label} ↗</a>)}</div></Panel> : null}
       </div>
     </div>
   </>;

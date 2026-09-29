@@ -28,6 +28,10 @@ export function TeamPage(){
       <div className="show-stack">
         <Panel title="Team record"><div className="show-record-big"><strong>24–11</strong><span>2026 season</span></div><div className="show-detail-rows"><div><span>HACSA rank</span><b>#2</b></div><div><span>Podiums</span><b>5</b></div><div><span>Events</span><b>7</b></div><div><span>Captain</span><b>{team.captain}</b></div></div></Panel>
         <Panel title="Next event"><span className="eyebrow">SEP 26–27</span><h3>HACSA Fall Open</h3><p className="muted">Springbrook, AB</p><Link className="show-btn primary full" to="/events/fall-open">View event</Link></Panel>
+        {team.seasonResults && team.seasonResults.length > 0 ? <Panel title="Season results"><div className="show-results-list">{team.seasonResults.map((r,i)=>(
+          <article key={i}><div><div><b>{r.event}</b></div></div><strong>{r.result}</strong></article>
+        ))}</div></Panel> : null}
+        {team.socials && team.socials.length > 0 ? <Panel title="Socials"><div className="show-social-row">{team.socials.map(s=><a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" className="show-btn secondary">{s.label} ↗</a>)}</div></Panel> : null}
       </div>
     </div>
   </>;
