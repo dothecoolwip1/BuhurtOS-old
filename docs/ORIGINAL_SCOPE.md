@@ -1,6 +1,6 @@
 # BuhurtOS Original Product Scope
 
-This document is the authoritative baseline for BuhurtOS. It consolidates the original BTMS planning decisions recovered from prior project discussions and should be used as the acceptance checklist for future implementation.
+This document is the authoritative baseline for BuhurtOS. It consolidates the original BuhurtOS planning decisions recovered from prior project discussions and should be used as the acceptance checklist for future implementation.
 
 ## Product Goal
 
