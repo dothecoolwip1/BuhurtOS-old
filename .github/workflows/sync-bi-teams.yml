@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: sync-bi-team-directory
+  group: sync-bi-team-directory-v2
   cancel-in-progress: true
 
 jobs:
