@@ -1,90 +1,21 @@
-import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { hacsaFallbackDirectory, loadPublicTeamDirectory, type PublicDirectoryTeam } from '../lib/teamDirectory';
-import { Panel, Pill } from '../components/ShowcaseUI';
-
-function initials(name: string) {
-  return name
-    .replace(/^The\s+/i, '')
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 3)
-    .map(part => part[0]?.toUpperCase())
-    .join('');
-}
-
+import {useEffect,useState} from 'react';import {Link,useParams} from 'react-router-dom';
+import {loadPublicTeamDirectory,loadPublicTeamRoster,type PublicDirectoryTeam,type PublicRosterMember} from '../lib/teamDirectory';
+import {Panel,Pill} from '../components/ShowcaseUI';
+const initials=(n:string)=>n.replace(/^The\s+/i,'').split(/\s+/).filter(Boolean).slice(0,3).map(x=>x[0]?.toUpperCase()).join('');
 export function TeamPage(){
-  const {teamId='reavers'}=useParams();
-  const [team,setTeam]=useState<PublicDirectoryTeam|undefined>(()=>hacsaFallbackDirectory().find(item=>item.slug===teamId));
-
-  useEffect(()=>{
-    let active=true;
-    loadPublicTeamDirectory({ organizationShortName:'HACSA', teamSlug:teamId })
-      .then(rows=>{if(active&&rows[0])setTeam(rows[0]);})
-      .catch(()=>{});
-    return ()=>{active=false;};
-  },[teamId]);
-
-  if(!team){
-    return <div className="state-card">
-      <h2>Team not found</h2>
-      <p>This team is not in the current HACSA source directory.</p>
-      <Link className="show-btn secondary" to="/teams">Back to HACSA teams</Link>
-    </div>;
-  }
-
-  return <>
-    <div className="show-profile-hero team official-team-hero">
-      <div className="show-team-logo-xl">{initials(team.name)}</div>
-      <div className="grow">
-        <span className="eyebrow">HACSA OFFICIAL DIRECTORY</span>
-        <h1>{team.name}</h1>
-        <p>{team.location} · {team.adminAreaName}, {team.countryName}</p>
-        <div className="show-inline-pills"><Pill tone="green">Source-backed</Pill><Pill>Verified {team.verifiedAt}</Pill></div>
-      </div>
-      <a className="show-btn secondary" href={team.sourceUrl} target="_blank" rel="noopener noreferrer">View source ↗</a>
-    </div>
-
-    <div className="directory-hierarchy compact" aria-label="Team geography">
-      <strong>{team.organizationShortName}</strong><span>›</span><b>{team.continentName}</b><span>›</span><b>{team.countryName}</b><span>›</span><b>{team.adminAreaName}</b>
-    </div>
-
-    <div className="show-two-col wide-left">
-      <div className="show-stack">
-        <Panel title="Official HACSA information" subtitle="Only fields published by HACSA are shown as source facts. Province/country hierarchy is normalized for directory browsing.">
-          <div className="show-detail-rows">
-            <div><span>Team</span><b>{team.name}</b></div>
-            <div><span>Published location</span><b>{team.location}</b></div>
-            <div><span>Province</span><b>{team.adminAreaName}</b></div>
-            <div><span>Country</span><b>{team.countryName}</b></div>
-            <div><span>Continent</span><b>{team.continentName}</b></div>
-            {team.email?<div><span>Public email</span><a href={`mailto:${team.email}`}>{team.email}</a></div>:null}
-            <div><span>Source checked</span><b>{team.verifiedAt}</b></div>
-          </div>
-        </Panel>
-
-        <Panel title="BuhurtOS team record">
-          <div className="source-empty-state">
-            <strong>No invented roster or statistics</strong>
-            <p>HACSA's public team directory does not publish a roster, member count, founding year or competition record for this listing. BuhurtOS will attach those fields only when they come from an approved source or from the team itself.</p>
-          </div>
-        </Panel>
-      </div>
-
-      <div className="show-stack">
-        <Panel title="Contact">
-          {team.email?<a className="show-btn primary full" href={`mailto:${team.email}`}>Email team</a>:null}
-          {team.websiteUrl?<a className="show-btn secondary full" href={team.websiteUrl} target="_blank" rel="noopener noreferrer">Team website ↗</a>:null}
-          {team.contactUrl?<a className="show-btn secondary full" href={team.contactUrl} target="_blank" rel="noopener noreferrer">HACSA contact link ↗</a>:null}
-        </Panel>
-        <Panel title="Source priority">
-          <div className="source-priority-list">
-            <div className="active"><span>1</span><div><b>HACSA Teams</b><small>Current primary source</small></div></div>
-            <div><span>2</span><div><b>BI Teams</b><small>Next integration</small></div></div>
-            <div><span>3</span><div><b>BI Official Ranking</b><small>Ranking and competition enrichment</small></div></div>
-          </div>
-        </Panel>
-      </div>
-    </div>
-  </>;
+ const {teamId=''}=useParams();const [team,setTeam]=useState<PublicDirectoryTeam>();const [roster,setRoster]=useState<PublicRosterMember[]>([]);const [loading,setLoading]=useState(true);
+ useEffect(()=>{let active=true;(async()=>{try{const rows=await loadPublicTeamDirectory({teamSlug:teamId});if(!active)return;setTeam(rows[0]);if(rows[0])setRoster(await loadPublicTeamRoster(rows[0].id));}finally{if(active)setLoading(false)}})();return()=>{active=false}},[teamId]);
+ if(loading)return <div className="state-card">Loading public team profile…</div>;
+ if(!team)return <div className="state-card"><h2>Team not found</h2><Link className="show-btn secondary" to="/teams">Back to teams</Link></div>;
+ return <>
+ <div className="show-profile-hero team official-team-hero"><div className="show-team-logo-xl">{initials(team.name)}</div><div className="grow"><span className="eyebrow">PUBLIC TEAM PROFILE</span><h1>{team.name}</h1>
+ <p>{[team.location,team.adminAreaName,team.countryName].filter(x=>x&&!x.includes('pending')).join(' · ')||'Location being normalized'}</p><div className="show-inline-pills"><Pill tone="green">Read only</Pill><Pill>{team.organizationShortName}</Pill>{team.verifiedAt?<Pill>Verified {team.verifiedAt}</Pill>:null}</div></div>
+ {team.sourceUrl?<a className="show-btn secondary" href={team.sourceUrl} target="_blank" rel="noopener noreferrer">View source ↗</a>:null}</div>
+ <div className="directory-hierarchy compact"><strong>{team.organizationShortName}</strong>{team.continentName&&!team.continentName.includes('pending')?<><span>›</span><b>{team.continentName}</b></>:null}{team.countryName&&!team.countryName.includes('pending')?<><span>›</span><b>{team.countryName}</b></>:null}{team.adminAreaName&&!team.adminAreaName.includes('pending')?<><span>›</span><b>{team.adminAreaName}</b></>:null}</div>
+ <div className="show-stat-grid"><div className="show-stat accent"><span>Public roster</span><strong>{roster.length}</strong><small>visible fighters</small></div><div className="show-stat"><span>Organization</span><strong className="stat-text">{team.organizationShortName}</strong><small>current directory group</small></div><div className="show-stat"><span>Location</span><strong className="stat-text">{team.location}</strong><small>general public location</small></div><div className="show-stat good"><span>Access</span><strong className="stat-text">Public</strong><small>read only</small></div></div>
+ <div className="show-two-col wide-left"><div className="show-stack"><Panel title="Public roster" subtitle="Only fighter profiles marked public are shown here. Private account and contact information is never included.">
+ {roster.length?<div className="show-roster-table">{roster.map(f=><article key={f.identityId}><span className="show-avatar md">{initials(f.displayName)}</span><div className="grow"><b>{f.displayName}</b><small>{[f.nickname,f.role,f.publicRegion].filter(Boolean).join(' · ')||'Fighter'}</small></div><Link className="show-link-btn" to={'/fighters/'+f.identityId}>Profile →</Link></article>)}</div>:<div className="source-empty-state"><strong>No public roster entries yet</strong><p>The team is public, but no fighter identities have been published to its roster yet. As verified rosters are imported or teams publish them, they will appear here automatically.</p></div>}</Panel>
+ <Panel title="Competition statistics"><div className="source-empty-state"><strong>Stats attach to verified competition data</strong><p>BuhurtOS will show wins, losses, appearances and rankings here as verified event and BI ranking records are connected. Nothing is fabricated when source data is missing.</p></div></Panel></div>
+ <div className="show-stack"><Panel title="Team information"><div className="show-detail-rows"><div><span>Team</span><b>{team.name}</b></div><div><span>Organization</span><b>{team.organizationShortName}</b></div><div><span>Published location</span><b>{team.location}</b></div>{team.countryName&&!team.countryName.includes('pending')?<div><span>Country</span><b>{team.countryName}</b></div>:null}{team.email?<div><span>Public email</span><a href={'mailto:'+team.email}>{team.email}</a></div>:null}</div></Panel>
+ {team.latitude!=null?<Panel title="Map location"><div className="mini-map-pin"><span>⌖</span><b>{team.location}</b><small>Approximate public location only</small></div></Panel>:null}</div></div></>;
 }
