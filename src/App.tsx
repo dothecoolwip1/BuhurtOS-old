@@ -6,6 +6,7 @@ import { RequirePermission } from './components/RequirePermission';
 import { AppStateProvider, useAppState } from './features/AppState';
 
 const ShowcaseDashboard = lazy(() => import('./pages/ShowcaseDashboard').then(module => ({ default: module.ShowcaseDashboard })));
+const PublicOrganizationPage = lazy(() => import('./pages/PublicOrganizationPage').then(module => ({ default: module.PublicOrganizationPage })));
 const GovernancePage = lazy(() => import('./pages/GovernancePage').then(module => ({ default: module.GovernancePage })));
 const TeamsPage = lazy(() => import('./pages/TeamsPage').then(module => ({ default: module.TeamsPage })));
 const TeamPage = lazy(() => import('./pages/TeamPage').then(module => ({ default: module.TeamPage })));
@@ -71,9 +72,10 @@ function RouteFallback() {
 export function App(){
   return <HashRouter><Suspense fallback={<RouteFallback/>}><Routes>
     <Route path="/" element={<MarketingHome/>}/>
-    <Route path="/public" element={<ShowcasePublicPage/>}/>
     <Route element={<ShowcaseShell/>}>
-      <Route path="/home" element={<ShowcaseDashboard/>}/>
+      <Route path="/public" element={<ShowcasePublicPage/>}/>
+      <Route path="/home" element={<Navigate to="/public" replace/>}/>
+      <Route path="/organizations/:organizationKey" element={<PublicOrganizationPage/>}/>
       <Route path="/governance" element={<GovernancePage/>}/>
       <Route path="/teams" element={<TeamsPage/>}/>
       <Route path="/teams/:teamId" element={<TeamPage/>}/>
