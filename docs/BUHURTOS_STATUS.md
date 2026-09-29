@@ -9,8 +9,7 @@ current implementation head. `main` includes Pack 7 tournament generation and
 Pack 4 organization/team/captain membership workflows through `901257c`.
 Profile-avatar storage work follows as a separate, locally verified release.
 
-Do not deploy migrations or Edge Functions to the Northborn/Mallard/Reavers
-Supabase project; a dedicated BuhurtOS project is still required.
+BuhurtOS must use only the dedicated Supabase organization `vbxznwtocyorcfghzdfo` (BuhurtOS). The older Northborn/Mallard/Reavers Supabase project remains prohibited. A dedicated project inside the BuhurtOS organization is pending creation and migration deployment.
 
 Repository: `dothecoolwip1/BuhurtOS`
 
@@ -280,7 +279,7 @@ Round 7 verification:
 
 The flagship product gap from the completion matrix: showcase surfaces could masquerade as live tournament data.
 
-* New `DemoNotice` component — a persistent banner ("Interactive demo — sample data only… Open the live event view →") rendered on every showcase route: injected into `ShowcaseShell` (all `/home`, `/governance`, `/teams`, `/fighters`, `/events`, `/rankings`, `/rules` views) and directly into `/public`.
+* The former persistent `DemoNotice` banner has been removed from all showcase and public routes at the owner’s direction. Sample-only scoreboards and preview labels remain explicitly marked where needed.
 * Every LIVE claim retitled to DEMO/SAMPLE: public hero "LIVE FROM SPRINGBROOK" → "DEMO PREVIEW · SAMPLE DATA"; red `● LIVE` pills → amber `● DEMO`; fake `00:42` clocks → `SAMPLE`; event statusbar "LIVE EVENT — HACSA SANCTIONED" → "DEMO EVENT · SAMPLE DATA"; dashboard "Live tournament / All reporting" → "Tournament preview / Sample data"; marketing mockup badge `LIVE` → `DEMO`.
 * Spectator preview nav `Live Now ●` → `Public Arena ◎`; the live board `/#/live` (real AppState-backed data) is the primary CTA on the public hero and dashboard.
 * Footer claim "Powered by live tournament data" replaced with a sample-data disclaimer.
@@ -316,7 +315,7 @@ The flagship product gap from the completion matrix: showcase surfaces could mas
 ## Round 13: Embeddable widgets + fuller public profiles (pushed as `a71c1d0`, combined green on `b61dccd` via workflow `36537529093`)
 
 * Chrome-free standings widget at `#/widget/standings` rendered straight from the live event board (`computeEventStandings` over AppState): DEMO DATA badge in demo builds, public-mode read in Supabase mode, no site chrome. `src/lib/embed.ts` builds the widget URL and an escaped iframe snippet (`widgetEmbedCode`/`widgetStandingsUrl`); StandingsPage gains an Embed widget control (copy button + visible snippet + preview link). 7 new unit tests in `tests/embed.test.ts`.
-* Deeper public profiles with honest demo content: `DemoFighter` gains weight class, experience level + years, socials, and tournament history; `DemoTeam` gains socials and season results (forming teams stay silent). FighterProfilePage renders Tournament history / Profile / Socials panels; TeamPage renders Season results / Socials. Verified in-browser on the demo surfaces (all still under the DemoNotice banner).
+* Deeper public profiles with honest demo content: `DemoFighter` gains weight class, experience level + years, socials, and tournament history; `DemoTeam` gains socials and season results (forming teams stay silent). FighterProfilePage renders Tournament history / Profile / Socials panels; TeamPage renders Season results / Socials. Verified in-browser on the preview surfaces.
 
 ## Round 14: Marathon verified flow (pushed as `b61dccd`, workflow `36537529093` green)
 

@@ -8,8 +8,9 @@ The historical checkpoint below is superseded. Current `main` includes Round 17
 Pack 7 tournament generation (`7b9a736`), Round 18 Pack 4 data layer
 (`ff82c3f`), and Round 18 UI/workflow completion (`901257c`). The next pending
 release adds secure fighter-avatar storage. Its local verification must never be
-mistaken for hosted Supabase/Edge verification: a dedicated BuhurtOS project is
-not yet confirmed, and the Northborn/Mallard/Reavers project is prohibited.
+mistaken for hosted Supabase/Edge verification. The dedicated Supabase organization
+is now confirmed as `vbxznwtocyorcfghzdfo` (BuhurtOS); only projects inside that
+organization may be used. The Northborn/Mallard/Reavers project remains prohibited.
 
 Pack 6 is complete and merged to `main` in PR #10.
 
@@ -35,8 +36,8 @@ The head of `main` is `c4d1f6f`. Ten rounds are pushed on top of the Pack 6 chec
 
 **Round 8 — public spectator surface disambiguation (`c7fab9c`):**
 
-* `DemoNotice` banner ("Interactive demo — sample data only… Open the live event view →") on every showcase route (`ShowcaseShell` + standalone `/public`) with the real `/#/live` board as the CTA.
-* All LIVE claims retitled to DEMO/SAMPLE (public hero, event statusbar, dashboard panel, marketing mockup); fake clocks/scoreboards `SAMPLE`; spectator preview nav `Live Now ●` → `Public Arena ◎`; "Powered by live tournament data" → sample-data disclaimer.
+* The persistent `DemoNotice` banner has since been removed at the owner’s direction. Sample-only scoreboard/status labels remain where needed to avoid presenting preview values as live results.
+* Preview/live wording remains separated so demo-only content is not mistaken for tournament records.
 
 **Round 9 — Long Axe competition format (`e3fe92d`):**
 
@@ -149,7 +150,6 @@ Round 7 (discipline + suspensions + offline):
 
 Round 8 (public-surface disambiguation):
 
-* `src/components/DemoNotice.tsx`
 * `src/components/ShowcaseShell.tsx`
 * `src/pages/ShowcasePublicPage.tsx`
 * `src/pages/ShowcaseDashboard.tsx`
@@ -170,7 +170,7 @@ Round 8 (public-surface disambiguation):
 * The `p_id` parameter on `issue_suspension` exists only for deterministic test seeding (`coalesce(p_id, gen_random_uuid())`). Do not add UI reliance on it.
 * `suspensions` remains SELECT-only via RLS plus anon/authenticated read grants; direct writes stay RPC-only.
 * Keep the offline queue fail-safe: conflicts require a human retry/discard, stale `syncing` is repaired after 30s, auto-retry is capped (8) with backoff, and manual retry resets the counter.
-* Showcase surfaces must keep the demo disambiguation: every showcase route carries a `DemoNotice`, no LIVE claims, no fake clocks, and the real live board (`/#/live`) is the primary spectator path.
+* Showcase surfaces must not present sample values as verified live tournament results. Keep sample-only scoreboards/statuses explicitly labeled where they remain; the persistent `DemoNotice` banner is intentionally removed.
 
 ## Pack 6 files to know
 
@@ -395,7 +395,7 @@ Treat Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e`, wor
 
 **The planned product gap list is closed, including the last three flagged items.** Rounds 13–14 cleared the widgets/public-profiles and Marathon frontier items; Round 15 added the team standings board and fight-card-level exports; Round 16 added the `sanctioned`/`predecessor` organization relationship kinds. Roadmap-only work remains as noted in `docs/COMPLETION_MATRIX.md` (e.g., org-level federation admin UI, production-verified livestream embedding, profile photo upload flow).
 
-Before any hosted production claim, select a dedicated BuhurtOS Supabase project and complete the existing hosted verification checklist. Do not use the Northborn/Mallard/Reavers project as a BuhurtOS target.
+Before any hosted production claim, create and select a dedicated project inside Supabase organization `vbxznwtocyorcfghzdfo` (BuhurtOS), then complete the hosted verification checklist. Do not use the Northborn/Mallard/Reavers project as a BuhurtOS target.
 
 The separate branch `pack4-organizations-clubs-teams` and closed draft PR #7 contain preserved feature work that is not part of the verified Pack 5 line unless deliberately reviewed and integrated later.
 
