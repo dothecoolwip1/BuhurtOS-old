@@ -145,13 +145,11 @@ select ok(
   'organization edits are audited as updates'
 );
 
-delete from public.brackets where id='f0000000-0000-0000-0000-000000000040';
-select ok(
-  exists(
-    select 1 from public.audit_log
-    where table_name='brackets' and action='delete' and record_id='f0000000-0000-0000-0000-000000000040'
-  ),
-  'bracket deletion is audited as a delete'
+select throws_ok(
+  $$delete from public.brackets where id='f0000000-0000-0000-0000-000000000040'$$,
+  'P0001',
+  'Published tournament structures are historical records and cannot be deleted',
+  'published bracket deletion is blocked by the immutability guard'
 );
 
 -- ---------------------------------------------------------------------------

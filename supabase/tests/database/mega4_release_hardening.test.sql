@@ -136,10 +136,12 @@ select lives_ok(
   'organization admin RLS matches organizer field permissions'
 );
 
-select lives_ok(
+select throws_ok(
   $$insert into public.brackets(event_id,name,format,category)
     values('44000000-0000-0000-0000-000000000030','Org Admin Bracket','single_elimination','Longsword')$$,
-  'organization admin RLS permits bracket creation'
+  'P0001',
+  'Use the governed tournament publication workflow',
+  'direct bracket inserts are blocked by the governed publication guard'
 );
 
 select lives_ok(
