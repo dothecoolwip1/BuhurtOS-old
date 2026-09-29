@@ -103,7 +103,7 @@ only credits real, wired functionality.
 | Round wins, configurable best-of | ✅ | melee config |
 | Forfeits and withdrawals | ✅ | forfeit handling + Pack 6 withdrawals |
 | Safety/compliance gating before activation | ✅ | compliance gate + guarded clearance |
-| **Marathon** | 🟡 | present as `custom_template` (endurance), not a built-in verified flow |
+| **Marathon** | ✅ | `competitionFormats.ts` `marathon` verified entry (`duel(1)` endurance scoring deferred to the sourced ruleset), selectable in rulesets/division setup; asserted in `tests/governance.test.ts` |
 
 ## Pools and Brackets
 
@@ -171,7 +171,7 @@ only credits real, wired functionality.
 |---|---|---|
 | Reusable team records | ✅ | `teams` |
 | Reusable fighter records | ✅ | `fighters` + `fighter_identities` |
-| Fighter + team profiles | 🟡 | public/private fighter profiles exist; team profile fields basic |
+| Fighter + team profiles | ✅ | public fighter profiles (bio, record, season record, tournament history, profile details, socials, gallery) + team profiles (about, roster, results, socials); demo enrichments verified in-browser |
 | Team membership | ✅ | `fighter_affiliations` + captain-scoped RLS |
 | Fighter event/season history | ✅ | roster + results referencing permanent fighter |
 | Ghost/guest/mercenary identities | ✅ | entry types + ghost creation |
@@ -229,9 +229,9 @@ only credits real, wired functionality.
 | Relevant season standings | ✅ | season_and_event |
 | Announcements | ✅ | public announcements |
 | Livestream embed (YouTube/Twitch) | 🟡 | stream settings + embed surface; streaming not production-verified |
-| Read-only fighter/team/event info | 🟡 | public fighter profiles partial (identity public fields) |
+| Read-only fighter/team/event info | ✅ | public fighter profiles (bio, record, season record, tournament history, socials) + team profiles (about, roster, season results, socials) + public event pages |
 | Shareable public links | ✅ | `share.ts` |
-| Embeddable widgets | ❌ | not started |
+| Embeddable widgets | ✅ | chrome-free standings widget at `#/widget/standings` rendered from the live event board (DEMO DATA labeled in demo builds; public-mode read in Supabase mode); `src/lib/embed.ts` iframe snippet builder + copy/embed block on the Standings page |
 | **Mock-vs-real split** | ✅ | Showcase surfaces are explicitly disambiguated: a `DemoNotice` banner on every showcase route (`ShowcaseShell` + `/public`), DEMO/SAMPLE markers replace all LIVE claims, fake clocks/scoreboards are titled "SAMPLE", the spectator nav opens Public Arena, and `/#/live` (real AppState data) is the primary CTA. Verified in-browser + production build. |
 
 ## Event Management
@@ -334,7 +334,7 @@ only credits real, wired functionality.
 | Guest/mercenary for an event | ✅ | entry types |
 | Member self-service profile | ✅ | IdentityPage (display, legal, nickname, region, bio, socials, achievements, experience, visibility) |
 | Profile photos upload/replace/reorder/remove | 🟡 | photo fields modeled; upload flow partial |
-| Public fighter profile (photo, record, season record, tournament history, podiums, upcoming events) | 🟡 | identity public fields; career-record surface partial |
+| Public fighter profile (photo, record, season record, tournament history, podiums, upcoming events) | ✅ | public profile (career record, win rate, podiums, incoming events, tournament history, profile details, socials, gallery); demo surfaces carry the DemoNotice banner |
 | Federation hierarchy (intl → national → regional → local → team → captain → fighter) | ✅ | org/governing-body relationships on `main` (`20261001000000_federation_hierarchy.sql`): `organization_kind` + `organization_relationships` with guarded RPCs; federation-aware dashboard surface still showcase-demo |
 | Federation-agnostic (no hard-coded BI/IMCF/HACSA root) | ✅ | verified: BI/IMCF/HACSA appear only as seed/demo data source; rulesets/divisions are governed entities |
 | Governing-body capabilities (create subordinate orgs, sanction, publish rulesets, official records, discipline jurisdiction) | 🟡 | rulesets publication + sanctioned divisions exist; org-level federation admin only on branch |
@@ -347,7 +347,28 @@ only credits real, wired functionality.
 
 ## Round notes (this update)
 
-**CI is green on `main`:** workflow `36536214636` on head `de109b9` passed all three jobs — frontend (typecheck/tests/production build), the authoritative pgTAP database job (now 10 suites), and the GitHub Pages deploy. Deployed site live at <https://dothecoolwip1.github.io/BuhurtOS/>. (Round 11 docs head `d1be2f0` also passed, workflow `36535932022`.)
+**CI is green on `main`:** workflow `36537529093` on head `b61dccd` passed all three jobs — frontend (typecheck/tests/production build), the authoritative pgTAP database job (10 suites), and the GitHub Pages deploy. Deployed site live at <https://dothecoolwip1.github.io/BuhurtOS/>. (The Round 13 head `a71c1d0` was superseded by the immediate Round 14 push, so the combined head `b61dccd` carries Rounds 13 + 14; Round 12 docs head `d1be2f0` passed workflow `36535932022`.)
+
+Round 14 (completed and pushed as `b61dccd`):
+- **Marathon productized** — the `marathon` preset moves from
+  `custom_template` to `verified` in `competitionFormats.ts` (mirroring the
+  Long Axe precedent): a first-class verified endurance category whose exact
+  scoring and duration stay deferred to the selected sourced ruleset.
+  `governance.test.ts` now asserts `marathon` in `verifiedCompetitionFormats`
+  and no longer as an organization template.
+
+Round 13 (completed and pushed as `a71c1d0`, validated on `b61dccd`):
+- **Embeddable widgets + fuller public fighter/team profiles** — chrome-free
+  standings widget at `#/widget/standings` rendered straight from the live
+  event board (DEMO DATA labeled in demo builds; public-mode read in Supabase
+  mode); `src/lib/embed.ts` builds the widget URL + escaped iframe snippet;
+  StandingsPage gains an Embed widget control with the snippet and preview.
+- Public profiles: `DemoFighter` gains weight class, experience level/years,
+  socials, and tournament history; `DemoTeam` gains socials and season
+  results. FighterProfilePage renders Tournament history / Profile / Socials
+  panels; TeamPage renders Season results / Socials. 7 new unit tests in
+  `tests/embed.test.ts`; full suite 49/49, typecheck and build clean;
+  verified in-browser.
 
 Round 12 (completed and pushed as `de109b9`):
 - **Audit completeness** — `20261002000000_audit_completeness.sql` wires the
@@ -426,5 +447,9 @@ Round 7 (completed and pushed as `27566ef`):
 
 Top remaining product gaps (in priority order):
 
-1. **Embeddable widgets + fuller public fighter/team profiles.**
-2. **Marathon** — productize the custom template into a verified flow.
+**None — the planned product gaps are closed.** The last frontier items
+(embeddable widgets + fuller public fighter/team profiles, and the Marathon
+verified flow) shipped in Rounds 13 and 14. Ongoing work remains
+maintenance/expansion: enterprise outcomes such as org-level federation admin
+and production-verified livestream embedding stay on the roadmap as noted in
+their individual matrix rows.

@@ -263,9 +263,51 @@ Scope:
 Verification: 26-assertion `audit_completeness.test.sql` green on the local
 10-suite replay and under real pgTAP in CI; frontend job + deploy green.
 
+## Round 13: Embeddable widgets + fuller public fighter/team profiles
+
+Status: pushed as `a71c1d0`; validated green on the combined Round 14 head
+`b61dccd` via workflow `36537529093`.
+
+Scope:
+
+* Chrome-free standings widget at `#/widget/standings` rendered from the live
+  event board; `src/lib/embed.ts` iframe snippet builder; Embed widget control
+  (copy + snippet + preview) on the Standings page.
+* Deeper public profiles: tournament history, profile details (weight class /
+  experience), socials for fighters; season results + socials for teams.
+
+Verification: 7 assertions in `tests/embed.test.ts`, full suite 49/49,
+typecheck and build clean; in-browser DOM checks on the widget and profile
+pages.
+
+## Round 14: Marathon verified flow
+
+Status: pushed as `b61dccd`; workflow `36537529093` green end-to-end.
+
+Scope:
+
+* Promote `marathon` from `custom_template` to `verified` in
+  `competitionFormats.ts` (Long Axe precedent): verified endurance category,
+  exact scoring and duration deferred to the sourced ruleset.
+* Assertions in `tests/governance.test.ts` keep marathon in
+  `verifiedCompetitionFormats`.
+
+Verification: full suite 49/49, typecheck and build clean; CI green
+end-to-end.
+
 ## Later packs
 
-Later product work should start from the Round 12 checkpoint. Preserve the completed identity, authorization, release hardening, governance, division, season, event lifecycle, registration, eligibility, capacity, withdrawal, clearance, privacy, concurrency, discipline, suspension, offline-queue, public-surface-disambiguation, Long-Axe, federation-hierarchy, exports, and audit-completeness foundations unless a targeted defect requires change.
+**All planned rounds are complete.** Rounds 7–14 (discipline/suspensions,
+pack-9 hardening, combined-restore, Long Axe, federation hierarchy, exports,
+audit completeness, widgets/public profiles, Marathon verified flow) are
+shipped on `main`. Preserve the completed identity, authorization, release
+hardening, governance, division, season, event lifecycle, registration,
+eligibility, capacity, withdrawal, clearance, privacy, concurrency,
+discipline, suspension, offline-queue, public-surface-disambiguation, Long
+Axe, federation-hierarchy, exports, audit-completeness, widgets, and Marathon
+foundations unless a targeted defect requires change. Roadmap-only items
+(org-level federation admin, production-verified livestream embedding, photo
+upload flow) remain as noted in their individual matrix rows.
 
 Before starting a later pack:
 
