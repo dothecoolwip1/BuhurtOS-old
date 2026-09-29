@@ -1,44 +1,31 @@
-import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { demoEvents, demoFighters, demoTeams } from '../data/showcase';
-import { Avatar, Panel, Pill } from '../components/ShowcaseUI';
-import { shareCurrentPage } from '../lib/share';
+import {useEffect,useState} from 'react';
+import {Link,useParams} from 'react-router-dom';
+import {Avatar,Panel,Pill} from '../components/ShowcaseUI';
+import {loadPublicFighter,type PublicFighterSummary} from '../lib/publicDirectory';
+
+const initials=(n:string)=>n.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]?.toUpperCase()).join('');
 
 export function FighterProfilePage(){
-  const {fighterId='bob'}=useParams();
-  const fighter=demoFighters.find(f=>f.id===fighterId)??demoFighters[0];
-  const team=demoTeams.find(t=>t.id===fighter.teamId)!;
-  const total=fighter.record.wins+fighter.record.losses+fighter.record.draws;
-  const winRate=total?Math.round((fighter.record.wins/total)*100):0;
-  const [shareMessage,setShareMessage]=useState('');
-  const share=async()=>{
-    try{
-      const result=await shareCurrentPage(fighter.fighterName,fighter.bio);
-      setShareMessage(result==='copied'?'Fighter link copied.':'Fighter profile shared.');
-    }catch(error){
-      setShareMessage(error instanceof Error?error.message:'Unable to share this profile.');
-    }
-  };
-  return <>
-    <div className={`show-profile-hero fighter ${fighter.photoTone}`}><Avatar initials={fighter.name.split(' ').map(x=>x[0]).join('').slice(0,2)} tone={fighter.photoTone} size="xl"/><div className="grow"><span className="eyebrow">HACSA FIGHTER • RANK #{fighter.rank}</span><h1>{fighter.fighterName}</h1><p><Link to={`/teams/${team.id}`}>{team.name}</Link> • {fighter.region}</p><div className="show-inline-pills"><Pill tone="green">{fighter.status}</Pill>{fighter.categories.map(c=><Pill key={c}>{c}</Pill>)}</div></div><button className="show-btn secondary" onClick={share}>Share profile</button></div>
-    {shareMessage&&<div className="auth-message">{shareMessage}</div>}
-    <div className="show-record-strip"><div><strong>{fighter.record.wins}–{fighter.record.losses}–{fighter.record.draws}</strong><span>Career record</span></div><div><strong>{winRate}%</strong><span>Win rate</span></div><div><strong>{fighter.podiums}</strong><span>Podiums</span></div><div><strong>{fighter.events}</strong><span>Events</span></div><div><strong>#{fighter.rank}</strong><span>HACSA rank</span></div></div>
-    <div className="show-two-col wide-left">
-      <div className="show-stack">
-        <Panel title="Fighter bio"><p className="show-long-copy">{fighter.bio}</p></Panel>
-        <Panel title="Recent results"><div className="show-results-list"><article><div><span className="show-result-icon win">W</span><div><b>vs. Alex Morgan</b><small>Longsword • HACSA Spring Open • Final</small></div></div><strong>8–5</strong></article><article><div><span className="show-result-icon win">W</span><div><b>vs. Mason Clarke</b><small>Longsword • HACSA Spring Open • Semifinal</small></div></div><strong>7–4</strong></article><article><div><span className="show-result-icon loss">L</span><div><b>vs. Kolby H.</b><small>Longsword • Prairie Cup • Final</small></div></div><strong>5–7</strong></article></div></Panel>
-        {fighter.tournamentHistory && fighter.tournamentHistory.length > 0 ? <Panel title="Tournament history"><div className="show-results-list">{fighter.tournamentHistory.map((h,i)=>(
-          <article key={i}><div><span className="show-result-icon">{(h.placement).slice(0,1)}</span><div><b>{h.event} • {h.year}</b><small>{h.category}</small></div></div><strong>{h.placement}</strong></article>
-        ))}</div></Panel> : null}
-        <Panel title="Achievements"><div className="show-achievement-grid">{fighter.achievements.map((a,i)=><article key={a}><span>{i===0?'★':i===1?'◆':'⚔'}</span><b>{a}</b></article>)}</div></Panel>
-      </div>
-      <div className="show-stack">
-        <Panel title="2026 season"><div className="show-record-big"><strong>{fighter.seasonRecord.wins}–{fighter.seasonRecord.losses}–{fighter.seasonRecord.draws}</strong><span>Current season</span></div><div className="show-detail-rows"><div><span>Longsword</span><b>#{fighter.rank}</b></div><div><span>Points</span><b>790</b></div><div><span>Best finish</span><b>Gold</b></div></div></Panel>
-        {fighter.weightClass || fighter.experienceLevel || fighter.experienceYears ? <Panel title="Profile"><div className="show-detail-rows">{fighter.weightClass?<div><span>Weight class</span><b>{fighter.weightClass}</b></div>:null}{fighter.experienceLevel?<div><span>Experience</span><b>{fighter.experienceLevel}</b></div>:null}{fighter.experienceYears?<div><span>Years active</span><b>{fighter.experienceYears}</b></div>:null}</div></Panel> : null}
-        <Panel title="Upcoming"><div className="show-upcoming-mini"><span className="show-date-tile"><b>SEP</b><small>26</small></span><div><b>{demoEvents[0].name}</b><small>Longsword • Sword & Buckler • 5v5</small></div></div><Link className="show-btn primary full" to="/events/fall-open">View event</Link></Panel>
-        <Panel title="Gallery"><div className="show-gallery-mini"><span className={fighter.photoTone}>Action</span><span className="steel">Podium</span><span className="blue">Team</span><span className="ember">Armor</span></div></Panel>
-        {fighter.socials && fighter.socials.length > 0 ? <Panel title="Socials"><div className="show-social-row">{fighter.socials.map(s=><a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" className="show-btn secondary">{s.label} ↗</a>)}</div></Panel> : null}
-      </div>
-    </div>
-  </>;
+ const {fighterId=''}=useParams();
+ const [fighter,setFighter]=useState<PublicFighterSummary>();
+ const [loading,setLoading]=useState(true);
+ useEffect(()=>{let active=true;loadPublicFighter(fighterId).then(row=>{if(active)setFighter(row)}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[fighterId]);
+ if(loading)return <div className="state-card">Loading fighter profile…</div>;
+ if(!fighter)return <div className="state-card"><h2>Fighter profile not found</h2><p>This may be a source-only roster name that has not yet been linked to a public BuhurtOS identity.</p><Link className="show-btn secondary" to="/fighters">Back to fighters</Link></div>;
+ return <>
+  <div className="show-profile-hero fighter steel">
+   {fighter.avatarPath?<img className="show-fighter-avatar-image profile" src={fighter.avatarPath} alt={fighter.displayName}/>:<Avatar initials={initials(fighter.displayName)} tone="steel" size="xl"/>}
+   <div className="grow"><span className="eyebrow">PUBLIC FIGHTER PROFILE</span><h1>{fighter.nickname?fighter.displayName+' “'+fighter.nickname+'”':fighter.displayName}</h1><p>{fighter.publicRegion||'Region not published'}</p><div className="show-inline-pills">{fighter.verified?<Pill tone="green">Verified identity</Pill>:<Pill>Public profile</Pill>}</div></div>
+  </div>
+  <div className="show-two-col wide-left">
+   <div className="show-stack">
+    <Panel title="About"><p className="show-long-copy">{fighter.bio||'This fighter has not published a biography yet.'}</p></Panel>
+    <Panel title="Competition history"><div className="source-empty-state"><strong>No invented stats.</strong><p>Categories, match record, podiums and ranking history will appear here only when linked to finalized public BuhurtOS results or verified source records.</p></div></Panel>
+   </div>
+   <div className="show-stack">
+    <Panel title="Profile"><div className="show-detail-rows"><div><span>Name</span><b>{fighter.displayName}</b></div>{fighter.nickname?<div><span>Nickname</span><b>{fighter.nickname}</b></div>:null}<div><span>Region</span><b>{fighter.publicRegion||'Not published'}</b></div><div><span>Status</span><b>{fighter.verified?'Verified':'Public'}</b></div></div></Panel>
+    <Panel title="What do they fight?"><div className="show-explain-card"><span>?</span><div><b>Competition categories</b><p>Weapon and melee categories such as longsword, sword & buckler, polearm, 5v5 and 12v12 will populate from verified competition history instead of being guessed.</p></div><Link to="/rules">Learn about categories</Link></div></Panel>
+   </div>
+  </div>
+ </>;
 }
