@@ -347,6 +347,21 @@ only credits real, wired functionality.
 
 ## Round notes (this update)
 
+**CI is green on `main`:** workflow `36533390822` on head `187862c` passed all three jobs — frontend (typecheck/tests/production build), the authoritative pgTAP database job (all 8 suites), and the GitHub Pages deploy. Deployed site live at <https://dothecoolwip1.github.io/BuhurtOS/>.
+
+Round 9 (completed and pushed as `e3fe92d`):
+- **Long Axe** added as a `verified` BI duel preset in `competitionFormats.ts`
+  (the last ORIGINAL_SCOPE duel category that existed only as marketing copy);
+  scoring deferred to the sourced ruleset like its verified siblings. Asserted
+  in `tests/governance.test.ts`.
+
+Round 8.5 (completed and pushed as `435b140` + `187862c`):
+- **pgTAP error-pattern semantics** — the supabase-bundled pgTAP matches
+  `throws_ok` errmsg against the verbatim full `MESSAGE_TEXT` (no `%`
+  wildcards) and does not ship `throws_like`; the discipline suite's error
+  assertions now pass exact full messages. The local replay shim mirrors the
+  exact-message rule.
+
 Round 8 (completed and pushed as `c7fab9c`):
 - **Public-surface disambiguation (flagship gap resolved)**: `DemoNotice`
   banner on every showcase route (`ShowcaseShell` + `/public`); DEMO/SAMPLE

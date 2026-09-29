@@ -14,9 +14,9 @@ Pack 6 merge commit: `c6bbd937ed9a08592ca633325a848e2e765f4382`.
 
 That workflow passed both required jobs: frontend typecheck/tests/production build and a clean Supabase rebuild with all pgTAP database tests.
 
-### Current state: Rounds 7–8 on `main`
+### Current state: Rounds 7–9 on `main`
 
-The head of `main` is `c7fab9c`. Two rounds are pushed on top of the Pack 6 checkpoint:
+The head of `main` is `187862c`. Three rounds are pushed on top of the Pack 6 checkpoint:
 
 **Round 7 — discipline, suspensions, and offline hardening (`27566ef`):**
 
@@ -31,11 +31,22 @@ The head of `main` is `c7fab9c`. Two rounds are pushed on top of the Pack 6 chec
 * `DemoNotice` banner ("Interactive demo — sample data only… Open the live event view →") on every showcase route (`ShowcaseShell` + standalone `/public`) with the real `/#/live` board as the CTA.
 * All LIVE claims retitled to DEMO/SAMPLE (public hero, event statusbar, dashboard panel, marketing mockup); fake clocks/scoreboards `SAMPLE`; spectator preview nav `Live Now ●` → `Public Arena ◎`; "Powered by live tournament data" → sample-data disclaimer.
 
-Local verification on the corrected head: `npm run typecheck` clean, `npm test` 36/36, production build clean, in-browser DOM assertions confirm demo markers and no live claims, and the full 8-suite pgTAP replay is green with real role switching + RLS semantics. **The CI run for head `c7fab9c` is the authoritative verification and must be confirmed green before starting the next pack.**
+**Round 9 — Long Axe competition format (`e3fe92d`):**
+
+* Added `long_axe` to `competitionFormats.ts` as a `verified` BI duel preset (`duel()` scoring; scoring deferred to the sourced ruleset). Asserted in `tests/governance.test.ts`.
+
+Local verification on the corrected head: `npm run typecheck` clean, `npm test` 36/36, production build clean, in-browser DOM assertions confirm demo markers and no live claims, and the full 8-suite pgTAP replay is green with real role switching + RLS semantics. **CI is green on the combined head `187862c`: workflow `36533390822` passed the frontend job, the authoritative pgTAP database job, and the GitHub Pages deploy (site live at <https://dothecoolwip1.github.io/BuhurtOS/>).**
+
+**pgTAP error-pattern lesson:** the supabase-bundled pgTAP does not treat `%` as a wildcard in `throws_ok` errmsg, and it does not ship `throws_like` at all. `throws_ok` matches the errmsg argument against the **verbatim full `MESSAGE_TEXT`**. Discipline assertions now pass exact messages (e.g. `Not authorized to revoke suspensions`, `Fighter is under an active suspension until 2026-10-01`). Keep new `throws_ok` message arguments verbatim and full — never partial substrings or `%` wrappers.
 
 Do not apply BuhurtOS migrations to the currently connected Supabase project unless it is independently confirmed to be a dedicated BuhurtOS project. The project inspected during Pack 2 contains Northborn, Mallard, and Reavers data and is not the BuhurtOS target.
 
 ## This round — files to know
+
+Round 9 (Long Axe):
+
+* `src/lib/competitionFormats.ts` (`long_axe` preset)
+* `tests/governance.test.ts` (verified-formats assertion)
 
 Round 7 (discipline + suspensions + offline):
 
@@ -262,7 +273,7 @@ supabase test db
 
 Local SQL validation without Docker uses the replay harness: fresh DB → `supabase_minimal_fixture.sql` → all migrations → `pgtap_shim.sql` role switching → suite via `run_suites.ps1` (see the workspace temp folder, not the repo). The CI `database` job remains authoritative.
 
-GitHub Actions workflow `35954642255` passed both jobs on Pack 3 implementation head `2ffab73e9e403ab8c0325ef18a441ed5fe09319e` before merge. Mega Pack 4 workflow `35999176785` passed both jobs on implementation head `07107630551711945284cabfac3de1c3ca86cc58`. Round 7 head `27566ef` passed the frontend job on workflow `36531121109` but its database job failed on the stale `mega4_release_hardening` discipline assertion; the assertion was corrected in `3b52176` and the 8-suite local replay is green on the combined `c7fab9c` head (the authoritative CI run for it must be confirmed green).
+GitHub Actions workflow `35954642255` passed both jobs on Pack 3 implementation head `2ffab73e9e403ab8c0325ef18a441ed5fe09319e` before merge. Mega Pack 4 workflow `35999176785` passed both jobs on implementation head `07107630551711945284cabfac3de1c3ca86cc58`. Round 7 head `27566ef` passed the frontend job on workflow `36531121109` but its database job failed on the stale `mega4_release_hardening` discipline assertion (corrected in `3b52176`); the discipline suite's error-pattern semantics were corrected in `435b140`/`187862c`, and the combined head `187862c` passed **workflow `36533390822` green end-to-end** (frontend job, pgTAP database job, and GitHub Pages deploy).
 
 The Pack 3 database suite contains 49 identity-specific assertions in addition to the earlier Pack 1 and Pack 2 database suites. It covers public and private access, profile concurrency, youth privacy, claim approval, rejection and disputes, unauthorized edits, affiliation transitions, duplicate suggestions, merge preservation, conflicting owners, rollback, and auditing.
 
@@ -287,7 +298,7 @@ A dedicated BuhurtOS Supabase project is still required before any remote migrat
 
 Read `BUHURTOS_PLAN.md`, `BUHURTOS_STATUS.md`, `docs/COMPLETION_MATRIX.md`, and this handoff before continuing.
 
-Treat Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e`, workflow `36080004581`, and merge commit `c6bbd937ed9a08592ca633325a848e2e765f4382` as the verified events-and-registration checkpoint. Treat Rounds 7–8 (head `c7fab9c`, described at the top of this handoff) as the current checkpoint; confirm the CI run on `c7fab9c` is green before moving on.
+Treat Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e`, workflow `36080004581`, and merge commit `c6bbd937ed9a08592ca633325a848e2e765f4382` as the verified events-and-registration checkpoint. Treat Rounds 7–9 (head `187862c`, described at the top of this handoff) as the current checkpoint, verified green by workflow `36533390822`.
 
 Top remaining product gaps (priority order, full detail in `docs/COMPLETION_MATRIX.md`):
 

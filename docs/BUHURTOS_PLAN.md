@@ -193,7 +193,7 @@ Verification completed locally before commit: typecheck clean, 36/36 frontend te
 
 ## Round 8: Public spectator surface disambiguation
 
-Status: pushed as `c7fab9c`. Resolves the flagship mock-vs-real product gap.
+Status: pushed as `c7fab9c`; CI confirmed green on the combined head (workflow `36533390822` on `187862c`, including the GitHub Pages deploy).
 
 Scope:
 
@@ -201,16 +201,27 @@ Scope:
 * All LIVE claims retitled to DEMO/SAMPLE across the public hero, event statusbar, dashboard panel, and marketing mockup; fake clocks/scoreboards labelled SAMPLE; spectator preview nav `Live Now ●` → `Public Arena ◎`.
 * Sample-data disclaimer replaces "Powered by live tournament data"; live board remains the primary spectator CTA.
 
-Verification: production build clean, 36/36 frontend tests, in-browser DOM assertions across `/`, `/public`, `/home`, `/events/fall-open`, `/rankings` confirm demo markers and no live claims. The CI run for the combined Round 7+8 head must be confirmed green.
+Verification: production build clean, 36/36 frontend tests, in-browser DOM assertions across `/`, `/public`, `/home`, `/events/fall-open`, `/rankings` confirm demo markers and no live claims, and the authoritative CI run is green on `187862c` (workflow `36533390822`).
+
+## Round 9: Long Axe competition format
+
+Status: pushed as `e3fe92d`; included in the green workflow `36533390822`.
+
+Scope:
+
+* Add `long_axe` to `competitionFormats.ts` as a `verified` BI duel preset (`duel()` scoring; exact scoring deferred to the selected sourced ruleset, matching the contract of `longsword`/`polearm`).
+* Assert `long_axe` in the verified-formats list in `tests/governance.test.ts`; drop Long Axe from the remaining-gaps lists in the matrix and handoff.
+
+Verification: governance tests 6/6, typecheck clean, production build clean, CI green end-to-end on `187862c`.
 
 ## Later packs
 
-Later product work should start from the Round 8 checkpoint. Preserve the completed identity, authorization, release hardening, governance, division, season, event lifecycle, registration, eligibility, capacity, withdrawal, clearance, privacy, concurrency, discipline, suspension, offline-queue, and public-surface-disambiguation foundations unless a targeted defect requires change.
+Later product work should start from the Round 9 checkpoint. Preserve the completed identity, authorization, release hardening, governance, division, season, event lifecycle, registration, eligibility, capacity, withdrawal, clearance, privacy, concurrency, discipline, suspension, offline-queue, public-surface-disambiguation, and Long-Axe foundations unless a targeted defect requires change.
 
 Before starting a later pack:
 
 * Read `BUHURTOS_STATUS.md`.
 * Read `BUHURTOS_HANDOFF.md`.
 * Read `docs/COMPLETION_MATRIX.md` for the per-requirement source-of-truth status and the ranked list of remaining product gaps.
-* Confirm the Round 8 CI run is green on `main`.
+* Confirm the latest CI run is green on `main`.
 * Confirm a dedicated BuhurtOS Supabase project is selected before applying migrations remotely.
