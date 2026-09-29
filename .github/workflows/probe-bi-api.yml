@@ -1,0 +1,28 @@
+name: Probe BI data API
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/probe-bi-api.mjs"
+      - ".github/workflows/probe-bi-api.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm install --no-save puppeteer-core@24
+      - id: setup-chrome
+        uses: browser-actions/setup-chrome@v1
+      - name: Probe
+        env:
+          CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+        run: node scripts/probe-bi-api.mjs
