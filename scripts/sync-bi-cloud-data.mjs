@@ -24,8 +24,8 @@ const result=await page.evaluate(async()=>{
     const json=await res.json();
     const items=json.dataItems||[];
     all.push(...items);
-    const total=json.pagingMetadata?.count??json.totalCount??json.pagingMetadata?.total??null;
-    if(items.length<limit || (total!=null && all.length>=total)) return {items:all,total,rawMeta:json.pagingMetadata||null};
+    const total=json.pagingMetadata?.total??json.totalCount??null;
+    if(json.pagingMetadata?.hasNext===false || items.length===0 || (total!=null && all.length>=total)) return {items:all,total,rawMeta:json.pagingMetadata||null};
     offset+=items.length;
     if(offset>5000)throw new Error('Safety stop: too many BI team records');
   }
