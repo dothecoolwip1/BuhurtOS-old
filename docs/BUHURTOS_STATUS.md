@@ -375,3 +375,12 @@ Until a dedicated BuhurtOS project is available, these remain unverified:
 * Real multi-device reconnect behavior on hosted infrastructure.
 
 These are infrastructure verification items, not claims of successful production deployment.
+
+
+## Source-backed HACSA teams and BI marshal reference
+
+Implementation branch `feature/hacsa-bi-marshal-reference` replaces fabricated showcase team facts with the 10 public teams currently listed by HACSA, verified 2026-09-29. HACSA is source priority 1; BI Teams and BI Official Ranking are explicitly staged as the next team sources.
+
+The public and operations rule views now use a source-backed BI marshal reference covering the current core fight corpus: Buhurt Rules 26.4.1, Buhurt Regulations 26.4, Duels Rules 26.4, Duels Regulations 26.4, Outrance Rules and Regulations 26.4, and Weapons / Shield Chart 26.2.1. Indexed entries retain document/version/section provenance and can be filtered by fight format or searched by situation. The Marshal Console passes the active match category directly to the reference through the “Rules for this fight” link.
+
+`tests/marshalReference.test.ts` verifies HACSA source provenance, match-category mapping, family isolation and BI source integrity. The first PR run passed TypeScript, Vitest and production build before the explicit numbered-subrule expansion; the current PR head must remain green before merge.

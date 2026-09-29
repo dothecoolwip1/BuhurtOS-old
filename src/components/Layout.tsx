@@ -28,6 +28,7 @@ export function Layout() {
           <NavLink to="/ops/identity">My Fighter Identity</NavLink>
           {canSetup && <NavLink to="/ops/identity-review">Identity Review</NavLink>}
           {canSetup && <NavLink to="/ops/foundation">Identity & Divisions</NavLink>}
+          <NavLink to="/ops/marshal-reference">BI Marshal Reference</NavLink>
           {canSetup && <NavLink to="/ops/rulesets">Rulesets</NavLink>}
           <NavLink to="/ops/sync">Sync Queue</NavLink>
           {canSetup && <NavLink to="/ops/setup">Setup</NavLink>}
