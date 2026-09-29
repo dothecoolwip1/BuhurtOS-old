@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-09-29T21:27:19.826Z",
+  "sourceGeneratedAt": "2026-09-29T21:23:50.308Z",
+  "totalCollectionItems": 351,
+  "uniqueLinkedTeams": 349,
+  "missingSlug": [],
+  "chunkFiles": [
+    "scripts/generated/bi-live-import/chunk-01.sql",
+    "scripts/generated/bi-live-import/chunk-02.sql",
+    "scripts/generated/bi-live-import/chunk-03.sql",
+    "scripts/generated/bi-live-import/chunk-04.sql",
+    "scripts/generated/bi-live-import/chunk-05.sql",
+    "scripts/generated/bi-live-import/chunk-06.sql",
+    "scripts/generated/bi-live-import/chunk-07.sql",
+    "scripts/generated/bi-live-import/chunk-08.sql",
+    "scripts/generated/bi-live-import/chunk-09.sql",
+    "scripts/generated/bi-live-import/chunk-10.sql"
+  ],
+  "rosterEntries": 2749,
+  "withLogo": 349,
+  "withCity": 315,
+  "withCountry": 349,
+  "withCaptain": 344
+}
