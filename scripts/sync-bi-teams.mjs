@@ -86,34 +86,34 @@ async function renderDirectory() {
       { timeout: 90_000 }
     );
 
-    let previousCount = 0;
-    for (let attempt = 0; attempt < 100; attempt += 1) {
-      const state = await page.evaluate(() => {
-        const count = new Set(
-          [...document.querySelectorAll('a[href*="/team/"]')]
-            .map(a => a.href)
-            .filter(Boolean)
-        ).size;
-        const control = [...document.querySelectorAll('button, [role="button"], a')]
-          .find(el => /^load more$/i.test((el.textContent || '').trim()));
-        if (!control) return { count, clicked: false };
+    let stagnant = 0;
+    for (let attempt = 0; attempt < 120; attempt += 1) {
+      const before = await page.evaluate(() => new Set(
+        [...document.querySelectorAll('a[href*="/team/"]')].map(a => a.href).filter(Boolean)
+      ).size);
+
+      const clicked = await page.evaluate(() => {
+        const controls = [...document.querySelectorAll('button, [role="button"], a')];
+        const control = controls.find(el => /^load more$/i.test((el.textContent || '').trim()));
+        if (!control) return false;
         control.scrollIntoView({ block: 'center' });
-        control.click();
-        return { count, clicked: true };
+        control.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+        return true;
       });
 
-      if (!state.clicked) break;
-      previousCount = state.count;
-      await page.waitForFunction(
-        oldCount => new Set(
-          [...document.querySelectorAll('a[href*="/team/"]')]
-            .map(a => a.href)
-            .filter(Boolean)
-        ).size > oldCount || ![...document.querySelectorAll('button, [role="button"], a')]
-          .some(el => /^load more$/i.test((el.textContent || '').trim())),
-        { timeout: 30_000 },
-        previousCount
-      ).catch(() => {});
+      if (!clicked) break;
+      await new Promise(resolve => setTimeout(resolve, 1200));
+
+      const after = await page.evaluate(() => new Set(
+        [...document.querySelectorAll('a[href*="/team/"]')].map(a => a.href).filter(Boolean)
+      ).size);
+      console.log(`BI load-more ${attempt + 1}: ${before} -> ${after}`);
+
+      stagnant = after > before ? 0 : stagnant + 1;
+      if (stagnant >= 3) {
+        console.warn('BI Load more did not increase the rendered team count after three attempts.');
+        break;
+      }
     }
 
     return await page.evaluate(() => {
