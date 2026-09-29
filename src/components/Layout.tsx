@@ -14,7 +14,8 @@ const nav = [
 export function Layout() {
   const { event, online, pendingCount, dataMode, syncNow, user } = useAppState();
   const can = (permission: Parameters<typeof hasPermission>[1]) => Boolean(event && hasPermission(user, permission, event.id, event.organizationId));
-  const canSetup = Boolean(user?.platformRoles.includes('platform_super_admin') || user?.organizationRoles.some(role => role.role === 'organization_admin'));
+  const isPlatformSuperAdmin = Boolean(user?.platformRoles.includes('platform_super_admin'));
+  const canSetup = Boolean(isPlatformSuperAdmin || user?.organizationRoles.some(role => role.role === 'organization_admin'));
   return (
     <div className="app-shell">
       <aside className="side-rail">
@@ -31,6 +32,7 @@ export function Layout() {
           <NavLink to="/ops/marshal-reference">BI Marshal Reference</NavLink>
           {canSetup && <NavLink to="/ops/rulesets">Rulesets</NavLink>}
           <NavLink to="/ops/sync">Sync Queue</NavLink>
+          {isPlatformSuperAdmin && <NavLink to="/ops/access-admin">Early Access</NavLink>}
           {canSetup && <NavLink to="/ops/setup">Setup</NavLink>}
           <NavLink to={'/register' + (event ? '?event=' + event.id : '')}>Registration</NavLink>
           <NavLink to="/">Platform Home</NavLink>
