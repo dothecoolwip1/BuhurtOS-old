@@ -39,6 +39,8 @@ const IdentityReviewPage = lazy(() => import('./pages/IdentityReviewPage').then(
 const StandingsWidgetPage = lazy(() => import('./pages/StandingsWidgetPage').then(module => ({ default: module.StandingsWidgetPage })));
 const OrganizationManagementPage = lazy(() => import('./pages/OrganizationManagementPage').then(module => ({ default: module.OrganizationManagementPage })));
 const MembershipInvitePage = lazy(() => import('./pages/MembershipInvitePage').then(module => ({ default: module.MembershipInvitePage })));
+const AccessCodePage = lazy(() => import('./pages/AccessCodePage').then(module => ({ default: module.AccessCodePage })));
+const AccessAdminPage = lazy(() => import('./pages/AccessAdminPage').then(module => ({ default: module.AccessAdminPage })));
 
 function OperationsProvider() {
   return <AppStateProvider><Outlet /></AppStateProvider>;
@@ -52,6 +54,10 @@ function OperationalGate() {
     const next = encodeURIComponent(location.pathname + location.search);
     const reason = authNotice ? `&reason=${encodeURIComponent(authNotice)}` : '';
     return <Navigate to={`/ops/login?next=${next}${reason}`} replace />;
+  }
+  const accessBypass = location.pathname === '/ops/access' || location.pathname === '/ops/setup';
+  if (dataMode === 'supabase' && user && !user.hasPlatformAccess && !accessBypass) {
+    return <Navigate to="/ops/access" replace />;
   }
   if (loading) return <div className="state-card">Loading tournament operations…</div>;
   return <Layout />;
@@ -98,6 +104,8 @@ export function App(){
         <Route path="identity-review" element={<IdentityReviewPage/>}/>
         <Route path="governance" element={<OrganizationManagementPage/>}/>
         <Route path="invite" element={<MembershipInvitePage/>}/>
+        <Route path="access" element={<AccessCodePage/>}/>
+        <Route path="access-admin" element={<AccessAdminPage/>}/>
         <Route path="foundation" element={<FoundationPage/>}/>
         <Route path="rulesets" element={<RulesetsPage/>}/>
         <Route path="marshal-reference" element={<ShowcaseRulesPage/>}/>
