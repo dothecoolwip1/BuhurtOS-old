@@ -8,6 +8,8 @@ function escapeHtml(value:string){
 }
 
 let leafletPromise:Promise<any>|null=null;
+let clusterPromise:Promise<any>|null=null;
+
 function loadLeaflet(){
  if((window as any).L)return Promise.resolve((window as any).L);
  if(leafletPromise)return leafletPromise;
@@ -17,6 +19,7 @@ function loadLeaflet(){
    }
    const existing=document.querySelector('script[data-buhurtos-leaflet]') as HTMLScriptElement|null;
    if(existing){
+     if((window as any).L){resolve((window as any).L);return;}
      existing.addEventListener('load',()=>resolve((window as any).L),{once:true});
      existing.addEventListener('error',reject,{once:true});
      return;
@@ -27,32 +30,90 @@ function loadLeaflet(){
  return leafletPromise;
 }
 
+async function loadMarkerCluster(){
+ const L=await loadLeaflet();
+ if(L.markerClusterGroup)return L;
+ if(clusterPromise)return clusterPromise;
+ clusterPromise=new Promise((resolve,reject)=>{
+   for(const [href,key] of [
+     ['https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css','cluster'],
+     ['https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css','cluster-default']
+   ]){
+     if(!document.querySelector('link[data-buhurtos-'+key+']')){
+       const link=document.createElement('link');link.rel='stylesheet';link.href=href;link.setAttribute('data-buhurtos-'+key,'true');document.head.appendChild(link);
+     }
+   }
+   const existing=document.querySelector('script[data-buhurtos-cluster]') as HTMLScriptElement|null;
+   if(existing){
+     if(L.markerClusterGroup){resolve(L);return;}
+     existing.addEventListener('load',()=>resolve((window as any).L),{once:true});
+     existing.addEventListener('error',reject,{once:true});
+     return;
+   }
+   const script=document.createElement('script');script.src='https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js';script.async=true;script.dataset.buhurtosCluster='true';
+   script.onload=()=>resolve((window as any).L);script.onerror=reject;document.head.appendChild(script);
+ });
+ return clusterPromise;
+}
+
 export function PublicTeamMap({teams}:Props){
  const host=useRef<HTMLDivElement|null>(null);const [failed,setFailed]=useState(false);
  useEffect(()=>{
    let disposed=false;let map:any;
-   loadLeaflet().then(L=>{
+   setFailed(false);
+   loadMarkerCluster().then(L=>{
      if(disposed||!host.current)return;
-     map=L.map(host.current,{worldCopyJump:true,minZoom:2}).setView([25,0],2);
+     map=L.map(host.current,{worldCopyJump:true,minZoom:2,maxZoom:18,zoomControl:true}).setView([25,0],2);
      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
        maxZoom:18,attribution:'&copy; OpenStreetMap contributors'
      }).addTo(map);
+
+     const clusters=L.markerClusterGroup({
+       showCoverageOnHover:false,
+       zoomToBoundsOnClick:true,
+       spiderfyOnMaxZoom:true,
+       removeOutsideVisibleBounds:true,
+       chunkedLoading:true,
+       maxClusterRadius:56,
+       disableClusteringAtZoom:12,
+       iconCreateFunction:(cluster:any)=>{
+         const count=cluster.getChildCount();
+         const size=count<10?36:count<50?44:52;
+         return L.divIcon({
+           html:'<span>'+count+'</span>',
+           className:'buhurt-cluster-icon',
+           iconSize:L.point(size,size)
+         });
+       }
+     });
+
      const bounds:any[]=[];
      for(const team of teams){
        if(team.latitude==null||team.longitude==null)continue;
-       const marker=L.circleMarker([team.latitude,team.longitude],{
-         radius:7,weight:2,color:'#0b1015',fillColor:'#ff8a1f',fillOpacity:.95
-       }).addTo(map);
+       const marker=L.marker([team.latitude,team.longitude],{
+         title:team.name,
+         icon:L.divIcon({
+           className:'buhurt-team-marker',
+           html:'<span aria-hidden="true"></span>',
+           iconSize:L.point(20,20),
+           iconAnchor:L.point(10,10),
+           popupAnchor:L.point(0,-8)
+         })
+       });
        const location=[team.location,team.adminAreaName,team.countryName].filter(x=>x&&!x.includes('pending')).join(' · ');
        marker.bindPopup('<div class="buhurt-map-popup"><strong>'+escapeHtml(team.name)+'</strong><span>'+escapeHtml(location)+'</span><a href="#/teams/'+encodeURIComponent(team.slug)+'">Open team profile →</a></div>');
+       clusters.addLayer(marker);
        bounds.push([team.latitude,team.longitude]);
      }
+     map.addLayer(clusters);
+
      if(bounds.length>1)map.fitBounds(bounds,{padding:[26,26],maxZoom:5});
      else if(bounds.length===1)map.setView(bounds[0],6);
      setTimeout(()=>map?.invalidateSize(),0);
    }).catch(()=>{if(!disposed)setFailed(true)});
    return()=>{disposed=true;if(map)map.remove()};
  },[teams]);
+
  if(failed)return <div className="state-card">The interactive map could not load. Team locations are still available in the directory.</div>;
- return <div className="team-leaflet-map" ref={host} aria-label="Interactive world map of public Buhurt teams"/>;
+ return <div className="team-leaflet-map" ref={host} aria-label="Interactive world map of public Buhurt teams with clustered markers"/>;
 }
