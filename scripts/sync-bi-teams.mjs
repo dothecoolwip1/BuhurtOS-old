@@ -80,18 +80,31 @@ await mkdir(new URL('../src/data/', import.meta.url), { recursive: true });
 await writeFile(OUTPUT, JSON.stringify(payload, null, 2) + '\n', 'utf8');
 console.log(`Discovered ${teamUrls.length} Buhurt International team profiles.`);
 
+function visibleText(html) {
+  return html
+    .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+async function fetchSeoText(url) {
+  const response = await fetch(url, {
+    redirect: 'follow',
+    headers: {
+      'user-agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+    }
+  });
+  if (!response.ok) throw new Error(`${response.status} ${response.statusText} for ${url}`);
+  return visibleText(await response.text());
+}
+
 for (const sample of teamUrls.slice(0, 2)) {
-  const html = await fetchText(sample);
-  const needles = ['conference', 'country', 'city', decodeURIComponent(new URL(sample).pathname.split('/').pop() ?? '')];
-  const snippets = {};
-  for (const needle of needles) {
-    const lower = html.toLowerCase();
-    const at = lower.indexOf(needle.toLowerCase());
-    snippets[needle] = at >= 0 ? html.slice(Math.max(0, at - 900), at + 1800) : null;
-  }
-  console.log('BI_PROFILE_PROBE', JSON.stringify({
-    url: sample,
-    length: html.length,
-    snippets
-  }));
+  const text = await fetchSeoText(sample);
+  console.log('BI_PROFILE_SEO_PROBE', JSON.stringify({ url: sample, length: text.length, text: text.slice(0, 5000) }));
 }
