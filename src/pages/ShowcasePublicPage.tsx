@@ -1,13 +1,11 @@
 import { Link } from 'react-router-dom';
 import { demoFighters, demoTeams, liveMatches, upcomingMatches } from '../data/showcase';
 import { Avatar, Panel, Pill } from '../components/ShowcaseUI';
-import { DemoNotice } from '../components/DemoNotice';
 
 export function ShowcasePublicPage(){
   const bob=demoFighters[0];
   const alex=demoFighters.find(f=>f.id==='alex')!;
   return <div className="show-public">
-    <DemoNotice/>
     <section className="show-public-hero">
       <div className="show-public-nav"><div className="show-brand"><span className="show-brand-mark">B</span><span><b>BuhurtOS</b><small>HACSA Fall Open</small></span></div><div><a href="#schedule">Schedule</a><a href="#bracket">Brackets</a><Link to="/rankings">Standings</Link><a href="#what-is-buhurt">What is Buhurt?</a><Link className="show-public-staff-link" to="/home">Staff preview</Link></div></div>
       <div className="show-public-live-label"><span className="show-demo-dot"></span> DEMO PREVIEW · SAMPLE DATA</div>
