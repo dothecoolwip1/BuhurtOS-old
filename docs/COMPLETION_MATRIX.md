@@ -86,7 +86,7 @@ only credits real, wired functionality.
 | Requirement | Status | Evidence |
 |---|---|---|
 | Longsword / Sword+Shield / Sword+Buckler / Sword+Sword / Saber / Greatsword / Polearm / Profight / Triathlon | ✅ | `competitionFormats.ts` sourced BI formats |
-| **Long Axe** | ❌ | absent from `competitionFormats.ts` (only marketing copy on `ShowcaseRulesPage`); add as sourced/verified format entry |
+| **Long Axe** | ✅ | `competitionFormats.ts` `long_axe` verified entry (`duel()` scoring, sourced BI family), selectable in rulesets/division setup; asserted in `tests/governance.test.ts` |
 | One-minute rounds / most-points / best-of scoring | ✅ | ruleset-driven `duel(n)` scoring config |
 | Sword+Buckler first-to-5 / first-to-2 | ✅ | `competitionFormats.ts` buckler preset |
 | Profight/Triathlon event-specific rules | ✅ | `custom_template`, ruleset drives details |
@@ -381,9 +381,8 @@ Top remaining product gaps (in priority order):
 
 1. **Federation hierarchy on main** — port org/governing-body relationships from
    branch `pack4-organizations-clubs-teams`.
-2. **Long Axe** — add as a competition format in `competitionFormats.ts`.
-3. **Broader exports** — PDF/printable + discipline/registration reports.
-4. **Audit completeness** — add triggers for brackets, announcements,
+2. **Broader exports** — PDF/printable + discipline/registration reports.
+3. **Audit completeness** — add triggers for brackets, announcements,
    orgs/seasons/events/rulesets/profiles/registrations.
-5. **Embeddable widgets + fuller public fighter/team profiles.**
-6. **Marathon** — productize the custom template into a verified flow.
+4. **Embeddable widgets + fuller public fighter/team profiles.**
+5. **Marathon** — productize the custom template into a verified flow.

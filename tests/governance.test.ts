@@ -19,7 +19,7 @@ describe('Pack 5 competition format support',()=>{
     expect(verifiedCompetitionFormats.length).toBeGreaterThan(0);
     expect(verifiedCompetitionFormats.every(format=>format.supportLevel==='verified')).toBe(true);
     expect(verifiedCompetitionFormats.map(format=>format.id)).toEqual(
-      expect.arrayContaining(['longsword','sword_buckler','sword_shield','polearm','3v3','5v5','12v12','outrance'])
+      expect.arrayContaining(['longsword','sword_buckler','sword_shield','polearm','long_axe','3v3','5v5','12v12','outrance'])
     );
   });
 

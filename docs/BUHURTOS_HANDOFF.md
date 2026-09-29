@@ -292,11 +292,10 @@ Treat Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e`, wor
 Top remaining product gaps (priority order, full detail in `docs/COMPLETION_MATRIX.md`):
 
 1. Federation hierarchy — port org/governing-body relationships from branch `pack4-organizations-clubs-teams`.
-2. Long Axe — add as a competition format in `competitionFormats.ts`.
-3. Broader exports (PDF/printable + discipline/registration reports).
-4. Audit completeness (brackets, announcements, orgs/seasons/events/rulesets/profiles/registrations).
-5. Embeddable widgets + fuller public fighter/team profiles.
-6. Marathon — productize the `custom_template` into a verified flow.
+2. Broader exports (PDF/printable + discipline/registration reports).
+3. Audit completeness (brackets, announcements, orgs/seasons/events/rulesets/profiles/registrations).
+4. Embeddable widgets + fuller public fighter/team profiles.
+5. Marathon — productize the `custom_template` into a verified flow.
 
 Before any hosted production claim, select a dedicated BuhurtOS Supabase project and complete the existing hosted verification checklist. Do not use the Northborn/Mallard/Reavers project as a BuhurtOS target.
 
