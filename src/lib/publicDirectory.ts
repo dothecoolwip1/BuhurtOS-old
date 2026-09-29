@@ -52,11 +52,6 @@ const orgInfo:Record<string,{name:string;description:string;websiteUrl?:string;k
     kind:'National organization',
     websiteUrl:'https://www.hacsacanada.com/',
     description:'A Canadian armoured combat league that supports teams, standardized rulesets, tournaments, demonstrations, insurance and international participation.'
-  },
-  Reavers:{
-    name:'Red Deer Reavers',
-    kind:'Local organization / team',
-    description:'A Central Alberta armored combat team based around Red Deer, building the local Buhurt community through training, competition, demonstrations and newcomer development.'
   }
 };
 
@@ -94,11 +89,8 @@ export async function loadPublicOrganizations():Promise<PublicOrganizationSummar
       countries:new Set(orgTeams.map(t=>t.countryCode).filter(Boolean)).size
     });
   }
-  if(!rows.some(row=>row.shortName==='Reavers')){
-    rows.push({key:'reavers',shortName:'Reavers',name:orgInfo.Reavers.name,region:'Red Deer, Alberta, Canada',kind:orgInfo.Reavers.kind,description:orgInfo.Reavers.description,teamCount:1,rosterCount:0,countries:1});
-  }
   return rows.sort((a,b)=>{
-    const order=['BI','HACSA','Reavers'];
+    const order=['BI','HACSA'];
     const ai=order.indexOf(a.shortName),bi=order.indexOf(b.shortName);
     if(ai>=0||bi>=0)return (ai<0?99:ai)-(bi<0?99:bi);
     return a.name.localeCompare(b.name);
@@ -109,7 +101,7 @@ export async function loadPublicOrganization(key:string):Promise<{organization:P
   const [organizations,teams]=await Promise.all([loadPublicOrganizations(),loadPublicTeamDirectory()]);
   const organization=organizations.find(org=>org.key===key||slug(org.shortName)===key||slug(org.name)===key);
   if(!organization)return undefined;
-  const matching=teams.filter(team=>team.organizationShortName===organization.shortName || (organization.shortName==='Reavers'&&team.name==='Red Deer Reavers'));
+  const matching=teams.filter(team=>team.organizationShortName===organization.shortName);
   return {organization,teams:matching};
 }
 
