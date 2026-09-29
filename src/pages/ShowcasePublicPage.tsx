@@ -1,30 +1,55 @@
-import { Link } from 'react-router-dom';
-import { demoFighters, demoTeams, liveMatches, upcomingMatches } from '../data/showcase';
-import { Avatar, Panel, Pill } from '../components/ShowcaseUI';
+import {useEffect,useMemo,useState} from 'react';
+import {Link} from 'react-router-dom';
+import {PublicTeamMap} from '../components/PublicTeamMap';
+import {PageHeader,Pill} from '../components/ShowcaseUI';
+import {loadPublicOrganizations,loadPublicEvents,type PublicOrganizationSummary,type PublicEventSummary} from '../lib/publicDirectory';
+import {loadPublicTeamDirectory,type PublicDirectoryTeam} from '../lib/teamDirectory';
+
+const categoryHelp=[
+  ['Organizations','Federations, national bodies, regional organizations and local groups that organize or govern parts of the sport.','/governance'],
+  ['Teams','Competitive clubs and fight teams. Open a team to see its location, roster, rankings and source-backed history.','/teams'],
+  ['Fighters','Public athlete identities. Profiles can include team, region, categories, biography and verified competition history.','/fighters'],
+  ['Events','Published tournaments, demonstrations, clinics and competitions. Open an event for schedule, divisions, brackets and results.','/events'],
+  ['Rankings','Current competitive standings and points when a source or finalized BuhurtOS result supports them.','/rankings'],
+  ['Rules & categories','Learn the difference between 5v5, 12v12, longsword, sword & buckler and other competition formats.','/rules']
+] as const;
 
 export function ShowcasePublicPage(){
-  const bob=demoFighters[0];
-  const alex=demoFighters.find(f=>f.id==='alex')!;
-  return <div className="show-public">
-    <section className="show-public-hero">
-      <div className="show-public-nav"><div className="show-brand"><span className="show-brand-mark">B</span><span><b>BuhurtOS</b><small>HACSA Fall Open</small></span></div><div><a href="#schedule">Schedule</a><a href="#bracket">Brackets</a><Link to="/rankings">Standings</Link><a href="#what-is-buhurt">What is Buhurt?</a><Link className="show-public-staff-link" to="/home">Staff preview</Link></div></div>
-      <div className="show-public-live-label"><span className="show-demo-dot"></span> DEMO PREVIEW · SAMPLE DATA</div>
-      <h1>HACSA Fall Open</h1><p>A preview of the BuhurtOS spectator view. Sample data only — the live event view shows real scores, brackets and results.</p>
-      <div className="show-public-actions"><Link className="show-btn light" to="/live">▶ Open live event view</Link><a className="show-btn glass" href="#schedule">View sample schedule</a></div>
-    </section>
-    <section className="show-public-live-grid">
-      <article className="show-public-main-score">
-        <div className="show-public-score-head"><div><Pill tone="amber">● DEMO</Pill><span>Field 1</span></div><span>5v5 • Pool A • Round 2</span></div>
-        <div className="show-public-teams"><div><span className="show-team-logo-public purple">RR</span><b>Red Deer Reavers</b><strong>1</strong></div><i>VS</i><div><span className="show-team-logo-public blue">NV</span><b>Northern Vanguard</b><strong>0</strong></div></div>
-        <div className="show-public-clock"><span>Round 2</span><strong>SAMPLE</strong></div>
-        <div className="show-explain-card"><span>?</span><div><b>How does 5v5 work?</b><p>A fighter is considered down when they have three points of contact with the ground. The team with fighters still standing wins the round. First team to win the required rounds wins the match.</p></div><Link to="/rules">Full rules</Link></div>
-      </article>
-      <aside className="show-public-next"><span className="eyebrow">SAMPLE · UP NEXT</span>{upcomingMatches.slice(0,3).map((m,i)=><article key={i}><time>{m.time}</time><div><b>{m.left}</b><span>vs</span><b>{m.right}</b><small>{m.field} • {m.division}</small></div></article>)}</aside>
-    </section>
-    <section className="show-public-section" id="schedule"><div className="show-public-section-head"><div><span className="eyebrow">SAMPLE · ALL THREE FIELDS</span><h2>Three fields. One spectator view.</h2></div><Link to="/live">Open live fights →</Link></div><div className="show-public-field-grid">{liveMatches.map(m=><article key={m.id}><div><span className="show-demo-dot"></span><b>{m.field}</b><Pill tone="amber">SAMPLE</Pill></div><small>{m.division} • {m.round}</small><section><strong>{m.left}</strong><span>{m.leftScore} : {m.rightScore}</span><strong>{m.right}</strong></section></article>)}</div></section>
-    <section className="show-public-section"><div className="show-public-section-head"><div><span className="eyebrow">FEATURED FIGHT</span><h2>Meet the fighters</h2></div><Link to="/fighters">Fighter directory →</Link></div><div className="show-versus-feature"><Link to={'/fighters/'+bob.id}><Avatar initials="BM" tone="ember" size="xl"/><small>RED DEER REAVERS</small><h3>{bob.fighterName}</h3><div><strong>{bob.record.wins}–{bob.record.losses}–{bob.record.draws}</strong><span>Career</span></div><Pill tone="amber">HACSA #3</Pill></Link><span className="show-vs-mark">VS</span><Link to={'/fighters/'+alex.id}><Avatar initials="AM" tone="blue" size="xl"/><small>NORTHERN VANGUARD</small><h3>{alex.fighterName}</h3><div><strong>{alex.record.wins}–{alex.record.losses}–{alex.record.draws}</strong><span>Career</span></div><Pill tone="blue">HACSA #6</Pill></Link></div></section>
-    <section className="show-public-section" id="bracket"><div className="show-public-section-head"><div><span className="eyebrow">5V5 CHAMPIONSHIP · SAMPLE</span><h2>Bracket</h2></div><Link to="/events/fall-open">Event competition view →</Link></div><div className="show-bracket-preview public"><div className="round"><h4>Quarterfinals</h4><span className="done">Reavers 2–0 Badlands</span><span className="done">Vanguard 2–1 Iron Wolves</span><span>North Guard vs Wild Rose</span><span>Steel Legion vs Foothills</span></div><div className="connector">›</div><div className="round"><h4>Semifinals</h4><span>Red Deer Reavers vs Northern Vanguard</span><span>Winner QF3 vs Winner QF4</span></div><div className="connector">›</div><div className="round final"><h4>Final</h4><span>Winner SF1 vs Winner SF2</span></div></div></section>
-    <section className="show-public-section two" id="what-is-buhurt"><Panel title="What is Buhurt?" subtitle="Armored full-contact medieval combat"><p className="show-long-copy">Buhurt is a modern combat sport fought in historically inspired armor. Different divisions use different weapons and scoring systems, from point-based one-on-one duels to team melees where the last fighters standing win.</p><Link className="show-btn primary" to="/rules">Explore competition rules</Link></Panel><Panel title="Teams competing today"><div className="show-public-team-list">{demoTeams.map(t=><Link to={'/teams/'+t.id} key={t.id}><span style={{borderColor:t.color}}>{t.logoText}</span><div><b>{t.name}</b><small>{t.region}</small></div><i>›</i></Link>)}</div></Panel></section>
-    <footer className="show-public-footer"><div className="show-brand"><span className="show-brand-mark">B</span><span><b>BuhurtOS</b><small>Sample data — open the live event view for real tournament data</small></span></div><p>Sample content for the BuhurtOS spectator experience preview.</p></footer>
-  </div>;
+ const [teams,setTeams]=useState<PublicDirectoryTeam[]>([]);
+ const [orgs,setOrgs]=useState<PublicOrganizationSummary[]>([]);
+ const [events,setEvents]=useState<PublicEventSummary[]>([]);
+ const [loading,setLoading]=useState(true);
+ useEffect(()=>{let active=true;Promise.all([loadPublicTeamDirectory(),loadPublicOrganizations(),loadPublicEvents()]).then(([t,o,e])=>{if(active){setTeams(t);setOrgs(o);setEvents(e)}}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[]);
+ const mapped=useMemo(()=>teams.filter(t=>t.latitude!=null&&t.longitude!=null),[teams]);
+ const upcoming=useMemo(()=>events.filter(e=>new Date(e.endsAt).getTime()>=Date.now()).slice(0,6),[events]);
+ const rosterSourceCount=useMemo(()=>orgs.reduce((sum,o)=>sum+o.rosterCount,0),[orgs]);
+ return <div className="public-hub">
+  <PageHeader eyebrow="PUBLIC BUHURT DIRECTORY" title="Explore the sport." description="Teams, organizations, fighters, events, rankings and rules in one public, read-only place. Open anything to keep drilling down." actions={<><Link className="show-btn primary" to="/teams">Explore teams</Link><Link className="show-btn secondary" to="/events">Upcoming events</Link></>}/>
+  <div className="show-stat-grid">
+    <div className="show-stat accent"><span>Teams</span><strong>{loading?'…':teams.length}</strong><small>Public source-backed records</small></div>
+    <div className="show-stat good"><span>Organizations</span><strong>{loading?'…':orgs.length}</strong><small>Federations to local groups</small></div>
+    <div className="show-stat"><span>Roster records</span><strong>{loading?'…':rosterSourceCount}</strong><small>Publicly listed members</small></div>
+    <div className="show-stat"><span>Upcoming events</span><strong>{loading?'…':upcoming.length}</strong><small>Published in BuhurtOS</small></div>
+  </div>
+
+  <section className="panel-card public-map-panel">
+    <div className="show-public-section-head"><div><span className="eyebrow">GLOBAL MAP</span><h2>Find teams around the world</h2><p>Pins use approximate public team locations only.</p></div><Link to="/teams">Open full directory →</Link></div>
+    {mapped.length?<PublicTeamMap teams={mapped}/>:<div className="state-card">Team locations are still being normalized.</div>}
+  </section>
+
+  <section className="show-public-section">
+    <div className="show-public-section-head"><div><span className="eyebrow">WHO ORGANIZES THE SPORT?</span><h2>Organizations</h2><p>Open an organization to see what it is, the teams beneath it and its public footprint.</p></div><Link to="/governance">See hierarchy →</Link></div>
+    <div className="show-team-grid public-global-grid">{orgs.slice(0,8).map(org=><Link className="show-team-card" key={org.key} to={'/organizations/'+org.key}><div className="show-team-banner official"><span>{org.shortName.slice(0,4)}</span><Pill tone="blue">{org.kind}</Pill></div><div className="show-team-body"><small>{org.region}</small><h2>{org.name}</h2><p>{org.description}</p><div className="team-card-stats"><span><b>{org.teamCount}</b><small>teams</small></span><span><b>{org.rosterCount}</b><small>roster records</small></span><span><b>{org.countries}</b><small>countries</small></span></div><div className="team-public-actions"><span>Learn more</span><b>→</b></div></div></Link>)}</div>
+  </section>
+
+  <section className="show-public-section">
+    <div className="show-public-section-head"><div><span className="eyebrow">WHAT'S NEXT?</span><h2>Upcoming events</h2></div><Link to="/events">All events →</Link></div>
+    {upcoming.length?<div className="show-event-cards">{upcoming.map(event=><Link to={'/events/'+event.id} key={event.id} className="show-event-card"><div className="show-event-card-top"><div><span className="eyebrow">{event.organizerName||'BUHURTOS EVENT'}</span><h2>{event.name}</h2><p>{new Date(event.startsAt).toLocaleString()} · {event.venue}</p></div><Pill tone={event.status==='live'?'red':'green'}>{event.status}</Pill></div><div className="show-event-footer"><span><small>TYPE</small><b>{event.eventType.replaceAll('_',' ')}</b></span><i>Open event →</i></div></Link>)}</div>:<div className="state-card"><strong>No published upcoming events yet.</strong><p>Draft/private events do not appear here. When an organizer publishes one, it will automatically show in the public calendar.</p></div>}
+  </section>
+
+  <section className="show-public-section">
+    <div className="show-public-section-head"><div><span className="eyebrow">NEW TO BUHURT?</span><h2>Click anything you don't know.</h2><p>BuhurtOS should explain the sport while you browse it.</p></div></div>
+    <div className="marketing-problem-grid">{categoryHelp.map(([title,text,to])=><Link to={to} key={title} className="public-learn-card"><span>?</span><h3>{title}</h3><p>{text}</p><b>Find out more →</b></Link>)}</div>
+  </section>
+ </div>;
 }
