@@ -1,6 +1,5 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { previewRoleLabels, usePreviewMode, type PreviewRole } from '../features/PreviewMode';
-import { DemoNotice } from './DemoNotice';
 
 const navByRole: Record<PreviewRole, Array<[string,string,string]>> = {
   bi_admin: [['/home','Overview','◫'],['/governance','Governance','⌘'],['/teams','Teams','♜'],['/fighters','Fighters','♟'],['/events','Events','⚔'],['/rankings','Rankings','↗'],['/rules','Marshal Rules','§'],['/public','Public Arena','◎']],
@@ -33,7 +32,7 @@ export function ShowcaseShell(){
         <div className="show-top-context"><span className="show-demo-pill">DEMO</span><span>Sample event · HACSA Fall Open</span></div>
         <label className="show-role-picker"><span>Preview as</span><select value={role} onChange={e=>switchRole(e.target.value as PreviewRole)}>{Object.entries(previewRoleLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
       </header>
-      <div className="show-content"><DemoNotice compact/><Outlet/></div>
+      <div className="show-content"><Outlet/></div>
     </main>
     <nav className="show-bottom-nav">{nav.slice(0,5).map(([to,label,icon])=><NavLink key={to} to={to}><span>{icon}</span><small>{label}</small></NavLink>)}</nav>
   </div>;
