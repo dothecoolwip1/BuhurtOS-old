@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getHacsaTeam } from '../data/hacsaTeams';
+import { hacsaFallbackDirectory, loadPublicTeamDirectory, type PublicDirectoryTeam } from '../lib/teamDirectory';
 import { Panel, Pill } from '../components/ShowcaseUI';
 
 function initials(name: string) {
@@ -14,12 +15,20 @@ function initials(name: string) {
 
 export function TeamPage(){
   const {teamId='reavers'}=useParams();
-  const team=getHacsaTeam(teamId);
+  const [team,setTeam]=useState<PublicDirectoryTeam|undefined>(()=>hacsaFallbackDirectory().find(item=>item.slug===teamId));
+
+  useEffect(()=>{
+    let active=true;
+    loadPublicTeamDirectory({ organizationShortName:'HACSA', teamSlug:teamId })
+      .then(rows=>{if(active&&rows[0])setTeam(rows[0]);})
+      .catch(()=>{});
+    return ()=>{active=false;};
+  },[teamId]);
 
   if(!team){
     return <div className="state-card">
       <h2>Team not found</h2>
-      <p>This team is not in the current HACSA source snapshot.</p>
+      <p>This team is not in the current HACSA source directory.</p>
       <Link className="show-btn secondary" to="/teams">Back to HACSA teams</Link>
     </div>;
   }
@@ -30,19 +39,26 @@ export function TeamPage(){
       <div className="grow">
         <span className="eyebrow">HACSA OFFICIAL DIRECTORY</span>
         <h1>{team.name}</h1>
-        <p>{team.location}</p>
+        <p>{team.location} · {team.adminAreaName}, {team.countryName}</p>
         <div className="show-inline-pills"><Pill tone="green">Source-backed</Pill><Pill>Verified {team.verifiedAt}</Pill></div>
       </div>
       <a className="show-btn secondary" href={team.sourceUrl} target="_blank" rel="noopener noreferrer">View source ↗</a>
     </div>
 
+    <div className="directory-hierarchy compact" aria-label="Team geography">
+      <strong>{team.organizationShortName}</strong><span>›</span><b>{team.continentName}</b><span>›</span><b>{team.countryName}</b><span>›</span><b>{team.adminAreaName}</b>
+    </div>
+
     <div className="show-two-col wide-left">
       <div className="show-stack">
-        <Panel title="Official HACSA information" subtitle="Only fields published by HACSA are shown as source facts.">
+        <Panel title="Official HACSA information" subtitle="Only fields published by HACSA are shown as source facts. Province/country hierarchy is normalized for directory browsing.">
           <div className="show-detail-rows">
             <div><span>Team</span><b>{team.name}</b></div>
-            <div><span>Location</span><b>{team.location}</b></div>
-            <div><span>Public email</span><a href={`mailto:${team.email}`}>{team.email}</a></div>
+            <div><span>Published location</span><b>{team.location}</b></div>
+            <div><span>Province</span><b>{team.adminAreaName}</b></div>
+            <div><span>Country</span><b>{team.countryName}</b></div>
+            <div><span>Continent</span><b>{team.continentName}</b></div>
+            {team.email?<div><span>Public email</span><a href={`mailto:${team.email}`}>{team.email}</a></div>:null}
             <div><span>Source checked</span><b>{team.verifiedAt}</b></div>
           </div>
         </Panel>
@@ -57,9 +73,9 @@ export function TeamPage(){
 
       <div className="show-stack">
         <Panel title="Contact">
-          <a className="show-btn primary full" href={`mailto:${team.email}`}>Email team</a>
+          {team.email?<a className="show-btn primary full" href={`mailto:${team.email}`}>Email team</a>:null}
           {team.websiteUrl?<a className="show-btn secondary full" href={team.websiteUrl} target="_blank" rel="noopener noreferrer">Team website ↗</a>:null}
-          {team.contactUrl?<a className="show-btn secondary full" href={team.contactUrl} target="_blank" rel="noopener noreferrer">Team contact ↗</a>:null}
+          {team.contactUrl?<a className="show-btn secondary full" href={team.contactUrl} target="_blank" rel="noopener noreferrer">HACSA contact link ↗</a>:null}
         </Panel>
         <Panel title="Source priority">
           <div className="source-priority-list">

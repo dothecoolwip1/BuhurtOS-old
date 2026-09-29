@@ -101,7 +101,13 @@ select is(
   'profile creation is audited'
 );
 select is(
-  (select count(*)::integer from public.audit_log where table_name='organizations' and action='insert'),
+  (
+    select count(*)::integer
+    from public.audit_log
+    where table_name='organizations'
+      and action='insert'
+      and record_id='f0000000-0000-0000-0000-000000000010'
+  ),
   1,
   'organization creation is audited'
 );
@@ -172,7 +178,13 @@ select is(
   'event ruleset snapshot audit rows resolve org scope through their event'
 );
 select ok(
-  (select organization_id from public.audit_log where table_name='organizations' and action='insert' limit 1) is null,
+  (
+    select organization_id
+    from public.audit_log
+    where table_name='organizations'
+      and action='insert'
+      and record_id='f0000000-0000-0000-0000-000000000010'
+  ) is null,
   'organization audit rows are recorded without a parent org scope'
 );
 select ok(

@@ -15,6 +15,12 @@ export type HacsaTeam = {
   email: string;
   websiteUrl?: string;
   contactUrl?: string;
+  continentCode: 'NA';
+  continentName: 'North America';
+  countryCode: 'CA';
+  countryName: 'Canada';
+  adminAreaCode: 'AB' | 'BC' | 'MB' | 'SK';
+  adminAreaName: 'Alberta' | 'British Columbia' | 'Manitoba' | 'Saskatchewan';
   sourceId: 'hacsa';
   sourceUrl: string;
   verifiedAt: string;
@@ -53,7 +59,13 @@ export const hacsaTeams: HacsaTeam[] = [
     name: 'The Company of the Silver Gryphons',
     location: 'Calgary (North)',
     email: 'SilverGryphons@hacsacanada.com',
-    contactUrl: 'https://www.facebook.com/',
+    contactUrl: 'https://www.facebook.com/mike.diaz.779',
+    continentCode: 'NA',
+    continentName: 'North America',
+    countryCode: 'CA',
+    countryName: 'Canada',
+    adminAreaCode: 'AB',
+    adminAreaName: 'Alberta',
     sourceId: 'hacsa',
     sourceUrl: HACSA_SOURCE,
     verifiedAt: VERIFIED_AT
@@ -63,6 +75,13 @@ export const hacsaTeams: HacsaTeam[] = [
     name: 'Horde',
     location: 'Drayton Valley',
     email: 'brozell.br@gmail.com',
+    contactUrl: 'https://m.me/.billy.rozell',
+    continentCode: 'NA',
+    continentName: 'North America',
+    countryCode: 'CA',
+    countryName: 'Canada',
+    adminAreaCode: 'AB',
+    adminAreaName: 'Alberta',
     sourceId: 'hacsa',
     sourceUrl: HACSA_SOURCE,
     verifiedAt: VERIFIED_AT
@@ -72,6 +91,13 @@ export const hacsaTeams: HacsaTeam[] = [
     name: 'The Crimson Blades',
     location: 'West Edmonton',
     email: 'info@hacsacanada.com',
+    contactUrl: 'https://m.me/.george.soika',
+    continentCode: 'NA',
+    continentName: 'North America',
+    countryCode: 'CA',
+    countryName: 'Canada',
+    adminAreaCode: 'AB',
+    adminAreaName: 'Alberta',
     sourceId: 'hacsa',
     sourceUrl: HACSA_SOURCE,
     verifiedAt: VERIFIED_AT
@@ -81,6 +107,13 @@ export const hacsaTeams: HacsaTeam[] = [
     name: 'The Company of the Black Spears',
     location: 'Lethbridge',
     email: 'lethbridgeblackspears@gmail.com',
+    contactUrl: 'https://m.me/.brian.boisson.9',
+    continentCode: 'NA',
+    continentName: 'North America',
+    countryCode: 'CA',
+    countryName: 'Canada',
+    adminAreaCode: 'AB',
+    adminAreaName: 'Alberta',
     sourceId: 'hacsa',
     sourceUrl: HACSA_SOURCE,
     verifiedAt: VERIFIED_AT
@@ -91,6 +124,13 @@ export const hacsaTeams: HacsaTeam[] = [
     location: 'Winnipeg',
     email: 'macecompanymanitoba@gmail.com',
     websiteUrl: 'https://macecompany.ca',
+    contactUrl: 'https://www.facebook.com/profile.php?id=61586808193807',
+    continentCode: 'NA',
+    continentName: 'North America',
+    countryCode: 'CA',
+    countryName: 'Canada',
+    adminAreaCode: 'MB',
+    adminAreaName: 'Manitoba',
     sourceId: 'hacsa',
     sourceUrl: HACSA_SOURCE,
     verifiedAt: VERIFIED_AT
@@ -100,6 +140,13 @@ export const hacsaTeams: HacsaTeam[] = [
     name: 'Reavers',
     location: 'Red Deer',
     email: 'kedrixx.streit@gmail.com',
+    contactUrl: 'https://www.facebook.com/profile.php?id=100081119922743&mibextid=ZbWKwL',
+    continentCode: 'NA',
+    continentName: 'North America',
+    countryCode: 'CA',
+    countryName: 'Canada',
+    adminAreaCode: 'AB',
+    adminAreaName: 'Alberta',
     sourceId: 'hacsa',
     sourceUrl: HACSA_SOURCE,
     verifiedAt: VERIFIED_AT
@@ -109,6 +156,13 @@ export const hacsaTeams: HacsaTeam[] = [
     name: 'The Oath Bearers',
     location: 'Regina',
     email: 'Duster18@hotmail.com',
+    contactUrl: 'https://m.me/.patrick.c.depaulo',
+    continentCode: 'NA',
+    continentName: 'North America',
+    countryCode: 'CA',
+    countryName: 'Canada',
+    adminAreaCode: 'SK',
+    adminAreaName: 'Saskatchewan',
     sourceId: 'hacsa',
     sourceUrl: HACSA_SOURCE,
     verifiedAt: VERIFIED_AT
@@ -118,6 +172,13 @@ export const hacsaTeams: HacsaTeam[] = [
     name: 'Vanguard',
     location: 'Vancouver',
     email: 'vancityvanguard@gmail.com',
+    contactUrl: 'https://m.me/.josh.caldwellmaki',
+    continentCode: 'NA',
+    continentName: 'North America',
+    countryCode: 'CA',
+    countryName: 'Canada',
+    adminAreaCode: 'BC',
+    adminAreaName: 'British Columbia',
     sourceId: 'hacsa',
     sourceUrl: HACSA_SOURCE,
     verifiedAt: VERIFIED_AT
@@ -127,6 +188,13 @@ export const hacsaTeams: HacsaTeam[] = [
     name: 'Strathcona Warhorse',
     location: 'East Edmonton',
     email: 'strathconawarhorse@gmail.com',
+    contactUrl: 'https://www.facebook.com/profile.php?id=100009466462258&mibextid=ZbWKwL',
+    continentCode: 'NA',
+    continentName: 'North America',
+    countryCode: 'CA',
+    countryName: 'Canada',
+    adminAreaCode: 'AB',
+    adminAreaName: 'Alberta',
     sourceId: 'hacsa',
     sourceUrl: HACSA_SOURCE,
     verifiedAt: VERIFIED_AT
@@ -136,6 +204,13 @@ export const hacsaTeams: HacsaTeam[] = [
     name: 'Arverni Legion',
     location: 'Alberta Foothills',
     email: 'Arverni_legion@outlook.com',
+    contactUrl: 'https://m.me/.rneilson31',
+    continentCode: 'NA',
+    continentName: 'North America',
+    countryCode: 'CA',
+    countryName: 'Canada',
+    adminAreaCode: 'AB',
+    adminAreaName: 'Alberta',
     sourceId: 'hacsa',
     sourceUrl: HACSA_SOURCE,
     verifiedAt: VERIFIED_AT

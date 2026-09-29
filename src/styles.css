@@ -813,3 +813,16 @@ button.ghost:hover{color:var(--text);border-color:#3d4c59;background:#111920}
 .rules-fight-link{display:inline-flex;align-items:center;justify-content:center;min-height:var(--tap);padding:0 13px;border-radius:10px;border:1px solid rgba(255,138,31,.4);background:rgba(255,138,31,.08);color:var(--accent);font-size:.7rem;font-weight:900;text-decoration:none}
 @media(max-width:900px){.marshal-rule-grid{grid-template-columns:1fr}.bi-source-grid,.source-roadmap{grid-template-columns:1fr}.rule-source-status{flex-direction:column}.rule-source-status>span{text-align:left}.marshal-search-row{align-items:stretch;flex-direction:column}.marshal-search-row select{width:100%;min-width:0}}
 @media(max-width:640px){.source-trust-strip{align-items:flex-start;flex-direction:column}.marshal-rule-card>footer{align-items:flex-start;flex-direction:column}}
+
+
+/* Geographic team directory */
+.directory-hierarchy{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 12px;padding:10px 13px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.018);font-size:.7rem}
+.directory-hierarchy strong{color:var(--accent);font-weight:900}.directory-hierarchy b{font-weight:800}.directory-hierarchy span{color:var(--muted)}
+.directory-hierarchy.compact{margin-top:-4px;margin-bottom:18px}
+.province-filter{display:flex;gap:7px;overflow-x:auto;padding:0 0 14px;scrollbar-width:thin}
+.province-filter button{border:1px solid var(--line);border-radius:999px;background:#111b24;color:var(--muted);padding:8px 11px;white-space:nowrap;font-size:.66rem;font-weight:850}
+.province-filter button.selected{border-color:var(--accent);background:rgba(255,138,31,.1);color:var(--text)}
+.province-filter small{margin-left:5px;color:inherit;opacity:.72}
+.directory-groups{display:grid;gap:22px}.directory-group>header{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:0 0 9px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.directory-group>header small{display:block;font-size:.58rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.directory-group>header h2{margin:2px 0 0;font-size:1rem}
+@media(max-width:640px){.directory-hierarchy{gap:7px}.province-filter{margin-right:-12px}.directory-group>header{align-items:center}}
