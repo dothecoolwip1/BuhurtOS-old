@@ -32,6 +32,7 @@ export function Layout() {
           <NavLink to="/ops/marshal-reference">BI Marshal Reference</NavLink>
           {canSetup && <NavLink to="/ops/rulesets">Rulesets</NavLink>}
           <NavLink to="/ops/sync">Sync Queue</NavLink>
+          {isPlatformSuperAdmin && <NavLink to="/ops/platform">Platform Control</NavLink>}
           {isPlatformSuperAdmin && <NavLink to="/ops/access-admin">Early Access</NavLink>}
           {canSetup && <NavLink to="/ops/setup">Setup</NavLink>}
           <NavLink to={'/register' + (event ? '?event=' + event.id : '')}>Registration</NavLink>
