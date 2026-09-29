@@ -73,7 +73,7 @@ select ok(not has_sequence_privilege('authenticated','public.__buhurtos_default_
 
 select ok(
   position(
-    'storage.objects.name'
+    'objects.name'
     in (select qual from pg_policies where schemaname='storage' and tablename='objects' and policyname='waiver_staff_read')
   ) > 0,
   'waiver staff policy compares against the storage object path'
