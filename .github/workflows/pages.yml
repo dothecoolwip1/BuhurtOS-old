@@ -38,6 +38,9 @@ jobs:
         run: npm test
 
       - name: Production build
+        env:
+          VITE_SUPABASE_URL: https://tapfpboszgoftbwcwsmn.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_Tn67D7wzVsEu7esZZKardw_Zzrx93Fv
         run: npx vite build --mode github-pages
 
   database:
@@ -90,6 +93,9 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Build GitHub Pages artifact
+        env:
+          VITE_SUPABASE_URL: https://tapfpboszgoftbwcwsmn.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_Tn67D7wzVsEu7esZZKardw_Zzrx93Fv
         run: npx vite build --mode github-pages
 
       - name: Configure GitHub Pages
