@@ -1,21 +1,53 @@
 import {useEffect,useState} from 'react';import {Link,useParams} from 'react-router-dom';
-import {loadPublicTeamDirectory,loadPublicTeamRoster,type PublicDirectoryTeam,type PublicRosterMember} from '../lib/teamDirectory';
+import {loadPublicTeamDetail,loadPublicTeamDirectory,loadPublicTeamRoster,type PublicDirectoryTeam,type PublicRosterMember,type PublicTeamDetail} from '../lib/teamDirectory';
 import {Panel,Pill} from '../components/ShowcaseUI';
 const initials=(n:string)=>n.replace(/^The\s+/i,'').split(/\s+/).filter(Boolean).slice(0,3).map(x=>x[0]?.toUpperCase()).join('');
+const val=(v:number|undefined)=>v==null?'—':String(v);
 export function TeamPage(){
- const {teamId=''}=useParams();const [team,setTeam]=useState<PublicDirectoryTeam>();const [roster,setRoster]=useState<PublicRosterMember[]>([]);const [loading,setLoading]=useState(true);
- useEffect(()=>{let active=true;(async()=>{try{const rows=await loadPublicTeamDirectory({teamSlug:teamId});if(!active)return;setTeam(rows[0]);if(rows[0])setRoster(await loadPublicTeamRoster(rows[0].id));}finally{if(active)setLoading(false)}})();return()=>{active=false}},[teamId]);
+ const {teamId=''}=useParams();const [team,setTeam]=useState<PublicDirectoryTeam>();const [detail,setDetail]=useState<PublicTeamDetail>();const [roster,setRoster]=useState<PublicRosterMember[]>([]);const [loading,setLoading]=useState(true);
+ useEffect(()=>{let active=true;(async()=>{try{const rows=await loadPublicTeamDirectory({teamSlug:teamId});if(!active)return;setTeam(rows[0]);if(rows[0]){const [r,d]=await Promise.all([loadPublicTeamRoster(rows[0].id),loadPublicTeamDetail(rows[0].id)]);if(active){setRoster(r);setDetail(d)}}}finally{if(active)setLoading(false)}})();return()=>{active=false}},[teamId]);
  if(loading)return <div className="state-card">Loading public team profile…</div>;
  if(!team)return <div className="state-card"><h2>Team not found</h2><Link className="show-btn secondary" to="/teams">Back to teams</Link></div>;
+ const recent=[...(detail?.tournamentsJoined??[])].sort((a,b)=>String(b.date??'').localeCompare(String(a.date??''))).slice(0,8);
  return <>
- <div className="show-profile-hero team official-team-hero"><div className="show-team-logo-xl">{initials(team.name)}</div><div className="grow"><span className="eyebrow">PUBLIC TEAM PROFILE</span><h1>{team.name}</h1>
- <p>{[team.location,team.adminAreaName,team.countryName].filter(x=>x&&!x.includes('pending')).join(' · ')||'Location being normalized'}</p><div className="show-inline-pills"><Pill tone="green">Read only</Pill><Pill>{team.organizationShortName}</Pill>{team.verifiedAt?<Pill>Verified {team.verifiedAt}</Pill>:null}</div></div>
- {team.sourceUrl?<a className="show-btn secondary" href={team.sourceUrl} target="_blank" rel="noopener noreferrer">View source ↗</a>:null}</div>
+ <div className="show-profile-hero team official-team-hero">
+   {detail?.logoPath||team.logoPath?<img className="show-team-logo-image" src={detail?.logoPath??team.logoPath} alt={team.name+' logo'}/>:<div className="show-team-logo-xl">{initials(team.name)}</div>}
+   <div className="grow"><span className="eyebrow">PUBLIC TEAM PROFILE</span><h1>{team.name}</h1>
+   <p>{[team.location,team.adminAreaName,team.countryName].filter(x=>x&&!x.includes('pending')).join(' · ')||'Location being normalized'}</p>
+   <div className="show-inline-pills"><Pill tone="green">Read only</Pill><Pill>{team.organizationShortName}</Pill>{detail?.conference?<Pill>{detail.conference}</Pill>:null}{team.verifiedAt?<Pill>Verified {team.verifiedAt}</Pill>:null}</div></div>
+   {team.sourceUrl?<a className="show-btn secondary" href={team.sourceUrl} target="_blank" rel="noopener noreferrer">View source ↗</a>:null}
+ </div>
  <div className="directory-hierarchy compact"><strong>{team.organizationShortName}</strong>{team.continentName&&!team.continentName.includes('pending')?<><span>›</span><b>{team.continentName}</b></>:null}{team.countryName&&!team.countryName.includes('pending')?<><span>›</span><b>{team.countryName}</b></>:null}{team.adminAreaName&&!team.adminAreaName.includes('pending')?<><span>›</span><b>{team.adminAreaName}</b></>:null}</div>
- <div className="show-stat-grid"><div className="show-stat accent"><span>Public roster</span><strong>{roster.length}</strong><small>visible fighters</small></div><div className="show-stat"><span>Organization</span><strong className="stat-text">{team.organizationShortName}</strong><small>current directory group</small></div><div className="show-stat"><span>Location</span><strong className="stat-text">{team.location}</strong><small>general public location</small></div><div className="show-stat good"><span>Access</span><strong className="stat-text">Public</strong><small>read only</small></div></div>
- <div className="show-two-col wide-left"><div className="show-stack"><Panel title="Public roster" subtitle="Public team members from BuhurtOS and verified source records. Private account and contact information is never included.">
- {roster.length?<div className="show-roster-table">{roster.map((f,i)=><article key={f.identityId??`${f.displayName}-${i}`}><span className="show-avatar md">{initials(f.displayName)}</span><div className="grow"><b>{f.displayName}</b><small>{[f.nickname,f.role,f.publicRegion].filter(Boolean).join(' · ')||'Fighter'}{f.sourceKind==='bi_teams'?' · BI source':''}</small></div>{f.identityId?<Link className="show-link-btn" to={'/fighters/'+f.identityId}>Profile →</Link>:<span className="show-pill">BI roster</span>}</article>)}</div>:<div className="source-empty-state"><strong>No public roster entries yet</strong><p>The team is public, but no public roster source has been verified yet. As BI or the team publishes members, they will appear here automatically.</p></div>}</Panel>
- <Panel title="Competition statistics"><div className="source-empty-state"><strong>Stats attach to verified competition data</strong><p>BuhurtOS will show wins, losses, appearances and rankings here as verified event and BI ranking records are connected. Nothing is fabricated when source data is missing.</p></div></Panel></div>
- <div className="show-stack"><Panel title="Team information"><div className="show-detail-rows"><div><span>Team</span><b>{team.name}</b></div><div><span>Organization</span><b>{team.organizationShortName}</b></div><div><span>Published location</span><b>{team.location}</b></div>{team.countryName&&!team.countryName.includes('pending')?<div><span>Country</span><b>{team.countryName}</b></div>:null}{team.email?<div><span>Public email</span><a href={'mailto:'+team.email}>{team.email}</a></div>:null}</div></Panel>
- {team.latitude!=null?<Panel title="Map location"><div className="mini-map-pin"><span>⌖</span><b>{team.location}</b><small>Approximate public location only</small></div></Panel>:null}</div></div></>;
+ <div className="show-stat-grid">
+   <div className="show-stat accent"><span>Public roster</span><strong>{roster.length}</strong><small>BI + BuhurtOS public fighters</small></div>
+   <div className="show-stat"><span>5v5 rank</span><strong>{val(detail?.rank5v5??team.rank5v5)}</strong><small>{detail?.averagePoints5v5!=null?String(detail.averagePoints5v5)+' average points':'BI ranking'}</small></div>
+   <div className="show-stat"><span>5v5 points</span><strong>{val(detail?.points5v5??team.points5v5)}</strong><small>current BI points</small></div>
+   <div className="show-stat good"><span>Captain</span><strong className="stat-text">{detail?.captain??team.captain??'—'}</strong><small>BI team record</small></div>
+ </div>
+ <div className="show-two-col wide-left"><div className="show-stack">
+   <Panel title="About the team" subtitle="Public team information from the current BI team record.">
+    {detail?.description||team.description?<p className="team-about-copy">{detail?.description??team.description}</p>:<div className="source-empty-state"><strong>No public description supplied</strong><p>BI has not published a team description for this record.</p></div>}
+    <div className="show-detail-rows">
+      {detail?.club?<div><span>Club</span><b>{detail.club}</b></div>:null}
+      {detail?.gender?<div><span>Competition group</span><b>{detail.gender}</b></div>:null}
+      {detail?.captain?<div><span>Captain</span><b>{detail.captain}</b></div>:null}
+      {detail?.trainingInfo?<div className="detail-row-wide"><span>Training info</span><b>{detail.trainingInfo}</b></div>:null}
+    </div>
+   </Panel>
+   <Panel title="Public roster" subtitle="BI-listed members and public BuhurtOS fighter identities. BI roster records do not create fake user accounts.">
+    {roster.length?<div className="show-roster-table">{roster.map((f,i)=><article key={f.identityId??(f.displayName+'-'+i)}><span className="show-avatar md">{initials(f.displayName)}</span><div className="grow"><b>{f.displayName}</b><small>{[f.nickname,f.role,f.publicRegion].filter(Boolean).join(' · ')||'Fighter'}{f.sourceKind==='bi_teams'?' · BI source':''}</small></div>{f.identityId?<Link className="show-link-btn" to={'/fighters/'+f.identityId}>Profile →</Link>:<span className="show-pill">BI roster</span>}</article>)}</div>:<div className="source-empty-state"><strong>No public roster entries</strong><p>This BI record currently does not publish member names.</p></div>}
+   </Panel>
+   <Panel title="Recent BI tournament record">
+    {recent.length?<div className="team-tournament-list">{recent.map((e:any,i)=><article key={String(e.Tournament??'event')+'-'+String(e.date??i)}><div><b>{e.Tournament??'Tournament'}</b><small>{[e.date,e.category].filter(Boolean).join(' · ')}</small></div><div><strong>{e.place?'#'+e.place:'—'}</strong><small>{e.points!=null?String(e.points)+' pts':''}</small></div></article>)}</div>:<div className="source-empty-state"><strong>No current tournament entries</strong><p>BI has not attached current tournament history to this team record.</p></div>}
+   </Panel>
+ </div>
+ <div className="show-stack">
+   <Panel title="Team information"><div className="show-detail-rows">
+    <div><span>Team</span><b>{team.name}</b></div><div><span>Organization</span><b>{team.organizationShortName}</b></div>
+    <div><span>Published location</span><b>{team.location}</b></div>{team.countryName&&!team.countryName.includes('pending')?<div><span>Country</span><b>{team.countryName}</b></div>:null}
+    {detail?.rank12v12!=null?<div><span>12v12 rank</span><b>{detail.rank12v12}</b></div>:null}{detail?.points12v12!=null?<div><span>12v12 points</span><b>{detail.points12v12}</b></div>:null}
+    {team.email?<div><span>Public email</span><a href={'mailto:'+team.email}>{team.email}</a></div>:null}
+   </div>{team.websiteUrl?<a className="show-btn secondary full" href={team.websiteUrl} target="_blank" rel="noopener noreferrer">Team website / social ↗</a>:null}</Panel>
+   {team.latitude!=null?<Panel title="Map location"><div className="mini-map-pin"><span>⌖</span><b>{team.location}</b><small>Approximate public location only</small></div></Panel>:null}
+ </div></div></>;
 }
