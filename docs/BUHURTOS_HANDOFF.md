@@ -8,8 +8,9 @@ The historical checkpoint below is superseded. Current `main` includes Round 17
 Pack 7 tournament generation (`7b9a736`), Round 18 Pack 4 data layer
 (`ff82c3f`), and Round 18 UI/workflow completion (`901257c`). The next pending
 release adds secure fighter-avatar storage. Its local verification must never be
-mistaken for hosted Supabase/Edge verification: a dedicated BuhurtOS project is
-not yet confirmed, and the Northborn/Mallard/Reavers project is prohibited.
+mistaken for hosted Supabase/Edge verification. The dedicated Supabase organization
+is now confirmed as `vbxznwtocyorcfghzdfo` (BuhurtOS); only projects inside that
+organization may be used. The Northborn/Mallard/Reavers project remains prohibited.
 
 Pack 6 is complete and merged to `main` in PR #10.
 
@@ -35,8 +36,8 @@ The head of `main` is `c4d1f6f`. Ten rounds are pushed on top of the Pack 6 chec
 
 **Round 8 — public spectator surface disambiguation (`c7fab9c`):**
 
-* `DemoNotice` banner ("Interactive demo — sample data only… Open the live event view →") on every showcase route (`ShowcaseShell` + standalone `/public`) with the real `/#/live` board as the CTA.
-* All LIVE claims retitled to DEMO/SAMPLE (public hero, event statusbar, dashboard panel, marketing mockup); fake clocks/scoreboards `SAMPLE`; spectator preview nav `Live Now ●` → `Public Arena ◎`; "Powered by live tournament data" → sample-data disclaimer.
+* The persistent `DemoNotice` banner has since been removed at the owner’s direction. Sample-only scoreboard/status labels remain where needed to avoid presenting preview values as live results.
+* Preview/live wording remains separated so demo-only content is not mistaken for tournament records.
 
 **Round 9 — Long Axe competition format (`e3fe92d`):**
 
