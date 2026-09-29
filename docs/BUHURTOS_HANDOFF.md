@@ -150,7 +150,6 @@ Round 7 (discipline + suspensions + offline):
 
 Round 8 (public-surface disambiguation):
 
-* `src/components/DemoNotice.tsx`
 * `src/components/ShowcaseShell.tsx`
 * `src/pages/ShowcasePublicPage.tsx`
 * `src/pages/ShowcaseDashboard.tsx`
@@ -171,7 +170,7 @@ Round 8 (public-surface disambiguation):
 * The `p_id` parameter on `issue_suspension` exists only for deterministic test seeding (`coalesce(p_id, gen_random_uuid())`). Do not add UI reliance on it.
 * `suspensions` remains SELECT-only via RLS plus anon/authenticated read grants; direct writes stay RPC-only.
 * Keep the offline queue fail-safe: conflicts require a human retry/discard, stale `syncing` is repaired after 30s, auto-retry is capped (8) with backoff, and manual retry resets the counter.
-* Showcase surfaces must keep the demo disambiguation: every showcase route carries a `DemoNotice`, no LIVE claims, no fake clocks, and the real live board (`/#/live`) is the primary spectator path.
+* Showcase surfaces must not present sample values as verified live tournament results. Keep sample-only scoreboards/statuses explicitly labeled where they remain; the persistent `DemoNotice` banner is intentionally removed.
 
 ## Pack 6 files to know
 
@@ -396,7 +395,7 @@ Treat Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e`, wor
 
 **The planned product gap list is closed, including the last three flagged items.** Rounds 13–14 cleared the widgets/public-profiles and Marathon frontier items; Round 15 added the team standings board and fight-card-level exports; Round 16 added the `sanctioned`/`predecessor` organization relationship kinds. Roadmap-only work remains as noted in `docs/COMPLETION_MATRIX.md` (e.g., org-level federation admin UI, production-verified livestream embedding, profile photo upload flow).
 
-Before any hosted production claim, select a dedicated BuhurtOS Supabase project and complete the existing hosted verification checklist. Do not use the Northborn/Mallard/Reavers project as a BuhurtOS target.
+Before any hosted production claim, create and select a dedicated project inside Supabase organization `vbxznwtocyorcfghzdfo` (BuhurtOS), then complete the hosted verification checklist. Do not use the Northborn/Mallard/Reavers project as a BuhurtOS target.
 
 The separate branch `pack4-organizations-clubs-teams` and closed draft PR #7 contain preserved feature work that is not part of the verified Pack 5 line unless deliberately reviewed and integrated later.
 
