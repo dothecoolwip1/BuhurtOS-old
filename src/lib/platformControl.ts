@@ -66,3 +66,37 @@ export async function createPlatformOrganization(input: {
   if (roleError) throw roleError;
   return data.id;
 }
+
+
+export async function updatePlatformOrganization(input: {
+  id: string;
+  name: string;
+  shortName: string;
+  region: string;
+  kind: OrganizationKind;
+  visibility: EntityVisibility;
+  countryCode?: string;
+}): Promise<void> {
+  if (!supabase) throw new Error('Supabase is not configured.');
+  if (!input.name.trim() || !input.shortName.trim() || !input.region.trim()) {
+    throw new Error('Name, short name, and region are required.');
+  }
+  const { error } = await supabase
+    .from('organizations')
+    .update({
+      name: input.name.trim(),
+      short_name: input.shortName.trim(),
+      region: input.region.trim(),
+      kind: input.kind,
+      visibility: input.visibility,
+      country_code: input.countryCode?.trim().toUpperCase() || null
+    })
+    .eq('id', input.id);
+  if (error) throw error;
+}
+
+export async function setPlatformOrganizationStatus(id: string, status: 'active' | 'inactive'): Promise<void> {
+  if (!supabase) throw new Error('Supabase is not configured.');
+  const { error } = await supabase.from('organizations').update({ status }).eq('id', id);
+  if (error) throw error;
+}
