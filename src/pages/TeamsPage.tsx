@@ -47,7 +47,7 @@ export function TeamsPage(){
     return directory.filter(team=>{
       if(province!=='all'&&team.adminAreaCode!==province)return false;
       if(!needle)return true;
-      return [team.name,team.location,team.email,team.adminAreaName,team.countryName]
+      return [team.name,team.location,team.email ?? '',team.adminAreaName,team.countryName]
         .some(value=>value.toLowerCase().includes(needle));
     });
   },[directory,province,query]);
@@ -102,7 +102,7 @@ export function TeamsPage(){
             <small>{team.location} · {team.adminAreaName}</small>
             <h2>{team.name}</h2>
             <p>Current public team listing from HACSA.</p>
-            <div className="official-team-contact"><span>Contact</span><b>{team.email}</b></div>
+            {team.email?<div className="official-team-contact"><span>Contact</span><b>{team.email}</b></div>:null}
           </div>
         </Link>)}</div>
       </section>)}
