@@ -1,6 +1,6 @@
 # BuhurtOS Status
 
-Last updated: 2026-09-24
+Last updated: 2026-09-29
 
 ## Current recovery point
 
@@ -240,6 +240,33 @@ Verification:
 * The database job started local Supabase, rebuilt the schema from every migration, and passed all pgTAP suites.
 * Pack 6 database coverage includes deadlines, duplicate submissions, eligibility and needs-review handling, team roster changes, cross-organization denial, stale reviews, capacity, waitlists, withdrawal capability tokens, separate physical and final marshal clearance, cancellation, archiving, and historical immutability.
 * PR #10 merged Pack 6 to `main` as `c6bbd937ed9a08592ca633325a848e2e765f4382`.
+
+## Round 7: Discipline, suspensions, and offline hardening (implemented, committed locally)
+
+Discipline and suspensions data layer:
+
+* `disciplinary_cards` and `suspensions` are new governed tables. Card and suspension writes are RPC-only; the previous `discipline_write` policy on `disciplinary_cards` was dropped so direct browser inserts fail.
+* `issue_discipline_card` authorizes platform admins / organization admins / event organizers / field marshals and requires a reason.
+* `issue_suspension` supports organization, event, season, and combined scoping with validity checks (suspension must end after it starts) and deterministic test seeding through an optional trailing `p_id`.
+* `revoke_suspension` authorizes against the target row before mutating and gives a distinct error for nonexistent suspensions.
+* `prevent_clearance_while_suspended`, an additive enforcement trigger on `event_roster_entries`, blocks competition clearance while an active suspension covers the entry on every write path, guarded RPC included.
+* `suspensions` has RLS read policies (org staff/admins, event-role holders, fighter self-read) plus deliberate anon/authenticated SELECT grants so anonymous-access assertions exercise RLS rather than failing at the ACL layer.
+* Audit triggers cover cards and suspensions, and `set_updated_at` is maintained.
+
+UI:
+
+* `DisciplinePage` now issues cards through `issue_discipline_card` (no direct inserts), lists season history, and adds a suspensions panel: issue (with duration), list with live status (`active`/`upcoming`/`revoked`/`expired`), and revoke. Demo mode falls back to localStorage with an explicit demo message.
+
+Offline queue hardening:
+
+* A mutation left in `syncing` for over 30 seconds (tab close, reload, crash) is repaired back to `queued` on the next flush instead of stranding forever.
+* Automatic retries are capped at 8 attempts with exponential backoff (1s doubling, 60s ceiling); conflicts always require human decision; manual retry resets the attempt counter and backoff.
+* A per-process in-flight guard prevents concurrent flushes racing over the same IndexedDB items.
+
+Verification:
+
+* Local: `npm run typecheck` clean; `npm test` 36/36; all 18 migrations replay cleanly on a fresh database; `discipline_suspensions.test.sql` passes 27 assertions under the replay harness with genuine role switching and RLS semantics.
+* The CI run for the round commit (frontend job + authoritative pgTAP `database` job) is pending until the round is pushed to `main`.
 
 ## Verification status
 

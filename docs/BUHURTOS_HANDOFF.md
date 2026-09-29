@@ -1,6 +1,6 @@
 # BuhurtOS Handoff
 
-Last updated: 2026-09-28
+Last updated: 2026-09-29
 
 ## Resume here
 
@@ -14,7 +14,41 @@ Pack 6 merge commit: `c6bbd937ed9a08592ca633325a848e2e765f4382`.
 
 That workflow passed both required jobs: frontend typecheck/tests/production build and a clean Supabase rebuild with all pgTAP database tests.
 
+### Current round: discipline, suspensions, and offline hardening (committed locally)
+
+The head of `main` is `91a473c` ("fix: ship operational UI styles... and fix the CI npm cache path"). On top of that head the following unmerged work is implemented and **verified locally**:
+
+* Forward migration `supabase/migrations/20260930010000_discipline_suspensions.sql` — `disciplinary_cards` + `suspensions` tables, guarded `issue_discipline_card` / `issue_suspension` / `revoke_suspension` RPCs, additive `prevent_clearance_while_suspended` trigger on `event_roster_entries`, RLS read scoping, audit triggers, `discipline_write` policy removed, deliberate anon/authenticated SELECT grants on `suspensions`. The `issue_suspension` RPC carries a test-only trailing `p_id` so the suite can seed a deterministic suspension id referenced by non-privileged roles.
+* pgTAP suite `supabase/tests/database/discipline_suspensions.test.sql` — 27 assertions, green under the local replay harness (fresh DB → fixture → all 18 migrations → suite with real role switching and genuine RLS semantics).
+* Offline-queue hardening in `src/lib/offlineQueue.ts` + `tests/offlineQueue.test.ts`: 30s stale-`syncing` repair, auto-retry capped at 8 attempts with exponential backoff, manual retry resets the counter, per-process in-flight flush guard. Frontend suites pass 36/36.
+* Discipline UI rewrite in `src/pages/DisciplinePage.tsx` (RPC-based card issuance, suspensions issue/list/revoke panel, demo-mode fallback), `Suspension` in `src/types.ts`, and CSS for `.susp-dot` / `.field-hint` / `.ghost` in `src/styles.css`.
+
+Locally verified before commit: `npm run typecheck` clean, `npm test` 36/36, all 18 migrations replay from scratch, and the discipline suite green. **The CI (`pages` + `database`) run for this commit is the authoritative pgTAP verification and must be confirmed green after push.**
+
 Do not apply BuhurtOS migrations to the currently connected Supabase project unless it is independently confirmed to be a dedicated BuhurtOS project. The project inspected during Pack 2 contains Northborn, Mallard, and Reavers data and is not the BuhurtOS target.
+
+## This round — files to know
+
+Discipline and suspensions:
+
+* `supabase/migrations/20260930010000_discipline_suspensions.sql`
+* `supabase/tests/database/discipline_suspensions.test.sql`
+* `src/pages/DisciplinePage.tsx`
+* `src/types.ts` (`Suspension`, `DisciplineCard`)
+
+Offline hardening:
+
+* `src/lib/offlineQueue.ts`
+* `tests/offlineQueue.test.ts`
+
+## This round — rules that must remain
+
+* Discipline and suspension writes happen only through the guarded RPCs. The old `discipline_write` policy was dropped; direct browser inserts into `disciplinary_cards` must never be re-enabled.
+* Active suspensions block competition clearance in the data layer (`prevent_clearance_while_suspended`), not only in the UI. Do not weaken the trigger or the clearance RPC.
+* `revoke_suspension` authorizes against the target row before mutating (`Not authorized` for unauthorized callers holding a valid id).
+* The `p_id` parameter on `issue_suspension` exists only for deterministic test seeding (`coalesce(p_id, gen_random_uuid())`). Do not add UI reliance on it.
+* `suspensions` remains SELECT-only via RLS plus anon/authenticated read grants; direct writes stay RPC-only.
+* Keep the offline queue fail-safe: conflicts require a human retry/discard, stale `syncing` is repaired after 30s, auto-retry is capped (8) with backoff, and manual retry resets the counter.
 
 ## Pack 6 files to know
 
@@ -57,9 +91,10 @@ Governance and frontend workflows:
 * `src/lib/governance.ts`
 * `src/lib/rulesetAdmin.ts`
 * `src/lib/competitionFormats.ts`
-* `src/pages/RulesetWorkbenchPage.tsx`
-* `src/pages/SeasonManagementPage.tsx`
-* `src/pages/EventSetupPage.tsx`
+* `src/pages/RulesetsPage.tsx` (ruleset workbench)
+* `src/pages/GovernancePage.tsx` (governance hierarchy view)
+* `src/pages/SetupPage.tsx` (organization + season lifecycle setup)
+* `src/pages/AdminPage.tsx` (event setup / organizer tools)
 * `src/types.ts`
 
 Database and tests:
@@ -67,7 +102,7 @@ Database and tests:
 * `supabase/migrations/20260924153000_pack5_rulesets_divisions_seasons.sql`
 * `supabase/tests/database/pack5_rulesets_divisions_seasons.test.sql`
 * `tests/governance.test.ts`
-* `tests/permissionsRules.test.ts`
+* `tests/rulesets.test.ts` (includes permission-scoping coverage)
 
 ## Pack 5 rules that must remain
 
@@ -207,7 +242,9 @@ supabase db reset
 supabase test db
 ```
 
-GitHub Actions workflow `35954642255` passed both jobs on Pack 3 implementation head `2ffab73e9e403ab8c0325ef18a441ed5fe09319e` before merge. Mega Pack 4 workflow `35999176785` passed both jobs on implementation head `07107630551711945284cabfac3de1c3ca86cc58`.
+Local SQL validation without Docker uses the replay harness: fresh DB → `supabase_minimal_fixture.sql` → all migrations → `pgtap_shim.sql` role switching → suite via `run_suites.ps1` (see the workspace temp folder, not the repo). The CI `database` job remains authoritative.
+
+GitHub Actions workflow `35954642255` passed both jobs on Pack 3 implementation head `2ffab73e9e403ab8c0325ef18a441ed5fe09319e` before merge. Mega Pack 4 workflow `35999176785` passed both jobs on implementation head `07107630551711945284cabfac3de1c3ca86cc58`. The current round's local verification (typecheck, 36/36 frontend tests, 18-migration replay, 27-assertion discipline suite with genuine role/RLS semantics) is complete; its CI workflow run is pending until the round is pushed.
 
 The Pack 3 database suite contains 49 identity-specific assertions in addition to the earlier Pack 1 and Pack 2 database suites. It covers public and private access, profile concurrency, youth privacy, claim approval, rejection and disputes, unauthorized edits, affiliation transitions, duplicate suggestions, merge preservation, conflicting owners, rollback, and auditing.
 
@@ -230,9 +267,19 @@ A dedicated BuhurtOS Supabase project is still required before any remote migrat
 
 ## Next session
 
-Read `BUHURTOS_PLAN.md`, `BUHURTOS_STATUS.md`, and this handoff before continuing.
+Read `BUHURTOS_PLAN.md`, `BUHURTOS_STATUS.md`, `docs/COMPLETION_MATRIX.md`, and this handoff before continuing.
 
-Treat Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e`, workflow `36080004581`, and merge commit `c6bbd937ed9a08592ca633325a848e2e765f4382` as the verified events-and-registration checkpoint.
+Treat Pack 6 implementation head `789cca1daf8208a6732863409639546744acf52e`, workflow `36080004581`, and merge commit `c6bbd937ed9a08592ca633325a848e2e765f4382` as the verified events-and-registration checkpoint. Treat the discipline/suspensions/offline round described at the top of this handoff as the current verified-local checkpoint; confirm its CI run is green before moving on.
+
+Top remaining product gaps (priority order, full detail in `docs/COMPLETION_MATRIX.md`):
+
+1. Public spectator surface disambiguation — remove mock/showcase-vs-real ambiguity on public pages so showcase content can never masquerade as live event data.
+2. Federation hierarchy — port org/governing-body relationships from branch `pack4-organizations-clubs-teams`.
+3. Long Axe — add as a competition format in `competitionFormats.ts`.
+4. Broader exports (PDF/printable + discipline/registration reports).
+5. Audit completeness (brackets, announcements, orgs/seasons/events/rulesets/profiles/registrations).
+6. Embeddable widgets + fuller public fighter/team profiles.
+7. Marathon — productize the `custom_template` into a verified flow.
 
 Before any hosted production claim, select a dedicated BuhurtOS Supabase project and complete the existing hosted verification checklist. Do not use the Northborn/Mallard/Reavers project as a BuhurtOS target.
 

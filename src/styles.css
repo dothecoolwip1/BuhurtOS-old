@@ -724,3 +724,20 @@ small{color:var(--muted)}
 .show-empty>span{font-size:1.6rem;opacity:.55}
 .show-empty h3{margin:0;font-size:1rem}
 .show-empty p{margin:0;max-width:34ch}
+
+/* Discipline: suspension status dots + list rows */
+.susp-dot{width:13px;height:13px;border-radius:50%;margin-top:3px;flex:0 0 auto;background:var(--muted)}
+.susp-dot.active{background:var(--red);box-shadow:0 0 0 3px rgba(255,100,100,.18)}
+.susp-dot.upcoming{background:var(--yellow)}
+.susp-dot.revoked{background:var(--muted)}
+.susp-dot.expired{background:var(--green)}
+.discipline-list article p{margin:0;color:var(--muted);font-size:12px;line-height:1.4}
+.discipline-list article small{margin:0;color:var(--muted);font-size:11px;opacity:.8}
+.discipline-list article b{font-size:13px}
+.discipline-list article button{margin-left:auto;align-self:center;flex:0 0 auto}
+
+.field-hint{color:var(--muted);font-size:12px;line-height:1.45;max-width:52ch;margin-bottom:12px}
+
+/* Ghost (quiet) button used for low-emphasis actions like revoke */
+button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);padding:7px 12px;border-radius:9px;font-size:12px;font-weight:700}
+button.ghost:hover{color:var(--text);border-color:#3d4c59;background:#111920}

@@ -482,6 +482,23 @@ export interface DisciplineCard {
   issuedAt: string;
 }
 
+export interface Suspension {
+  id: UUID;
+  organizationId: UUID;
+  fighterId?: UUID;
+  rosterEntryId?: UUID;
+  eventId?: UUID;
+  seasonId?: UUID;
+  startsAt: string;
+  endsAt: string;
+  reason: string;
+  notes?: string;
+  revokedAt?: string | null;
+  revokedBy?: UUID | null;
+  issuedAt: string;
+  status: 'active' | 'upcoming' | 'revoked' | 'expired';
+}
+
 export interface Announcement {
   id: UUID;
   eventId: UUID;
@@ -511,4 +528,6 @@ export interface OfflineMutation {
   attempts: number;
   state: 'queued' | 'syncing' | 'conflict' | 'failed';
   lastError?: string;
+  /** ISO timestamp of the most recent sync attempt; used for backoff and stale-syncing recovery. */
+  lastAttemptAt?: string;
 }

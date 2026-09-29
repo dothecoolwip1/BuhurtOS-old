@@ -1,6 +1,6 @@
 # BuhurtOS Build Plan
 
-Last updated: 2026-09-24
+Last updated: 2026-09-29
 
 ## Recovery provenance
 
@@ -176,13 +176,29 @@ Pack 6 completion verification passed both required repository CI jobs on the fi
 
 Workflow `36080004581` passed both jobs before PR #10 was merged.
 
+## Round 7: Discipline, suspensions, and offline hardening
+
+Status: implemented and verified locally; committed locally on top of `main` head `91a473c`. CI verification (frontend job + authoritative pgTAP `database` job) is pending until the round is pushed.
+
+Scope:
+
+* Governed `disciplinary_cards` (yellow/red, reason required, season + event scoped) with RPC-only writes; the old direct-write policy is removed.
+* Governed `suspensions` with organization/event/season scoping, issue and revoke RPCs, and RLS read scoping for staff, officials, and the fighter themself.
+* Additive data-layer enforcement: an active suspension blocks `event_roster_entries` competition clearance on every path, guarded RPC included.
+* Discipline UI: RPC-based card issuance, season history list, suspensions issue/list/revoke panel.
+* Offline queue hardening: 30s stale-`syncing` repair, 8-attempt capped auto-retry with exponential backoff, manual retry reset, per-process flush guard.
+* Frontend coverage for the queue hardening and a 27-assertion pgTAP suite for the discipline/suspensions data layer.
+
+Verification completed locally before commit: typecheck clean, 36/36 frontend tests, all 18 migrations replay on a fresh database, discipline suite green under the role-switching harness. The CI `database` job is the authoritative pgTAP run.
+
 ## Later packs
 
-Later product work should start from the verified Pack 6 checkpoint. Preserve the completed identity, authorization, release hardening, governance, division, season, event lifecycle, registration, eligibility, capacity, withdrawal, clearance, privacy, and concurrency foundations unless a targeted defect requires change.
+Later product work should start from the Round 7 checkpoint. Preserve the completed identity, authorization, release hardening, governance, division, season, event lifecycle, registration, eligibility, capacity, withdrawal, clearance, privacy, concurrency, discipline, suspension, and offline-queue foundations unless a targeted defect requires change.
 
 Before starting a later pack:
 
 * Read `BUHURTOS_STATUS.md`.
 * Read `BUHURTOS_HANDOFF.md`.
-* Confirm Pack 6 CI is green on verified implementation head `789cca1daf8208a6732863409639546744acf52e` and that PR #10 is merged.
+* Read `docs/COMPLETION_MATRIX.md` for the per-requirement source-of-truth status and the ranked list of remaining product gaps.
+* Confirm the Round 7 CI run is green on `main`.
 * Confirm a dedicated BuhurtOS Supabase project is selected before applying migrations remotely.
