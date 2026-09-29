@@ -848,3 +848,11 @@ button.ghost:hover{color:var(--text);border-color:#3d4c59;background:#111920}
 .team-leaflet-map .leaflet-popup-content{margin:12px 14px}
 .buhurt-map-popup{display:flex;flex-direction:column;gap:4px;min-width:150px}.buhurt-map-popup strong{font-size:.86rem}.buhurt-map-popup span{font-size:.7rem;color:#a7b4c0}.buhurt-map-popup a{margin-top:5px;color:#ff9a45;font-size:.72rem;font-weight:850;text-decoration:none}
 @media(max-width:720px){.team-leaflet-map{height:62vh;min-height:460px;border-radius:14px}}
+
+/* Clustered BI team map markers */
+.buhurt-team-marker{background:transparent;border:0}
+.buhurt-team-marker>span{display:block;width:18px;height:18px;border-radius:50%;background:var(--accent);border:3px solid #0b1015;box-shadow:0 0 0 4px rgba(255,138,31,.18),0 4px 14px rgba(0,0,0,.35)}
+.buhurt-cluster-icon{background:transparent!important;border:0!important}
+.buhurt-cluster-icon>span{width:100%;height:100%;display:grid;place-items:center;border-radius:50%;background:linear-gradient(145deg,#ff9c45,#f57a0a);border:3px solid #0b1015;color:#fff;font-weight:950;font-size:.75rem;box-shadow:0 0 0 5px rgba(255,138,31,.16),0 6px 18px rgba(0,0,0,.38)}
+.team-leaflet-map .marker-cluster-small,.team-leaflet-map .marker-cluster-medium,.team-leaflet-map .marker-cluster-large{background:transparent}
+.team-leaflet-map .marker-cluster div{background:transparent}
