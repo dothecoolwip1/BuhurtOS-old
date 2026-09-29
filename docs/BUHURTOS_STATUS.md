@@ -383,7 +383,7 @@ The dedicated hosted backend is now project `tapfpboszgoftbwcwsmn` named **Buhur
 Hosted deployment completed on 2026-09-29:
 
 * Restored the dedicated project and verified it was empty before deployment.
-* Applied all 28 repository migrations in order, then applied two forward hosted-access hardening migrations.
+* Applied all 28 repository migrations in order, then applied three forward hosted follow-up migrations: access hardening, default-ACL hardening, and the waiver storage-policy correction.
 * Verified all 41 public tables have RLS enabled.
 * Removed legacy automatic anonymous/authenticated write grants from membership, suspension, federation-relationship, and ruleset surfaces according to their intended access models.
 * Disabled automatic Data API grants for future objects created by the repository migration role. Live probes confirm new tables, sequences, and functions are not automatically available to `anon`, `authenticated`, or `service_role`.
