@@ -231,9 +231,25 @@ Scope:
 Verification: 34-assertion `federation_hierarchy.test.sql` green on the local
 9-suite replay and under real pgTAP in CI; frontend job + deploy green.
 
+## Round 11: Broader exports
+
+Status: pushed as `5e67501`; workflow `36535409276` green end-to-end.
+
+Scope:
+
+* One shared `csv()` routine (commas/quotes/newline escaping) in `export.ts`
+  across standings, matches/order of play, discipline cards, suspensions, and
+  roster-report builders, plus an `htmlTable` helper for printable reports.
+* Wire exports into the ops pages: BracketPage (order-of-play CSV + printable),
+  DisciplinePage (cards + suspensions CSV + combined printable report),
+  RosterPage (registration report CSV + printable compliance report).
+
+Verification: `tests/export.test.ts` (6 assertions), full suite 42/42,
+typecheck and production build clean; buttons verified in-browser.
+
 ## Later packs
 
-Later product work should start from the Round 10 checkpoint. Preserve the completed identity, authorization, release hardening, governance, division, season, event lifecycle, registration, eligibility, capacity, withdrawal, clearance, privacy, concurrency, discipline, suspension, offline-queue, public-surface-disambiguation, Long-Axe, and federation-hierarchy foundations unless a targeted defect requires change.
+Later product work should start from the Round 11 checkpoint. Preserve the completed identity, authorization, release hardening, governance, division, season, event lifecycle, registration, eligibility, capacity, withdrawal, clearance, privacy, concurrency, discipline, suspension, offline-queue, public-surface-disambiguation, Long-Axe, federation-hierarchy, and exports foundations unless a targeted defect requires change.
 
 Before starting a later pack:
 

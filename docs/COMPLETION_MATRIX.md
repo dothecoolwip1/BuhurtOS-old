@@ -267,10 +267,10 @@ only credits real, wired functionality.
 
 | Requirement | Status | Evidence |
 |---|---|---|
-| CSV exports | ✅ | `export.ts` (standings CSV; roster/card/registration CSV helpers) |
-| PDF / printable reports | ❌ | not started (browser-print path only) |
-| Event results / standings / rosters / fight cards / brackets / discipline exports | 🟡 | CSV available for standings; others partial |
-| Registration/admin reports | ❌ | not started |
+| CSV exports | ✅ | `export.ts` (standings, matches/order of play, discipline cards, suspensions, roster report) |
+| PDF / printable reports | ✅ | `openPrintableReport` wired to standings, bracket order of play, discipline report, registration report (browser print / save-as-PDF) |
+| Event results / standings / rosters / fight cards / brackets / discipline exports | 🟡 | standings, bracket order of play, roster report, discipline cards + suspensions CSV all live; fight-card-level exports not built |
+| Registration/admin reports | ✅ | roster registration report CSV + printable compliance report (`RosterPage`) |
 | Future analytics | ❌ | not started |
 
 ## Offline and Realtime
@@ -347,7 +347,18 @@ only credits real, wired functionality.
 
 ## Round notes (this update)
 
-**CI is green on `main`:** workflow `36534422890` on head `b4b3795` passed all three jobs — frontend (typecheck/tests/production build), the authoritative pgTAP database job (all 9 suites), and the GitHub Pages deploy. Deployed site live at <https://dothecoolwip1.github.io/BuhurtOS/>.
+**CI is green on `main`:** workflow `36535409276` on head `5e67501` passed all three jobs — frontend (typecheck/tests/production build), the authoritative pgTAP database job (all 9 suites), and the GitHub Pages deploy. Deployed site live at <https://dothecoolwip1.github.io/BuhurtOS/>. (The docs-only head `f4b7844` also passed, workflow `36535061871`.)
+
+Round 11 (completed and pushed as `5e67501`):
+- **Broader exports** — `export.ts` now shares one `csv()` routine (escapes
+  commas, quotes, newlines) across standings, matches/order of play, discipline
+  cards, suspensions, and roster-report builders. BracketPage wires the
+  previously-unused `matchesCsv` plus a printable order of play;
+  DisciplinePage exports cards and suspensions CSV and a combined printable
+  report; RosterPage exports the registration/roster report CSV and a
+  printable compliance report. 6 new unit tests in `tests/export.test.ts`;
+  42/42 tests, typecheck and production build clean; buttons verified
+  in-browser on the ops pages.
 
 Round 10 (completed and pushed as `b4b3795`):
 - **Federation hierarchy ported to main** — `20261001000000_federation_hierarchy.sql`
@@ -406,8 +417,7 @@ Round 7 (completed and pushed as `27566ef`):
 
 Top remaining product gaps (in priority order):
 
-1. **Broader exports** — PDF/printable + discipline/registration reports.
-2. **Audit completeness** — add triggers for brackets, announcements,
+1. **Audit completeness** — add triggers for brackets, announcements,
    orgs/seasons/events/rulesets/profiles/registrations.
-3. **Embeddable widgets + fuller public fighter/team profiles.**
-4. **Marathon** — productize the custom template into a verified flow.
+2. **Embeddable widgets + fuller public fighter/team profiles.**
+3. **Marathon** — productize the custom template into a verified flow.
