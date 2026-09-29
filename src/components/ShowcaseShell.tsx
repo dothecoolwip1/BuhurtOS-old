@@ -3,8 +3,8 @@ import { previewRoleLabels, usePreviewMode, type PreviewRole } from '../features
 import { DemoNotice } from './DemoNotice';
 
 const navByRole: Record<PreviewRole, Array<[string,string,string]>> = {
-  bi_admin: [['/home','Overview','◫'],['/governance','Governance','⌘'],['/teams','Teams','♜'],['/fighters','Fighters','♟'],['/events','Events','⚔'],['/rankings','Rankings','↗'],['/rules','Rulesets','§'],['/public','Public Arena','◎']],
-  hacsa_admin: [['/home','Overview','◫'],['/governance','HACSA','⌘'],['/teams','Teams','♜'],['/fighters','Fighters','♟'],['/events','Events','⚔'],['/rankings','Rankings','↗'],['/rules','Rulesets','§'],['/public','Public Arena','◎']],
+  bi_admin: [['/home','Overview','◫'],['/governance','Governance','⌘'],['/teams','Teams','♜'],['/fighters','Fighters','♟'],['/events','Events','⚔'],['/rankings','Rankings','↗'],['/rules','Marshal Rules','§'],['/public','Public Arena','◎']],
+  hacsa_admin: [['/home','Overview','◫'],['/governance','HACSA','⌘'],['/teams','Teams','♜'],['/fighters','Fighters','♟'],['/events','Events','⚔'],['/rankings','Rankings','↗'],['/rules','Marshal Rules','§'],['/public','Public Arena','◎']],
   captain: [['/home','Captain Home','◫'],['/team-hq','Team HQ','♜'],['/fighters','Roster','♟'],['/events','Events','⚔'],['/rankings','Rankings','↗'],['/public','Public Arena','◎']],
   fighter: [['/home','My Home','◫'],['/me','My Profile','♟'],['/events','Events','⚔'],['/rankings','Rankings','↗'],['/teams','Teams','♜'],['/public','Public Arena','◎']],
   spectator: [['/public','Public Arena','◎'],['/events','Events','⚔'],['/rankings','Rankings','↗'],['/fighters','Fighters','♟'],['/teams','Teams','♜']]
