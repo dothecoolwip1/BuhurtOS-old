@@ -83,7 +83,7 @@ select is(
 
 select throws_ok(
   $$select public.issue_discipline_card('f0000000-0000-0000-0000-000000000050','yellow', null)$$,
-  null, '%Card reason is required%',
+  null, 'Card reason is required',
   'a reason is required to issue a card'
 );
 
@@ -118,7 +118,7 @@ select throws_ok(
     'f0000000-0000-0000-0000-000000000041',
     '2026-10-01T00:00:00Z','2026-08-01T00:00:00Z',
     'backwards')$$,
-  null, '%after its start%',
+  null, 'after its start',
   'a suspension must end after it starts'
 );
 
@@ -128,7 +128,7 @@ set local role authenticated;
 select pg_catalog.set_config('request.jwt.claim.sub','f0000000-0000-0000-0000-000000000002',true);
 select throws_ok(
   $$select public.issue_discipline_card('f0000000-0000-0000-0000-000000000050','red','smack')$$,
-  null, '%Not authorized%',
+  null, 'Not authorized',
   'organization staff cannot issue discipline cards (admin or event organizer/marshal required)'
 );
 
@@ -145,14 +145,14 @@ select throws_ok(
       'f0000000-0000-0000-0000-000000000051',
       (select updated_at from public.event_roster_entries where id='f0000000-0000-0000-0000-000000000051'),
       true)$$,
-  null, '%active suspension%',
+  null, 'active suspension',
   'guarded clearance RPC refuses a suspended fighter'
 );
 
 -- Via a direct table write (data-layer trigger).
 select throws_ok(
   $$update public.event_roster_entries set competition_cleared=true where id='f0000000-0000-0000-0000-000000000051'$$,
-  null, '%active suspension%',
+  null, 'active suspension',
   'direct competition_cleared writes are refused by the enforcement trigger'
 );
 
@@ -170,7 +170,7 @@ set local role authenticated;
 select pg_catalog.set_config('request.jwt.claim.sub','f0000000-0000-0000-0000-000000000004',true);
 select throws_ok(
   $$select public.revoke_suspension('f0000000-0000-0000-0000-000000000060')$$,
-  null, '%Not authorized%',
+  null, 'Not authorized',
   'an admin of another organization cannot revoke suspensions'
 );
 
@@ -228,7 +228,7 @@ select throws_ok(
   $$select public.issue_suspension(
     'f0000000-0000-0000-0000-000000000010','f0000000-0000-0000-0000-000000000041',
     '2026-08-01T00:00:00Z','2026-10-01T00:00:00Z','sneaky')$$,
-  null, '%Not authorized%',
+  null, 'Not authorized',
   'an admin of another organization cannot issue suspensions'
 );
 
