@@ -37,6 +37,8 @@ const RulesetsPage = lazy(() => import('./pages/RulesetsPage').then(module => ({
 const IdentityPage = lazy(() => import('./pages/IdentityPage').then(module => ({ default: module.IdentityPage })));
 const IdentityReviewPage = lazy(() => import('./pages/IdentityReviewPage').then(module => ({ default: module.IdentityReviewPage })));
 const StandingsWidgetPage = lazy(() => import('./pages/StandingsWidgetPage').then(module => ({ default: module.StandingsWidgetPage })));
+const OrganizationManagementPage = lazy(() => import('./pages/OrganizationManagementPage').then(module => ({ default: module.OrganizationManagementPage })));
+const MembershipInvitePage = lazy(() => import('./pages/MembershipInvitePage').then(module => ({ default: module.MembershipInvitePage })));
 
 function OperationsProvider() {
   return <AppStateProvider><Outlet /></AppStateProvider>;
@@ -94,6 +96,8 @@ export function App(){
         <Route path="notes" element={<RequirePermission permission="notes.team"><NotesPage/></RequirePermission>}/>
         <Route path="identity" element={<IdentityPage/>}/>
         <Route path="identity-review" element={<IdentityReviewPage/>}/>
+        <Route path="governance" element={<OrganizationManagementPage/>}/>
+        <Route path="invite" element={<MembershipInvitePage/>}/>
         <Route path="foundation" element={<FoundationPage/>}/>
         <Route path="rulesets" element={<RulesetsPage/>}/>
         <Route path="sync" element={<SyncPage/>}/>
