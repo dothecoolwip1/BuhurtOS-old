@@ -151,7 +151,7 @@ await writeFile(URL_OUTPUT,JSON.stringify({source:`${ORIGIN}/teams`,sourceHost:'
 const browser=await launchBrowser();
 try{
   const directory=await renderDirectory(browser);
-  if(directory.length<100)throw new Error(`Rendered BI directory returned only ${directory.length} team links.`);
+  if(directory.length<100)console.warn(`Rendered BI directory exposed only ${directory.length} cards in headless mode; continuing with ${teamUrls.length} sitemap-discovered team profiles.`);
   await writeFile(RAW_OUTPUT,JSON.stringify({source:`${ORIGIN}/teams`,generatedAt,sitemapCount:teamUrls.length,renderedCount:directory.length,teams:directory},null,2)+'\n','utf8');
   const profiles=await scrapeProfiles(browser,teamUrls,Number(process.env.BI_PROFILE_CONCURRENCY||5));
   await writeFile(PROFILE_OUTPUT,JSON.stringify({source:`${ORIGIN}/teams`,generatedAt,count:profiles.length,successful:profiles.filter(x=>x.ok).length,failed:profiles.filter(x=>!x.ok).length,profiles},null,2)+'\n','utf8');
