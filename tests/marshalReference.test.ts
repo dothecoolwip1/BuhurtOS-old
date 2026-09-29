@@ -9,6 +9,11 @@ describe('source backed team directory', () => {
     expect(hacsaTeams.every(team => team.sourceId === 'hacsa')).toBe(true);
     expect(hacsaTeams.every(team => team.sourceUrl === 'https://www.hacsacanada.com/teams')).toBe(true);
     expect(hacsaTeams.find(team => team.id === 'reavers')?.location).toBe('Red Deer');
+    expect(hacsaTeams.every(team => team.continentName === 'North America')).toBe(true);
+    expect(hacsaTeams.every(team => team.countryName === 'Canada')).toBe(true);
+    expect(hacsaTeams.filter(team => team.adminAreaCode === 'AB')).toHaveLength(7);
+    expect(new Set(hacsaTeams.map(team => team.adminAreaCode))).toEqual(new Set(['AB','BC','MB','SK']));
+    expect(hacsaTeams.find(team => team.id === 'silver-gryphons')?.contactUrl).toBe('https://www.facebook.com/mike.diaz.779');
   });
 });
 
