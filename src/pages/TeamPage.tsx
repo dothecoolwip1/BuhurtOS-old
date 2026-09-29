@@ -58,7 +58,7 @@ export function TeamPage(){
             <div><span>Province</span><b>{team.adminAreaName}</b></div>
             <div><span>Country</span><b>{team.countryName}</b></div>
             <div><span>Continent</span><b>{team.continentName}</b></div>
-            <div><span>Public email</span><a href={`mailto:${team.email}`}>{team.email}</a></div>
+            {team.email?<div><span>Public email</span><a href={`mailto:${team.email}`}>{team.email}</a></div>:null}
             <div><span>Source checked</span><b>{team.verifiedAt}</b></div>
           </div>
         </Panel>
@@ -73,7 +73,7 @@ export function TeamPage(){
 
       <div className="show-stack">
         <Panel title="Contact">
-          <a className="show-btn primary full" href={`mailto:${team.email}`}>Email team</a>
+          {team.email?<a className="show-btn primary full" href={`mailto:${team.email}`}>Email team</a>:null}
           {team.websiteUrl?<a className="show-btn secondary full" href={team.websiteUrl} target="_blank" rel="noopener noreferrer">Team website ↗</a>:null}
           {team.contactUrl?<a className="show-btn secondary full" href={team.contactUrl} target="_blank" rel="noopener noreferrer">HACSA contact link ↗</a>:null}
         </Panel>
