@@ -1,3 +1,4 @@
+import { biTeams } from '../data/biTeams';
 import { hacsaTeams } from '../data/hacsaTeams';
 import { publicSupabase } from './supabase';
 
@@ -8,19 +9,28 @@ export type PublicDirectoryTeam = {
   organizationName: string;
   organizationShortName: string;
   name: string;
-  location: string;
+  location?: string;
   continentCode: string;
   continentName: string;
   countryCode: string;
   countryName: string;
-  adminAreaCode: string;
-  adminAreaName: string;
+  adminAreaCode?: string;
+  adminAreaName?: string;
   email?: string;
   websiteUrl?: string;
   contactUrl?: string;
   sourceKind: 'hacsa' | 'bi_teams' | 'bi_ranking';
   sourceUrl: string;
   verifiedAt: string;
+  evidenceKind?: string;
+  conference?: string;
+  captain?: string;
+  rank5?: number;
+  average5?: number;
+  total5?: number;
+  rank12?: number;
+  average12?: number;
+  total12?: number;
 };
 
 export type TeamDirectoryFilters = {
@@ -50,13 +60,47 @@ export function hacsaFallbackDirectory(): PublicDirectoryTeam[] {
     contactUrl: team.contactUrl,
     sourceKind: 'hacsa',
     sourceUrl: team.sourceUrl,
-    verifiedAt: team.verifiedAt
+    verifiedAt: team.verifiedAt,
+    evidenceKind: 'current_directory'
   }));
+}
+
+export function biFallbackDirectory(): PublicDirectoryTeam[] {
+  return biTeams.map(team => ({
+    id: team.id,
+    slug: team.id,
+    organizationName: 'Buhurt International',
+    organizationShortName: 'BI',
+    name: team.name,
+    location: team.location,
+    continentCode: team.continentCode,
+    continentName: team.continentName,
+    countryCode: team.countryCode,
+    countryName: team.countryName,
+    adminAreaCode: team.adminAreaCode,
+    adminAreaName: team.adminAreaName,
+    sourceKind: 'bi_teams',
+    sourceUrl: team.sourceUrl,
+    verifiedAt: '2026-09-29',
+    evidenceKind: team.evidence,
+    conference: team.conference,
+    captain: team.captain,
+    rank5: team.rank5,
+    average5: team.avg5,
+    total5: team.total5,
+    rank12: team.rank12,
+    average12: team.avg12,
+    total12: team.total12
+  }));
+}
+
+export function allFallbackDirectory(): PublicDirectoryTeam[] {
+  return [...hacsaFallbackDirectory(), ...biFallbackDirectory()];
 }
 
 export async function loadPublicTeamDirectory(filters: TeamDirectoryFilters = {}): Promise<PublicDirectoryTeam[]> {
   if (!publicSupabase) {
-    return hacsaFallbackDirectory().filter(team =>
+    return allFallbackDirectory().filter(team =>
       (!filters.organizationShortName || team.organizationShortName.toLowerCase() === filters.organizationShortName.toLowerCase()) &&
       (!filters.continentCode || team.continentCode === filters.continentCode) &&
       (!filters.countryCode || team.countryCode === filters.countryCode) &&
@@ -82,18 +126,27 @@ export async function loadPublicTeamDirectory(filters: TeamDirectoryFilters = {}
     organizationName: row.organization_name,
     organizationShortName: row.organization_short_name,
     name: row.team_name,
-    location: row.city_or_region,
+    location: row.city_or_region ?? undefined,
     continentCode: row.continent_code,
     continentName: row.continent_name ?? row.continent_code,
     countryCode: row.country_code,
     countryName: row.country_name ?? row.country_code,
-    adminAreaCode: row.admin_area_code,
-    adminAreaName: row.admin_area_name,
-    email: row.public_contact_email,
+    adminAreaCode: row.admin_area_code ?? undefined,
+    adminAreaName: row.admin_area_name ?? undefined,
+    email: row.public_contact_email ?? undefined,
     websiteUrl: row.website_url ?? undefined,
     contactUrl: row.source_contact_url ?? undefined,
     sourceKind: row.source_kind,
     sourceUrl: row.source_url,
-    verifiedAt: String(row.source_verified_at).slice(0, 10)
+    verifiedAt: String(row.source_verified_at).slice(0, 10),
+    evidenceKind: row.source_evidence_kind ?? undefined,
+    conference: row.source_conference ?? undefined,
+    captain: row.source_captain ?? undefined,
+    rank5: row.source_rank_5v5 == null ? undefined : Number(row.source_rank_5v5),
+    average5: row.source_average_points_5v5 == null ? undefined : Number(row.source_average_points_5v5),
+    total5: row.source_total_points_5v5 == null ? undefined : Number(row.source_total_points_5v5),
+    rank12: row.source_rank_12v12 == null ? undefined : Number(row.source_rank_12v12),
+    average12: row.source_average_points_12v12 == null ? undefined : Number(row.source_average_points_12v12),
+    total12: row.source_total_points_12v12 == null ? undefined : Number(row.source_total_points_12v12)
   }));
 }
