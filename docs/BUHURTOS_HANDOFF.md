@@ -400,6 +400,14 @@ Before any hosted production claim, create and select a dedicated project inside
 The separate branch `pack4-organizations-clubs-teams` and closed draft PR #7 contain preserved feature work that is not part of the verified Pack 5 line unless deliberately reviewed and integrated later.
 
 
+## Dedicated hosted Supabase
+
+BuhurtOS is now deployed to the dedicated Supabase project `tapfpboszgoftbwcwsmn` in organization `vbxznwtocyorcfghzdfo`. Use this project exclusively for BuhurtOS. Never apply BuhurtOS migrations or functions to the Northborn/Mallard/Reavers project.
+
+All repository migrations plus the hosted privilege-hardening migrations are applied. The four Edge Functions are active, both storage buckets are private, Realtime publication is configured, RLS is enabled on every public table, and production GitHub Pages builds use the modern public publishable key. Secret/service-role credentials remain server-side only.
+
+The hosted access hardening intentionally makes new Data API exposure opt-in for objects created by the repository migration role. Keep explicit GRANT statements beside RLS policies in future migrations.
+
 ## HACSA teams and BI marshal reference checkpoint
 
 PR #12 on `feature/hacsa-bi-marshal-reference` is the HACSA-first team-source and BI marshal-reference work. Team facts shown on `/teams` and `/teams/:teamId` now come from the HACSA public team directory snapshot verified 2026-09-29; missing roster, member count, founding year or competition history is deliberately left blank rather than fabricated. BI Teams and BI Official Ranking are the next enrichment sources.
