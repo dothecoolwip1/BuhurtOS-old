@@ -51,6 +51,28 @@ function requestedEventIdFromLocation(): string | undefined {
   return new URLSearchParams(window.location.hash.slice(queryIndex + 1)).get('event') ?? undefined;
 }
 
+function currentHashRoute(): string {
+  if (typeof window === 'undefined') return '/';
+  return window.location.hash.replace(/^#/, '').split('?')[0] || '/';
+}
+
+function routeNeedsEventSnapshot(): boolean {
+  const route = currentHashRoute();
+  const eventIndependentRoutes = new Set([
+    '/ops/login',
+    '/ops/setup',
+    '/ops/access',
+    '/ops/access-admin',
+    '/ops/foundation',
+    '/ops/governance',
+    '/ops/invite',
+    '/ops/rulesets',
+    '/ops/identity',
+    '/ops/identity-review'
+  ]);
+  return !eventIndependentRoutes.has(route);
+}
+
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [authReady, setAuthReady] = useState(!isSupabaseConfigured);
@@ -82,6 +104,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           if (isProtectedOperationsRoute()) accessMode = 'private';
         }
       }
+      if (!routeNeedsEventSnapshot()) {
+        setEvent(null);
+        setMatches([]);
+        setRoster([]);
+        setFightCards([]);
+        setTeams([]);
+        setAnnouncements([]);
+        return;
+      }
+
       const snap = await loadEventSnapshot(requestedEventId, accessMode);
       setEvent(snap.event);
       setMatches(snap.matches);
