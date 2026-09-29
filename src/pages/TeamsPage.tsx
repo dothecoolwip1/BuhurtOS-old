@@ -2,9 +2,9 @@ import {useEffect,useMemo,useState} from 'react';
 import {Link} from 'react-router-dom';
 import {loadPublicTeamDirectory,type PublicDirectoryTeam} from '../lib/teamDirectory';
 import {PageHeader,Pill} from '../components/ShowcaseUI';
+import {PublicTeamMap} from '../components/PublicTeamMap';
 
 const initials=(n:string)=>n.replace(/^The\s+/i,'').split(/\s+/).filter(Boolean).slice(0,3).map(x=>x[0]?.toUpperCase()).join('');
-const project=(lat:number,lon:number)=>({x:(lon+180)/360*100,y:(90-lat)/180*100});
 
 export function TeamsPage(){
  const [query,setQuery]=useState(''); const [org,setOrg]=useState('all'); const [country,setCountry]=useState('all');
@@ -23,11 +23,7 @@ export function TeamsPage(){
    <div className="directory-view-switch"><button className={view==='directory'?'selected':''} onClick={()=>setView('directory')}>☷ Directory</button><button className={view==='map'?'selected':''} onClick={()=>setView('map')}>⌖ Map</button></div>
   </div>
   <div className="public-directory-summary"><Pill tone="green">Public · read only</Pill><strong>{teams.length}</strong><span>teams shown</span><b>{mapped.length}</b><span>verified map pins</span></div>
-  {loading?<div className="state-card">Loading global team directory…</div>:view==='map'?<section className="team-world-map" aria-label="World team map">
-    <div className="map-grid"/><div className="map-label north-america">North America</div><div className="map-label europe">Europe</div><div className="map-label apac">Asia Pacific</div>
-    {mapped.map(t=>{const p=project(t.latitude!,t.longitude!);return <Link key={t.id} to={'/teams/'+t.slug} className="team-map-pin" style={{left:p.x+'%',top:p.y+'%'}} title={t.name+' · '+t.location}><span/><b>{t.name}</b></Link>})}
-    {mapped.length===0?<div className="map-empty">No verified map pins match these filters yet.</div>:null}
-   </section>:teams.length===0?<div className="state-card">No teams match those filters.</div>:<div className="show-team-grid public-global-grid">{teams.map(team=><Link to={'/teams/'+team.slug} className="show-team-card" key={team.id}>
+  {loading?<div className="state-card">Loading global team directory…</div>:view==='map'?(mapped.length?<PublicTeamMap teams={mapped}/>:<div className="state-card">No verified map pins match these filters yet.</div>):teams.length===0?<div className="state-card">No teams match those filters.</div>:<div className="show-team-grid public-global-grid">{teams.map(team=><Link to={'/teams/'+team.slug} className="show-team-card" key={team.id}>
     <div className="show-team-banner official">{team.logoPath?<img className="team-card-logo" src={team.logoPath} alt={team.name+' logo'}/>:<span>{initials(team.name)}</span>}<Pill tone="green">{team.organizationShortName}</Pill></div>
     <div className="show-team-body"><small>{[team.location,team.adminAreaName,team.countryName].filter(x=>x&&!x.includes('pending')).join(' · ')||'Location being normalized'}</small><h2>{team.name}</h2>
     <p>{team.captain?'Captain: '+team.captain:(team.description||'Public source-backed team record.')}</p>
