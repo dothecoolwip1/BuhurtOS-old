@@ -335,7 +335,7 @@ Scope:
 * The federation pgTAP suite pins the new enum order and proves
   create/duplicate/cycle/ancestor behavior for each kind.
 
-Verification: `federation_hierarchy.test.sql` extended; full 12-suite pgTAP
+Verification: `federation_hierarchy.test.sql` extended; full 11-suite pgTAP
 replay green locally; CI green end-to-end.
 
 ## Later packs

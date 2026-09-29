@@ -347,7 +347,7 @@ only credits real, wired functionality.
 
 ## Round notes (this update)
 
-**CI is green on `main`:** workflow `36567325902` on head `c4d1f6f` passed all three jobs — frontend (typecheck/tests/production build), the authoritative pgTAP database job (12 suites), and the GitHub Pages deploy. Deployed site live at <https://dothecoolwip1.github.io/BuhurtOS/>. (The Round 15 head `7f67eab` was superseded by the immediate Round 16 push, so the combined head `c4d1f6f` carries Rounds 15 + 16; the previous checkpoint `b61dccd` carried Rounds 13 + 14 via workflow `36537529093`.)
+**CI is green on `main`:** workflow `36567325902` on head `c4d1f6f` passed all three jobs — frontend (typecheck/tests/production build), the authoritative pgTAP database job (11 suites), and the GitHub Pages deploy. Deployed site live at <https://dothecoolwip1.github.io/BuhurtOS/>. (The Round 15 head `7f67eab` was superseded by the immediate Round 16 push, so the combined head `c4d1f6f` carries Rounds 15 + 16; the previous checkpoint `b61dccd` carried Rounds 13 + 14 via workflow `36537529093`.)
 
 Round 16 (completed and pushed as `c4d1f6f`):
 - **Flexible organization relationship kinds** — forward-only enum extension
@@ -358,7 +358,7 @@ Round 16 (completed and pushed as `c4d1f6f`):
   upsert/end RPCs, bilateral admin consent, active-duplicate rule and cycle
   protection already operate on the enum type, so both kinds flow through
   unchanged. `federation_hierarchy.test.sql` pins the enum order and adds
-  create/duplicate/cycle/ancestor assertions for both kinds; full 12-suite
+  create/duplicate/cycle/ancestor assertions for both kinds; full 11-suite
   pgTAP replay green locally.
 
 Round 15 (completed and pushed as `7f67eab`, validated on `c4d1f6f`):
