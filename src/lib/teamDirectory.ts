@@ -15,7 +15,7 @@ export type PublicDirectoryTeam = {
   countryName: string;
   adminAreaCode: string;
   adminAreaName: string;
-  email: string;
+  email?: string;
   websiteUrl?: string;
   contactUrl?: string;
   sourceKind: 'hacsa' | 'bi_teams' | 'bi_ranking';
@@ -29,19 +29,6 @@ export type TeamDirectoryFilters = {
   countryCode?: string;
   adminAreaCode?: string;
   teamSlug?: string;
-};
-
-const continentNames: Record<string, string> = {
-  NA: 'North America',
-  SA: 'South America',
-  EU: 'Europe',
-  AF: 'Africa',
-  AS: 'Asia',
-  OC: 'Oceania'
-};
-
-const countryNames: Record<string, string> = {
-  CA: 'Canada'
 };
 
 export function hacsaFallbackDirectory(): PublicDirectoryTeam[] {
@@ -97,9 +84,9 @@ export async function loadPublicTeamDirectory(filters: TeamDirectoryFilters = {}
     name: row.team_name,
     location: row.city_or_region,
     continentCode: row.continent_code,
-    continentName: continentNames[row.continent_code] ?? row.continent_code,
+    continentName: row.continent_name ?? row.continent_code,
     countryCode: row.country_code,
-    countryName: countryNames[row.country_code] ?? row.country_code,
+    countryName: row.country_name ?? row.country_code,
     adminAreaCode: row.admin_area_code,
     adminAreaName: row.admin_area_name,
     email: row.public_contact_email,
