@@ -1,4 +1,4 @@
-import type { MatchRecord } from '../types';
+import type { MatchRecord, RosterEntry } from '../types';
 import type { StandingRow } from './standings';
 
 function csvCell(value: unknown): string {
@@ -6,16 +6,81 @@ function csvCell(value: unknown): string {
   return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 
+function csv(headers: string[], rows: Array<Array<unknown>>): string {
+  return [headers, ...rows].map(row => row.map(csvCell).join(',')).join('\n');
+}
+
 export function standingsCsv(rows: StandingRow[]): string {
   const header = ['Rank', 'Competitor', 'Matches', 'Wins', 'Losses', 'Draws', 'Points For', 'Points Against', 'Differential', 'Standing Points'];
   const lines = rows.map((r, index) => [index + 1, r.name, r.matches, r.wins, r.losses, r.draws, r.pointsFor, r.pointsAgainst, r.differential, r.standingPoints]);
-  return [header, ...lines].map(row => row.map(csvCell).join(',')).join('\n');
+  return csv(header, lines);
 }
 
 export function matchesCsv(matches: MatchRecord[]): string {
   const header = ['Order', 'Label', 'Category', 'Stage', 'Status', 'Winner Side', 'Side 1 Total', 'Side 2 Total'];
   const lines = matches.map(m => [m.scheduledOrder, m.label, m.category, m.stage, m.status, m.resultSummary?.winnerSide ?? '', m.resultSummary?.side1Total ?? '', m.resultSummary?.side2Total ?? '']);
-  return [header, ...lines].map(row => row.map(csvCell).join(',')).join('\n');
+  return csv(header, lines);
+}
+
+export interface DisciplineRow {
+  name: string;
+  color: string;
+  reason: string;
+  notes?: string;
+  issuedAt: string;
+}
+
+export function disciplineCsv(cards: DisciplineRow[]): string {
+  return csv(
+    ['Competitor', 'Color', 'Reason', 'Notes', 'Issued At'],
+    cards.map(c => [c.name, c.color, c.reason, c.notes ?? '', new Date(c.issuedAt).toLocaleString()])
+  );
+}
+
+export interface SuspensionRow {
+  name: string;
+  reason: string;
+  startsAt: string;
+  endsAt: string;
+  status: string;
+  revokedAt?: string | null;
+}
+
+export function suspensionsCsv(suspensions: SuspensionRow[]): string {
+  return csv(
+    ['Competitor', 'Reason', 'Starts', 'Ends', 'Status', 'Revoked At'],
+    suspensions.map(s => [
+      s.name,
+      s.reason,
+      new Date(s.startsAt).toLocaleString(),
+      new Date(s.endsAt).toLocaleString(),
+      s.status,
+      s.revokedAt ? new Date(s.revokedAt).toLocaleString() : ''
+    ])
+  );
+}
+
+export function rosterCsv(roster: RosterEntry[]): string {
+  return csv(
+    ['Competitor', 'Entry Type', 'Attendance', 'Checked In', 'Armor', 'Medical', 'Waiver', 'Weigh In', 'Competition Cleared'],
+    roster.map(r => [
+      r.displayName,
+      r.entryType.replaceAll('_', ' '),
+      r.attendanceStatus.replaceAll('_', ' '),
+      r.checkedIn ? 'yes' : 'no',
+      r.armorCleared ? 'yes' : 'no',
+      r.medicalCleared ? 'yes' : 'no',
+      r.waiverConfirmed ? 'yes' : 'no',
+      r.weighInCleared ? 'yes' : 'no',
+      r.competitionCleared ? 'yes' : 'no'
+    ])
+  );
+}
+
+export function htmlTable(headers: Array<string | number>, rows: Array<Array<string | number | boolean>>): string {
+  const head = `<thead><tr>${headers.map(h => `<th>${String(h)}</th>`).join('')}</tr></thead>`;
+  const body = rows.map(row => `<tr>${row.map(cell => `<td>${cell === true ? 'yes' : cell === false ? 'no' : String(cell)}</td>`).join('')}</tr>`).join('');
+  return `<table>${head}<tbody>${body}</tbody></table>`;
 }
 
 export function downloadText(filename: string, content: string, mime = 'text/csv;charset=utf-8'): void {

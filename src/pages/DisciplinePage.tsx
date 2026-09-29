@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAppState } from '../features/AppState';
 import type { DisciplineCard, Suspension } from '../types';
 import { supabase } from '../lib/supabase';
+import { disciplineCsv, downloadText, htmlTable, openPrintableReport, suspensionsCsv } from '../lib/export';
 
 const DEMO_KEY = 'buhurtos-demo-discipline';
 const DEMO_SUSP_KEY = 'buhurtos-demo-suspensions';
@@ -137,6 +138,11 @@ export function DisciplinePage() {
   return <>
     <section className="section-head">
       <div><span className="eyebrow">Season discipline</span><h1>Cards &amp; Suspensions</h1><p>Cards stay tied to both the event and season so repeat issues can be reviewed across events. Suspensions block competition clearance while active.</p></div>
+      <div className="header-actions">
+        <button onClick={() => downloadText('buhurtos-discipline-cards.csv', disciplineCsv(cards.map(c => ({ name: name(c.rosterEntryId), color: c.color, reason: c.reason, notes: c.notes, issuedAt: c.issuedAt }))))}>Export cards CSV</button>
+        <button onClick={() => downloadText('buhurtos-suspensions.csv', suspensionsCsv(suspensions.map(s => ({ name: fighterName(s.fighterId, s.rosterEntryId), reason: s.reason, startsAt: s.startsAt, endsAt: s.endsAt, status: suspensionStatus(s), revokedAt: s.revokedAt }))))}>Export suspensions CSV</button>
+        <button onClick={() => openPrintableReport(`${event.name} Discipline Report`, `${htmlTable(['Competitor', 'Color', 'Reason', 'Notes', 'Issued At'], cards.map(c => [name(c.rosterEntryId), c.color, c.reason, c.notes ?? '', new Date(c.issuedAt).toLocaleString()]))}${suspensions.length ? htmlTable(['Competitor', 'Reason', 'From', 'To', 'Status'], suspensions.map(s => [fighterName(s.fighterId, s.rosterEntryId), s.reason, new Date(s.startsAt).toLocaleDateString(), new Date(s.endsAt).toLocaleDateString(), suspensionStatus(s)])) : ''}`)}>Print / PDF</button>
+      </div>
     </section>
     <div className="admin-grid">
       <section className="panel-card"><h2>Issue card</h2>
