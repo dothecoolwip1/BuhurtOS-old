@@ -3,7 +3,7 @@ import { useAppState } from '../features/AppState';
 import { hasPermission } from '../lib/permissions';
 import { signOut } from '../lib/auth';
 
-const nav = [
+const eventNav = [
   ['/ops', 'Ops', '⚔'],
   ['/ops/roster', 'Roster', '✓'],
   ['/ops/bracket', 'Bracket', '⌘'],
@@ -11,15 +11,24 @@ const nav = [
   ['/live', 'Public', '◎']
 ] as const;
 
+const ownerNav = [
+  ['/ops/platform', 'Owner', '★'],
+  ['/ops/access-admin', 'Access', '⌘'],
+  ['/ops/setup', 'Events', '⚔'],
+  ['/ops/rulesets', 'Rules', '§'],
+  ['/public', 'Public', '◎']
+] as const;
+
 export function Layout() {
   const { event, online, pendingCount, dataMode, syncNow, user } = useAppState();
   const can = (permission: Parameters<typeof hasPermission>[1]) => Boolean(event && hasPermission(user, permission, event.id, event.organizationId));
   const isPlatformSuperAdmin = Boolean(user?.platformRoles.includes('platform_super_admin'));
   const canSetup = Boolean(isPlatformSuperAdmin || user?.organizationRoles.some(role => role.role === 'organization_admin'));
+  const nav = isPlatformSuperAdmin ? ownerNav : eventNav;
   return (
     <div className="app-shell">
       <aside className="side-rail">
-        <div className="brand-block"><span className="brand-mark">B</span><div><b>BuhurtOS</b><small>Buhurt Tournament Operations</small></div></div>
+        <div className="brand-block"><span className="brand-mark">B</span><div><b>BuhurtOS</b><small>{isPlatformSuperAdmin ? 'Platform Owner Console' : 'Buhurt Tournament Operations'}</small></div></div>
         <nav>{nav.map(([to, label, icon]) => <NavLink key={to} to={to} end={to === '/ops'}><span>{icon}</span>{label}</NavLink>)}</nav>
         <div className="utility-nav">
           {can('event.manage') && <NavLink to="/ops/manage">Event Command Centre</NavLink>}
@@ -33,7 +42,7 @@ export function Layout() {
           {canSetup && <NavLink to="/ops/rulesets">Rulesets</NavLink>}
           <NavLink to="/ops/sync">Sync Queue</NavLink>
           {isPlatformSuperAdmin && <NavLink to="/ops/platform">Platform Control</NavLink>}
-          {isPlatformSuperAdmin && <NavLink to="/ops/access-admin">Early Access</NavLink>}
+          {isPlatformSuperAdmin && <NavLink to="/ops/access-admin">Accounts & Early Access</NavLink>}
           {canSetup && <NavLink to="/ops/setup">Setup</NavLink>}
           <NavLink to={'/register' + (event ? '?event=' + event.id : '')}>Registration</NavLink>
           <NavLink to="/">Platform Home</NavLink>
