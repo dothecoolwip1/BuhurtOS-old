@@ -1,0 +1,2410 @@
+{
+  "generatedAt": "2026-09-29T21:44:13.046Z",
+  "records": {
+    "warren|united states": {
+      "query": "Warren, United States",
+      "lat": 41.8119602,
+      "lon": -79.2654452,
+      "displayName": "Warren County, Pennsylvania, United States",
+      "adminArea": "Pennsylvania",
+      "adminCode": "US-PA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:37:37.684Z"
+    },
+    "nottingham|united kingdom": {
+      "query": "Nottingham, United Kingdom",
+      "lat": 52.9534193,
+      "lon": -1.1496461,
+      "displayName": "City of Nottingham, Nottinghamshire, East Midlands, England, United Kingdom",
+      "adminArea": "England",
+      "adminCode": "GB-NTT",
+      "countryCode": "GB",
+      "verifiedAt": "2026-09-29T21:37:39.397Z"
+    },
+    "dallas, texas|united states": {
+      "query": "Dallas, Texas, United States",
+      "lat": 32.7762719,
+      "lon": -96.7968559,
+      "displayName": "Dallas, Dallas County, Texas, United States",
+      "adminArea": "Texas",
+      "adminCode": "US-TX",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:37:40.749Z"
+    },
+    "london|united kingdom": {
+      "query": "London, United Kingdom",
+      "lat": 51.5074456,
+      "lon": -0.1277653,
+      "displayName": "Greater London, England, United Kingdom",
+      "adminArea": "England",
+      "adminCode": "GB-ENG",
+      "countryCode": "GB",
+      "verifiedAt": "2026-09-29T21:37:42.383Z"
+    },
+    "melbourne|australia": {
+      "query": "Melbourne, Australia",
+      "lat": -37.8142454,
+      "lon": 144.9631732,
+      "displayName": "Melbourne, Victoria, Australia",
+      "adminArea": "Victoria",
+      "adminCode": "AU-VIC",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:37:44.271Z"
+    },
+    "dublin, ca|united states": {
+      "query": "Dublin, CA, United States",
+      "lat": 37.7021521,
+      "lon": -121.9357918,
+      "displayName": "Dublin, Alameda County, California, 94568, United States",
+      "adminArea": "California",
+      "adminCode": "US-CA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:37:46.108Z"
+    },
+    "santa barbara|united states": {
+      "query": "Santa Barbara, United States",
+      "lat": 34.4221319,
+      "lon": -119.702667,
+      "displayName": "Santa Barbara, Santa Barbara County, California, United States",
+      "adminArea": "California",
+      "adminCode": "US-CA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:37:47.741Z"
+    },
+    "minneapolis|united states": {
+      "query": "Minneapolis, United States",
+      "lat": 44.9772995,
+      "lon": -93.2654692,
+      "displayName": "Minneapolis, Hennepin County, Minnesota, United States",
+      "adminArea": "Minnesota",
+      "adminCode": "US-MN",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:37:49.126Z"
+    },
+    "san diego|united states": {
+      "query": "San Diego, United States",
+      "lat": 32.7157062,
+      "lon": -117.1638284,
+      "displayName": "San Diego, San Diego County, California, United States",
+      "adminArea": "California",
+      "adminCode": "US-CA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:37:50.717Z"
+    },
+    "seattle, washington|united states": {
+      "query": "Seattle, Washington, United States",
+      "lat": 47.6038321,
+      "lon": -122.330062,
+      "displayName": "Seattle, King County, Washington, United States",
+      "adminArea": "Washington",
+      "adminCode": "US-WA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:37:52.001Z"
+    },
+    "brisbane|australia": {
+      "query": "Brisbane, Australia",
+      "lat": -27.4689623,
+      "lon": 153.0235009,
+      "displayName": "Brisbane, Queensland, Australia",
+      "adminArea": "Queensland",
+      "adminCode": "AU-QLD",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:37:53.804Z"
+    },
+    "colorado springs|united states": {
+      "query": "Colorado Springs, United States",
+      "lat": 38.8339578,
+      "lon": -104.825348,
+      "displayName": "Colorado Springs, El Paso County, Colorado, United States",
+      "adminArea": "Colorado",
+      "adminCode": "US-CO",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:37:55.287Z"
+    },
+    "sydney|australia": {
+      "query": "Sydney, Australia",
+      "lat": -33.8698439,
+      "lon": 151.2082848,
+      "displayName": "Sydney, New South Wales, Australia",
+      "adminArea": "New South Wales",
+      "adminCode": "AU-NSW",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:37:56.728Z"
+    },
+    "gloucester|united kingdom": {
+      "query": "Gloucester, United Kingdom",
+      "lat": 51.8653705,
+      "lon": -2.2458192,
+      "displayName": "Gloucester, Gloucestershire, England, GL1 2AP, United Kingdom",
+      "adminArea": "England",
+      "adminCode": "GB-GLS",
+      "countryCode": "GB",
+      "verifiedAt": "2026-09-29T21:37:58.130Z"
+    },
+    "indianola|united states": {
+      "query": "Indianola, United States",
+      "lat": 33.4509513,
+      "lon": -90.6550917,
+      "displayName": "Indianola, Sunflower County, Mississippi, 38751, United States",
+      "adminArea": "Mississippi",
+      "adminCode": "US-MS",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:37:59.818Z"
+    },
+    "cincinnati|united states": {
+      "query": "Cincinnati, United States",
+      "lat": 39.1012809,
+      "lon": -84.5127405,
+      "displayName": "Cincinnati, Hamilton County, Ohio, United States",
+      "adminArea": "Ohio",
+      "adminCode": "US-OH",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:38:01.516Z"
+    },
+    "augusta, ga|united states": {
+      "query": "Augusta, GA, United States",
+      "lat": 33.4709714,
+      "lon": -81.9748429,
+      "displayName": "Augusta, Richmond County, Georgia, United States",
+      "adminArea": "Georgia",
+      "adminCode": "US-GA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:38:03.489Z"
+    },
+    "manchester|united kingdom": {
+      "query": "Manchester, United Kingdom",
+      "lat": 53.4424618,
+      "lon": -2.2324547,
+      "displayName": "Manchester, Greater Manchester, England, United Kingdom",
+      "adminArea": "England",
+      "adminCode": "GB-MAN",
+      "countryCode": "GB",
+      "verifiedAt": "2026-09-29T21:38:04.816Z"
+    },
+    "ballarat|australia": {
+      "query": "Ballarat, Australia",
+      "lat": -37.5623013,
+      "lon": 143.8605645,
+      "displayName": "Ballarat, Victoria, 3350, Australia",
+      "adminArea": "Victoria",
+      "adminCode": "AU-VIC",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:38:06.537Z"
+    },
+    "philadelphia|united states": {
+      "query": "Philadelphia, United States",
+      "lat": 39.9527237,
+      "lon": -75.1635262,
+      "displayName": "Philadelphia, Philadelphia County, Pennsylvania, United States",
+      "adminArea": "Pennsylvania",
+      "adminCode": "US-PA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:38:08.339Z"
+    },
+    "hereford|united kingdom": {
+      "query": "Hereford, United Kingdom",
+      "lat": 52.0553813,
+      "lon": -2.7151735,
+      "displayName": "Hereford, Herefordshire, England, United Kingdom",
+      "adminArea": "England",
+      "adminCode": "GB-HEF",
+      "countryCode": "GB",
+      "verifiedAt": "2026-09-29T21:38:10.035Z"
+    },
+    "glasgow|united kingdom": {
+      "query": "Glasgow, United Kingdom",
+      "lat": 55.861155,
+      "lon": -4.2501687,
+      "displayName": "Glasgow, Glasgow City, Alba / Scotland, G2 1AL, United Kingdom",
+      "adminArea": "Alba / Scotland",
+      "adminCode": "GB-GLG",
+      "countryCode": "GB",
+      "verifiedAt": "2026-09-29T21:38:11.426Z"
+    },
+    "heraltice|czech republic": {
+      "query": "Heraltice, Czech Republic",
+      "lat": 49.2320309,
+      "lon": 15.7251022,
+      "displayName": "Heraltice, okres Třebíč, Kraj Vysočina, Česko",
+      "adminArea": "Kraj Vysočina",
+      "adminCode": "CZ-634",
+      "countryCode": "CZ",
+      "verifiedAt": "2026-09-29T21:38:13.056Z"
+    },
+    "birmingham|united kingdom": {
+      "query": "Birmingham, United Kingdom",
+      "lat": 52.4948994,
+      "lon": -1.8518439,
+      "displayName": "Birmingham, West Midlands, England, United Kingdom",
+      "adminArea": "England",
+      "adminCode": "GB-BIR",
+      "countryCode": "GB",
+      "verifiedAt": "2026-09-29T21:38:14.791Z"
+    },
+    "munich|germany": {
+      "query": "Munich, Germany",
+      "lat": 48.1371079,
+      "lon": 11.5753822,
+      "displayName": "München, Bayern, Deutschland",
+      "adminArea": "Bayern",
+      "adminCode": "DE-BY",
+      "countryCode": "DE",
+      "verifiedAt": "2026-09-29T21:38:16.052Z"
+    },
+    "las vegas|united states": {
+      "query": "Las Vegas, United States",
+      "lat": 36.1674263,
+      "lon": -115.1484131,
+      "displayName": "Las Vegas, Clark County, Nevada, United States",
+      "adminArea": "Nevada",
+      "adminCode": "US-NV",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:38:17.575Z"
+    },
+    "wrocław|poland": {
+      "query": "Wrocław, Poland",
+      "lat": 51.1263106,
+      "lon": 16.9781963,
+      "displayName": "Wrocław, województwo dolnośląskie, Polska",
+      "adminArea": "województwo dolnośląskie",
+      "adminCode": "PL-02",
+      "countryCode": "PL",
+      "verifiedAt": "2026-09-29T21:38:18.848Z"
+    },
+    "newcastle / central coast, nsw|australia": {
+      "query": "Newcastle / Central Coast, NSW, Australia",
+      "lat": -33.3578899,
+      "lon": 151.3783471,
+      "displayName": "University of Newcastle Central Coast Campus, The Boulevard, Ourimbah, Gosford, New South Wales, 2258, Australia",
+      "adminArea": "New South Wales",
+      "adminCode": "AU-NSW",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:38:20.597Z"
+    },
+    "sanford/fuquay-varina|united states": {
+      "query": "Sanford/Fuquay-Varina, United States",
+      "notFound": true,
+      "verifiedAt": "2026-09-29T21:38:22.314Z"
+    },
+    "east anglia|united kingdom": {
+      "query": "East Anglia, United Kingdom",
+      "lat": 52.4617238,
+      "lon": 0.6975642,
+      "displayName": "East Anglia, England, United Kingdom",
+      "adminArea": "England",
+      "adminCode": "GB-ENG",
+      "countryCode": "GB",
+      "verifiedAt": "2026-09-29T21:38:24.027Z"
+    },
+    "los angeles|united states": {
+      "query": "Los Angeles, United States",
+      "lat": 34.0536909,
+      "lon": -118.242766,
+      "displayName": "Los Angeles, Los Angeles County, California, United States",
+      "adminArea": "California",
+      "adminCode": "US-CA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:38:25.908Z"
+    },
+    "lexington kentucky|united states": {
+      "query": "Lexington Kentucky, United States",
+      "lat": 38.0237848,
+      "lon": -84.5576217,
+      "displayName": "Beaumont Post Office, 1025, Majestic Drive, Beaumont, Lexington, Fayette County, Kentucky, 40513, United States",
+      "adminArea": "Kentucky",
+      "adminCode": "US-KY",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:38:27.179Z"
+    },
+    "canberra|australia": {
+      "query": "Canberra, Australia",
+      "lat": -35.2975906,
+      "lon": 149.1012676,
+      "displayName": "Canberra, District of Canberra Central, Australian Capital Territory, 2600, Australia",
+      "adminArea": "District of Canberra Central",
+      "adminCode": "AU-ACT",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:38:28.907Z"
+    },
+    "wollongong|australia": {
+      "query": "Wollongong, Australia",
+      "lat": -34.4278083,
+      "lon": 150.893054,
+      "displayName": "Wollongong, New South Wales, Australia",
+      "adminArea": "New South Wales",
+      "adminCode": "AU-NSW",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:38:30.178Z"
+    },
+    "sunshine coast|australia": {
+      "query": "Sunshine Coast, Australia",
+      "lat": -26.6544338,
+      "lon": 153.0933668,
+      "displayName": "Sunshine Coast, Queensland, 4572, Australia",
+      "adminArea": "Queensland",
+      "adminCode": "AU-QLD",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:38:31.656Z"
+    },
+    "omaha|united states": {
+      "query": "Omaha, United States",
+      "lat": 41.2587459,
+      "lon": -95.9383758,
+      "displayName": "Omaha, Douglas County, Nebraska, United States",
+      "adminArea": "Nebraska",
+      "adminCode": "US-NE",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:38:33.380Z"
+    },
+    "cardiff|united kingdom": {
+      "query": "Cardiff, United Kingdom",
+      "lat": 51.4816546,
+      "lon": -3.1791934,
+      "displayName": "Cardiff, Cymru / Wales, CF10 2AF, United Kingdom",
+      "adminArea": "Cymru / Wales",
+      "adminCode": "GB-CRF",
+      "countryCode": "GB",
+      "verifiedAt": "2026-09-29T21:38:35.135Z"
+    },
+    "columbia|united states": {
+      "query": "Columbia, United States",
+      "lat": 34.000754,
+      "lon": -81.0352313,
+      "displayName": "Columbia, Richland County, South Carolina, United States",
+      "adminArea": "South Carolina",
+      "adminCode": "US-SC",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:38:37.804Z"
+    },
+    "western sydney|australia": {
+      "query": "Western Sydney, Australia",
+      "lat": -33.721596,
+      "lon": 150.452826,
+      "displayName": "Hazelbrook Post Office, 194, Great Western Highway, Sydney, New South Wales, 2779, Australia",
+      "adminArea": "New South Wales",
+      "adminCode": "AU-NSW",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:38:39.079Z"
+    },
+    "atlanta, ga|united states": {
+      "query": "Atlanta, GA, United States",
+      "lat": 33.7544657,
+      "lon": -84.3898151,
+      "displayName": "Atlanta, Fulton County, Georgia, United States",
+      "adminArea": "Georgia",
+      "adminCode": "US-GA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:38:40.503Z"
+    },
+    "i̇stanbul|turkey": {
+      "query": "İstanbul, Turkey",
+      "lat": 41.006381,
+      "lon": 28.9758715,
+      "displayName": "İstanbul, Fatih, İstanbul, Marmara Bölgesi, 34122, Türkiye",
+      "adminArea": "Marmara Bölgesi",
+      "adminCode": "TR-34",
+      "countryCode": "TR",
+      "verifiedAt": "2026-09-29T21:38:41.894Z"
+    },
+    "nashua|united states": {
+      "query": "Nashua, United States",
+      "lat": 42.7656251,
+      "lon": -71.4677032,
+      "displayName": "Nashua, Hillsborough County, New Hampshire, United States",
+      "adminArea": "New Hampshire",
+      "adminCode": "US-NH",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:38:43.538Z"
+    },
+    "perth|australia": {
+      "query": "Perth, Australia",
+      "lat": -31.9558967,
+      "lon": 115.8605784,
+      "displayName": "Perth, Western Australia, 6000, Australia",
+      "adminArea": "Western Australia",
+      "adminCode": "AU-WA",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:38:44.856Z"
+    },
+    "foothills county|canada": {
+      "query": "Foothills county, Canada",
+      "lat": 50.6445197,
+      "lon": -114.044788,
+      "displayName": "Foothills County, Alberta, Canada",
+      "adminArea": "Alberta",
+      "adminCode": "CA-AB",
+      "countryCode": "CA",
+      "verifiedAt": "2026-09-29T21:38:46.636Z"
+    },
+    "české budějovice|czech republic": {
+      "query": "České Budějovice, Czech Republic",
+      "lat": 48.9747357,
+      "lon": 14.474285,
+      "displayName": "České Budějovice, okres České Budějovice, Jihočeský kraj, Jihozápad, Česko",
+      "adminArea": "Jihočeský kraj",
+      "adminCode": "CZ-311",
+      "countryCode": "CZ",
+      "verifiedAt": "2026-09-29T21:38:48.335Z"
+    },
+    "são paulo|brazil": {
+      "query": "São Paulo, Brazil",
+      "lat": -23.5506507,
+      "lon": -46.6333824,
+      "displayName": "São Paulo, Região Sudeste, Brasil",
+      "adminArea": "São Paulo",
+      "adminCode": "BR-SP",
+      "countryCode": "BR",
+      "verifiedAt": "2026-09-29T21:38:50.064Z"
+    },
+    "brecht|belgium": {
+      "query": "Brecht, Belgium",
+      "lat": 51.3484804,
+      "lon": 4.6398673,
+      "displayName": "Brecht, Malle, Antwerpen, Vlaanderen, 2960, België / Belgique / Belgien",
+      "adminArea": "Antwerpen",
+      "adminCode": "BE-VAN",
+      "countryCode": "BE",
+      "verifiedAt": "2026-09-29T21:38:51.711Z"
+    },
+    "andalucía|spain": {
+      "query": "Andalucía, Spain",
+      "lat": 37.3399964,
+      "lon": -4.5811614,
+      "displayName": "Andalucía, España",
+      "adminArea": "Andalucía",
+      "adminCode": "ES-AN",
+      "countryCode": "ES",
+      "verifiedAt": "2026-09-29T21:38:53.002Z"
+    },
+    "eastern/midwest united states|united states": {
+      "query": "Eastern/Midwest United States, United States",
+      "notFound": true,
+      "verifiedAt": "2026-09-29T21:38:54.288Z"
+    },
+    "milan|italy": {
+      "query": "Milan, Italy",
+      "lat": 45.4641943,
+      "lon": 9.1896346,
+      "displayName": "Milano, Rodano, Milano, Lombardia, Italia",
+      "adminArea": "Lombardia",
+      "adminCode": "IT-MI",
+      "countryCode": "IT",
+      "verifiedAt": "2026-09-29T21:38:56.020Z"
+    },
+    "racking|austria": {
+      "query": "Racking, Austria",
+      "lat": 48.1584617,
+      "lon": 15.7468543,
+      "displayName": "Racking, Katastralgemeinde Weinzettl, Pyhra, Bezirk St. Pölten, Niederösterreich, 3143, Österreich",
+      "adminArea": "Niederösterreich",
+      "adminCode": "AT-3",
+      "countryCode": "AT",
+      "verifiedAt": "2026-09-29T21:38:57.686Z"
+    },
+    "tauranga|new zealand": {
+      "query": "Tauranga, New Zealand",
+      "lat": -37.6859006,
+      "lon": 176.167505,
+      "displayName": "Tauranga, Tauranga City, Bay of Plenty, 3110, New Zealand / Aotearoa",
+      "adminArea": "Bay of Plenty",
+      "adminCode": "NZ-BOP",
+      "countryCode": "NZ",
+      "verifiedAt": "2026-09-29T21:38:58.951Z"
+    },
+    "winnipeg|canada": {
+      "query": "Winnipeg, Canada",
+      "lat": 49.8955367,
+      "lon": -97.1384584,
+      "displayName": "Winnipeg, Manitoba, Canada",
+      "adminArea": "Manitoba",
+      "adminCode": "CA-MB",
+      "countryCode": "CA",
+      "verifiedAt": "2026-09-29T21:39:00.634Z"
+    },
+    "tandil|argentina": {
+      "query": "Tandil, Argentina",
+      "lat": -37.3282887,
+      "lon": -59.1356957,
+      "displayName": "Tandil, Partido de Tandil, Buenos Aires, Argentina",
+      "adminArea": "Buenos Aires",
+      "adminCode": "AR-B",
+      "countryCode": "AR",
+      "verifiedAt": "2026-09-29T21:39:01.824Z"
+    },
+    "rouen|france": {
+      "query": "ROUEN, France",
+      "lat": 49.4404591,
+      "lon": 1.0939658,
+      "displayName": "Rouen, Seine-Maritime, Normandie, France métropolitaine, France",
+      "adminArea": "Normandie",
+      "adminCode": "FR-76",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:39:03.281Z"
+    },
+    "óbidos|portugal": {
+      "query": "Óbidos, Portugal",
+      "lat": 39.3619514,
+      "lon": -9.157153,
+      "displayName": "Óbidos, Leiria, Portugal",
+      "adminArea": "Leiria",
+      "adminCode": "PT-10",
+      "countryCode": "PT",
+      "verifiedAt": "2026-09-29T21:39:04.901Z"
+    },
+    "auxerre|france": {
+      "query": "Auxerre, France",
+      "lat": 47.7961287,
+      "lon": 3.570579,
+      "displayName": "Auxerre, Yonne, Bourgogne-Franche-Comté, France métropolitaine, 89000, France",
+      "adminArea": "Bourgogne-Franche-Comté",
+      "adminCode": "FR-89",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:39:06.436Z"
+    },
+    "paris|france": {
+      "query": "Paris, France",
+      "lat": 48.8588897,
+      "lon": 2.320041,
+      "displayName": "Paris, Île-de-France, France métropolitaine, France",
+      "adminArea": "Île-de-France",
+      "adminCode": "FR-75C",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:39:08.151Z"
+    },
+    "wavre|belgium": {
+      "query": "Wavre, Belgium",
+      "lat": 50.7169694,
+      "lon": 4.610416,
+      "displayName": "Wavre, Nivelles, Brabant wallon, Wallonie, België / Belgique / Belgien",
+      "adminArea": "Brabant wallon",
+      "adminCode": "BE-WBR",
+      "countryCode": "BE",
+      "verifiedAt": "2026-09-29T21:39:09.348Z"
+    },
+    "red deer|canada": {
+      "query": "Red Deer, Canada",
+      "lat": 52.2690628,
+      "lon": -113.8141464,
+      "displayName": "City of Red Deer, Alberta, Canada",
+      "adminArea": "Alberta",
+      "adminCode": "CA-AB",
+      "countryCode": "CA",
+      "verifiedAt": "2026-09-29T21:39:10.889Z"
+    },
+    "cheyenne|united states": {
+      "query": "Cheyenne, United States",
+      "lat": 41.139981,
+      "lon": -104.820246,
+      "displayName": "Cheyenne, Laramie County, Wyoming, United States",
+      "adminArea": "Wyoming",
+      "adminCode": "US-WY",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:39:12.651Z"
+    },
+    "ghent|belgium": {
+      "query": "Ghent, Belgium",
+      "lat": 51.0538286,
+      "lon": 3.7250121,
+      "displayName": "Gent, Oost-Vlaanderen, Vlaanderen, België / Belgique / Belgien",
+      "adminArea": "Oost-Vlaanderen",
+      "adminCode": "BE-VOV",
+      "countryCode": "BE",
+      "verifiedAt": "2026-09-29T21:39:14.271Z"
+    },
+    "cracow|poland": {
+      "query": "Cracow, Poland",
+      "lat": 50.0469432,
+      "lon": 19.9971534,
+      "displayName": "Kraków, województwo małopolskie, Polska",
+      "adminArea": "województwo małopolskie",
+      "adminCode": "PL-12",
+      "countryCode": "PL",
+      "verifiedAt": "2026-09-29T21:39:15.953Z"
+    },
+    "morbier|france": {
+      "query": "Morbier, France",
+      "lat": 46.5363166,
+      "lon": 6.0169531,
+      "displayName": "Morbier, Saint-Claude, Jura, Bourgogne-Franche-Comté, France métropolitaine, 39400, France",
+      "adminArea": "Bourgogne-Franche-Comté",
+      "adminCode": "FR-39",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:39:17.187Z"
+    },
+    "new york city|united states": {
+      "query": "New york city, United States",
+      "lat": 40.7127281,
+      "lon": -74.0060152,
+      "displayName": "New York, United States",
+      "adminArea": "New York",
+      "adminCode": "US-NY",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:39:19.308Z"
+    },
+    "tucumán|argentina": {
+      "query": "Tucumán, Argentina",
+      "lat": -27.0448424,
+      "lon": -65.3657954,
+      "displayName": "Tucumán, Argentina",
+      "adminArea": "Tucumán",
+      "adminCode": "AR-T",
+      "countryCode": "AR",
+      "verifiedAt": "2026-09-29T21:39:20.648Z"
+    },
+    "springfield mo|united states": {
+      "query": "Springfield MO, United States",
+      "lat": 37.1778013,
+      "lon": -93.3247982,
+      "displayName": "United States Medical Center for Federal Prisoners, 1900, West Sunshine Street, Sherwood, Springfield, Greene County, Missouri, 65807, United States",
+      "adminArea": "Missouri",
+      "adminCode": "US-MO",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:39:22.344Z"
+    },
+    "euskal herria|france": {
+      "query": "Euskal Herria, France",
+      "lat": 43.4690939,
+      "lon": -1.5228712,
+      "displayName": "Aéroport de Biarritz-Pays Basque, 7, Esplanade de l'Europe, Lapurdi, Parme, Anglet, Bayonne, Pyrénées-Atlantiques, Nouvelle-Aquitaine, France métropolitaine, 64600, France",
+      "adminArea": "Nouvelle-Aquitaine",
+      "adminCode": "FR-64",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:39:24.137Z"
+    },
+    "metz|france": {
+      "query": "METZ, France",
+      "lat": 49.1196964,
+      "lon": 6.1763552,
+      "displayName": "Metz, Moselle, Grand Est, France métropolitaine, France",
+      "adminArea": "Grand Est",
+      "adminCode": "FR-57",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:39:25.646Z"
+    },
+    "le luc|france": {
+      "query": "le luc, France",
+      "lat": 43.3855592,
+      "lon": 6.2980123,
+      "displayName": "Le Luc, Brignoles, Var, Provence-Alpes-Côte d'Azur, France métropolitaine, 83340, France",
+      "adminArea": "Provence-Alpes-Côte d'Azur",
+      "adminCode": "FR-83",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:39:27.570Z"
+    },
+    "münchen, boppard|germany": {
+      "query": "München, Boppard, Germany",
+      "notFound": true,
+      "verifiedAt": "2026-09-29T21:39:28.894Z"
+    },
+    "portland|united states": {
+      "query": "Portland, United States",
+      "lat": 45.5202471,
+      "lon": -122.674194,
+      "displayName": "Portland, Multnomah County, Oregon, United States",
+      "adminArea": "Oregon",
+      "adminCode": "US-OR",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:39:30.731Z"
+    },
+    "akron ohio|united states": {
+      "query": "Akron Ohio, United States",
+      "lat": 41.0796915,
+      "lon": -81.5196683,
+      "displayName": "United States Pierogi Service, South Main Street, Downtown Akron, Akron, Summit County, Ohio, 44311, United States",
+      "adminArea": "Ohio",
+      "adminCode": "US-OH",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:39:32.050Z"
+    },
+    "hämeenlinna|finland": {
+      "query": "Hämeenlinna, Finland",
+      "lat": 60.9966192,
+      "lon": 24.465141,
+      "displayName": "Hämeenlinna, Hämeenlinnan seutukunta, Kanta-Häme, Manner-Suomi, Suomi / Finland",
+      "adminArea": "Kanta-Häme",
+      "adminCode": "FI-06",
+      "countryCode": "FI",
+      "verifiedAt": "2026-09-29T21:39:33.746Z"
+    },
+    "sibiu|romania": {
+      "query": "Sibiu, Romania",
+      "lat": 45.7973912,
+      "lon": 24.1519202,
+      "displayName": "Sibiu, România",
+      "adminArea": "Sibiu",
+      "adminCode": "RO-SB",
+      "countryCode": "RO",
+      "verifiedAt": "2026-09-29T21:39:35.004Z"
+    },
+    "lisbon|portugal": {
+      "query": "Lisbon, Portugal",
+      "lat": 38.7077507,
+      "lon": -9.1365919,
+      "displayName": "Lisboa, Portugal",
+      "adminArea": "Lisboa",
+      "adminCode": "PT-11",
+      "countryCode": "PT",
+      "verifiedAt": "2026-09-29T21:39:36.773Z"
+    },
+    "toowoomba|australia": {
+      "query": "Toowoomba, Australia",
+      "lat": -27.5610193,
+      "lon": 151.953351,
+      "displayName": "Toowoomba, Queensland, 4350, Australia",
+      "adminArea": "Queensland",
+      "adminCode": "AU-QLD",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:39:38.438Z"
+    },
+    "auckland|new zealand": {
+      "query": "Auckland, New Zealand",
+      "lat": -36.852095,
+      "lon": 174.7631803,
+      "displayName": "Auckland, Waitematā, Auckland, 1010, New Zealand / Aotearoa",
+      "adminArea": "Auckland",
+      "adminCode": "NZ-AUK",
+      "countryCode": "NZ",
+      "verifiedAt": "2026-09-29T21:39:40.156Z"
+    },
+    "san luis obispo|united states": {
+      "query": "San Luis Obispo, United States",
+      "lat": 35.3540209,
+      "lon": -120.375716,
+      "displayName": "San Luis Obispo County, California, United States",
+      "adminArea": "California",
+      "adminCode": "US-CA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:39:41.647Z"
+    },
+    "knoxville|united states": {
+      "query": "Knoxville, United States",
+      "lat": 35.9603948,
+      "lon": -83.9210261,
+      "displayName": "Knoxville, Knox County, East Tennessee, Tennessee, United States",
+      "adminArea": "Tennessee",
+      "adminCode": "US-TN",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:39:43.468Z"
+    },
+    "schwarzach im pongau|austria": {
+      "query": "Schwarzach im Pongau, Austria",
+      "lat": 47.3211088,
+      "lon": 13.151022,
+      "displayName": "Schwarzach im Pongau, Hub, Salzburg, Österreich",
+      "adminArea": "Salzburg",
+      "adminCode": "AT-5",
+      "countryCode": "AT",
+      "verifiedAt": "2026-09-29T21:39:45.085Z"
+    },
+    "greensboro|united states": {
+      "query": "Greensboro, United States",
+      "lat": 36.0726355,
+      "lon": -79.7919754,
+      "displayName": "Greensboro, Guilford County, North Carolina, United States",
+      "adminArea": "North Carolina",
+      "adminCode": "US-NC",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:39:46.454Z"
+    },
+    "missoula|united states": {
+      "query": "Missoula, United States",
+      "lat": 46.8701049,
+      "lon": -113.995267,
+      "displayName": "Missoula, Missoula County, Montana, United States",
+      "adminArea": "Montana",
+      "adminCode": "US-MT",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:39:48.147Z"
+    },
+    "prien a. chiemsee|austria": {
+      "query": "Prien a. Chiemsee, Austria",
+      "notFound": true,
+      "verifiedAt": "2026-09-29T21:39:49.420Z"
+    },
+    "pont-saint-esprit|france": {
+      "query": "Pont-Saint-Esprit, France",
+      "lat": 44.2538589,
+      "lon": 4.6456631,
+      "displayName": "Pont-Saint-Esprit, Nîmes, Gard, Occitanie, France métropolitaine, 30130, France",
+      "adminArea": "Occitanie",
+      "adminCode": "FR-30",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:39:51.090Z"
+    },
+    "florida|united states": {
+      "query": "Florida, United States",
+      "lat": 27.7567667,
+      "lon": -81.4639835,
+      "displayName": "Florida, United States",
+      "adminArea": "Florida",
+      "adminCode": "US-FL",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:39:52.795Z"
+    },
+    "all american ports|united states": {
+      "query": "All American Ports, United States",
+      "notFound": true,
+      "verifiedAt": "2026-09-29T21:39:54.557Z"
+    },
+    "shanghai|china": {
+      "query": "Shanghai, China",
+      "lat": 31.2312707,
+      "lon": 121.4700152,
+      "displayName": "上海市, 中国",
+      "adminArea": "上海市",
+      "adminCode": "CN-SH",
+      "countryCode": "CN",
+      "verifiedAt": "2026-09-29T21:39:56.302Z"
+    },
+    "toronto|canada": {
+      "query": "Toronto, Canada",
+      "lat": 43.6534817,
+      "lon": -79.3839347,
+      "displayName": "Toronto, Ontario, Canada",
+      "adminArea": "Ontario",
+      "adminCode": "CA-ON",
+      "countryCode": "CA",
+      "verifiedAt": "2026-09-29T21:39:57.614Z"
+    },
+    "kansas city|united states": {
+      "query": "Kansas City, United States",
+      "lat": 39.100105,
+      "lon": -94.5781416,
+      "displayName": "Kansas City, Jackson County, Missouri, United States",
+      "adminArea": "Missouri",
+      "adminCode": "US-MO",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:39:59.370Z"
+    },
+    "everywhere|united states": {
+      "query": "Everywhere, United States",
+      "lat": 34.0560828,
+      "lon": -118.2358646,
+      "displayName": "everywhere, 800, North Alameda Street, Civic Center, Chinatown, Los Angeles, Los Angeles County, California, 90012, United States",
+      "adminArea": "California",
+      "adminCode": "US-CA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:40:01.018Z"
+    },
+    "burgos|spain": {
+      "query": "Burgos, Spain",
+      "lat": 42.3448498,
+      "lon": -3.6812477,
+      "displayName": "Burgos, Castilla y León, España",
+      "adminArea": "Castilla y León",
+      "adminCode": "ES-BU",
+      "countryCode": "ES",
+      "verifiedAt": "2026-09-29T21:40:02.431Z"
+    },
+    "lublin|poland": {
+      "query": "Lublin, Poland",
+      "lat": 51.250559,
+      "lon": 22.5701022,
+      "displayName": "Lublin, województwo lubelskie, Polska",
+      "adminArea": "województwo lubelskie",
+      "adminCode": "PL-06",
+      "countryCode": "PL",
+      "verifiedAt": "2026-09-29T21:40:04.165Z"
+    },
+    "utah|united states": {
+      "query": "Utah, United States",
+      "lat": 39.4225192,
+      "lon": -111.714358,
+      "displayName": "Utah, United States",
+      "adminArea": "Utah",
+      "adminCode": "US-UT",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:40:06.005Z"
+    },
+    "herencia|spain": {
+      "query": "Herencia, Spain",
+      "lat": 39.3679627,
+      "lon": -3.3550331,
+      "displayName": "Herencia, Ciudad Real, Castilla-La Mancha, 13640, España",
+      "adminArea": "Castilla-La Mancha",
+      "adminCode": "ES-CR",
+      "countryCode": "ES",
+      "verifiedAt": "2026-09-29T21:40:07.697Z"
+    },
+    "łódź / kraków|poland": {
+      "query": "Łódź / Kraków, Poland",
+      "lat": 50.9019078,
+      "lon": 20.5838491,
+      "displayName": "Kielce / Kraków / Warszawa / Piotrków Trybunalski / Łódź / Targi, Wystawowa, Stanisławów, Niewachlów I, Kielce, województwo świętokrzyskie, 25-673, Polska",
+      "adminArea": "województwo świętokrzyskie",
+      "adminCode": "PL-26",
+      "countryCode": "PL",
+      "verifiedAt": "2026-09-29T21:40:09.389Z"
+    },
+    "oldenburg|germany": {
+      "query": "Oldenburg, Germany",
+      "lat": 53.1389753,
+      "lon": 8.2146017,
+      "displayName": "Oldenburg, Niedersachsen, Deutschland",
+      "adminArea": "Niedersachsen",
+      "adminCode": "DE-NI",
+      "countryCode": "DE",
+      "verifiedAt": "2026-09-29T21:40:11.069Z"
+    },
+    "angoulême|france": {
+      "query": "Angoulême, France",
+      "lat": 45.6484505,
+      "lon": 0.1561947,
+      "displayName": "Angoulême, Charente, Nouvelle-Aquitaine, France métropolitaine, 16000, France",
+      "adminArea": "Nouvelle-Aquitaine",
+      "adminCode": "FR-16",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:40:12.989Z"
+    },
+    "chicago|united states": {
+      "query": "Chicago, United States",
+      "lat": 41.8755616,
+      "lon": -87.6244212,
+      "displayName": "Chicago, South Chicago Township, Cook County, Illinois, United States",
+      "adminArea": "Illinois",
+      "adminCode": "US-IL",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:40:14.493Z"
+    },
+    "adelaide|australia": {
+      "query": "Adelaide, Australia",
+      "lat": -34.9281805,
+      "lon": 138.5999312,
+      "displayName": "Adelaide, South Australia, Australia",
+      "adminArea": "South Australia",
+      "adminCode": "AU-SA",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:40:16.476Z"
+    },
+    "east coast usa|united states": {
+      "query": "East coast USA, United States",
+      "notFound": true,
+      "verifiedAt": "2026-09-29T21:40:18.383Z"
+    },
+    "grignols|france": {
+      "query": "Grignols, France",
+      "lat": 44.3877429,
+      "lon": -0.0439057,
+      "displayName": "Grignols, Langon, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33690, France",
+      "adminArea": "Nouvelle-Aquitaine",
+      "adminCode": "FR-33",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:40:19.676Z"
+    },
+    "louisville|united states": {
+      "query": "Louisville, United States",
+      "lat": 38.2542376,
+      "lon": -85.759407,
+      "displayName": "Louisville, Jefferson County, Kentucky, United States",
+      "adminArea": "Kentucky",
+      "adminCode": "US-KY",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:40:21.090Z"
+    },
+    "colorado springs, co|united states": {
+      "query": "Colorado Springs, CO, United States",
+      "lat": 38.8339578,
+      "lon": -104.825348,
+      "displayName": "Colorado Springs, El Paso County, Colorado, United States",
+      "adminArea": "Colorado",
+      "adminCode": "US-CO",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:40:22.991Z"
+    },
+    "ballarat/adelaide|australia": {
+      "query": "Ballarat/Adelaide, Australia",
+      "notFound": true,
+      "verifiedAt": "2026-09-29T21:40:24.270Z"
+    },
+    "duisburg|germany": {
+      "query": "Duisburg, Germany",
+      "lat": 51.434999,
+      "lon": 6.759562,
+      "displayName": "Duisburg, Nordrhein-Westfalen, Deutschland",
+      "adminArea": "Nordrhein-Westfalen",
+      "adminCode": "DE-NW",
+      "countryCode": "DE",
+      "verifiedAt": "2026-09-29T21:40:26.018Z"
+    },
+    "dallas|united states": {
+      "query": "Dallas, United States",
+      "lat": 32.7762719,
+      "lon": -96.7968559,
+      "displayName": "Dallas, Dallas County, Texas, United States",
+      "adminArea": "Texas",
+      "adminCode": "US-TX",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:40:28.861Z"
+    },
+    "shreveport|united states": {
+      "query": "Shreveport, United States",
+      "lat": 32.5135356,
+      "lon": -93.7477839,
+      "displayName": "Shreveport, Caddo Parish, Louisiana, United States",
+      "adminArea": "Louisiana",
+      "adminCode": "US-LA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:40:30.596Z"
+    },
+    "woodstock|united states": {
+      "query": "Woodstock, United States",
+      "lat": 42.0410578,
+      "lon": -74.1182492,
+      "displayName": "Town of Woodstock, Ulster County, New York, United States",
+      "adminArea": "New York",
+      "adminCode": "US-NY",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:40:32.070Z"
+    },
+    "les arcs sur argens|france": {
+      "query": "Les arcs sur Argens, France",
+      "lat": 43.4623626,
+      "lon": 6.4856075,
+      "displayName": "Centre d'incendie et de secours des Arcs-sur-Argens, Boulevard de la Liberté, Le Colombier, Les Arcs, Draguignan, Var, Provence-Alpes-Côte d'Azur, France métropolitaine, 83460, France",
+      "adminArea": "Provence-Alpes-Côte d'Azur",
+      "adminCode": "FR-83",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:40:33.843Z"
+    },
+    "dublin|ireland": {
+      "query": "Dublin, Ireland",
+      "lat": 53.3493795,
+      "lon": -6.2605593,
+      "displayName": "Dublin, County Dublin, Leinster, Éire / Ireland",
+      "adminArea": "Leinster",
+      "adminCode": "IE-D",
+      "countryCode": "IE",
+      "verifiedAt": "2026-09-29T21:40:35.697Z"
+    },
+    "austin|united states": {
+      "query": "Austin, United States",
+      "lat": 30.2711286,
+      "lon": -97.7436995,
+      "displayName": "Austin, Travis County, Texas, United States",
+      "adminArea": "Texas",
+      "adminCode": "US-TX",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:40:37.046Z"
+    },
+    "mühlhausen/thüringen|germany": {
+      "query": "Mühlhausen/Thüringen, Germany",
+      "lat": 51.2094255,
+      "lon": 10.4589044,
+      "displayName": "Mühlhausen/Thüringen, Unstrut-Hainich-Kreis, Thüringen, Deutschland",
+      "adminArea": "Thüringen",
+      "adminCode": "DE-TH",
+      "countryCode": "DE",
+      "verifiedAt": "2026-09-29T21:40:38.762Z"
+    },
+    "les arcs|france": {
+      "query": "Les Arcs, France",
+      "lat": 43.4629097,
+      "lon": 6.4786269,
+      "displayName": "Les Arcs, Draguignan, Var, Provence-Alpes-Côte d'Azur, France métropolitaine, 83460, France",
+      "adminArea": "Provence-Alpes-Côte d'Azur",
+      "adminCode": "FR-83",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:40:40.484Z"
+    },
+    "valencia|spain": {
+      "query": "Valencia, Spain",
+      "lat": 39.4697065,
+      "lon": -0.3763353,
+      "displayName": "València, Comarca de València, València / Valencia, Comunitat Valenciana, España",
+      "adminArea": "Comunitat Valenciana",
+      "adminCode": "ES-V",
+      "countryCode": "ES",
+      "verifiedAt": "2026-09-29T21:40:41.878Z"
+    },
+    "hessen|germany": {
+      "query": "Hessen, Germany",
+      "lat": 50.6080651,
+      "lon": 9.0284647,
+      "displayName": "Hessen, Deutschland",
+      "adminArea": "Hessen",
+      "adminCode": "DE-HE",
+      "countryCode": "DE",
+      "verifiedAt": "2026-09-29T21:40:43.562Z"
+    },
+    "arnedo (la rioja)|spain": {
+      "query": "Arnedo (La Rioja), Spain",
+      "lat": 42.2273401,
+      "lon": -2.0995697,
+      "displayName": "Arnedo, La Rioja, 26580, España",
+      "adminArea": "La Rioja",
+      "adminCode": "ES-RI",
+      "countryCode": "ES",
+      "verifiedAt": "2026-09-29T21:40:45.176Z"
+    },
+    "josselin|france": {
+      "query": "Josselin, France",
+      "lat": 47.9540017,
+      "lon": -2.5472538,
+      "displayName": "Josselin, Pontivy, Morbihan, Bretagne, France métropolitaine, 56120, France",
+      "adminArea": "Bretagne",
+      "adminCode": "FR-56",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:40:46.797Z"
+    },
+    "princeton|united states": {
+      "query": "Princeton, United States",
+      "lat": 40.3496953,
+      "lon": -74.6597376,
+      "displayName": "Princeton, Mercer County, New Jersey, United States",
+      "adminArea": "New Jersey",
+      "adminCode": "US-NJ",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:40:48.611Z"
+    },
+    "taupo|new zealand": {
+      "query": "Taupo, New Zealand",
+      "lat": -38.6866197,
+      "lon": 176.0694773,
+      "displayName": "Taupō, Taupō District, Waikato, 3377, New Zealand / Aotearoa",
+      "adminArea": "Waikato",
+      "adminCode": "NZ-WKO",
+      "countryCode": "NZ",
+      "verifiedAt": "2026-09-29T21:40:49.984Z"
+    },
+    "mantova piacenza parma|italy": {
+      "query": "Mantova Piacenza Parma, Italy",
+      "notFound": true,
+      "verifiedAt": "2026-09-29T21:40:51.684Z"
+    },
+    "olsztyn|poland": {
+      "query": "Olsztyn, Poland",
+      "lat": 53.7766839,
+      "lon": 20.476507,
+      "displayName": "Olsztyn, województwo warmińsko-mazurskie, Polska",
+      "adminArea": "województwo warmińsko-mazurskie",
+      "adminCode": "PL-28",
+      "countryCode": "PL",
+      "verifiedAt": "2026-09-29T21:40:52.932Z"
+    },
+    "bayerisch gmain|germany": {
+      "query": "Bayerisch Gmain, Germany",
+      "lat": 47.7194842,
+      "lon": 12.8980967,
+      "displayName": "Bayerisch Gmain, Landkreis Berchtesgadener Land, Bayern, 83457, Deutschland",
+      "adminArea": "Bayern",
+      "adminCode": "DE-BY",
+      "countryCode": "DE",
+      "verifiedAt": "2026-09-29T21:40:54.259Z"
+    },
+    "madrid|spain": {
+      "query": "Madrid, Spain",
+      "lat": 40.416782,
+      "lon": -3.703507,
+      "displayName": "Madrid, Comunidad de Madrid, España",
+      "adminArea": "Comunidad de Madrid",
+      "adminCode": "ES-MD",
+      "countryCode": "ES",
+      "verifiedAt": "2026-09-29T21:40:56.149Z"
+    },
+    "cleveland|united states": {
+      "query": "Cleveland, United States",
+      "lat": 41.4996574,
+      "lon": -81.6936772,
+      "displayName": "Cleveland, Cuyahoga County, Ohio, United States",
+      "adminArea": "Ohio",
+      "adminCode": "US-OH",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:40:58.023Z"
+    },
+    "croydon|australia": {
+      "query": "Croydon, Australia",
+      "lat": -18.5136365,
+      "lon": 141.9670155,
+      "displayName": "Croydon Shire, Queensland, Australia",
+      "adminArea": "Queensland",
+      "adminCode": "AU-QLD",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:40:59.435Z"
+    },
+    "bratislava|slovakia": {
+      "query": "Bratislava, Slovakia",
+      "lat": 48.1435026,
+      "lon": 17.1082867,
+      "displayName": "Bratislava, Bratislavský kraj, Slovensko",
+      "adminArea": "Bratislavský kraj",
+      "adminCode": "SK-BL",
+      "countryCode": "SK",
+      "verifiedAt": "2026-09-29T21:41:01.201Z"
+    },
+    "sanford nc|united states": {
+      "query": "Sanford NC, United States",
+      "lat": 35.4798757,
+      "lon": -79.1802994,
+      "displayName": "Sanford, Lee County, North Carolina, United States",
+      "adminArea": "North Carolina",
+      "adminCode": "US-NC",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:41:03.644Z"
+    },
+    "limoges|france": {
+      "query": "LIMOGES, France",
+      "lat": 45.8354243,
+      "lon": 1.2644847,
+      "displayName": "Limoges, Haute-Vienne, Nouvelle-Aquitaine, France métropolitaine, France",
+      "adminArea": "Nouvelle-Aquitaine",
+      "adminCode": "FR-87",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:41:05.506Z"
+    },
+    "rio de janeiro|brazil": {
+      "query": "Rio de Janeiro, Brazil",
+      "lat": -22.9110137,
+      "lon": -43.2093727,
+      "displayName": "Rio de Janeiro, Região Sudeste, Brasil",
+      "adminArea": "Rio de Janeiro",
+      "adminCode": "BR-RJ",
+      "countryCode": "BR",
+      "verifiedAt": "2026-09-29T21:41:06.823Z"
+    },
+    "milwaukee|united states": {
+      "query": "Milwaukee, United States",
+      "lat": 43.0386475,
+      "lon": -87.9090751,
+      "displayName": "Milwaukee, Milwaukee County, Wisconsin, United States",
+      "adminArea": "Wisconsin",
+      "adminCode": "US-WI",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:41:08.291Z"
+    },
+    "fresno|united states": {
+      "query": "Fresno, United States",
+      "lat": 36.7394421,
+      "lon": -119.78483,
+      "displayName": "Fresno, Fresno County, California, United States",
+      "adminArea": "California",
+      "adminCode": "US-CA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:41:09.738Z"
+    },
+    "normandie|france": {
+      "query": "NORMANDIE, France",
+      "lat": 49.0677708,
+      "lon": 0.3138532,
+      "displayName": "Normandie, France métropolitaine, France",
+      "adminArea": "Normandie",
+      "adminCode": "FR-NOR",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:41:11.639Z"
+    },
+    "aalborg|denmark": {
+      "query": "Aalborg, Denmark",
+      "lat": 57.0462626,
+      "lon": 9.9215263,
+      "displayName": "Aalborg, Aalborg Kommune, Region Nordjylland, 9000, Danmark",
+      "adminArea": "Region Nordjylland",
+      "adminCode": "DK-81",
+      "countryCode": "DK",
+      "verifiedAt": "2026-09-29T21:41:13.380Z"
+    },
+    "new york|united states": {
+      "query": "New York, United States",
+      "lat": 40.7127281,
+      "lon": -74.0060152,
+      "displayName": "New York, United States",
+      "adminArea": "New York",
+      "adminCode": "US-NY",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:41:15.297Z"
+    },
+    "mar del plata|argentina": {
+      "query": "Mar del Plata, Argentina",
+      "lat": -37.9976168,
+      "lon": -57.5482079,
+      "displayName": "Mar del Plata, Partido de General Pueyrredón, Buenos Aires, Argentina",
+      "adminArea": "Buenos Aires",
+      "adminCode": "AR-B",
+      "countryCode": "AR",
+      "verifiedAt": "2026-09-29T21:41:17.062Z"
+    },
+    "la matanza / villa luzuriaga|argentina": {
+      "query": "La Matanza / Villa Luzuriaga, Argentina",
+      "lat": -34.6640796,
+      "lon": -58.5833995,
+      "displayName": "Plaza Armada Argentina Villa Luzuriaga, Marina, Villa Luzuriaga, Partido de La Matanza, Buenos Aires, Argentina",
+      "adminArea": "Buenos Aires",
+      "adminCode": "AR-B",
+      "countryCode": "AR",
+      "verifiedAt": "2026-09-29T21:41:18.717Z"
+    },
+    "szolnok, szeged|hungary": {
+      "query": "Szolnok, Szeged, Hungary",
+      "notFound": true,
+      "verifiedAt": "2026-09-29T21:41:20.039Z"
+    },
+    "metro detroit|united states": {
+      "query": "Metro Detroit, United States",
+      "lat": 42.2056991,
+      "lon": -83.3529754,
+      "displayName": "Detroit Metropolitan Airport, 11050, William G Rogell Drive, Detroit, Wayne County, Michigan, 48242, United States",
+      "adminArea": "Michigan",
+      "adminCode": "US-MI",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:41:21.746Z"
+    },
+    "barcelona|spain": {
+      "query": "Barcelona, Spain",
+      "lat": 41.3825802,
+      "lon": 2.177073,
+      "displayName": "Barcelona, Barcelonès, Barcelona, Catalunya, España",
+      "adminArea": "Catalunya",
+      "adminCode": "ES-B",
+      "countryCode": "ES",
+      "verifiedAt": "2026-09-29T21:41:23.503Z"
+    },
+    "wellington|new zealand": {
+      "query": "Wellington, New Zealand",
+      "lat": -41.2887953,
+      "lon": 174.7772114,
+      "displayName": "Wellington, Wellington City, Wellington, 6011, New Zealand / Aotearoa",
+      "adminArea": "Wellington",
+      "adminCode": "NZ-WGN",
+      "countryCode": "NZ",
+      "verifiedAt": "2026-09-29T21:41:24.954Z"
+    },
+    "buenos aires|argentina": {
+      "query": "Buenos Aires, Argentina",
+      "lat": -34.6095579,
+      "lon": -58.3887904,
+      "displayName": "Buenos Aires, Comuna 1, Ciudad Autónoma de Buenos Aires, Argentina",
+      "adminArea": "Ciudad Autónoma de Buenos Aires",
+      "adminCode": "AR-C",
+      "countryCode": "AR",
+      "verifiedAt": "2026-09-29T21:41:26.512Z"
+    },
+    "prague|czech republic": {
+      "query": "Prague, Czech Republic",
+      "lat": 50.0874654,
+      "lon": 14.4212535,
+      "displayName": "Praha, Česko",
+      "adminArea": null,
+      "adminCode": "CZ-10",
+      "countryCode": "CZ",
+      "verifiedAt": "2026-09-29T21:41:28.149Z"
+    },
+    "moncton|canada": {
+      "query": "Moncton, Canada",
+      "lat": 46.0985679,
+      "lon": -64.8004265,
+      "displayName": "City of Moncton, Westmorland County, New Brunswick / Nouveau-Brunswick, Canada",
+      "adminArea": "New Brunswick / Nouveau-Brunswick",
+      "adminCode": "CA-NB",
+      "countryCode": "CA",
+      "verifiedAt": "2026-09-29T21:41:29.782Z"
+    },
+    "galway|ireland": {
+      "query": "Galway, Ireland",
+      "lat": 53.2744122,
+      "lon": -9.0490601,
+      "displayName": "Cathair na Gaillimhe, County Galway, Connacht, Éire / Ireland",
+      "adminArea": "Connacht",
+      "adminCode": "IE-G",
+      "countryCode": "IE",
+      "verifiedAt": "2026-09-29T21:41:31.509Z"
+    },
+    "scotland|united kingdom": {
+      "query": "Scotland, United Kingdom",
+      "lat": 56.7861112,
+      "lon": -4.1140518,
+      "displayName": "Alba / Scotland, United Kingdom",
+      "adminArea": "Alba / Scotland",
+      "adminCode": "GB-SCT",
+      "countryCode": "GB",
+      "verifiedAt": "2026-09-29T21:41:33.272Z"
+    },
+    "berlin|germany": {
+      "query": "Berlin, Germany",
+      "lat": 52.5173885,
+      "lon": 13.3951309,
+      "displayName": "Berlin, Deutschland",
+      "adminArea": null,
+      "adminCode": "DE-BE",
+      "countryCode": "DE",
+      "verifiedAt": "2026-09-29T21:41:34.656Z"
+    },
+    "łódź|poland": {
+      "query": "ŁÓDŹ, Poland",
+      "lat": 51.7728245,
+      "lon": 19.478486,
+      "displayName": "Łódź, województwo łódzkie, Polska",
+      "adminArea": "województwo łódzkie",
+      "adminCode": "PL-10",
+      "countryCode": "PL",
+      "verifiedAt": "2026-09-29T21:41:36.394Z"
+    },
+    "carcassonne|france": {
+      "query": "Carcassonne, France",
+      "lat": 43.2130358,
+      "lon": 2.3491069,
+      "displayName": "Carcassonne, Aude, Occitanie, France métropolitaine, 11000, France",
+      "adminArea": "Occitanie",
+      "adminCode": "FR-11",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:41:38.188Z"
+    },
+    "calgary|canada": {
+      "query": "Calgary, Canada",
+      "lat": 51.0456064,
+      "lon": -114.057541,
+      "displayName": "Calgary, Alberta, Canada",
+      "adminArea": "Alberta",
+      "adminCode": "CA-AB",
+      "countryCode": "CA",
+      "verifiedAt": "2026-09-29T21:41:39.543Z"
+    },
+    "albury|australia": {
+      "query": "Albury, Australia",
+      "lat": -36.0737734,
+      "lon": 146.9135265,
+      "displayName": "Albury, New South Wales, Australia",
+      "adminArea": "New South Wales",
+      "adminCode": "AU-NSW",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:41:41.188Z"
+    },
+    "weilburg|germany": {
+      "query": "Weilburg, Germany",
+      "lat": 50.4847448,
+      "lon": 8.2659245,
+      "displayName": "Weilburg, Landkreis Limburg-Weilburg, Hessen, 35781, Deutschland",
+      "adminArea": "Hessen",
+      "adminCode": "DE-HE",
+      "countryCode": "DE",
+      "verifiedAt": "2026-09-29T21:41:42.494Z"
+    },
+    "boise|united states": {
+      "query": "Boise, United States",
+      "lat": 43.6166163,
+      "lon": -116.200886,
+      "displayName": "Boise, Ada County, Idaho, United States",
+      "adminArea": "Idaho",
+      "adminCode": "US-ID",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:41:44.286Z"
+    },
+    "todi|italy": {
+      "query": "Todi, Italy",
+      "lat": 42.7824434,
+      "lon": 12.4062554,
+      "displayName": "Todi, Perugia, Umbria, 06059, Italia",
+      "adminArea": "Umbria",
+      "adminCode": "IT-PG",
+      "countryCode": "IT",
+      "verifiedAt": "2026-09-29T21:41:45.920Z"
+    },
+    "seattle|united states": {
+      "query": "Seattle, United States",
+      "lat": 47.6038321,
+      "lon": -122.330062,
+      "displayName": "Seattle, King County, Washington, United States",
+      "adminArea": "Washington",
+      "adminCode": "US-WA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:41:47.283Z"
+    },
+    "salt lake city|united states": {
+      "query": "Salt Lake City, United States",
+      "lat": 40.7596198,
+      "lon": -111.886797,
+      "displayName": "Salt Lake City, Salt Lake County, Utah, United States",
+      "adminArea": "Utah",
+      "adminCode": "US-UT",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:41:48.730Z"
+    },
+    "nidzica|poland": {
+      "query": "Nidzica, Poland",
+      "lat": 53.3613838,
+      "lon": 20.4275719,
+      "displayName": "Nidzica, gmina Nidzica, powiat nidzicki, województwo warmińsko-mazurskie, Polska",
+      "adminArea": "województwo warmińsko-mazurskie",
+      "adminCode": "PL-28",
+      "countryCode": "PL",
+      "verifiedAt": "2026-09-29T21:41:49.965Z"
+    },
+    "nashville|united states": {
+      "query": "Nashville, United States",
+      "lat": 36.1622767,
+      "lon": -86.7742984,
+      "displayName": "Nashville, Davidson County, Middle Tennessee, Tennessee, United States",
+      "adminArea": "Tennessee",
+      "adminCode": "US-TN",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:41:51.721Z"
+    },
+    "praha|czech republic": {
+      "query": "Praha, Czech Republic",
+      "lat": 50.0874654,
+      "lon": 14.4212535,
+      "displayName": "Praha, Česko",
+      "adminArea": null,
+      "adminCode": "CZ-10",
+      "countryCode": "CZ",
+      "verifiedAt": "2026-09-29T21:41:53.381Z"
+    },
+    "oulu|finland": {
+      "query": "Oulu, Finland",
+      "lat": 65.0117914,
+      "lon": 25.4701973,
+      "displayName": "Oulu, Oulun seutukunta, Pohjois-Pohjanmaa, Manner-Suomi, Suomi / Finland",
+      "adminArea": "Pohjois-Pohjanmaa",
+      "adminCode": "FI-14",
+      "countryCode": "FI",
+      "verifiedAt": "2026-09-29T21:41:55.023Z"
+    },
+    "bălţi|moldova": {
+      "query": "Bălţi, Moldova",
+      "lat": 47.7623952,
+      "lon": 27.9286022,
+      "displayName": "Bălți, Municipiul Bălți, Moldova",
+      "adminArea": null,
+      "adminCode": "MD-BA",
+      "countryCode": "MD",
+      "verifiedAt": "2026-09-29T21:41:56.693Z"
+    },
+    "labergement saint marie / lyon|france": {
+      "query": "Labergement Saint Marie / Lyon, France",
+      "notFound": true,
+      "verifiedAt": "2026-09-29T21:41:57.869Z"
+    },
+    "new orleans|united states": {
+      "query": "New Orleans, United States",
+      "lat": 29.9561422,
+      "lon": -90.0733934,
+      "displayName": "New Orleans, Orleans Parish, Louisiana, United States",
+      "adminArea": "Louisiana",
+      "adminCode": "US-LA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:42:00.271Z"
+    },
+    "rosario|argentina": {
+      "query": "Rosario, Argentina",
+      "lat": -32.9593609,
+      "lon": -60.6617024,
+      "displayName": "Rosario, Municipio de Rosario, Gran Rosario, Departamento Rosario, Santa Fe, S2000, Argentina",
+      "adminArea": "Santa Fe",
+      "adminCode": "AR-S",
+      "countryCode": "AR",
+      "verifiedAt": "2026-09-29T21:42:01.819Z"
+    },
+    "wichita|united states": {
+      "query": "Wichita, United States",
+      "lat": 37.6922361,
+      "lon": -97.3375448,
+      "displayName": "Wichita, Sedgwick County, Kansas, United States",
+      "adminArea": "Kansas",
+      "adminCode": "US-KS",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:42:03.226Z"
+    },
+    "athens|greece": {
+      "query": "Athens, Greece",
+      "lat": 37.9755648,
+      "lon": 23.7348324,
+      "displayName": "Αθήνα, Δήμος Αθηναίων, Περιφερειακή Ενότητα Κεντρικού Τομέα Αθηνών, Περιφέρεια Αττικής, Αποκεντρωμένη Διοίκηση Αττικής, 105 57, Ελλάς",
+      "adminArea": "Περιφέρεια Αττικής",
+      "adminCode": "GR-I",
+      "countryCode": "GR",
+      "verifiedAt": "2026-09-29T21:42:04.561Z"
+    },
+    "irmo|united states": {
+      "query": "Irmo, United States",
+      "lat": 34.0884689,
+      "lon": -81.1802101,
+      "displayName": "Irmo, Lexington County, South Carolina, 29212, United States",
+      "adminArea": "South Carolina",
+      "adminCode": "US-SC",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:42:06.210Z"
+    },
+    "nampa|united states": {
+      "query": "Nampa, United States",
+      "lat": 43.5780381,
+      "lon": -116.5616885,
+      "displayName": "Nampa, Canyon County, Idaho, United States",
+      "adminArea": "Idaho",
+      "adminCode": "US-ID",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:42:07.888Z"
+    },
+    "port macquarie|australia": {
+      "query": "Port Macquarie, Australia",
+      "lat": -31.4299499,
+      "lon": 152.9103525,
+      "displayName": "Port Macquarie, New South Wales, Australia",
+      "adminArea": "New South Wales",
+      "adminCode": "AU-NSW",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:42:09.116Z"
+    },
+    "orlando|united states": {
+      "query": "Orlando, United States",
+      "lat": 28.5421218,
+      "lon": -81.379045,
+      "displayName": "Orlando, Orange County, Florida, United States",
+      "adminArea": "Florida",
+      "adminCode": "US-FL",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:42:10.525Z"
+    },
+    "cuarte de huerva|spain": {
+      "query": "cuarte de huerva, Spain",
+      "lat": 41.5935919,
+      "lon": -0.9388829,
+      "displayName": "Cuarte de Huerva, Zaragoza, Aragón, 50410, España",
+      "adminArea": "Aragón",
+      "adminCode": "ES-Z",
+      "countryCode": "ES",
+      "verifiedAt": "2026-09-29T21:42:12.128Z"
+    },
+    "ostrava|czech republic": {
+      "query": "Ostrava, Czech Republic",
+      "lat": 49.8354045,
+      "lon": 18.292978,
+      "displayName": "Ostrava, okres Ostrava-město, Moravskoslezský kraj, Česko",
+      "adminArea": "Moravskoslezský kraj",
+      "adminCode": "CZ-806",
+      "countryCode": "CZ",
+      "verifiedAt": "2026-09-29T21:42:13.514Z"
+    },
+    "central|united kingdom": {
+      "query": "Central, United Kingdom",
+      "lat": 51.5234561,
+      "lon": -0.2592862,
+      "displayName": "Central Line - Westbound, Regency Street, Park Royal, London Borough of Ealing, Greater London, England, NW10 6NY, United Kingdom",
+      "adminArea": "England",
+      "adminCode": "GB-EAL",
+      "countryCode": "GB",
+      "verifiedAt": "2026-09-29T21:42:15.217Z"
+    },
+    "florianópolis|brazil": {
+      "query": "Florianópolis, Brazil",
+      "lat": -27.5973002,
+      "lon": -48.5496098,
+      "displayName": "Florianópolis, Santa Catarina, Região Sul, Brasil",
+      "adminArea": "Santa Catarina",
+      "adminCode": "BR-SC",
+      "countryCode": "BR",
+      "verifiedAt": "2026-09-29T21:42:16.916Z"
+    },
+    "piacenza|italy": {
+      "query": "Piacenza, Italy",
+      "lat": 44.8476352,
+      "lon": 9.6665313,
+      "displayName": "Piacenza, Emilia-Romagna, Italia",
+      "adminArea": "Emilia-Romagna",
+      "adminCode": "IT-PC",
+      "countryCode": "IT",
+      "verifiedAt": "2026-09-29T21:42:18.608Z"
+    },
+    "lille|france": {
+      "query": "Lille, France",
+      "lat": 50.6365654,
+      "lon": 3.0635282,
+      "displayName": "Lille, Nord, Hauts-de-France, France métropolitaine, France",
+      "adminArea": "Hauts-de-France",
+      "adminCode": "FR-59",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:42:20.556Z"
+    },
+    "sacramento|united states": {
+      "query": "Sacramento, United States",
+      "lat": 38.5810606,
+      "lon": -121.493895,
+      "displayName": "Sacramento, Sacramento County, California, United States",
+      "adminArea": "California",
+      "adminCode": "US-CA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:42:22.332Z"
+    },
+    "århus|denmark": {
+      "query": "Århus, Denmark",
+      "lat": 56.1496278,
+      "lon": 10.2134046,
+      "displayName": "Aarhus, Aarhus Kommune, Region Midtjylland, 8000, Danmark",
+      "adminArea": "Region Midtjylland",
+      "adminCode": "DK-82",
+      "countryCode": "DK",
+      "verifiedAt": "2026-09-29T21:42:23.999Z"
+    },
+    "genova|italy": {
+      "query": "Genova, Italy",
+      "lat": 44.40726,
+      "lon": 8.9338624,
+      "displayName": "Genova, Liguria, Italia",
+      "adminArea": "Liguria",
+      "adminCode": "IT-GE",
+      "countryCode": "IT",
+      "verifiedAt": "2026-09-29T21:42:25.414Z"
+    },
+    "lethbridge|canada": {
+      "query": "Lethbridge, Canada",
+      "lat": 49.6945782,
+      "lon": -112.8331033,
+      "displayName": "Lethbridge, Alberta, Canada",
+      "adminArea": "Alberta",
+      "adminCode": "CA-AB",
+      "countryCode": "CA",
+      "verifiedAt": "2026-09-29T21:42:27.091Z"
+    },
+    "lake illawarra|australia": {
+      "query": "Lake Illawarra, Australia",
+      "lat": -34.5225021,
+      "lon": 150.840466,
+      "displayName": "Lake Illawarra, Yallah, New South Wales, 2530, Australia",
+      "adminArea": "New South Wales",
+      "adminCode": "AU-NSW",
+      "countryCode": "AU",
+      "verifiedAt": "2026-09-29T21:42:28.754Z"
+    },
+    "chaumont|france": {
+      "query": "Chaumont, France",
+      "lat": 48.1111324,
+      "lon": 5.1395849,
+      "displayName": "Chaumont, Haute-Marne, Grand Est, France métropolitaine, 52000, France",
+      "adminArea": "Grand Est",
+      "adminCode": "FR-52",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:42:30.583Z"
+    },
+    "lyon|france": {
+      "query": "Lyon, France",
+      "lat": 45.7578137,
+      "lon": 4.8320114,
+      "displayName": "Lyon, Métropole de Lyon, Rhône, Auvergne-Rhône-Alpes, France métropolitaine, France",
+      "adminArea": "Auvergne-Rhône-Alpes",
+      "adminCode": "FR-69M",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:42:32.437Z"
+    },
+    "seattle, wa|united states": {
+      "query": "Seattle, WA, United States",
+      "lat": 47.6038321,
+      "lon": -122.330062,
+      "displayName": "Seattle, King County, Washington, United States",
+      "adminArea": "Washington",
+      "adminCode": "US-WA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:42:34.268Z"
+    },
+    "rīga|latvia": {
+      "query": "Rīga, Latvia",
+      "lat": 56.9493977,
+      "lon": 24.1051846,
+      "displayName": "Rīga, Latvija",
+      "adminArea": null,
+      "adminCode": "LV-RIX",
+      "countryCode": "LV",
+      "verifiedAt": "2026-09-29T21:42:35.611Z"
+    },
+    "portland, oregon|united states": {
+      "query": "Portland, Oregon, United States",
+      "lat": 45.5202471,
+      "lon": -122.674194,
+      "displayName": "Portland, Multnomah County, Oregon, United States",
+      "adminArea": "Oregon",
+      "adminCode": "US-OR",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:42:37.474Z"
+    },
+    "mesa|united states": {
+      "query": "Mesa, United States",
+      "lat": 33.4151005,
+      "lon": -111.831455,
+      "displayName": "Mesa, Maricopa County, Arizona, United States",
+      "adminArea": "Arizona",
+      "adminCode": "US-AZ",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:42:39.399Z"
+    },
+    "bretagne|france": {
+      "query": "Bretagne, France",
+      "lat": 48.2640845,
+      "lon": -2.9202408,
+      "displayName": "Bretagne, France métropolitaine, France",
+      "adminArea": "Bretagne",
+      "adminCode": "FR-BRE",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:42:40.945Z"
+    },
+    "videbæk|denmark": {
+      "query": "videbæk, Denmark",
+      "lat": 56.0893891,
+      "lon": 8.6295216,
+      "displayName": "Videbæk, Ringkøbing-Skjern Kommune, Region Midtjylland, 6920, Danmark",
+      "adminArea": "Region Midtjylland",
+      "adminCode": "DK-82",
+      "countryCode": "DK",
+      "verifiedAt": "2026-09-29T21:42:42.253Z"
+    },
+    "helsinki|finland": {
+      "query": "Helsinki, Finland",
+      "lat": 60.1666204,
+      "lon": 24.9435408,
+      "displayName": "Helsinki, Helsingin seutukunta, Uusimaa, Manner-Suomi, Suomi / Finland",
+      "adminArea": "Uusimaa",
+      "adminCode": "FI-18",
+      "countryCode": "FI",
+      "verifiedAt": "2026-09-29T21:42:43.770Z"
+    },
+    "zaragoza|spain": {
+      "query": "Zaragoza, Spain",
+      "lat": 41.6915847,
+      "lon": -0.9101268,
+      "displayName": "Zaragoza, Aragón, España",
+      "adminArea": "Aragón",
+      "adminCode": "ES-Z",
+      "countryCode": "ES",
+      "verifiedAt": "2026-09-29T21:42:45.556Z"
+    },
+    "detroit|united states": {
+      "query": "Detroit, United States",
+      "lat": 42.3315509,
+      "lon": -83.0466403,
+      "displayName": "Detroit, Wayne County, Michigan, United States",
+      "adminArea": "Michigan",
+      "adminCode": "US-MI",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:42:47.345Z"
+    },
+    "riga|latvia": {
+      "query": "Riga, Latvia",
+      "lat": 56.9493977,
+      "lon": 24.1051846,
+      "displayName": "Rīga, Latvija",
+      "adminArea": null,
+      "adminCode": "LV-RIX",
+      "countryCode": "LV",
+      "verifiedAt": "2026-09-29T21:42:48.848Z"
+    },
+    "budapest|hungary": {
+      "query": "Budapest, Hungary",
+      "lat": 47.4978789,
+      "lon": 19.0402383,
+      "displayName": "Budapest, Közép-Magyarország, Magyarország",
+      "adminArea": "Közép-Magyarország",
+      "adminCode": "HU-BU",
+      "countryCode": "HU",
+      "verifiedAt": "2026-09-29T21:42:50.270Z"
+    },
+    "n/a|united states": {
+      "query": "N/a, United States",
+      "lat": 29.7725425,
+      "lon": -95.241258,
+      "displayName": "Akron Park, N/A, North Shore, Jacinto City, Harris County, Texas, 77029, United States",
+      "adminArea": "Texas",
+      "adminCode": "US-TX",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:42:51.909Z"
+    },
+    "torino|italy": {
+      "query": "Torino, Italy",
+      "lat": 45.0677551,
+      "lon": 7.6824892,
+      "displayName": "Torino, Piemonte, Italia",
+      "adminArea": "Piemonte",
+      "adminCode": "IT-TO",
+      "countryCode": "IT",
+      "verifiedAt": "2026-09-29T21:42:53.389Z"
+    },
+    "hamburg|germany": {
+      "query": "Hamburg, Germany",
+      "lat": 53.5501721,
+      "lon": 10.0013165,
+      "displayName": "Hamburg, Deutschland",
+      "adminArea": null,
+      "adminCode": "DE-HH",
+      "countryCode": "DE",
+      "verifiedAt": "2026-09-29T21:42:54.772Z"
+    },
+    "yamhill|united states": {
+      "query": "Yamhill, United States",
+      "lat": 45.2298399,
+      "lon": -123.2180414,
+      "displayName": "Yamhill County, Oregon, United States",
+      "adminArea": "Oregon",
+      "adminCode": "US-OR",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:42:56.163Z"
+    },
+    "pisa|italy": {
+      "query": "Pisa, Italy",
+      "lat": 43.4714722,
+      "lon": 10.6797912,
+      "displayName": "Pisa, Toscana, Italia",
+      "adminArea": "Toscana",
+      "adminCode": "IT-PI",
+      "countryCode": "IT",
+      "verifiedAt": "2026-09-29T21:42:57.474Z"
+    },
+    "fairfax, va|united states": {
+      "query": "Fairfax, VA, United States",
+      "lat": 38.8462236,
+      "lon": -77.3063733,
+      "displayName": "Fairfax, Virginia, 20030, United States",
+      "adminArea": "Virginia",
+      "adminCode": "US-VA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:42:58.821Z"
+    },
+    "grand rapids|united states": {
+      "query": "Grand Rapids, United States",
+      "lat": 42.9632425,
+      "lon": -85.6678639,
+      "displayName": "Grand Rapids, Kent County, Michigan, United States",
+      "adminArea": "Michigan",
+      "adminCode": "US-MI",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:43:00.610Z"
+    },
+    "york|united states": {
+      "query": "York, United States",
+      "lat": 39.962493,
+      "lon": -76.7276989,
+      "displayName": "York, York County, Pennsylvania, 17401, United States",
+      "adminArea": "Pennsylvania",
+      "adminCode": "US-PA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:43:02.522Z"
+    },
+    "monaco|monaco": {
+      "query": "Monaco, Monaco",
+      "lat": 43.7309697,
+      "lon": 7.4248152,
+      "displayName": "Monaco",
+      "adminArea": null,
+      "adminCode": null,
+      "countryCode": "MC",
+      "verifiedAt": "2026-09-29T21:43:04.359Z"
+    },
+    "st. louis|united states": {
+      "query": "St. Louis, United States",
+      "lat": 38.6254063,
+      "lon": -90.190009,
+      "displayName": "Saint Louis, Missouri, United States",
+      "adminArea": "Missouri",
+      "adminCode": "US-MO",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:43:06.288Z"
+    },
+    "le mayet d'école|france": {
+      "query": "Le Mayet d'école, France",
+      "lat": 46.1684483,
+      "lon": 3.2410883,
+      "displayName": "Le Mayet-d'École, Vichy, Allier, Auvergne-Rhône-Alpes, France métropolitaine, 03800, France",
+      "adminArea": "Auvergne-Rhône-Alpes",
+      "adminCode": "FR-03",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:43:07.608Z"
+    },
+    "hauconcourt (57)|france": {
+      "query": "Hauconcourt (57), France",
+      "lat": 49.2195051,
+      "lon": 6.192811,
+      "displayName": "Hauconcourt, Metz, Moselle, Grand Est, France métropolitaine, 57280, France",
+      "adminArea": "Grand Est",
+      "adminCode": "FR-57",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:43:09.328Z"
+    },
+    "koblenz/dresden|germany": {
+      "query": "Koblenz/Dresden, Germany",
+      "notFound": true,
+      "verifiedAt": "2026-09-29T21:43:11.006Z"
+    },
+    "oslo|norway": {
+      "query": "OSLO, Norway",
+      "lat": 59.9133301,
+      "lon": 10.7389701,
+      "displayName": "Oslo, Norge",
+      "adminArea": null,
+      "adminCode": "NO-03",
+      "countryCode": "NO",
+      "verifiedAt": "2026-09-29T21:43:12.500Z"
+    },
+    "marion|united states": {
+      "query": "Marion, United States",
+      "lat": 32.7931661,
+      "lon": -94.344488,
+      "displayName": "Marion County, Texas, 75657, United States",
+      "adminArea": "Texas",
+      "adminCode": "US-TX",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:43:14.524Z"
+    },
+    "capital federal|argentina": {
+      "query": "Capital Federal, Argentina",
+      "lat": -34.6161231,
+      "lon": -58.4356212,
+      "displayName": "Ciudad Autónoma de Buenos Aires, Argentina",
+      "adminArea": "Ciudad Autónoma de Buenos Aires",
+      "adminCode": "AR-C",
+      "countryCode": "AR",
+      "verifiedAt": "2026-09-29T21:43:16.386Z"
+    },
+    "köln|germany": {
+      "query": "Köln, Germany",
+      "lat": 50.938361,
+      "lon": 6.959974,
+      "displayName": "Köln, Nordrhein-Westfalen, Deutschland",
+      "adminArea": "Nordrhein-Westfalen",
+      "adminCode": "DE-NW",
+      "countryCode": "DE",
+      "verifiedAt": "2026-09-29T21:43:17.663Z"
+    },
+    "klippan|sweden": {
+      "query": "Klippan, Sweden",
+      "lat": 56.15,
+      "lon": 13.166667,
+      "displayName": "Klippans kommun, Skåne län, Sverige",
+      "adminArea": "Skåne län",
+      "adminCode": "SE-M",
+      "countryCode": "SE",
+      "verifiedAt": "2026-09-29T21:43:19.338Z"
+    },
+    "spain|spain": {
+      "query": "Spain, Spain",
+      "lat": 40.4237276,
+      "lon": -3.6899043,
+      "displayName": "Biblioteca Nacional de España, 20-22, Paseo de Recoletos, Recoletos, Salamanca, Madrid, Comunidad de Madrid, 28071, España",
+      "adminArea": "Comunidad de Madrid",
+      "adminCode": "ES-MD",
+      "countryCode": "ES",
+      "verifiedAt": "2026-09-29T21:43:21.043Z"
+    },
+    "vienna|austria": {
+      "query": "Vienna, Austria",
+      "lat": 48.2083537,
+      "lon": 16.3725042,
+      "displayName": "Wien, Österreich",
+      "adminArea": null,
+      "adminCode": "AT-9",
+      "countryCode": "AT",
+      "verifiedAt": "2026-09-29T21:43:22.393Z"
+    },
+    "santa maria da feira|portugal": {
+      "query": "Santa Maria da Feira, Portugal",
+      "lat": 40.9254179,
+      "lon": -8.5426688,
+      "displayName": "Santa Maria da Feira, Aveiro, Portugal",
+      "adminArea": "Aveiro",
+      "adminCode": "PT-01",
+      "countryCode": "PT",
+      "verifiedAt": "2026-09-29T21:43:24.160Z"
+    },
+    "sherwood park|canada": {
+      "query": "Sherwood park, Canada",
+      "lat": 53.5256963,
+      "lon": -113.296631,
+      "displayName": "Sherwood Park, Strathcona County, Alberta, Canada",
+      "adminArea": "Alberta",
+      "adminCode": "CA-AB",
+      "countryCode": "CA",
+      "verifiedAt": "2026-09-29T21:43:25.850Z"
+    },
+    "palma|spain": {
+      "query": "PALMA, Spain",
+      "lat": 39.5695818,
+      "lon": 2.6500745,
+      "displayName": "Palma, Illes Balears, España",
+      "adminArea": "Illes Balears",
+      "adminCode": "ES-PM",
+      "countryCode": "ES",
+      "verifiedAt": "2026-09-29T21:43:27.673Z"
+    },
+    "condove|italy": {
+      "query": "Condove, Italy",
+      "lat": 45.1174186,
+      "lon": 7.3094552,
+      "displayName": "Condove, Torino, Piemonte, 10055, Italia",
+      "adminArea": "Piemonte",
+      "adminCode": "IT-TO",
+      "countryCode": "IT",
+      "verifiedAt": "2026-09-29T21:43:28.859Z"
+    },
+    "ciudad autonoma de buenos aires|argentina": {
+      "query": "Ciudad Autonoma de Buenos Aires, Argentina",
+      "lat": -34.6161231,
+      "lon": -58.4356212,
+      "displayName": "Ciudad Autónoma de Buenos Aires, Argentina",
+      "adminArea": "Ciudad Autónoma de Buenos Aires",
+      "adminCode": "AR-C",
+      "countryCode": "AR",
+      "verifiedAt": "2026-09-29T21:43:30.269Z"
+    },
+    "váralja|hungary": {
+      "query": "Váralja, Hungary",
+      "lat": 46.2677639,
+      "lon": 18.4285404,
+      "displayName": "Váralja, Bonyhádi járás, Tolna vármegye, Dél-Dunántúl, Dunántúl, 7354, Magyarország",
+      "adminArea": "Dunántúl",
+      "adminCode": "HU-TO",
+      "countryCode": "HU",
+      "verifiedAt": "2026-09-29T21:43:31.613Z"
+    },
+    "tampere/turku/pori|finland": {
+      "query": "Tampere/Turku/Pori, Finland",
+      "notFound": true,
+      "verifiedAt": "2026-09-29T21:43:33.316Z"
+    },
+    "tulsa|united states": {
+      "query": "Tulsa, United States",
+      "lat": 36.1563122,
+      "lon": -95.9927516,
+      "displayName": "Tulsa, Oklahoma, United States",
+      "adminArea": "Oklahoma",
+      "adminCode": "US-OK",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:43:34.740Z"
+    },
+    "pori|finland": {
+      "query": "Pori, Finland",
+      "lat": 61.4866126,
+      "lon": 21.7972071,
+      "displayName": "Pori, Porin seutukunta, Satakunta, Manner-Suomi, Suomi / Finland",
+      "adminArea": "Satakunta",
+      "adminCode": "FI-17",
+      "countryCode": "FI",
+      "verifiedAt": "2026-09-29T21:43:36.379Z"
+    },
+    "dresden|germany": {
+      "query": "Dresden, Germany",
+      "lat": 51.0493286,
+      "lon": 13.7381437,
+      "displayName": "Dresden, Sachsen, Deutschland",
+      "adminArea": "Sachsen",
+      "adminCode": "DE-SN",
+      "countryCode": "DE",
+      "verifiedAt": "2026-09-29T21:43:37.638Z"
+    },
+    "surry|united states": {
+      "query": "Surry, United States",
+      "lat": 36.4135582,
+      "lon": -80.7013751,
+      "displayName": "Surry County, North Carolina, United States",
+      "adminArea": "North Carolina",
+      "adminCode": "US-NC",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:43:38.970Z"
+    },
+    "viña del mar|chile": {
+      "query": "Viña del Mar, Chile",
+      "lat": -33.0244535,
+      "lon": -71.5517636,
+      "displayName": "Viña del Mar, Provincia de Valparaíso, Región de Valparaíso, Chile",
+      "adminArea": "Región de Valparaíso",
+      "adminCode": "CL-VS",
+      "countryCode": "CL",
+      "verifiedAt": "2026-09-29T21:43:40.294Z"
+    },
+    "salt lake city - ogden|united states": {
+      "query": "Salt Lake City - Ogden, United States",
+      "notFound": true,
+      "verifiedAt": "2026-09-29T21:43:41.998Z"
+    },
+    "winterthur|switzerland": {
+      "query": "Winterthur, Switzerland",
+      "lat": 47.4991723,
+      "lon": 8.7291498,
+      "displayName": "Winterthur, Bezirk Winterthur, Zürich, Schweiz/Suisse/Svizzera/Svizra",
+      "adminArea": "Zürich",
+      "adminCode": "CH-ZH",
+      "countryCode": "CH",
+      "verifiedAt": "2026-09-29T21:43:43.656Z"
+    },
+    "eastern canada|canada": {
+      "query": "Eastern Canada, Canada",
+      "lat": 52.1293575,
+      "lon": -66.7917966,
+      "displayName": "Eastern Canada, Canada",
+      "adminArea": "Eastern Canada",
+      "adminCode": null,
+      "countryCode": "CA",
+      "verifiedAt": "2026-09-29T21:43:45.121Z"
+    },
+    "houston|united states": {
+      "query": "Houston, United States",
+      "lat": 29.7589382,
+      "lon": -95.3676974,
+      "displayName": "Houston, Harris County, Texas, United States",
+      "adminArea": "Texas",
+      "adminCode": "US-TX",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:43:46.489Z"
+    },
+    "boston|united states": {
+      "query": "Boston, United States",
+      "lat": 42.3588336,
+      "lon": -71.0578303,
+      "displayName": "Boston, Suffolk County, Massachusetts, United States",
+      "adminArea": "Massachusetts",
+      "adminCode": "US-MA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:43:47.969Z"
+    },
+    "strasbourg|france": {
+      "query": "Strasbourg, France",
+      "lat": 48.584614,
+      "lon": 7.7507127,
+      "displayName": "Strasbourg, Bas-Rhin, Collectivité européenne d'Alsace, Grand Est, France métropolitaine, France",
+      "adminArea": "Grand Est",
+      "adminCode": "FR-67",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:43:49.370Z"
+    },
+    "birmingham/auburn al|united states": {
+      "query": "Birmingham/Auburn AL, United States",
+      "lat": 32.6975175,
+      "lon": -85.5162552,
+      "displayName": "Birmingham Highway, Auburn, Lee County, Alabama, 36879, United States",
+      "adminArea": "Alabama",
+      "adminCode": "US-AL",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:43:50.858Z"
+    },
+    "millau|france": {
+      "query": "Millau, France",
+      "lat": 44.1006693,
+      "lon": 3.0777594,
+      "displayName": "Millau, Aveyron, Occitanie, France métropolitaine, 12100, France",
+      "adminArea": "Occitanie",
+      "adminCode": "FR-12",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:43:52.696Z"
+    },
+    "montbazon|france": {
+      "query": "Montbazon, France",
+      "lat": 47.2872408,
+      "lon": 0.7144705,
+      "displayName": "Montbazon, Tours, Indre-et-Loire, Centre-Val de Loire, France métropolitaine, 37250, France",
+      "adminArea": "Centre-Val de Loire",
+      "adminCode": "FR-37",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:43:54.314Z"
+    },
+    "liempde|netherlands": {
+      "query": "liempde, Netherlands",
+      "lat": 51.5705349,
+      "lon": 5.3713218,
+      "displayName": "Liempde, Boxtel, Noord-Brabant, Nederland",
+      "adminArea": "Noord-Brabant",
+      "adminCode": "NL-NB",
+      "countryCode": "NL",
+      "verifiedAt": "2026-09-29T21:43:55.486Z"
+    },
+    "warsaw|poland": {
+      "query": "Warsaw, Poland",
+      "lat": 52.2333742,
+      "lon": 21.0711489,
+      "displayName": "Warszawa, województwo mazowieckie, Polska",
+      "adminArea": "województwo mazowieckie",
+      "adminCode": "PL-14",
+      "countryCode": "PL",
+      "verifiedAt": "2026-09-29T21:43:56.692Z"
+    },
+    "unhos|portugal": {
+      "query": "Unhos, Portugal",
+      "lat": 38.8263302,
+      "lon": -9.1238076,
+      "displayName": "Unhos, Loures, Lisboa, 2680-512, Portugal",
+      "adminArea": "Lisboa",
+      "adminCode": "PT-11",
+      "countryCode": "PT",
+      "verifiedAt": "2026-09-29T21:43:58.305Z"
+    },
+    "murray|united states": {
+      "query": "Murray, United States",
+      "lat": 34.7851861,
+      "lon": -84.7352262,
+      "displayName": "Murray County, Georgia, United States",
+      "adminArea": "Georgia",
+      "adminCode": "US-GA",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:43:59.810Z"
+    },
+    "carlsbad, new mexico|united states": {
+      "query": "Carlsbad, New Mexico, United States",
+      "lat": 32.4257456,
+      "lon": -104.237612,
+      "displayName": "Carlsbad, Eddy County, New Mexico, United States",
+      "adminArea": "New Mexico",
+      "adminCode": "US-NM",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:44:01.486Z"
+    },
+    "turin|italy": {
+      "query": "Turin, Italy",
+      "lat": 45.0677551,
+      "lon": 7.6824892,
+      "displayName": "Torino, Piemonte, Italia",
+      "adminArea": "Piemonte",
+      "adminCode": "IT-TO",
+      "countryCode": "IT",
+      "verifiedAt": "2026-09-29T21:44:02.682Z"
+    },
+    "ramat gan|israel": {
+      "query": "Ramat gan, Israel",
+      "lat": 32.0686867,
+      "lon": 34.8246812,
+      "displayName": "רמת גן, נפת תל אביב, מחוז תל אביב, ישראל",
+      "adminArea": "מחוז תל אביב",
+      "adminCode": "IL-TA",
+      "countryCode": "IL",
+      "verifiedAt": "2026-09-29T21:44:04.367Z"
+    },
+    "mitterteich / bayern|germany": {
+      "query": "Mitterteich / Bayern, Germany",
+      "lat": 49.94095,
+      "lon": 12.2260232,
+      "displayName": "Mitterteich, Mitterteich (VGem), Landkreis Tirschenreuth, Bayern, Deutschland",
+      "adminArea": "Bayern",
+      "adminCode": "DE-BY",
+      "countryCode": "DE",
+      "verifiedAt": "2026-09-29T21:44:05.689Z"
+    },
+    "bucharest|romania": {
+      "query": "Bucharest, Romania",
+      "lat": 44.4361414,
+      "lon": 26.102684,
+      "displayName": "București, România",
+      "adminArea": null,
+      "adminCode": "RO-B",
+      "countryCode": "RO",
+      "verifiedAt": "2026-09-29T21:44:06.876Z"
+    },
+    "reims|france": {
+      "query": "REIMS, France",
+      "lat": 49.2577886,
+      "lon": 4.031926,
+      "displayName": "Reims, Marne, Grand Est, France métropolitaine, 51100, France",
+      "adminArea": "Grand Est",
+      "adminCode": "FR-51",
+      "countryCode": "FR",
+      "verifiedAt": "2026-09-29T21:44:08.708Z"
+    },
+    "carrollton|united states": {
+      "query": "Carrollton, United States",
+      "lat": 32.9515472,
+      "lon": -96.9034244,
+      "displayName": "Carrollton, Dallas County, Texas, United States",
+      "adminArea": "Texas",
+      "adminCode": "US-TX",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:44:10.503Z"
+    },
+    "greensboro, nc|united states": {
+      "query": "Greensboro, NC, United States",
+      "lat": 36.0726355,
+      "lon": -79.7919754,
+      "displayName": "Greensboro, Guilford County, North Carolina, United States",
+      "adminArea": "North Carolina",
+      "adminCode": "US-NC",
+      "countryCode": "US",
+      "verifiedAt": "2026-09-29T21:44:11.945Z"
+    }
+  }
+}

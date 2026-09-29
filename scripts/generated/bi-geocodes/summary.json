@@ -1,0 +1,16 @@
+{
+  "generatedAt": "2026-09-29T21:44:13.046Z",
+  "uniqueLocations": 247,
+  "successfulLocations": 234,
+  "notFound": 13,
+  "errors": 0,
+  "teamCoordinateUpdates": 303,
+  "chunkFiles": [
+    "scripts/generated/bi-geocodes/chunk-01.sql",
+    "scripts/generated/bi-geocodes/chunk-02.sql",
+    "scripts/generated/bi-geocodes/chunk-03.sql",
+    "scripts/generated/bi-geocodes/chunk-04.sql",
+    "scripts/generated/bi-geocodes/chunk-05.sql",
+    "scripts/generated/bi-geocodes/chunk-06.sql"
+  ]
+}
