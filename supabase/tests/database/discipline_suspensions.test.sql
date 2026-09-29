@@ -234,9 +234,9 @@ select throws_ok(
 
 -- Anonymous spectators must not see or write suspensions.
 set local role anon;
-select is(
-  (select count(*)::integer from public.suspensions),
-  0,
+select throws_ok(
+  $q$select * from public.suspensions limit 1$q$,
+  '42501', null,
   'anonymous users cannot read suspensions'
 );
 

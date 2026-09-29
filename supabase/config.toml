@@ -17,3 +17,9 @@ verify_jwt = false
 
 [functions.create-registration-checkout]
 verify_jwt = false
+
+[functions.fighter-avatar]
+verify_jwt = true
+
+[functions.invite-event-member]
+verify_jwt = true
