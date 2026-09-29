@@ -94,10 +94,15 @@ async function renderDirectory() {
 
       const clicked = await page.evaluate(() => {
         const controls = [...document.querySelectorAll('button, [role="button"], a')];
-        const control = controls.find(el => /^load more$/i.test((el.textContent || '').trim()));
+        const control = controls.find(el => {
+          if (!/^load more$/i.test((el.textContent || '').trim())) return false;
+          const rect = el.getBoundingClientRect();
+          const style = getComputedStyle(el);
+          return rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden';
+        });
         if (!control) return false;
         control.scrollIntoView({ block: 'center' });
-        control.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+        control.click();
         return true;
       });
 
