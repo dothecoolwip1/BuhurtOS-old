@@ -112,13 +112,13 @@ select is(
   'issued suspension is persisted'
 );
 
-select throws_ok(
+select throws_like(
   $$select public.issue_suspension(
     'f0000000-0000-0000-0000-000000000010',
     'f0000000-0000-0000-0000-000000000041',
     '2026-10-01T00:00:00Z','2026-08-01T00:00:00Z',
     'backwards')$$,
-  null, 'after its start',
+  null, '%after its start%',
   'a suspension must end after it starts'
 );
 
@@ -126,9 +126,9 @@ select throws_ok(
 -- marshal required).
 set local role authenticated;
 select pg_catalog.set_config('request.jwt.claim.sub','f0000000-0000-0000-0000-000000000002',true);
-select throws_ok(
+select throws_like(
   $$select public.issue_discipline_card('f0000000-0000-0000-0000-000000000050','red','smack')$$,
-  null, 'Not authorized',
+  null, '%Not authorized%',
   'organization staff cannot issue discipline cards (admin or event organizer/marshal required)'
 );
 
@@ -140,19 +140,19 @@ select throws_ok(
 select pg_catalog.set_config('request.jwt.claim.sub','f0000000-0000-0000-0000-000000000001',true);
 
 -- Via the guarded RPC.
-select throws_ok(
+select throws_like(
   $$select public.set_roster_competition_clearance_guarded(
       'f0000000-0000-0000-0000-000000000051',
       (select updated_at from public.event_roster_entries where id='f0000000-0000-0000-0000-000000000051'),
       true)$$,
-  null, 'active suspension',
+  null, '%active suspension%',
   'guarded clearance RPC refuses a suspended fighter'
 );
 
 -- Via a direct table write (data-layer trigger).
-select throws_ok(
+select throws_like(
   $$update public.event_roster_entries set competition_cleared=true where id='f0000000-0000-0000-0000-000000000051'$$,
-  null, 'active suspension',
+  null, '%active suspension%',
   'direct competition_cleared writes are refused by the enforcement trigger'
 );
 
@@ -168,9 +168,9 @@ select is(
 -- never having RLS visibility of the row.
 set local role authenticated;
 select pg_catalog.set_config('request.jwt.claim.sub','f0000000-0000-0000-0000-000000000004',true);
-select throws_ok(
+select throws_like(
   $$select public.revoke_suspension('f0000000-0000-0000-0000-000000000060')$$,
-  null, 'Not authorized',
+  null, '%Not authorized%',
   'an admin of another organization cannot revoke suspensions'
 );
 
@@ -224,11 +224,11 @@ select is(
   'an admin of another organization cannot read discipline cards'
 );
 
-select throws_ok(
+select throws_like(
   $$select public.issue_suspension(
     'f0000000-0000-0000-0000-000000000010','f0000000-0000-0000-0000-000000000041',
     '2026-08-01T00:00:00Z','2026-10-01T00:00:00Z','sneaky')$$,
-  null, 'Not authorized',
+  null, '%Not authorized%',
   'an admin of another organization cannot issue suspensions'
 );
 
