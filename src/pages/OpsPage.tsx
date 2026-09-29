@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';\nimport { Link } from 'react-router-dom';
+import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { MatchCard } from '../components/MatchCard';
 import { ScoreDialog } from '../components/ScoreDialog';
 import { useAppState } from '../features/AppState';
