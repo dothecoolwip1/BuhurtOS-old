@@ -9,8 +9,7 @@ current implementation head. `main` includes Pack 7 tournament generation and
 Pack 4 organization/team/captain membership workflows through `901257c`.
 Profile-avatar storage work follows as a separate, locally verified release.
 
-Do not deploy migrations or Edge Functions to the Northborn/Mallard/Reavers
-Supabase project; a dedicated BuhurtOS project is still required.
+BuhurtOS must use only the dedicated Supabase organization `vbxznwtocyorcfghzdfo` (BuhurtOS). The older Northborn/Mallard/Reavers Supabase project remains prohibited. A dedicated project inside the BuhurtOS organization is pending creation and migration deployment.
 
 Repository: `dothecoolwip1/BuhurtOS`
 
