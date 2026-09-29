@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build
+        env:
+          VITE_SUPABASE_URL: https://tapfpboszgoftbwcwsmn.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_Tn67D7wzVsEu7esZZKardw_Zzrx93Fv
         run: npm run build -- --mode github-pages
       - name: Configure Pages
         uses: actions/configure-pages@v5
