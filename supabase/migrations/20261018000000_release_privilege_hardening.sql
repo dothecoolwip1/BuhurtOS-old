@@ -6,8 +6,10 @@
 -- Anonymous visitors never touch fighter signups directly; they use the validated signup RPCs.
 revoke all on table public.fighter_event_signups from anon;
 
--- The audit log is append-only and written only by SECURITY DEFINER triggers and RPCs.
-revoke insert, update, delete, truncate, references, trigger on table public.audit_log from anon, authenticated;
+-- The audit log is append-only for clients: some guarded RPCs run as the caller and append their own
+-- audit row (INSERT stays, gated by RLS), but no client may rewrite, delete or truncate history.
+revoke insert on table public.audit_log from anon;
+revoke update, delete, truncate, references, trigger on table public.audit_log from anon, authenticated;
 
 -- No client role needs TRUNCATE, REFERENCES or TRIGGER on any public table, and anonymous
 -- visitors never write directly. Sweep every ordinary table so new tables cannot regress this.
