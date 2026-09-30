@@ -2,15 +2,36 @@
 
 Last updated: 2026-09-29
 
+## Current handoff: Pack 1 release baseline
+
+The new master execution plan in `docs/BUHURTOS_MASTER_EXECUTION_PLAN.txt` is
+authoritative. Pack 1 is complete through implementation checkpoint
+`0fe40cae77da55d1eec65908bc1411b2715079c5`.
+
+The release baseline now has one gated GitHub Actions workflow, clean TypeScript,
+unit/build checks, route and dead-control auditing, replayable Supabase migrations,
+pgTAP coverage, a GitHub Pages deploy gate, explicit public load-error states, and
+mobile-safe public team deep links.
+
+Hosted backend source of truth:
+
+* Supabase organization: `vbxznwtocyorcfghzdfo`
+* Supabase project: `tapfpboszgoftbwcwsmn`
+* Pack 1 hosted ACL migration: `20260930042147_pack1_public_event_privilege_hardening`
+* Anonymous `events.notes` access was rechecked after the migration and is denied.
+* Public event description and registration fields remain anonymously readable.
+* Production data was not reset or deleted.
+
+Do not resume an older historical pack from the provenance notes below. The next
+master-plan pack is Pack 2 and should only begin when explicitly requested.
+
 ## Resume here
 
 The historical checkpoint below is superseded. Current `main` includes Round 17
 Pack 7 tournament generation (`7b9a736`), Round 18 Pack 4 data layer
 (`ff82c3f`), and Round 18 UI/workflow completion (`901257c`). The next pending
 release adds secure fighter-avatar storage. Its local verification must never be
-mistaken for hosted Supabase/Edge verification. The dedicated Supabase organization
-is now confirmed as `vbxznwtocyorcfghzdfo` (BuhurtOS); only projects inside that
-organization may be used. The Northborn/Mallard/Reavers project remains prohibited.
+mistaken for hosted Supabase/Edge verification. The dedicated Supabase organization is `vbxznwtocyorcfghzdfo` (BuhurtOS) and the active hosted project is `tapfpboszgoftbwcwsmn`; only this BuhurtOS backend may be used. The Northborn/Mallard/Reavers project remains prohibited.
 
 Pack 6 is complete and merged to `main` in PR #10.
 

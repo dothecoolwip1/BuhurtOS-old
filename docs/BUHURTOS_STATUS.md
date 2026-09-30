@@ -2,6 +2,26 @@
 
 Last updated: 2026-09-29
 
+## Master Execution Plan Pack 1 complete
+
+Pack 1, **Stability, CI, Routing and Release Baseline**, is complete on the current
+release line. The implementation checkpoint before this documentation update is
+`0fe40cae77da55d1eec65908bc1411b2715079c5`.
+
+Current release facts:
+
+* The dedicated hosted Supabase project is `tapfpboszgoftbwcwsmn` in the BuhurtOS organization `vbxznwtocyorcfghzdfo`. The older shared Northborn/Mallard/Reavers backend remains prohibited.
+* `.github/workflows/pages.yml` is the single authoritative CI and GitHub Pages release workflow. The redundant standalone Pages workflow was removed.
+* CI requires the navigation audit, TypeScript, unit tests, production build, a clean local Supabase start, full migration replay, pgTAP database tests, and only then the Pages deployment.
+* The Pack 1 route audit covers the public hub, organizations, teams, fighters, events, rankings, rules, login, platform controls, delegated codes, event management, and fighter signups.
+* Public team deep links retain the `?go=` bridge into HashRouter so shared/mobile links resolve correctly under the GitHub Pages base path.
+* Stale showcase dashboard routing and known fake demo IDs are quarantined by the navigation audit.
+* Public directory pages now distinguish load failures from legitimate empty results, and event management no longer renders a blank state when no event is selected.
+* Clean replay blockers in the delegated-access migration were made replay-safe without resetting production data.
+* Hosted anonymous event privileges were hardened with migration `20260930042147_pack1_public_event_privilege_hardening.sql`. Public event fields remain readable while private `events.notes` is not anonymously selectable.
+* Red Deer Reavers remains a team. No organization was created for it during this pack.
+* No production rows were deleted, reset, or replaced during Pack 1.
+
 ## Current recovery point
 
 The historical Pack 2–16 notes below are preserved for provenance but are not the
@@ -9,7 +29,7 @@ current implementation head. `main` includes Pack 7 tournament generation and
 Pack 4 organization/team/captain membership workflows through `901257c`.
 Profile-avatar storage work follows as a separate, locally verified release.
 
-BuhurtOS must use only the dedicated Supabase organization `vbxznwtocyorcfghzdfo` (BuhurtOS). The older Northborn/Mallard/Reavers Supabase project remains prohibited. A dedicated project inside the BuhurtOS organization is pending creation and migration deployment.
+BuhurtOS must use only the dedicated Supabase organization `vbxznwtocyorcfghzdfo` (BuhurtOS) and hosted project `tapfpboszgoftbwcwsmn`. The older Northborn/Mallard/Reavers Supabase project remains prohibited.
 
 Repository: `dothecoolwip1/BuhurtOS`
 

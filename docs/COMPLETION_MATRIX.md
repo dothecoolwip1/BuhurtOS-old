@@ -15,6 +15,24 @@ only credits real, wired functionality.
 
 ---
 
+## Master Execution Plan Pack 1: Release Baseline
+
+| Requirement | Status | Evidence |
+|---|---|---|
+| One authoritative release workflow | ✅ | `.github/workflows/pages.yml`; redundant `deploy-pages.yml` removed |
+| Navigation audit | ✅ | `scripts/audit-navigation.mjs` validates required Pack 1 routes, stale fake IDs, deep-link bridge, quarantined showcase dashboard, and action buttons |
+| TypeScript, unit tests, production build | ✅ | Required by the gated `quality` job before deployment |
+| Clean Supabase start and migration replay | ✅ | `database` job runs `supabase start` then `supabase db reset`; migration-order blockers repaired |
+| pgTAP database verification | ✅ | `database` job runs `supabase test db` and gates deployment |
+| Hosted public/private event ACL | ✅ | `20260930042147_pack1_public_event_privilege_hardening.sql`; hosted recheck denies anonymous `events.notes` while retaining intended public event columns |
+| Public route baseline | ✅ | `/`, `/public`, governance, organizations, teams, fighters, events, rankings, and rules are explicitly audited |
+| Operations route baseline | ✅ | login, platform, delegated codes, event management, and fighter signups are explicitly audited |
+| Mobile/shared public deep links | ✅ | `src/main.tsx` `?go=` bridge plus `PublicTeamMap.tsx` URL generation |
+| Stale demo/showcase production routing | ✅ | old fake event/fighter IDs blocked by audit; `ShowcaseDashboard` must remain unrouted |
+| Dead actionable controls | ✅ | TSX button audit rejects buttons without an obvious action/submit/form behavior |
+| Explained loading and error states | ✅ | public directory/event/profile pages distinguish load failure from empty data; event management has a no-event state |
+| Production data preservation | ✅ | privilege-only hosted migration; no production reset or row deletion |
+
 ## Platform and Architecture
 
 | Requirement | Status | Evidence |
