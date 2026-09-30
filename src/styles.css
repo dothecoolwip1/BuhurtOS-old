@@ -1691,3 +1691,4 @@ html.nx-locked{overflow:hidden}
 .header-actions{flex-wrap:wrap}
 .nx-main .header-actions button,.nx-main .header-actions a{min-height:44px}
 .show-mobile-brand{min-height:44px}
+@media(max-width:900px){.landing-nav{grid-template-columns:1fr auto}}

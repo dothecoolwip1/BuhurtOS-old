@@ -476,3 +476,14 @@ Capacitor/Android proof, PowerSync, MapLibre rewrite, Lit/web-component embeds, 
 
 ### Next priorities after launch
 Apply and verify the five migrations on the hosted project; run the security advisor; link duplicate team rows; upload the Rumble poster; audit the signed-in admin pages on phones; end-to-end test organizer code creation and signup review with real accounts; enable claims when ready; add the Auth hook for registration modes; add a calendar feed edge function; consider the Android proof.
+
+## Navigation and experience redesign (2026-09-30)
+
+The owner rejected the old navigation, so the signed-in experience was rebuilt around three connected areas: **Public site**, **My workspace** (`#/me`) and **Administration** (`#/admin`). Full map, route mapping, verification log and limits: `docs/NAVIGATION.md`; product intent: `docs/PRODUCT_CONTEXT.md`.
+
+* One navigation model (`src/lib/navigation.ts`), one shared shell (`src/components/chrome.tsx`), an account layer for every area (`src/features/Account.tsx`), a workspace (`WorkspaceHome`, `WorkspaceTeams`, real profile editor, join with a code) and an administration overview with live needs-attention checks (`AdminHome`).
+* Old `/ops/*` and `/team-hq` URLs redirect with query strings and invitation tokens preserved; `/ops/login` is now `/sign-in`; the default landing after sign-in is My workspace.
+* Removed the fake `/me` preview and the `/team-hq` redirect to the Reavers page. Permission failures now explain themselves instead of silently redirecting.
+* Public filters live in the URL, detail pages have breadcrumbs that return to the last filtered list, and the events list shows registration status.
+* Tests: `tests/navigation.test.ts` (every menu destination is a real route, every legacy URL maps to a real destination, menu gating per role, breadcrumbs, scope, remembered filters).
+* No new backend changes were needed; hosted migrations 20261014–20261018 remain applied (verified via the Supabase connector). Not verified with real signed-in hosted accounts (see `docs/NAVIGATION.md`).

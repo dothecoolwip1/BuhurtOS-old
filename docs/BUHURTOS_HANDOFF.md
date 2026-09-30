@@ -459,3 +459,14 @@ PR #12 on `feature/hacsa-bi-marshal-reference` is the HACSA-first team-source an
 BI rules are available at `/rules` and `/ops/marshal-reference`. The live Marshal Console links the active match to `/ops/marshal-reference?format=<category>`, so the reference opens on the applicable fight family. Keep the source/version/section provenance visible when extending the corpus. The current indexed fight corpus is Buhurt Rules 26.4.1, Buhurt Regulations 26.4, Duels Rules 26.4, Duels Regulations 26.4, Outrance Rules and Regulations 26.4, and Weapons / Shield Chart 26.2.1.
 
 When adding BI Teams and rankings, reconcile them into source-aware records instead of silently overwriting HACSA facts. Preserve the source priority and add field-level provenance where sources disagree.
+
+## Navigation and experience redesign (2026-09-30)
+
+The owner rejected the old navigation, so the signed-in experience was rebuilt around three connected areas: **Public site**, **My workspace** (`#/me`) and **Administration** (`#/admin`). Full map, route mapping, verification log and limits: `docs/NAVIGATION.md`; product intent: `docs/PRODUCT_CONTEXT.md`.
+
+* One navigation model (`src/lib/navigation.ts`), one shared shell (`src/components/chrome.tsx`), an account layer for every area (`src/features/Account.tsx`), a workspace (`WorkspaceHome`, `WorkspaceTeams`, real profile editor, join with a code) and an administration overview with live needs-attention checks (`AdminHome`).
+* Old `/ops/*` and `/team-hq` URLs redirect with query strings and invitation tokens preserved; `/ops/login` is now `/sign-in`; the default landing after sign-in is My workspace.
+* Removed the fake `/me` preview and the `/team-hq` redirect to the Reavers page. Permission failures now explain themselves instead of silently redirecting.
+* Public filters live in the URL, detail pages have breadcrumbs that return to the last filtered list, and the events list shows registration status.
+* Tests: `tests/navigation.test.ts` (every menu destination is a real route, every legacy URL maps to a real destination, menu gating per role, breadcrumbs, scope, remembered filters).
+* No new backend changes were needed; hosted migrations 20261014–20261018 remain applied (verified via the Supabase connector). Not verified with real signed-in hosted accounts (see `docs/NAVIGATION.md`).
