@@ -1002,3 +1002,12 @@ button.ghost:hover{color:var(--text);border-color:#3d4c59;background:#111920}
   .fighter-signup-code-entry{grid-template-columns:1fr}
   .fighter-signup-code-entry .show-btn{width:100%}
 }
+
+
+/* Router-safe button navigation should look identical to the links it replaced. */
+.marketing-nav nav button{
+  appearance:none;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;padding:0;
+}
+.public-event-nav button{
+  appearance:none;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;
+}
