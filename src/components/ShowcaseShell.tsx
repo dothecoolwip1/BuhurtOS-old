@@ -1,4 +1,5 @@
-import {NavLink,Outlet} from 'react-router-dom';
+import {useState} from 'react';
+import {NavLink,Outlet,useLocation} from 'react-router-dom';
 
 const nav=[
   ['/public','Discover','◎'],
@@ -11,6 +12,46 @@ const nav=[
 ] as const;
 
 export function ShowcaseShell(){
+ const location=useLocation();
+ const [menuOpen,setMenuOpen]=useState(false);
+ const isLanding=location.pathname==='/public';
+
+ if(isLanding){
+   const jumpToIntro=()=>{
+     setMenuOpen(false);
+     document.getElementById('what-is-buhurt')?.scrollIntoView({behavior:'smooth',block:'start'});
+   };
+   return <div className="landing-shell">
+    <header className="landing-nav">
+      <NavLink to="/public" className="show-brand landing-brand" onClick={()=>setMenuOpen(false)}>
+        <span className="show-brand-mark">B</span>
+        <span><b>BuhurtOS</b><small>Explore armored combat</small></span>
+      </NavLink>
+      <nav className="landing-nav-links" aria-label="Public navigation">
+        <button type="button" onClick={jumpToIntro}>What is Buhurt?</button>
+        <NavLink to="/teams">Teams</NavLink>
+        <NavLink to="/fighters">Fighters</NavLink>
+        <NavLink to="/events">Events</NavLink>
+        <NavLink to="/rankings">Rankings</NavLink>
+        <NavLink to="/rules">Rules</NavLink>
+      </nav>
+      <div className="landing-nav-actions">
+        <NavLink className="show-btn secondary" to="/ops/login">Sign in</NavLink>
+        <NavLink className="show-btn primary" to="/teams">Explore</NavLink>
+      </div>
+      <button className={'landing-menu-toggle '+(menuOpen?'open':'')} type="button" aria-label="Toggle navigation" aria-expanded={menuOpen} onClick={()=>setMenuOpen(value=>!value)}>
+        <span/><span/><span/>
+      </button>
+    </header>
+    {menuOpen?<div className="landing-mobile-menu">
+      <button type="button" onClick={jumpToIntro}>New here? Start with “What is Buhurt?”</button>
+      {nav.slice(1).map(([to,label,icon])=><NavLink key={to} to={to} onClick={()=>setMenuOpen(false)}><span>{icon}</span><b>{label}</b><i>→</i></NavLink>)}
+      <NavLink className="show-btn primary full" to="/ops/login" onClick={()=>setMenuOpen(false)}>Sign in / manage</NavLink>
+    </div>:null}
+    <main className="landing-main"><Outlet/></main>
+   </div>;
+ }
+
  return <div className="show-shell">
   <aside className="show-sidebar">
    <NavLink to="/public" className="show-brand"><span className="show-brand-mark">B</span><span><b>BuhurtOS</b><small>Explore the sport</small></span></NavLink>
