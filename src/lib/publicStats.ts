@@ -17,6 +17,12 @@ export type PublicTeamProvenanceRow = {
   isAlias: boolean;
 };
 
+/** The stats layer is not installed on this backend (function missing): "unavailable", not a failure. */
+export function isStatsLayerMissing(error: { code?: string; message?: string } | null | undefined): boolean {
+  if (!error) return false;
+  return error.code === 'PGRST202' || error.code === '42883' || /could not find the function|function .* does not exist/i.test(error.message ?? '');
+}
+
 const CACHE_MS = 2 * 60 * 1000;
 const cache = new Map<string, { at: number; value: unknown }>();
 
@@ -28,12 +34,15 @@ async function cached<T>(key: string, load: () => Promise<T>): Promise<T> {
   return value;
 }
 
-/** Official native team record from the database; undefined when the backend has no stats layer yet. */
+/**
+ * Official native team record from the database. Resolves undefined when the backend has no stats layer or no record yet;
+ * rejects when the request itself failed, so callers can say "could not load" instead of implying there is nothing to show.
+ */
 export async function loadOfficialTeamStats(teamId: string): Promise<PublicTeamStats | undefined> {
   if (!publicSupabase) return undefined;
   return cached('team-stats:' + teamId, async () => {
     const { data, error } = await publicSupabase!.rpc('official_team_stats', { p_team_id: teamId });
-    if (error) return undefined;
+    if (error) { if (isStatsLayerMissing(error)) return undefined; throw error; }
     const row = Array.isArray(data) ? data[0] : data;
     if (!row) return undefined;
     return {
@@ -47,7 +56,7 @@ export async function loadOfficialEventStats(eventId: string): Promise<EventStat
   if (!publicSupabase) return undefined;
   return cached('event-stats:' + eventId, async () => {
     const { data, error } = await publicSupabase!.rpc('official_event_stats', { p_event_id: eventId });
-    if (error) return undefined;
+    if (error) { if (isStatsLayerMissing(error)) return undefined; throw error; }
     const row = Array.isArray(data) ? data[0] : data;
     if (!row) return undefined;
     return {
@@ -62,7 +71,7 @@ export async function loadTeamProvenance(teamId: string): Promise<PublicTeamProv
   if (!publicSupabase) return [];
   return cached('team-provenance:' + teamId, async () => {
     const { data, error } = await publicSupabase!.rpc('public_team_provenance', { p_team_id: teamId });
-    if (error) return [];
+    if (error) { if (isStatsLayerMissing(error)) return []; throw error; }
     return (data ?? []).map((row: any) => ({
       teamId: row.team_id, sourceKind: row.source_kind, sourceRecordKey: row.source_record_key, sourceUrl: row.source_url,
       sourceTeamName: row.source_team_name, sourceLocation: row.source_location ?? undefined, sourceWebsiteUrl: row.source_website_url ?? undefined,

@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { eventCta, groupByMonth } from '../lib/eventCategories';
+import { formatEventDate } from '../lib/eventTime';
 import { parseAccent, parseTheme, readableTextOn, type EmbedTheme } from '../lib/embedBuilder';
 import { calendar, getEvent, getTeam, getTeamStats, type EventDTO, type TeamDTO, type TeamStatsDTO } from '../lib/publicApiV1';
 import { loadEventSnapshot } from '../lib/repository';
@@ -25,7 +26,7 @@ export function EmbedState({ title, text }: { title: string; text?: string }) {
   return <div className="embed-state" role="status"><strong>{title}</strong>{text ? <p>{text}</p> : null}</div>;
 }
 
-const fmtDate = (iso: string) => new Date(iso).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+const fmtDate = (iso: string, timezone?: string) => formatEventDate(iso, timezone, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 
 // ---- Views (presentational, unit-testable) --------------------------------
 
@@ -37,7 +38,7 @@ export function AgendaView({ events }: { events: EventDTO[] }) {
     {month.events.map(event => {
       const cta = eventCta(event.category, { registrationOpen: event.registrationOpen, hasLink: true, status: event.status });
       return <a className="embed-row" key={event.id} href={siteLink('/events/' + event.id)} target="_blank" rel="noopener noreferrer">
-        <span className="embed-date">{fmtDate(event.startsAt)}</span>
+        <span className="embed-date">{fmtDate(event.startsAt, event.timezone)}</span>
         <span className="embed-main"><strong>{event.name}</strong><small>{event.venue}</small></span>
         <span className="embed-tags"><em>{event.categoryLabel}</em>{event.status === 'cancelled' ? <em className="warn">Cancelled</em> : null}<b>{cta.label} →</b></span>
       </a>;
@@ -52,7 +53,7 @@ export function EventCardView({ event }: { event: EventDTO }) {
     <div className="embed-card-body">
       <span className="embed-kicker">{event.categoryLabel}{event.status === 'cancelled' ? ' · Cancelled' : ''}</span>
       <h1>{event.name}</h1>
-      <p className="embed-meta">{fmtDate(event.startsAt)}{fmtDate(event.endsAt) !== fmtDate(event.startsAt) ? ' – ' + fmtDate(event.endsAt) : ''}</p>
+      <p className="embed-meta">{fmtDate(event.startsAt, event.timezone)}{fmtDate(event.endsAt, event.timezone) !== fmtDate(event.startsAt, event.timezone) ? ' – ' + fmtDate(event.endsAt, event.timezone) : ''}</p>
       <p className="embed-meta">{event.venue}</p>
       {event.host?.name ? <p className="embed-meta">Hosted by {event.host.name}</p> : null}
       {event.description ? <p className="embed-copy">{event.description}</p> : null}

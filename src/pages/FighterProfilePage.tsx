@@ -12,9 +12,10 @@ export function FighterProfilePage(){
  const [fighter,setFighter]=useState<PublicFighterSummary>();
  const [loading,setLoading]=useState(true);
  const [error,setError]=useState('');
- useEffect(()=>{let active=true;loadPublicFighter(fighterId).then(row=>{if(active)setFighter(row)}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load this fighter profile.')}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[fighterId]);
- if(loading)return <div className="state-card">Loading fighter profile…</div>;
- if(error)return <div className="state-card"><strong>Unable to load fighter</strong><p>{error}</p><Link className="show-btn secondary" to="/fighters">Back to fighters</Link></div>;
+ const [attempt,setAttempt]=useState(0);
+ useEffect(()=>{let active=true;setFighter(undefined);setError('');setLoading(true);loadPublicFighter(fighterId).then(row=>{if(active)setFighter(row)}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load this fighter profile.')}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[fighterId,attempt]);
+ if(loading)return <div className="state-card" role="status">Loading fighter profile…</div>;
+ if(error)return <div className="state-card" role="alert"><strong>This fighter profile could not be loaded</strong><p>{error}</p><p>This is a connection or server problem, not a missing profile.</p><div className="show-actions"><button type="button" className="show-btn" onClick={()=>setAttempt(n=>n+1)}>Try again</button><Link className="show-btn secondary" to="/fighters">Back to fighters</Link></div></div>;
  if(!fighter)return <div className="state-card"><h2>Fighter profile not found</h2><p>This may be a source-only roster name that has not yet been linked to a public BuhurtOS identity.</p><Link className="show-btn secondary" to="/fighters">Back to fighters</Link></div>;
  return <>
   <ListCrumbs list="/fighters" label="Fighters" current={fighter.displayName}/>

@@ -6,21 +6,14 @@ import {loadPublicEventDetails,type PublicEventDetails} from '../lib/publicDirec
 import {ListCrumbs} from '../components/chrome';
 import {eventCategoryLabel,eventCategoryTone,eventModules,isCompetitionCapable} from '../lib/eventCategories';
 import {eventImageThumbUrl,eventImageUrl} from '../lib/eventMedia';
+import {formatEventRange,formatEventTime,zoneLabel} from '../lib/eventTime';
 import {loadOfficialEventStats} from '../lib/publicStats';
 import type {EventStats} from '../lib/canonicalStats';
 
 const pretty=(value:string)=>value.replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
 
-function dateRange(startIso:string,endIso:string){
-  const start=new Date(startIso);
-  const end=new Date(endIso);
-  const sameYear=start.getFullYear()===end.getFullYear();
-  const startText=start.toLocaleDateString(undefined,{month:'long',day:'numeric',year:sameYear?undefined:'numeric'});
-  const endText=end.toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'});
-  return startText+' – '+endText;
-}
 
-export function EventDetailView({details,onFighterSignup,stats}:{details:PublicEventDetails;onFighterSignup:()=>void;stats?:EventStats}){
+export function EventDetailView({details,onFighterSignup,stats,statsError}:{details:PublicEventDetails;onFighterSignup:()=>void;stats?:EventStats;statsError?:boolean}){
   const event=details.event;
   const scheduleTba=Boolean(event.publicLinks?.schedule_tba);
   const facebook=typeof event.publicLinks?.facebook==='string'?event.publicLinks.facebook:undefined;
@@ -33,7 +26,7 @@ export function EventDetailView({details,onFighterSignup,stats}:{details:PublicE
     <PageHeader
       eyebrow={event.status==='live'?'LIVE EVENT':'PUBLISHED EVENT'}
       title={event.name}
-      description={dateRange(event.startsAt,event.endsAt)+' • '+event.venue}
+      description={formatEventRange(event.startsAt,event.endsAt,event.timezone,true)+' • '+event.venue}
       actions={<>
         {modules.fighterSignup?<button className="show-btn primary" type="button" onClick={()=>onFighterSignup()}>Fighter signup</button>:null}
         {facebook?<a className="show-btn secondary" href={facebook} target="_blank" rel="noopener noreferrer">Facebook event ↗</a>:null}
@@ -46,7 +39,7 @@ export function EventDetailView({details,onFighterSignup,stats}:{details:PublicE
       <Pill tone={event.status==='live'?'red':'green'}>{pretty(event.status)}</Pill>
       <span>Host: <b>{event.organizerName||'TBA'}</b></span>
       <span>Category: <b>{eventCategoryLabel(event.eventType)}</b></span>
-      <span>Timezone: <b>{event.timezone}</b></span>
+      <span>Timezone: <b>{zoneLabel(event.timezone)}</b></span>
       {scheduleTba?<span><b>Times TBA</b></span>:null}
     </div>
 
@@ -79,8 +72,8 @@ export function EventDetailView({details,onFighterSignup,stats}:{details:PublicE
       <div className="show-stack">
         <Panel title="Event details">
           <div className="show-detail-rows">
-            <div><span>Dates</span><b>{dateRange(event.startsAt,event.endsAt)}</b></div>
-            <div><span>Times</span><b>{scheduleTba?'To be announced':new Date(event.startsAt).toLocaleTimeString()}</b></div>
+            <div><span>Dates</span><b>{formatEventRange(event.startsAt,event.endsAt,event.timezone,true)}</b></div>
+            <div><span>Times</span><b>{scheduleTba?'To be announced':formatEventTime(event.startsAt,event.timezone)+' start'}</b></div>
             <div><span>Venue</span><b>{event.venue}</b></div>
             <div><span>Host</span><b>{event.organizerName||'TBA'}</b></div>
             <div><span>Category</span><b>{eventCategoryLabel(event.eventType)}</b></div>
@@ -90,6 +83,7 @@ export function EventDetailView({details,onFighterSignup,stats}:{details:PublicE
           </div>
         </Panel>
 
+        {modules.standings&&statsError?<p className="show-note" role="status">Official results could not be loaded right now. Reload the page to try again.</p>:null}
         {modules.standings&&stats&&stats.officialResults>0?<Panel title="Official results" subtitle="Finalized matches only."><div className="show-detail-rows"><div><span>Participants</span><b>{stats.participants}</b></div><div><span>Teams</span><b>{stats.teams}</b></div><div><span>Matches finalized</span><b>{stats.finalizedMatches} of {stats.matches}</b></div><div><span>Formats</span><b>{stats.formats.join(', ')||'—'}</b></div></div></Panel>:null}
         <Panel title="Registration">
           <div className="state-card">
@@ -120,22 +114,30 @@ export function ShowcaseEventPage(){
   const [error,setError]=useState('');
   const [fighterSignupOpen,setFighterSignupOpen]=useState(false);
   const [stats,setStats]=useState<EventStats>();
+  const [statsError,setStatsError]=useState(false);
+  const [attempt,setAttempt]=useState(0);
 
   useEffect(()=>{
     let active=true;
+    // A new event id never renders the previous event's data or error.
+    setDetails(undefined);setStats(undefined);setStatsError(false);setError('');setLoading(true);setFighterSignupOpen(false);
     loadPublicEventDetails(eventId)
-      .then(result=>{if(active)setDetails(result);if(result)loadOfficialEventStats(result.event.id).then(x=>{if(active)setStats(x)})})
+      .then(result=>{
+        if(!active)return;
+        setDetails(result);
+        if(result)loadOfficialEventStats(result.event.id).then(x=>{if(active)setStats(x)}).catch(()=>{if(active)setStatsError(true)});
+      })
       .catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load this event.')})
       .finally(()=>{if(active)setLoading(false)});
     return()=>{active=false};
-  },[eventId]);
+  },[eventId,attempt]);
 
-  if(loading)return <div className="state-card">Loading event…</div>;
-  if(error)return <div className="state-card"><strong>Unable to load event</strong><p>{error}</p></div>;
+  if(loading)return <div className="state-card" role="status">Loading event…</div>;
+  if(error)return <div className="state-card" role="alert"><strong>This event could not be loaded</strong><p>{error}</p><p>This is a connection or server problem, not a missing event.</p><div className="show-actions"><button type="button" className="show-btn" onClick={()=>setAttempt(n=>n+1)}>Try again</button><Link className="show-btn secondary" to="/events">Back to events</Link></div></div>;
   if(!details)return <div className="state-card"><h2>Event not found</h2><p>This event is not published or is no longer publicly available.</p><Link className="show-btn secondary" to="/events">Back to events</Link></div>;
 
   return <>
     <FighterSignupModal open={fighterSignupOpen} onClose={()=>setFighterSignupOpen(false)} eventId={details.event.id} eventName={details.event.name}/>
-    <EventDetailView details={details} onFighterSignup={()=>setFighterSignupOpen(true)} stats={stats}/>
+    <EventDetailView details={details} onFighterSignup={()=>setFighterSignupOpen(true)} stats={stats} statsError={statsError}/>
   </>;
 }

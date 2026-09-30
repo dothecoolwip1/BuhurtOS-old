@@ -1,3 +1,4 @@
+import { eventMonthKey, monthLabel } from './eventTime';
 /**
  * General event model helpers. Database `event_type` keeps its legacy labels
  * (ranked_competitive, demo_fun, exhibition, clinic_training, custom) and gains
@@ -129,16 +130,15 @@ export function splitUpcomingPast<T extends { startsAt: string; endsAt: string }
 }
 
 /** Agenda grouping keyed by month so a future FullCalendar view can reuse the same feed. */
-export function groupByMonth<T extends { startsAt: string }>(events: T[]): Array<{ key: string; label: string; events: T[] }> {
+export function groupByMonth<T extends { startsAt: string; timezone?: string }>(events: T[]): Array<{ key: string; label: string; events: T[] }> {
   const groups = new Map<string, T[]>();
   for (const event of events) {
-    const d = new Date(event.startsAt);
-    const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+    const key = eventMonthKey(event.startsAt, event.timezone);
     groups.set(key, [...(groups.get(key) ?? []), event]);
   }
   return [...groups.entries()].map(([key, list]) => ({
     key,
-    label: new Date(`${key}-01T00:00:00Z`).toLocaleDateString(undefined, { month: 'long', year: 'numeric', timeZone: 'UTC' }),
+    label: monthLabel(key),
     events: list
   }));
 }

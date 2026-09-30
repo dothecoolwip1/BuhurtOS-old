@@ -6,14 +6,13 @@ import {loadPublicEvents,loadPublicOrganizations,type PublicEventSummary,type Pu
 import {downloadText} from '../lib/export';
 import {buildIcs} from '../lib/ics';
 import {toEventDTO} from '../lib/publicApiV1';
+import {formatEventRange} from '../lib/eventTime';
 import {eventCategoryLabel,eventCategoryLabels,eventCategoryOrder,eventCategoryTone,eventCta,filterEvents,groupByMonth,normalizeEventCategory,splitUpcomingPast} from '../lib/eventCategories';
 
 const label=(v:string)=>v.replaceAll('_',' ').replace(/\b\w/g,l=>l.toUpperCase());
 
 function dateText(event:PublicEventSummary){
- const start=new Date(event.startsAt),end=new Date(event.endsAt);
- const same=start.toDateString()===end.toDateString();
- return same?start.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}):start.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' → '+end.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+ return formatEventRange(event.startsAt,event.endsAt,event.timezone);
 }
 
 export function ShowcaseEventsPage(){

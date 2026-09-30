@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAccount } from '../features/Account';
 import {
@@ -30,19 +30,31 @@ export function TeamManagePage() {
   const [note, setNote] = useState('');
   const [link, setLink] = useState('');
 
+  const latest = useRef(teamId);
+  latest.current = teamId;
   const load = useCallback(async () => {
     setLoadError('');
     try {
       const result = await loadTeamForManagement(teamId);
+      if (latest.current !== teamId) return; // a different team is open now
       setMissing(!result);
       setData(result);
     } catch (error) {
+      if (latest.current !== teamId) return;
       setLoadError(error instanceof Error ? error.message : 'This team could not be loaded.');
     }
   }, [teamId]);
 
-  useEffect(() => { void load(); }, [load]);
-  useEffect(() => { loadPublicTeamRoster(teamId).then(setRoster).catch(() => setRoster([])); }, [teamId]);
+  useEffect(() => {
+    // Opening another team never shows the previous team's members or messages.
+    setData(undefined); setMissing(false); setRoster([]); setMessage(undefined); setLink('');
+    void load();
+  }, [load]);
+  useEffect(() => {
+    let active = true;
+    loadPublicTeamRoster(teamId).then(rows => { if (active) setRoster(rows); }).catch(() => { if (active) setRoster([]); });
+    return () => { active = false; };
+  }, [teamId]);
 
   if (loadError) return <StateBlock kind="error" title="This team could not be loaded">{loadError} <Link to="/admin/teams">Back to teams</Link></StateBlock>;
   if (missing) return <StateBlock kind="empty" title="Team not found">It may have been archived, or you may not have access. <Link to="/admin/teams">Back to teams</Link></StateBlock>;

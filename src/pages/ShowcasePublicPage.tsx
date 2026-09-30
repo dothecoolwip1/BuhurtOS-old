@@ -3,6 +3,7 @@ import {Link} from 'react-router-dom';
 import {PublicTeamMap} from '../components/PublicTeamMap';
 import {Pill,StatePanel} from '../components/ShowcaseUI';
 import {loadPublicOrganizations,loadPublicEvents,type PublicOrganizationSummary,type PublicEventSummary} from '../lib/publicDirectory';
+import {formatEventDate,eventDayKey} from '../lib/eventTime';
 import {loadPublicTeamMap,type PublicDirectoryTeam} from '../lib/teamDirectory';
 
 type FormatKey='melee'|'duels'|'outrance';
@@ -100,32 +101,39 @@ const futureCapabilities=[
   'Distribution tools for the wider sport'
 ];
 
-function formatEventDate(value:string){
-  const date=new Date(value);
-  return Number.isNaN(date.getTime())?'Date TBA':date.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
-}
+
 
 export function ShowcasePublicPage(){
   const [teams,setTeams]=useState<PublicDirectoryTeam[]>([]);
   const [orgs,setOrgs]=useState<PublicOrganizationSummary[]>([]);
   const [events,setEvents]=useState<PublicEventSummary[]>([]);
-  const [loading,setLoading]=useState(true);
+  const [orgsLoading,setOrgsLoading]=useState(true);
+  const [eventsLoading,setEventsLoading]=useState(true);
+  const [orgsError,setOrgsError]=useState('');
+  const [eventsError,setEventsError]=useState('');
+  const [attempt,setAttempt]=useState(0);
+  const [teamsAttempt,setTeamsAttempt]=useState(0);
   const [teamsLoading,setTeamsLoading]=useState(false);
   const [mapRequested,setMapRequested]=useState(false);
-  const [error,setError]=useState('');
   const [teamsError,setTeamsError]=useState('');
   const mapSectionRef=useRef<HTMLElement|null>(null);
   const [format,setFormat]=useState<FormatKey>('melee');
   const [visitor,setVisitor]=useState<VisitorKey>('curious');
 
   useEffect(()=>{
+    // Each section loads on its own: a failing events query must not blank the organization cards, and vice versa.
     let active=true;
-    Promise.all([loadPublicOrganizations(),loadPublicEvents()])
-      .then(([o,e])=>{if(active){setOrgs(o);setEvents(e)}})
-      .catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load public organizations and events.')})
-      .finally(()=>{if(active)setLoading(false)});
+    setOrgsLoading(true);setEventsLoading(true);setOrgsError('');setEventsError('');
+    loadPublicOrganizations()
+      .then(o=>{if(active)setOrgs(o)})
+      .catch(err=>{if(active)setOrgsError(err instanceof Error?err.message:'Unable to load organizations.')})
+      .finally(()=>{if(active)setOrgsLoading(false)});
+    loadPublicEvents()
+      .then(e=>{if(active)setEvents(e)})
+      .catch(err=>{if(active)setEventsError(err instanceof Error?err.message:'Unable to load events.')})
+      .finally(()=>{if(active)setEventsLoading(false)});
     return()=>{active=false};
-  },[]);
+  },[attempt]);
 
   useEffect(()=>{
     if(mapRequested)return;
@@ -149,7 +157,7 @@ export function ShowcasePublicPage(){
       .catch(err=>{if(active)setTeamsError(err instanceof Error?err.message:'Unable to load team locations.')})
       .finally(()=>{if(active)setTeamsLoading(false)});
     return()=>{active=false};
-  },[mapRequested]);
+  },[mapRequested,teamsAttempt]);
 
   const mapped=useMemo(()=>teams.filter(t=>t.latitude!=null&&t.longitude!=null),[teams]);
   const countries=useMemo(()=>new Set(teams.map(t=>t.countryCode||t.countryName).filter(Boolean)).size,[teams]);
@@ -263,10 +271,10 @@ export function ShowcasePublicPage(){
         <Link className="show-btn secondary" to="/teams">Explore the real directory →</Link>
       </div>
       <div className="bhome-network-stats">
-        <Link to="/teams"><strong>{loading?'…':publicTeamCount}</strong><span>public teams</span><small>Open the directory</small></Link>
-        <Link to="/governance"><strong>{loading?'…':orgs.length}</strong><span>organizations</span><small>See the hierarchy</small></Link>
-        <Link to="/teams"><strong>{mapRequested?(teamsLoading?'…':countries):'↘'}</strong><span>countries mapped</span><small>{mapRequested?'From verified team locations':'Loads with the map below'}</small></Link>
-        <Link to="/fighters"><strong>{loading?'…':rosterSourceCount}</strong><span>roster records</span><small>Publicly listed</small></Link>
+        <Link to="/teams"><strong>{orgsLoading?'…':orgsError?'—':publicTeamCount}</strong><span>public teams</span><small>Open the directory</small></Link>
+        <Link to="/governance"><strong>{orgsLoading?'…':orgsError?'—':orgs.length}</strong><span>organizations</span><small>See the hierarchy</small></Link>
+        <Link to="/teams"><strong>{mapRequested?(teamsLoading?'…':teamsError?'—':countries):'↘'}</strong><span>countries mapped</span><small>{mapRequested?'From verified team locations':'Loads with the map below'}</small></Link>
+        <Link to="/fighters"><strong>{orgsLoading?'…':orgsError?'—':rosterSourceCount}</strong><span>roster records</span><small>Publicly listed</small></Link>
       </div>
     </section>
 
@@ -283,13 +291,13 @@ export function ShowcasePublicPage(){
         <div><span className="eyebrow">WHAT IS ACTUALLY HAPPENING?</span><h2>Real published events.</h2><p>If an event is not published, BuhurtOS does not pretend it is live. When organizers publish real information, it can appear here.</p></div>
         <Link to="/events">Open full event calendar →</Link>
       </div>
-      {error?<StatePanel tone="error" title="Unable to load public directory data" text={error}/>:null}
+      {eventsError?<StatePanel tone="error" title="Events could not be loaded" text={eventsError+' This does not mean there are no events.'} action={<button type="button" className="show-btn" onClick={()=>setAttempt(n=>n+1)}>Try again</button>}/>:null}
       {spotlightEvent?<div className="bhome-featured-event">
-        <div className="bhome-featured-date"><span>UP NEXT</span><strong>{new Date(spotlightEvent.startsAt).getDate()}</strong><small>{formatEventDate(spotlightEvent.startsAt)}</small></div>
+        <div className="bhome-featured-date"><span>UP NEXT</span><strong>{Number(eventDayKey(spotlightEvent.startsAt,spotlightEvent.timezone).slice(8))}</strong><small>{formatEventDate(spotlightEvent.startsAt,spotlightEvent.timezone)}</small></div>
         <div className="bhome-featured-copy"><div><Pill tone={spotlightEvent.status==='live'?'red':'green'}>{spotlightEvent.status}</Pill><span>{spotlightEvent.eventType.replaceAll('_',' ')}</span></div><h3>{spotlightEvent.name}</h3><p>{spotlightEvent.venue||'Venue TBA'}{spotlightEvent.organizerName?' · '+spotlightEvent.organizerName:''}</p><Link className="show-btn primary" to={'/events/'+spotlightEvent.id}>Open event →</Link></div>
         <div className="bhome-featured-index"><span>BUHURTOS</span><b>EVENT</b><i>⚔</i></div>
-      </div>:!loading?<div className="bhome-empty"><span>⚔</span><div><strong>No future published events yet.</strong><p>The public calendar will populate from real event records as organizers publish them.</p></div><Link to="/events">View event directory →</Link></div>:<div className="state-card">Loading published events…</div>}
-      {upcoming.length>1?<div className="bhome-events-strip">{upcoming.slice(1).map(event=><Link to={'/events/'+event.id} key={event.id}><small>{formatEventDate(event.startsAt)}</small><b>{event.name}</b><span>{event.venue||'Venue TBA'}</span><i>→</i></Link>)}</div>:null}
+      </div>:!eventsLoading&&!eventsError?<div className="bhome-empty"><span>⚔</span><div><strong>No future published events yet.</strong><p>The public calendar will populate from real event records as organizers publish them.</p></div><Link to="/events">View event directory →</Link></div>:eventsLoading?<div className="state-card" role="status">Loading published events…</div>:null}
+      {upcoming.length>1?<div className="bhome-events-strip">{upcoming.slice(1).map(event=><Link to={'/events/'+event.id} key={event.id}><small>{formatEventDate(event.startsAt,event.timezone)}</small><b>{event.name}</b><span>{event.venue||'Venue TBA'}</span><i>→</i></Link>)}</div>:null}
     </section>
 
     <section className="bhome-map-stage" ref={mapSectionRef}>
@@ -302,7 +310,7 @@ export function ShowcasePublicPage(){
       </div>
       <div className="bhome-map-shell">
         <div className="bhome-map-note"><span>◎</span><div><b>Interactive team map</b><small>Approximate public locations only. Select a marker to open the team profile.</small></div></div>
-        {!mapRequested?<div className="map-deferred-placeholder"><span>◎</span><strong>Interactive map deferred</strong><p>The rest of the homepage loads first. Team location data and the map library start only when this section approaches the viewport.</p></div>:teamsLoading?<div className="map-deferred-placeholder loading"><span>◎</span><strong>Loading team locations…</strong><p>Public content above remains usable while the map prepares.</p></div>:teamsError?<StatePanel tone="error" title="Unable to load team locations" text={teamsError}/>:mapped.length?<PublicTeamMap teams={mapped}/>:<StatePanel title="Team locations are still being normalized." text="The team directory remains available without the map."/>}
+        {!mapRequested?<div className="map-deferred-placeholder"><span>◎</span><strong>Interactive map deferred</strong><p>The rest of the homepage loads first. Team location data and the map library start only when this section approaches the viewport.</p></div>:teamsLoading?<div className="map-deferred-placeholder loading"><span>◎</span><strong>Loading team locations…</strong><p>Public content above remains usable while the map prepares.</p></div>:teamsError?<StatePanel tone="error" title="Unable to load team locations" text={teamsError} action={<button type="button" className="show-btn" onClick={()=>setTeamsAttempt(n=>n+1)}>Try again</button>}/>:mapped.length?<PublicTeamMap teams={mapped}/>:<StatePanel title="Team locations are still being normalized." text="The team directory remains available without the map."/>}
       </div>
     </section>
 
@@ -315,7 +323,7 @@ export function ShowcasePublicPage(){
         <div className="bhome-org-mark">{org.shortName.slice(0,4)}</div>
         <div><span>{org.kind}</span><h3>{org.name}</h3><p>{org.description}</p><small>{org.teamCount} teams · {org.countries} countries · {org.rosterCount} public roster records</small></div>
         <b>→</b>
-      </Link>)}</div>:loading?<div className="state-card">Loading organizations…</div>:null}
+      </Link>)}</div>:orgsLoading?<div className="state-card" role="status">Loading organizations…</div>:orgsError?<StatePanel tone="error" title="Organizations could not be loaded" text={orgsError} action={<button type="button" className="show-btn" onClick={()=>setAttempt(n=>n+1)}>Try again</button>}/>:null}
     </section>
 
     <section className="bhome-roadmap">
