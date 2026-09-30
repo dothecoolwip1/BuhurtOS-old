@@ -19,14 +19,24 @@ export function ShowcasePublicPage(){
  const [orgs,setOrgs]=useState<PublicOrganizationSummary[]>([]);
  const [events,setEvents]=useState<PublicEventSummary[]>([]);
  const [loading,setLoading]=useState(true);
- useEffect(()=>{let active=true;Promise.all([loadPublicTeamDirectory(),loadPublicOrganizations(),loadPublicEvents()]).then(([t,o,e])=>{if(active){setTeams(t);setOrgs(o);setEvents(e)}}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[]);
+ const [teamsLoading,setTeamsLoading]=useState(true);
+ useEffect(()=>{
+   let active=true;
+   Promise.all([loadPublicOrganizations(),loadPublicEvents()])
+     .then(([o,e])=>{if(active){setOrgs(o);setEvents(e)}})
+     .finally(()=>{if(active)setLoading(false)});
+   loadPublicTeamDirectory()
+     .then(t=>{if(active)setTeams(t)})
+     .finally(()=>{if(active)setTeamsLoading(false)});
+   return()=>{active=false};
+ },[]);
  const mapped=useMemo(()=>teams.filter(t=>t.latitude!=null&&t.longitude!=null),[teams]);
  const upcoming=useMemo(()=>events.filter(e=>new Date(e.endsAt).getTime()>=Date.now()).slice(0,6),[events]);
  const rosterSourceCount=useMemo(()=>orgs.reduce((sum,o)=>sum+o.rosterCount,0),[orgs]);
  return <div className="public-hub">
   <PageHeader eyebrow="PUBLIC BUHURT DIRECTORY" title="Explore the sport." description="Teams, organizations, fighters, events, rankings and rules in one public, read-only place. Open anything to keep drilling down." actions={<><Link className="show-btn primary" to="/teams">Explore teams</Link><Link className="show-btn secondary" to="/events">Upcoming events</Link></>}/>
   <div className="show-stat-grid">
-    <div className="show-stat accent"><span>Teams</span><strong>{loading?'…':teams.length}</strong><small>Public source-backed records</small></div>
+    <div className="show-stat accent"><span>Teams</span><strong>{teamsLoading?'…':teams.length}</strong><small>Public source-backed records</small></div>
     <div className="show-stat good"><span>Organizations</span><strong>{loading?'…':orgs.length}</strong><small>Federations to local groups</small></div>
     <div className="show-stat"><span>Roster records</span><strong>{loading?'…':rosterSourceCount}</strong><small>Publicly listed members</small></div>
     <div className="show-stat"><span>Upcoming events</span><strong>{loading?'…':upcoming.length}</strong><small>Published in BuhurtOS</small></div>
@@ -34,7 +44,7 @@ export function ShowcasePublicPage(){
 
   <section className="panel-card public-map-panel">
     <div className="show-public-section-head"><div><span className="eyebrow">GLOBAL MAP</span><h2>Find teams around the world</h2><p>Pins use approximate public team locations only.</p></div><Link to="/teams">Open full directory →</Link></div>
-    {mapped.length?<PublicTeamMap teams={mapped}/>:<div className="state-card">Team locations are still being normalized.</div>}
+    {teamsLoading?<div className="state-card">Loading team locations…</div>:mapped.length?<PublicTeamMap teams={mapped}/>:<div className="state-card">Team locations are still being normalized.</div>}
   </section>
 
   <section className="show-public-section">
