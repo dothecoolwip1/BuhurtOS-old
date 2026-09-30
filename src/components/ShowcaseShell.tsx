@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect,useState} from 'react';
 import {NavLink,Outlet,useLocation} from 'react-router-dom';
 
 const nav=[
@@ -15,6 +15,7 @@ export function ShowcaseShell(){
  const location=useLocation();
  const [menuOpen,setMenuOpen]=useState(false);
  const isLanding=location.pathname==='/public';
+ useEffect(()=>{setMenuOpen(false)},[location.pathname]);
 
  if(isLanding){
    const jumpToIntro=()=>{
@@ -63,8 +64,17 @@ export function ShowcaseShell(){
    <header className="show-topbar">
     <div className="show-mobile-brand"><span className="show-brand-mark">B</span><b>BuhurtOS Public</b></div>
     <div className="show-top-context"><span className="status-chip">PUBLIC</span><span>Explore Buhurt from federation to fighter</span></div>
-    <NavLink className="show-btn secondary" to="/ops/login">Sign in</NavLink>
+    <div className="show-topbar-actions">
+      <NavLink className="show-btn secondary show-top-signin" to="/ops/login">Sign in</NavLink>
+      <button className={'landing-menu-toggle show-mobile-menu-toggle '+(menuOpen?'open':'')} type="button" aria-label="Open all public navigation" aria-expanded={menuOpen} onClick={()=>setMenuOpen(value=>!value)}>
+        <span/><span/><span/>
+      </button>
+    </div>
    </header>
+   {menuOpen?<div className="landing-mobile-menu show-public-mobile-menu" aria-label="All public sections">
+      {nav.map(([to,label,icon])=><NavLink key={to} to={to} onClick={()=>setMenuOpen(false)}><span>{icon}</span><b>{label}</b><i>→</i></NavLink>)}
+      <NavLink className="show-btn primary full" to="/ops/login" onClick={()=>setMenuOpen(false)}>Sign in / manage</NavLink>
+    </div>:null}
    <div className="show-content"><Outlet/></div>
   </main>
   <nav className="show-bottom-nav">{nav.slice(0,5).map(([to,label,icon])=><NavLink key={to} to={to}><span>{icon}</span><small>{label}</small></NavLink>)}</nav>
