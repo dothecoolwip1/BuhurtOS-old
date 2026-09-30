@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState} from 'react';
 import {useAppState} from '../features/AppState';
+import {RegistrationAccessPanel} from '../components/RegistrationAccessPanel';
 import {createEventSignupCode,disableEventSignupCode,listEventSignupCodes,listFighterSignups,updateFighterSignup,type EventSignupCode,type FighterEventSignup,type FighterSignupStatus} from '../lib/fighterSignup';
 
 const statuses:FighterSignupStatus[]=['new','confirmed','declined','contacted','archived'];
@@ -54,6 +55,7 @@ export function FighterSignupAdminPage(){
 
   return <>
     <section className="section-head"><div><span className="eyebrow">Event entries</span><h1>Fighter Signups</h1><p>{event.name} · preliminary fighter interest stored privately in BuhurtOS.</p></div></section>
+    <RegistrationAccessPanel eventId={event.id} eventName={event.name}/>
     <div className="admin-grid">
       <section className="panel-card">
         <h2>Create fighter signup code</h2>
@@ -68,7 +70,7 @@ export function FighterSignupAdminPage(){
       </section>
       <section className="panel-card">
         <h2>Active codes</h2>
-        <div className="membership-list">{codes.length===0?<div className="state-card">No signup codes yet.</div>:codes.map(code=><article key={code.id}><div className="grow"><strong>{code.label}</strong><small>{code.codePrefix}-•••••• · {code.uses}/{code.maxUses} used{code.expiresAt?' · expires '+new Date(code.expiresAt).toLocaleString():''}</small></div>{code.disabledAt?<span className="status-chip">Disabled</span>:<button disabled={busy} onClick={async()=>{setBusy(true);try{await disableEventSignupCode(code.id);await refresh()}finally{setBusy(false)}}}>Disable</button>}</article>)}</div>
+        <div className="membership-list">{codes.length===0?<div className="state-card"><strong>No signup codes yet.</strong><p>Fighters outside your registration access rules need a code. Create one here and share it with them.</p></div>:codes.map(code=><article key={code.id}><div className="grow"><strong>{code.label}</strong><small>{code.codePrefix}-•••••• · {code.uses}/{code.maxUses} used{code.expiresAt?' · expires '+new Date(code.expiresAt).toLocaleString():''}</small></div>{code.disabledAt?<span className="status-chip">Disabled</span>:<button disabled={busy} onClick={async()=>{setBusy(true);try{await disableEventSignupCode(code.id);await refresh()}finally{setBusy(false)}}}>Disable</button>}</article>)}</div>
       </section>
     </div>
     <div className="registration-summary">
@@ -76,7 +78,7 @@ export function FighterSignupAdminPage(){
       <button className={filter==='all'?'selected':''} onClick={()=>setFilter('all')}><b>{rows.length}</b><span>all</span></button>
     </div>
     {message&&<div className="auth-message">{message}</div>}
-    {filtered.length===0?<div className="state-card">No fighter signups match this filter.</div>:
+    {filtered.length===0?<div className="state-card"><strong>{rows.length===0?'No fighters have signed up yet.':'No signups match this filter.'}</strong>{rows.length===0?<p>Create a signup code above and share it, or share the event page so eligible fighters can register without one.</p>:null}</div>:
       <div className="registration-review-list">{filtered.map(row=><article className="panel-card" key={row.id}>
         <div className="registration-review-head"><div><span className="eyebrow">{row.teamName||'Independent / no team listed'}</span><h3>{row.displayName}</h3><p>{row.email}{row.phone?' · '+row.phone:''}</p></div><span className="status-pill">{row.status}</span></div>
         <div className="registration-review-meta">

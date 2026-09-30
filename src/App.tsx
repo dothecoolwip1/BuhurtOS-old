@@ -11,6 +11,7 @@ import { AppStateProvider, useAppState } from './features/AppState';
 
 const PublicOrganizationPage = lazy(() => import('./pages/PublicOrganizationPage').then(module => ({ default: module.PublicOrganizationPage })));
 const GovernancePage = lazy(() => import('./pages/GovernancePage').then(module => ({ default: module.GovernancePage })));
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage').then(module => ({ default: module.NotificationsPage })));
 const TeamsPage = lazy(() => import('./pages/TeamsPage').then(module => ({ default: module.TeamsPage })));
 const TeamPage = lazy(() => import('./pages/TeamPage').then(module => ({ default: module.TeamPage })));
 const FightersPage = lazy(() => import('./pages/FightersPage').then(module => ({ default: module.FightersPage })));
@@ -142,6 +143,7 @@ export function App(){
         <Route path="profile" element={<IdentityPage/>}/>
         <Route path="teams" element={<WorkspaceTeams/>}/>
         <Route path="join" element={<AccessCodePage/>}/>
+        <Route path="notifications" element={<Suspense fallback={null}><NotificationsPage/></Suspense>}/>
         <Route path="invite" element={<MembershipInvitePage/>}/>
       </Route>
 

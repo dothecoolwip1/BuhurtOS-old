@@ -1,5 +1,8 @@
 import {useEffect,useMemo,useState} from 'react';
+import {Link,useLocation} from 'react-router-dom';
 import {submitFighterSignup,validateFighterSignupCode} from '../lib/fighterSignup';
+import {describeAccess,getEventRegistrationAccess,requestEventRegistrationAccess,type RegistrationAccess} from '../lib/registrationAccess';
+import {friendlyError} from '../lib/friendlyError';
 
 const categories=['5v5','12v12','30v30','Longsword','Sword & Buckler','Polearm','Pro Fight','Other'];
 
@@ -15,6 +18,26 @@ export function FighterSignupModal({open,onClose,eventId,eventName}:{open:boolea
   const [code,setCode]=useState('');
   const [codeValid,setCodeValid]=useState(false);
   const [codeLabel,setCodeLabel]=useState('');
+  const location=useLocation();
+  const [access,setAccess]=useState<RegistrationAccess>();
+  const [accessLoading,setAccessLoading]=useState(false);
+  const [accessAttempt,setAccessAttempt]=useState(0);
+  const [proceedWithoutCode,setProceedWithoutCode]=useState(false);
+  const [showCodeEntry,setShowCodeEntry]=useState(false);
+  const [reason,setReason]=useState('');
+  const [requestSent,setRequestSent]=useState(false);
+
+  // The server decides whether this person needs a code. The form only renders that answer.
+  useEffect(()=>{
+    if(!open)return;
+    let active=true;
+    setAccessLoading(true);setProceedWithoutCode(false);setShowCodeEntry(false);setRequestSent(false);
+    getEventRegistrationAccess(eventId)
+      .then(result=>{if(active)setAccess(result)})
+      .catch(error=>{friendlyError(error);if(active)setAccess({state:'error'})})
+      .finally(()=>{if(active)setAccessLoading(false)});
+    return()=>{active=false};
+  },[open,eventId,accessAttempt]);
 
   useEffect(()=>{
     if(!open)return;
@@ -25,7 +48,7 @@ export function FighterSignupModal({open,onClose,eventId,eventName}:{open:boolea
     return()=>{document.removeEventListener('keydown',onKey);document.body.style.overflow=previous};
   },[open,onClose]);
 
-  const valid=useMemo(()=>codeValid && form.displayName.trim().length>=2 && /.+@.+\..+/.test(form.email) && form.consent,[form,codeValid]);
+  const valid=useMemo(()=>(codeValid||proceedWithoutCode) && form.displayName.trim().length>=2 && /.+@.+\..+/.test(form.email) && form.consent,[form,codeValid,proceedWithoutCode]);
 
   if(!open)return null;
 
@@ -41,7 +64,7 @@ export function FighterSignupModal({open,onClose,eventId,eventName}:{open:boolea
       setMessage(result.valid?'Code accepted. Fighter signup unlocked.':result.message??'Invalid signup code.');
     }catch(error){
       setCodeValid(false);
-      setMessage(error instanceof Error?error.message:'Unable to verify signup code.');
+      setMessage(friendlyError(error).message);
     }finally{setBusy(false)}
   };
 
@@ -51,7 +74,7 @@ export function FighterSignupModal({open,onClose,eventId,eventName}:{open:boolea
     try{
       await submitFighterSignup({
         eventId,
-        code,
+        code:proceedWithoutCode?'':code,
         displayName:form.displayName,
         email:form.email,
         phone:form.phone,
@@ -67,9 +90,44 @@ export function FighterSignupModal({open,onClose,eventId,eventName}:{open:boolea
       setSubmitted(true);
       setMessage('Signup received. The event organizers can now review it inside BuhurtOS.');
     }catch(error){
-      setMessage(error instanceof Error?error.message:'Unable to submit signup.');
+      const friendly=friendlyError(error);
+      setMessage(friendly.message);
+      if(friendly.action==='use_code'){setProceedWithoutCode(false);setShowCodeEntry(true);setAccessAttempt(n=>n+1)}
     }finally{setBusy(false)}
   };
+
+  const requestPermission=async()=>{
+    setBusy(true);setMessage('');
+    try{
+      await requestEventRegistrationAccess(eventId,reason);
+      setRequestSent(true);
+      setAccess({state:'permission_requested'});
+    }catch(error){
+      setMessage(friendlyError(error).message);
+    }finally{setBusy(false)}
+  };
+
+  const copy=describeAccess(access?.state??'code_required');
+  const signedOutHint=access?.state==='code_required'&&!accessLoading;
+  const codeEntry=<div className="fighter-signup-code-entry">
+    <input aria-label="Event registration code" value={code} onChange={e=>{setCode(e.target.value.toUpperCase());setCodeValid(false)}} placeholder="RDR26-ABC123" autoCapitalize="characters"/>
+    <button className="show-btn primary" type="button" disabled={busy||!code.trim()} onClick={verifyCode}>{busy?'Checking…':'Enter code'}</button>
+  </div>;
+  const AccessGate=()=><>
+    <div className="fighter-signup-trust">
+      <span>{copy.next==='continue'?'✓':'🔐'}</span>
+      <div><b>{copy.title}</b><small>{copy.body}</small></div>
+    </div>
+    {copy.next==='continue'?<button className="show-btn primary" type="button" onClick={()=>setProceedWithoutCode(true)}>Continue registration</button>:null}
+    {copy.next==='request_or_code'&&!requestSent?<div className="form-stack">
+      <label>Why should you have access? (optional)<textarea rows={2} value={reason} onChange={e=>setReason(e.target.value)} placeholder="For example: I fight for the host team."/></label>
+      <div className="header-actions"><button className="show-btn primary" type="button" disabled={busy} onClick={requestPermission}>{busy?'Sending…':'Request permission'}</button><button className="show-btn secondary" type="button" onClick={()=>setShowCodeEntry(true)}>I have a signup code</button></div>
+    </div>:null}
+    {copy.next==='enter_code'||showCodeEntry?codeEntry:null}
+    {access?.state==='error'?<button className="show-btn secondary" type="button" onClick={()=>setAccessAttempt(n=>n+1)}>Try again</button>:null}
+    {signedOutHint?<small>Have a BuhurtOS account? <Link to={'/sign-in?next='+encodeURIComponent(location.pathname+location.search)} onClick={onClose}>Sign in</Link> — if you belong to the host organization you may not need a code.</small>:null}
+    {copy.next==='none'?<button className="show-btn secondary" type="button" onClick={onClose}>Return to event</button>:null}
+  </>;
 
   return <div className="fighter-signup-backdrop" role="presentation" onMouseDown={event=>{if(event.currentTarget===event.target)onClose()}}>
     <section className="fighter-signup-modal native" role="dialog" aria-modal="true" aria-labelledby="fighter-signup-title">
@@ -88,16 +146,9 @@ export function FighterSignupModal({open,onClose,eventId,eventName}:{open:boolea
         <p>{message}</p>
         <button className="show-btn primary" type="button" onClick={onClose}>Close</button>
       </div> : <>
-        {!codeValid ? <div className="fighter-signup-code-gate">
-          <div className="fighter-signup-trust">
-            <span>🔐</span>
-            <div><b>Invite code required</b><small>Ask the event organizers or your team captain for a signup code for this event. Codes can be closed, expired or used up.</small></div>
-          </div>
-          <div className="fighter-signup-code-entry">
-            <input value={code} onChange={e=>{setCode(e.target.value.toUpperCase());setCodeValid(false)}} placeholder="RDR26-ABC123" autoCapitalize="characters"/>
-            <button className="show-btn primary" type="button" disabled={busy||!code.trim()} onClick={verifyCode}>{busy?'Checking…':'Unlock form'}</button>
-          </div>
-          {message&&<div className="auth-message">{message}</div>}
+        {!codeValid&&!proceedWithoutCode ? <div className="fighter-signup-code-gate">
+          {accessLoading||!access?<div className="state-card" role="status">Checking your registration access…</div>:AccessGate()}
+          {message&&<div className="auth-message" role="status">{message}</div>}
         </div> : <>
         <div className="fighter-signup-trust">
           <span>⚔</span>

@@ -72,6 +72,7 @@ export const workspaceItems: NavItem[] = [
   { id: 'home', label: 'Home', to: '/me', description: 'Your responsibilities and what to do next.', gate: 'member' },
   { id: 'profile', label: 'My fighter profile', to: '/me/profile', description: 'Your sporting identity, public profile and private details.', gate: 'member' },
   { id: 'teams', label: 'My teams', to: '/me/teams', description: 'Teams you belong to and the tools your role allows.', gate: 'member' },
+  { id: 'notifications', label: 'Notifications', to: '/me/notifications', description: 'Requests and answers that need your attention.', gate: 'member' },
   { id: 'join', label: 'Join with a code', to: '/me/join', description: 'Use an invitation or access code you were given.', gate: 'member' }
 ];
 

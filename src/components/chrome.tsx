@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAccount } from '../features/Account';
 import { recallListPath } from '../lib/urlState';
+import { countMyUnreadNotifications } from '../lib/registrationAccess';
 import { areaHome, areaLabel, breadcrumbsFor, hasAdminArea, type Area, type Crumb, type NavSection } from '../lib/navigation';
 
 export function initialsOf(name: string | undefined): string {
@@ -18,6 +19,21 @@ export function AreaSwitcher({ current, onNavigate }: { current: Area; onNavigat
     {areas.map(area => <NavLink key={area} to={areaHome[area]} end={area === 'public' ? false : undefined}
       className={() => 'nx-area' + (current === area ? ' active' : '')} aria-current={current === area ? 'page' : undefined} onClick={onNavigate}>{areaLabel[area]}</NavLink>)}
   </nav>;
+}
+
+/** Bell with an unread count; links to the notifications page. Counts refresh on navigation, every minute and when notifications change. */
+export function NotificationBell() {
+  const [count, setCount] = useState(0);
+  const location = useLocation();
+  useEffect(() => {
+    let active = true;
+    const refresh = () => { countMyUnreadNotifications().then(n => { if (active) setCount(n); }).catch(() => { /* a failed count never blocks navigation */ }); };
+    refresh();
+    const timer = window.setInterval(refresh, 60000);
+    window.addEventListener('buhurtos:notifications-changed', refresh);
+    return () => { active = false; window.clearInterval(timer); window.removeEventListener('buhurtos:notifications-changed', refresh); };
+  }, [location.pathname]);
+  return <Link to="/me/notifications" className="nx-bell" aria-label={count > 0 ? 'Notifications, ' + count + ' unread' : 'Notifications'}><span aria-hidden="true">🔔</span>{count > 0 ? <span className="nx-bell-badge" aria-hidden="true">{count > 99 ? '99+' : count}</span> : null}</Link>;
 }
 
 /** Signed-in identity, area links and sign out. Always reachable, on every screen size. */
@@ -52,7 +68,7 @@ export function AccountMenu({ current }: { current: Area }) {
     catch (err) { setError(err instanceof Error ? err.message : 'Unable to sign out. Please try again.'); }
   };
 
-  return <div className="nx-account" ref={box}>
+  return <>{status === 'signedIn' ? <NotificationBell /> : null}<div className="nx-account" ref={box}>
     <button type="button" className="nx-account-button" aria-expanded={open} aria-haspopup="true" onClick={() => setOpen(value => !value)}>
       <span className="nx-avatar" aria-hidden="true">{initialsOf(name)}</span>
       <span className="nx-account-name">{name}</span>
@@ -67,7 +83,7 @@ export function AccountMenu({ current }: { current: Area }) {
       {status === 'signedIn' ? <button type="button" className="nx-signout" disabled={signingOut} onClick={handleSignOut}>{signingOut ? 'Signing out…' : 'Sign out'}</button> : null}
       {error ? <p className="nx-inline-error" role="alert">{error}</p> : null}
     </div> : null}
-  </div>;
+  </div></>;
 }
 
 export function Breadcrumbs({ crumbs }: { crumbs: Crumb[] }) {

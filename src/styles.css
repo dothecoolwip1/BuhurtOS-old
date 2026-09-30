@@ -1813,3 +1813,7 @@ main[tabindex="-1"]:focus{outline:none}
 .ro-summary{display:grid;gap:6px;margin:0 0 12px}.ro-summary progress{width:100%;height:12px;accent-color:var(--green)}.ro-filters{display:grid;gap:10px;margin:0 0 14px}
 
 .show-event-card-poster{display:block;width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin:0 0 12px;background:#0b1219}
+
+.nx-bell{position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;border:1px solid var(--line-strong);border-radius:12px;background:#10171d;color:var(--text);text-decoration:none}
+.nx-bell-badge{position:absolute;top:2px;right:2px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--accent,#ff8a1f);color:#111;font-size:11px;font-weight:800;line-height:18px;text-align:center}
+.nx-rows li.unread{border-left:3px solid var(--accent,#ff8a1f)}

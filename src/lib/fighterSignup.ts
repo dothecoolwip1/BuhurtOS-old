@@ -40,6 +40,16 @@ export async function validateFighterSignupCode(eventId:string,code:string):Prom
   return (data??{}) as {valid:boolean;message?:string;label?:string;prefix?:string};
 }
 
+/** Signed-in callers use their session so the signup is linked to their account; visitors use the public client. */
+async function callerClient(){
+  if(supabase){
+    const {data}=await supabase.auth.getSession();
+    if(data.session) return supabase;
+  }
+  return publicSupabase;
+}
+
+/** An empty code means 'register without a code'; the server allows that only when it says the caller is eligible. */
 export async function submitFighterSignup(input:{
   eventId:string;
   code:string;
@@ -55,10 +65,11 @@ export async function submitFighterSignup(input:{
   additionalNotes?:string;
   consentAcknowledged:boolean;
 }):Promise<void>{
-  if(!publicSupabase) throw new Error('BuhurtOS is not connected.');
-  const {error}=await publicSupabase.rpc('submit_event_fighter_signup',{
+  const client=await callerClient();
+  if(!client) throw new Error('BuhurtOS is not connected.');
+  const {error}=await client.rpc('submit_event_fighter_signup',{
     p_event:input.eventId,
-    p_code:input.code.trim().toUpperCase(),
+    p_code:input.code.trim()?input.code.trim().toUpperCase():null,
     p_display_name:input.displayName,
     p_email:input.email,
     p_phone:input.phone||null,
