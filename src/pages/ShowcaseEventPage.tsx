@@ -1,53 +1,119 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { demoEvents, demoFighters, demoTeams, liveMatches, upcomingMatches } from '../data/showcase';
-import { Avatar, PageHeader, Panel, Pill, StatCard } from '../components/ShowcaseUI';
+import {useEffect,useMemo,useState} from 'react';
+import {Link,useParams} from 'react-router-dom';
+import {PageHeader,Panel,Pill} from '../components/ShowcaseUI';
+import {loadPublicEventDetails,type PublicEventDetails} from '../lib/publicDirectory';
 
-type EventTab='command'|'registration'|'checkin'|'schedule'|'competition'|'staff'|'settings';
+const pretty=(value:string)=>value.replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
+
+function dateRange(startIso:string,endIso:string){
+  const start=new Date(startIso);
+  const end=new Date(endIso);
+  const sameYear=start.getFullYear()===end.getFullYear();
+  const startText=start.toLocaleDateString(undefined,{month:'long',day:'numeric',year:sameYear?undefined:'numeric'});
+  const endText=end.toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'});
+  return startText+' – '+endText;
+}
 
 export function ShowcaseEventPage(){
-  const event=demoEvents[0];
-  const [tab,setTab]=useState<EventTab>('command');
-  const tabs:Array<[EventTab,string,string]>=[['command','Command','◫'],['registration','Registration','✎'],['checkin','Check-in','✓'],['schedule','Schedule','≡'],['competition','Pools & Brackets','⌘'],['staff','Staff','♟'],['settings','Settings','⚙']];
+  const {eventId=''}=useParams();
+  const [details,setDetails]=useState<PublicEventDetails>();
+  const [loading,setLoading]=useState(true);
+  const [error,setError]=useState('');
+
+  useEffect(()=>{
+    let active=true;
+    loadPublicEventDetails(eventId)
+      .then(result=>{if(active)setDetails(result)})
+      .catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load this event.')})
+      .finally(()=>{if(active)setLoading(false)});
+    return()=>{active=false};
+  },[eventId]);
+
+  const event=details?.event;
+  const scheduleTba=Boolean(event?.publicLinks?.schedule_tba);
+  const facebook=typeof event?.publicLinks?.facebook==='string'?event.publicLinks.facebook:undefined;
+  const hostTeamId=typeof event?.publicLinks?.host_team_id==='string'?event.publicLinks.host_team_id:undefined;
+  const upcomingMatches=useMemo(()=>details?.matches.filter(match=>!['completed','finalized','cancelled'].includes(match.status))??[],[details]);
+
+  if(loading)return <div className="state-card">Loading event…</div>;
+  if(error)return <div className="state-card"><strong>Unable to load event</strong><p>{error}</p></div>;
+  if(!details||!event)return <div className="state-card"><h2>Event not found</h2><p>This event is not published or is no longer publicly available.</p><Link className="show-btn secondary" to="/events">Back to events</Link></div>;
+
   return <>
-    <PageHeader eyebrow="DEMO EVENT · SAMPLE DATA" title={event.name} description={event.date+' • '+event.venue+' • '+event.city} actions={<><Link className="show-btn secondary" to="/public">Public view ↗</Link><Link className="show-btn primary" to="/ops">Open live operations</Link></>}/>
-    <div className="show-event-statusbar"><Pill tone="amber">● DEMO</Pill><span>Rules: <b>{event.ruleset}</b></span><span>Host: <b>{event.host}</b></span><span>3 fields (sample)</span><span>Showcase data</span></div>
-    <div className="show-event-tabs">{tabs.map(([id,label,icon])=><button key={id} className={tab===id?'active':''} onClick={()=>setTab(id)}><span>{icon}</span>{label}</button>)}</div>
-    {tab==='command'?<CommandTab/>:tab==='registration'?<RegistrationTab/>:tab==='checkin'?<CheckinTab/>:tab==='schedule'?<ScheduleTab/>:tab==='competition'?<CompetitionTab/>:tab==='staff'?<StaffTab/>:<SettingsTab/>}
+    <PageHeader
+      eyebrow={event.status==='live'?'LIVE EVENT':'PUBLISHED EVENT'}
+      title={event.name}
+      description={dateRange(event.startsAt,event.endsAt)+' • '+event.venue}
+      actions={<>
+        {facebook?<a className="show-btn secondary" href={facebook} target="_blank" rel="noopener noreferrer">Facebook event ↗</a>:null}
+        <Link className="show-btn primary" to={'/ops/manage?event='+event.id}>Organizer tools</Link>
+      </>}
+    />
+
+    <div className="show-event-statusbar">
+      <Pill tone={event.status==='live'?'red':'green'}>{pretty(event.status)}</Pill>
+      <span>Host: <b>{event.organizerName||'TBA'}</b></span>
+      <span>Type: <b>{pretty(event.eventType)}</b></span>
+      <span>Timezone: <b>{event.timezone}</b></span>
+      {scheduleTba?<span><b>Times TBA</b></span>:null}
+    </div>
+
+    <div className="show-two-col wide-left">
+      <div className="show-stack">
+        <Panel title="About the event">
+          <p className="show-long-copy">{event.publicDescription||'Public event details have not been added yet.'}</p>
+          {hostTeamId?<div className="show-explain-card"><span>♜</span><div><b>Hosted by {event.organizerName||'a Buhurt team'}</b><p>Open the host team to see its public profile, roster and source-backed information.</p></div><Link to={'/teams/'+hostTeamId}>View host team →</Link></div>:null}
+        </Panel>
+
+        <Panel title="Competition">
+          {details.divisions.length===0
+            ? <div className="source-empty-state"><strong>Divisions not announced yet.</strong><p>When the organizers add real competition divisions, they will appear here automatically.</p></div>
+            : <div className="membership-list">{details.divisions.map(division=><article key={division.id}><div className="grow"><strong>{division.name}</strong><small>{division.registrationOpen?'Registration open':'Registration not open'}</small></div></article>)}</div>}
+        </Panel>
+
+        <Panel title="Schedule & matches">
+          {upcomingMatches.length===0
+            ? <div className="source-empty-state"><strong>{scheduleTba?'Schedule to be announced.':'No matches are published yet.'}</strong><p>Once real matches are placed on the fight card, this section becomes the public fight schedule.</p></div>
+            : <div className="show-master-schedule">{upcomingMatches.map((match,index)=><article key={match.id}><span className="show-order-num">{match.scheduledOrder||index+1}</span><Pill>{pretty(match.status)}</Pill><div className="grow"><b>{match.label}</b><small>{match.category}</small></div></article>)}</div>}
+        </Panel>
+
+        <Panel title="Announcements">
+          {details.announcements.length===0
+            ? <div className="source-empty-state"><strong>No public announcements yet.</strong><p>Organizer announcements will appear here when posted.</p></div>
+            : <div className="announcement-list">{details.announcements.map(item=><article key={item.id}><div className="grow"><b>{item.title}</b><p>{item.body}</p><small>{item.scheduledFor?new Date(item.scheduledFor).toLocaleString():new Date(item.createdAt).toLocaleString()}</small></div></article>)}</div>}
+        </Panel>
+      </div>
+
+      <div className="show-stack">
+        <Panel title="Event details">
+          <div className="show-detail-rows">
+            <div><span>Dates</span><b>{dateRange(event.startsAt,event.endsAt)}</b></div>
+            <div><span>Times</span><b>{scheduleTba?'To be announced':new Date(event.startsAt).toLocaleTimeString()}</b></div>
+            <div><span>Venue</span><b>{event.venue}</b></div>
+            <div><span>Host</span><b>{event.organizerName||'TBA'}</b></div>
+            <div><span>Event type</span><b>{pretty(event.eventType)}</b></div>
+            <div><span>Standings</span><b>{pretty(event.standingsMode)}</b></div>
+          </div>
+        </Panel>
+
+        <Panel title="Registration">
+          <div className="state-card">
+            <strong>{event.registrationOpen?'Registration is open':'Registration is not open yet'}</strong>
+            <p>{event.registrationOpen?'Use the BuhurtOS registration flow for this event.':'Registration details will appear here when the organizers open registration.'}</p>
+            {event.registrationOpen?<Link className="show-btn primary full" to={'/register?event='+event.id}>Register</Link>:null}
+          </div>
+        </Panel>
+
+        <Panel title="Fight areas">
+          {details.fields.length===0
+            ? <div className="state-card">No fight areas have been configured yet.</div>
+            : <div className="show-detail-rows">{details.fields.map(field=><div key={field.id}><span>{field.listName}</span><b>{pretty(field.status)}</b></div>)}</div>}
+        </Panel>
+
+        <Panel title="What happens next?">
+          <div className="show-explain-card"><span>?</span><div><b>This page grows with the event.</b><p>As organizers add divisions, registrations, fight cards, brackets, live matches, results and announcements, the public event page fills itself from the same live BuhurtOS data.</p></div></div>
+        </Panel>
+      </div>
+    </div>
   </>;
-}
-
-function CommandTab(){
-  return <div className="show-stack">
-    <div className="show-stat-grid"><StatCard label="Checked in" value="58 / 64" note="91% complete" tone="good"/><StatCard label="Matches complete" value="47 / 112" note="42% of fight card"/><StatCard label="Medical holds" value="1" note="Not eligible" tone="warn"/><StatCard label="Queue conflicts" value="0" note="All fields synced" tone="good"/></div>
-    <div className="show-live-field-grid">{liveMatches.map(m=><Panel key={m.id} className="show-field-panel"><div className="show-field-head"><div><span className="show-demo-dot"></span><b>{m.field}</b></div><Pill tone="amber">SAMPLE</Pill></div><span className="eyebrow">{m.division} • {m.round}</span><div className="show-scoreboard"><div><strong>{m.left}</strong><span>{m.leftScore}</span></div><i>VS</i><div><strong>{m.right}</strong><span>{m.rightScore}</span></div></div><div className="show-field-actions"><Link to="/ops">Open marshal console</Link><Link to="/live">Field display ↗</Link></div></Panel>)}</div>
-    <div className="show-two-col wide-left"><Panel title="Up next across all fields" subtitle="Sample queue preview"><div className="show-schedule-list">{upcomingMatches.map((m,i)=><article key={i}><time>{m.time}</time><Pill>{m.field}</Pill><div><b>{m.left} <span>vs</span> {m.right}</b><small>{m.division}</small></div><Link to="/ops">Open</Link></article>)}</div></Panel><Panel title="Operations feed" subtitle="Sample activity feed"><div className="show-feed"><article><span className="green">✓</span><div><b>Result finalized</b><small>Field 2 • Longsword QF • 20 sec ago</small></div></article><article><span className="amber">!</span><div><b>Medical hold applied</b><small>Fighter #0482 • 3 min ago</small></div></article><article><span className="blue">↻</span><div><b>Fight card reordered</b><small>Field 1 • Marshal station • 5 min ago</small></div></article><article><span className="purple">✉</span><div><b>Announcement published</b><small>Armor check call • 8 min ago</small></div></article></div></Panel></div>
-  </div>;
-}
-
-function RegistrationTab(){
-  return <div className="show-stack"><div className="show-stat-grid"><StatCard label="Total registrations" value="71" note="64 approved"/><StatCard label="Needs review" value="7" note="3 new • 4 changed" tone="warn"/><StatCard label="Paid" value="61" note="Showcase metric" tone="good"/><StatCard label="Waivers complete" value="66" note="5 outstanding"/></div><Panel title="Registration review" subtitle="Showcase preview. Review decisions are made in secured event management." actions={<Link className="show-btn secondary" to="/ops/manage">Open registration manager</Link>}><div className="show-review-list">{demoFighters.map((f,i)=><article key={f.id}><Avatar initials={f.name.split(' ').map(x=>x[0]).join('').slice(0,2)} tone={f.photoTone}/><div className="grow"><b>{f.name}</b><small>{demoTeams.find(t=>t.id===f.teamId)?.name} • {f.categories.slice(0,2).join(' • ')}</small></div><div className="show-review-flags">{i===2?<Pill tone="amber">Possible duplicate</Pill>:<Pill tone="green">Waiver ✓</Pill>}<Pill tone={i===1?'amber':'green'}>{i===1?'Payment pending':'Paid'}</Pill></div><Link className="show-btn secondary" to="/ops/manage">Review</Link></article>)}</div></Panel></div>;
-}
-
-function CheckinTab(){
-  const roster=[...demoFighters,...demoFighters.map((f,i)=>({...f,id:f.id+'-b',name:'Guest Fighter '+(i+11),fighterName:'Guest Fighter '+(i+11)}))];
-  return <div className="show-stack"><div className="show-checkin-toolbar"><div><h2>Field readiness</h2><p>Competition is blocked until required clearances are complete.</p></div><Link className="show-btn primary" to="/ops/roster">Open roster & clearances</Link></div><div className="show-checkin-grid">{roster.map((f,i)=><article key={f.id}><div className="show-checkin-person"><Avatar initials={f.name.split(' ').map(x=>x[0]).join('').slice(0,2)} tone={f.photoTone}/><div><b>{f.name}</b><small>{demoTeams.find(t=>t.id===f.teamId)?.name??'Guest / mercenary'}</small></div><Pill tone={i===5?'amber':'green'}>{i===5?'Blocked':'Eligible'}</Pill></div><div className="show-clearance-grid">{['Check-in','Armor','Medical','Waiver','Weigh-in'].map((x,j)=><span className={(i===5&&j===1)?'missing':'done'} key={x}><span>{(i===5&&j===1)?'○':'✓'}</span>{x}</span>)}</div></article>)}</div></div>;
-}
-
-function ScheduleTab(){
-  const rows=upcomingMatches.concat(upcomingMatches);
-  return <Panel title="Master fight schedule" subtitle="Preview only. Reordering happens in the guarded marshal console." actions={<Link className="show-btn primary" to="/ops">Open marshal console</Link>}><div className="show-master-schedule">{rows.map((m,i)=><article key={i}><span className="show-order-num">{i+48}</span><time>{m.time}</time><Pill>{m.field}</Pill><div className="grow"><b>{m.left} <span>vs</span> {m.right}</b><small>{m.division} • {i<4?'Pool stage':'Bracket stage'}</small></div></article>)}</div></Panel>;
-}
-
-function CompetitionTab(){
-  return <div className="show-stack"><div className="state-card">5v5 competition preview. Bracket generation and manual interventions are performed in secured organizer tools.</div><div className="show-two-col wide-left"><Panel title="5v5 Pool A" subtitle="Top two advance to championship bracket"><div className="show-pool-table"><div className="head"><span>Team</span><span>W</span><span>L</span><span>RD</span><span>Pts</span></div>{demoTeams.slice(0,4).map((t,i)=><div key={t.id}><b>{t.name}</b><span>{3-i}</span><span>{i}</span><span>{5-i*2>0?'+'+(5-i*2):5-i*2}</span><strong>{9-i*2}</strong></div>)}</div></Panel><Panel title="Advancement" subtitle="Automatic when pools lock"><div className="show-advance-flow"><div><small>POOL A #1</small><b>Red Deer Reavers</b></div><span>→</span><div><small>SEMIFINAL 1</small><b>vs Pool B #2</b></div><div><small>POOL A #2</small><b>Iron Wolves</b></div><span>→</span><div><small>SEMIFINAL 2</small><b>vs Pool B #1</b></div></div><Link className="show-btn secondary full" to="/ops/admin">Open organizer tools</Link></Panel></div><Panel title="Championship bracket" subtitle="Winner progression, byes, seeding and anti-fratricide visible at a glance"><div className="show-bracket-preview"><div className="round"><h4>Quarterfinals</h4>{['Reavers 2–0 Badlands','Vanguard 2–1 Iron Wolves','North Guard vs Wild Rose','Steel Legion vs Foothills'].map((x,i)=><span key={x} className={i<2?'done':''}>{x}</span>)}</div><div className="connector">›</div><div className="round"><h4>Semifinals</h4><span>Red Deer Reavers vs Northern Vanguard</span><span>Winner QF3 vs Winner QF4</span></div><div className="connector">›</div><div className="round final"><h4>Final</h4><span>Winner SF1 vs Winner SF2</span></div></div></Panel></div>;
-}
-
-function StaffTab(){
-  const staff=[['Jordan Lee','Event Organizer','All event controls'],['Sam H.','Field Marshal','Fields 1–3'],['Taylor K.','Assistant Marshal','Field 2'],['Morgan P.','Medical Lead','Medical clearance'],['Garrett Robson','Team Captain','Red Deer Reavers']];
-  return <div className="show-two-col"><Panel title="Event staff" subtitle="Role-scoped access" actions={<Link className="show-btn primary" to="/ops/admin">Manage event access</Link>}><div className="show-staff-list">{staff.map(([name,role,scope])=><article key={name}><Avatar initials={name.split(' ').map(x=>x[0]).join('').slice(0,2)} size="sm"/><div className="grow"><b>{name}</b><small>{role}</small></div><span>{scope}</span></article>)}</div></Panel><Panel title="Access model"><div className="show-detail-rows"><div><span>Event organizers</span><b>2</b></div><div><span>Field marshals</span><b>5</b></div><div><span>Assistant marshals</span><b>8</b></div><div><span>Team captains</span><b>8</b></div><div><span>Medical</span><b>3</b></div></div><p className="show-helper">Each person only sees the controls and private information required for their event role.</p></Panel></div>;
-}
-
-function SettingsTab(){
-  return <div className="show-profile-editor"><div className="state-card">This is a read-only showcase of event settings. <Link to="/ops/manage">Open secured event management</Link> to make real changes.</div><Panel title="Event identity"><div className="show-form-grid"><label>Event name<input disabled value="HACSA Fall Open"/></label><label>Venue<input disabled value="Springbrook Event Centre"/></label><label>Starts<input disabled type="date" value="2026-09-26"/></label><label>Ends<input disabled type="date" value="2026-09-27"/></label></div></Panel><Panel title="Governance & rules"><div className="show-form-grid"><label>Sanctioning organization<select disabled value="hacsa"><option value="hacsa">HACSA</option></select></label><label>Ruleset<select disabled value="HACSA Rules 2026.3"><option>HACSA Rules 2026.3</option></select></label><label>Event type<select disabled value="Ranked competitive"><option>Ranked competitive</option></select></label><label>Standings<select disabled value="Season + event"><option>Season + event</option></select></label></div></Panel><Panel title="Public & stream"><div className="show-form-grid"><label>Livestream URL<input disabled value="https://youtube.com/..."/></label><label>Public status<select disabled value="Live"><option>Live</option></select></label></div></Panel></div>;
 }
