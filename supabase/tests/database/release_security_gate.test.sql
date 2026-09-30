@@ -114,5 +114,17 @@ select is(
   'audit triggers cover events, organizations, matches, brackets, seasons and rulesets'
 );
 
+-- 10. TRUNCATE ignores row level security, so no client role may hold it on any public table.
+select is(
+  (select count(*)::integer
+     from pg_class c
+     join pg_namespace n on n.oid = c.relnamespace
+     cross join unnest(array['anon','authenticated']) r(role_name)
+    where n.nspname = 'public' and c.relkind = 'r'
+      and has_table_privilege(r.role_name, c.oid, 'TRUNCATE')),
+  0,
+  'no client role can TRUNCATE a public table'
+);
+
 select * from finish();
 rollback;
