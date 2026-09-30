@@ -6,6 +6,7 @@ import { computePoolQualificationState } from '../lib/bracket';
 import { groupBracketRounds } from '../lib/bracketView';
 import { eventClock } from '../lib/eventTime';
 import { downloadText, htmlTable, matchesCsv, openPrintableReport } from '../lib/export';
+import { buildBoutsIcs } from '../lib/ics';
 import { groupRowsByArea, scheduleAsText, type ScheduleRow } from '../lib/scheduleText';
 import { useQueryStates } from '../lib/urlState';
 import type { MatchRecord } from '../types';
@@ -39,8 +40,8 @@ export function BracketPage() {
   ), [matches, bracketId, areaId]);
 
   const slotByMatch = useMemo(() => {
-    const map = new Map<string, { startsAt: string; order: number }>();
-    for (const item of live) for (const slot of item.schedule?.slots ?? []) map.set(slot.matchId, { startsAt: slot.startsAt, order: slot.order });
+    const map = new Map<string, { startsAt: string; endsAt: string; order: number }>();
+    for (const item of live) for (const slot of item.schedule?.slots ?? []) map.set(slot.matchId, { startsAt: slot.startsAt, endsAt: slot.endsAt, order: slot.order });
     return map;
   }, [live]);
 
@@ -80,6 +81,13 @@ export function BracketPage() {
       openPrintableReport(`${event?.name ?? 'Event'} Order of Play`, body);
     } catch (error) { window.alert(error instanceof Error ? error.message : 'Unable to open the printable report.'); }
   };
+  const downloadCalendar = () => {
+    const bouts = ordered.filter(involves).flatMap(m => {
+      const slot = slotByMatch.get(m.id);
+      return slot ? [{ id: m.id, title: `${m.label}: ${side(m, 1)} vs ${side(m, 2)}`, startsAt: slot.startsAt, endsAt: slot.endsAt, location: [areaName(m.fightCardId), event?.venue].filter(Boolean).join(' · '), description: `${event?.name ?? ''} (planned time)` }] : [];
+    });
+    downloadText('buhurtos-my-bouts.ics', buildBoutsIcs(bouts, filters.q.trim() ? `${filters.q.trim()} at ${event?.name ?? 'the event'}` : `${event?.name ?? 'Event'} order of play`), 'text/calendar;charset=utf-8');
+  };
   const copySchedule = async () => {
     try {
       await navigator.clipboard.writeText(scheduleAsText(`${event?.name ?? 'Event'} order of play`, rows));
@@ -94,7 +102,7 @@ export function BracketPage() {
   return <>
     <section className="section-head"><div><span className="eyebrow">Schedule</span><h1>Bracket &amp; schedule</h1>
       <p>{empty ? 'Nothing has been generated yet.' : `${played.length} of ${ordered.length} bouts finished.${withTimes ? ' Times are the plan; the order of play adjusts as bouts finish.' : ''}`}</p></div>
-      <div className="header-actions"><button type="button" onClick={() => downloadText('buhurtos-order-of-play.csv', matchesCsv(ordered))}>Export CSV</button><button type="button" onClick={copySchedule}>Copy as text</button><button type="button" onClick={printOrder}>Print / PDF</button></div></section>
+      <div className="header-actions"><button type="button" onClick={() => downloadText('buhurtos-order-of-play.csv', matchesCsv(ordered))}>Export CSV</button><button type="button" onClick={copySchedule}>Copy as text</button>{withTimes ? <button type="button" onClick={downloadCalendar}>{filters.q.trim() ? 'Add these bouts to my calendar' : 'Add all to calendar'}</button> : null}<button type="button" onClick={printOrder}>Print / PDF</button></div></section>
 
     {empty ? <div className="state-card"><strong>No tournament yet</strong><p>Build one in a few steps: choose the competitors, pick a format (BuhurtOS suggests one for your field size), and plan times and fighting areas.</p><Link className="primary big" to={'/admin/events/tools?event=' + (event?.id ?? '')} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',textDecoration:'none',padding:'0 18px'}}>Build tournament</Link></div> : <>
       {copied ? <p className="auth-message" role="status">{copied}</p> : null}

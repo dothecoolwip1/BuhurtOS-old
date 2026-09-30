@@ -41,3 +41,22 @@ export function buildIcs(events: EventDTO[], calendarName = 'BuhurtOS events', n
   lines.push('END:VCALENDAR');
   return lines.map(fold).join('\r\n') + '\r\n';
 }
+
+export interface BoutCalendarItem { id: string; title: string; startsAt: string; endsAt: string; location?: string; description?: string }
+
+/** A calendar file of planned bouts, for a fighter or team to drop their day into a phone calendar. Planned times only. */
+export function buildBoutsIcs(bouts: BoutCalendarItem[], calendarName: string, now = new Date()): string {
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//BuhurtOS//Order of play//EN', 'CALSCALE:GREGORIAN', `X-WR-CALNAME:${escapeText(calendarName)}`];
+  for (const bout of bouts) {
+    if (Number.isNaN(new Date(bout.startsAt).getTime()) || Number.isNaN(new Date(bout.endsAt).getTime())) continue;
+    lines.push(
+      'BEGIN:VEVENT', `UID:${bout.id}@buhurtos-bout`, `DTSTAMP:${utc(now.toISOString())}`,
+      `DTSTART:${utc(bout.startsAt)}`, `DTEND:${utc(bout.endsAt)}`, `SUMMARY:${escapeText(bout.title)}`
+    );
+    if (bout.location) lines.push(`LOCATION:${escapeText(bout.location)}`);
+    if (bout.description) lines.push(`DESCRIPTION:${escapeText(bout.description)}`);
+    lines.push('END:VEVENT');
+  }
+  lines.push('END:VCALENDAR');
+  return lines.map(fold).join('\r\n') + '\r\n';
+}

@@ -36,6 +36,8 @@ export interface TournamentGenerationInput {
   targetPoolSize?: number;
   qualifiersPerPool?: number;
   tiebreakPolicy?: PoolTiebreakCriterion[];
+  /** Single elimination only: adds a match between the semifinal losers. */
+  thirdPlace?: boolean;
 }
 
 export interface TournamentPlanPreview {
@@ -253,7 +255,7 @@ export function buildTournamentPreview(input: TournamentGenerationInput): Tourna
       ? generateRoundRobinPools({ ...common, targetPoolSize:input.targetPoolSize })
       : input.format === 'double_elimination'
         ? generateDoubleElimination(common)
-        : generateSingleElimination(common);
+        : generateSingleElimination({ ...common, thirdPlace: input.thirdPlace });
 
   plan.matches.forEach(match => {
     match.divisionId = input.divisionId;
@@ -273,6 +275,7 @@ export function buildTournamentPreview(input: TournamentGenerationInput): Tourna
     antiFratricide:input.antiFratricide,
     targetPoolSize:input.targetPoolSize ?? null,
     qualifiersPerPool:input.qualifiersPerPool ?? null,
+    thirdPlace:Boolean(input.thirdPlace),
     tiebreakPolicy,
     entrantSeeds:seeded.entries.map(item => ({ rosterEntryId:item.entry.id, seed:item.seed }))
   };

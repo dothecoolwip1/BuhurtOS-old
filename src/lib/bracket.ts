@@ -119,6 +119,8 @@ export function generateSingleElimination(params: {
   scoringConfig: MatchRecord['scoringConfig'];
   idFactory?: () => UUID;
   antiFratricide?: boolean;
+  /** Adds a match between the two semifinal losers (needs at least four competitors). */
+  thirdPlace?: boolean;
 }): GeneratedBracket {
   if (params.entries.length < 2) throw new Error('At least two competitors are required to generate a bracket.');
   const slots = params.antiFratricide === false ? placeSeedsStandard(params.entries) : placeSeedsAntiFratricide(params.entries);
@@ -173,6 +175,37 @@ export function generateSingleElimination(params: {
       round[i].winnerAdvancesToSlot = slot;
       target.participants.push({ sideIndex: slot, isPlaceholder: true, placeholderLabel: `Winner ${round[i].label}`, sourceMatchId: round[i].id, sourceSlot: slot, isWinnerSource: true });
     }
+  }
+
+  if (params.thirdPlace && rounds >= 2 && params.entries.length >= 4) {
+    const semifinals = matchesByRound[rounds - 2];
+    const final = matchesByRound[rounds - 1][0];
+    const bronze: MatchRecord = {
+      id: newId(params.idFactory),
+      organizationId: params.organizationId,
+      seasonId: params.seasonId,
+      eventId: params.eventId,
+      fightCardId: params.fightCardId,
+      bracketId: params.bracketId,
+      label: 'Third place',
+      category: params.category,
+      matchType: params.matchType,
+      scoringConfig: params.scoringConfig,
+      status: 'scheduled',
+      stage: 'final',
+      scheduledOrder: final.scheduledOrder - 1,
+      bracketRound: rounds,
+      bracketSlot: `${rounds}-3rd`,
+      participants: [],
+      rounds: []
+    };
+    semifinals.forEach((semi, index) => {
+      const slot = (index === 0 ? 1 : 2) as 1 | 2;
+      semi.loserAdvancesToMatchId = bronze.id;
+      semi.loserAdvancesToSlot = slot;
+      bronze.participants.push({ sideIndex: slot, isPlaceholder: true, placeholderLabel: `Loser ${semi.label}`, sourceMatchId: semi.id, sourceSlot: slot, isWinnerSource: false });
+    });
+    matchesByRound[rounds - 1].push(bronze);
   }
 
   let allMatches = matchesByRound.flat();

@@ -182,3 +182,25 @@ describe('playoff scheduling', () => {
     for (const semi of semis) expect(Date.parse(slot(final.id).startsAt)).toBeGreaterThanOrEqual(Date.parse(slot(semi.id).endsAt));
   });
 });
+
+describe('third-place match', () => {
+  it('adds one match fed by the semifinal losers, only when asked and only with four or more', () => {
+    const plain = build(8, 'single_elimination').plan.matches;
+    const withBronze = build(8, 'single_elimination', { thirdPlace: true }).plan.matches;
+    expect(withBronze.length).toBe(plain.length + 1);
+    const bronze = withBronze.find(m => m.label === 'Third place')!;
+    const semis = withBronze.filter(m => m.loserAdvancesToMatchId === bronze.id);
+    expect(semis).toHaveLength(2);
+    expect(bronze.participants.map(p => p.sourceMatchId).sort()).toEqual(semis.map(m => m.id).sort());
+    expect(build(3, 'single_elimination', { thirdPlace: true }).plan.matches.some(m => m.label === 'Third place')).toBe(false);
+  });
+  it('is scheduled after both semifinals', () => {
+    const matches = build(8, 'single_elimination', { thirdPlace: true }).plan.matches;
+    const plan = scheduleMatches(matches, settings());
+    const bronze = matches.find(m => m.label === 'Third place')!;
+    const slot = (id: string) => plan.slots.find(s => s.matchId === id)!;
+    for (const semi of matches.filter(m => m.loserAdvancesToMatchId === bronze.id)) {
+      expect(Date.parse(slot(bronze.id).startsAt)).toBeGreaterThanOrEqual(Date.parse(slot(semi.id).endsAt));
+    }
+  });
+});

@@ -22,3 +22,18 @@ describe('schedule text', () => {
     expect(text.endsWith('\n')).toBe(true);
   });
 });
+
+import { buildBoutsIcs } from '../src/lib/ics';
+describe('bout calendar', () => {
+  it('writes one event per planned bout and skips unusable times', () => {
+    const ics = buildBoutsIcs([
+      { id: 'a', title: 'Final: Ann vs Bo', startsAt: '2026-06-06T16:00:00Z', endsAt: '2026-06-06T16:06:00Z', location: 'Field 1 · Red Deer' },
+      { id: 'b', title: 'Broken', startsAt: 'nope', endsAt: 'nope' }
+    ], 'Ann at Spring Open', new Date('2026-06-01T00:00:00Z'));
+    expect(ics.match(/BEGIN:VEVENT/g)).toHaveLength(1);
+    expect(ics).toContain('DTSTART:20260606T160000Z');
+    expect(ics).toContain('SUMMARY:Final: Ann vs Bo');
+    expect(ics).toContain('LOCATION:Field 1 · Red Deer');
+    expect(ics.startsWith('BEGIN:VCALENDAR')).toBe(true);
+  });
+});
