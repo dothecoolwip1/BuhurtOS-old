@@ -11,6 +11,8 @@ import {
   updatePassword
 } from '../lib/auth';
 
+import { canSelfRegister, defaultPlatformConfig, loadPlatformConfig, registrationNeedsInvite, type PlatformConfig } from '../lib/platformConfig';
+
 type AuthMode = 'signin' | 'signup' | 'forgot' | 'verify' | 'recovery';
 
 function modeFromSearch(search: string): AuthMode {
@@ -30,6 +32,9 @@ export function LoginPage() {
   const [confirmation, setConfirmation] = useState('');
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  const [platformConfig, setPlatformConfig] = useState<PlatformConfig>(defaultPlatformConfig);
+  useEffect(() => { let active = true; loadPlatformConfig().then(value => { if (active) setPlatformConfig(value); }); return () => { active = false; }; }, []);
+  const registrationOpen = canSelfRegister(platformConfig);
 
   useEffect(() => setMode(requestedMode), [requestedMode]);
 
@@ -96,6 +101,8 @@ export function LoginPage() {
     <h1>{mode === 'signup' ? 'Create Account' : mode === 'forgot' ? 'Reset Password' : mode === 'verify' ? 'Verify Email' : mode === 'recovery' ? 'Choose New Password' : 'Field Sign In'}</h1>
 
     {mode === 'signin' && <p>Use your BuhurtOS account. Public event pages never require a login.</p>}
+    {mode === 'signup' && !registrationOpen && <p role="alert">New account registration is currently closed. Ask an organizer for an invitation.</p>}
+    {mode === 'signup' && registrationOpen && registrationNeedsInvite(platformConfig) && <p>Registration is invite only. Use the email address your invitation or access code was sent to.</p>}
     {mode === 'signup' && <p>Create your personal account first. Organization and event permissions are assigned separately by authorized administrators.</p>}
     {mode === 'forgot' && <p>Enter your account email and BuhurtOS will send the secure recovery link configured by Supabase Auth.</p>}
     {mode === 'verify' && <p>Your account exists, but email verification is still required before normal sign in.</p>}
@@ -114,11 +121,11 @@ export function LoginPage() {
       <button className="primary big" disabled={busy || !email || !password} onClick={() => run('password')}>{busy ? 'Signing In…' : 'Sign In'}</button>
       <button className="big" disabled={busy || !email} onClick={() => run('magic')}>Email Sign In Link</button>
       <button className="link-button" disabled={busy} onClick={() => { setMode('forgot'); setMessage(''); }}>Forgot password?</button>
-      <button className="link-button" disabled={busy} onClick={() => { setMode('signup'); setMessage(''); }}>Create an account</button>
+      {registrationOpen && <button className="link-button" disabled={busy} onClick={() => { setMode('signup'); setMessage(''); }}>Create an account</button>}
     </>}
 
     {mode === 'signup' && <>
-      <button className="primary big" disabled={busy || !displayName.trim() || !email || !password || !confirmation} onClick={() => run('signup')}>{busy ? 'Creating…' : 'Create Account'}</button>
+      <button className="primary big" disabled={busy || !registrationOpen || !displayName.trim() || !email || !password || !confirmation} onClick={() => run('signup')}>{busy ? 'Creating…' : 'Create Account'}</button>
       <button className="link-button" disabled={busy} onClick={() => { setMode('signin'); setMessage(''); }}>Back to sign in</button>
     </>}
 

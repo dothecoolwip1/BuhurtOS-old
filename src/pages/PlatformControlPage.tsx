@@ -26,6 +26,7 @@ import type {
   StandingsMode,
   TeamRole
 } from '../types';
+import { PlatformSettingsPanel } from '../components/PlatformSettingsPanel';
 
 const organizationKinds: OrganizationKind[] = [
   'international_federation',
@@ -224,7 +225,7 @@ export function PlatformControlPage() {
       <span className="owner-scope">{dataMode === 'supabase' ? 'Connected to live data' : 'Preview data'}<small>Teams, seasons and events below belong to this organization.</small></span>
     </div>
     <nav className="owner-tabs" aria-label="Platform sections">
-      {[['overview', 'Overview'], ['organizations', 'Organizations'], ['events', 'Seasons & events'], ['people', 'Teams & people']].map(([id, title]) =>
+      {[['overview', 'Overview'], ['organizations', 'Organizations'], ['events', 'Seasons & events'], ['people', 'Teams & people'], ['settings', 'Platform settings']].map(([id, title]) =>
         <button key={id} aria-current={section === id ? 'page' : undefined} onClick={() => setSection(id)}>{title}</button>)}
     </nav>
     {message && <div className="auth-message" role="status">{message}</div>}
@@ -246,6 +247,7 @@ export function PlatformControlPage() {
       </div>
     </>}
     <div className="admin-grid">
+      {section === 'settings' && <PlatformSettingsPanel isSuperAdmin={isSuperAdmin} />}
       <section className="panel-card" hidden={section !== 'organizations'}>
         <h2>Create top-level organization</h2>
         <p>Create another organization at the same platform level as BI or HACSA.</p>
