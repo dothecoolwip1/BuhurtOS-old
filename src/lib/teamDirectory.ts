@@ -21,6 +21,26 @@ export type PublicTeamDetail={
 };
 export type TeamDirectoryFilters={organizationShortName?:string;continentCode?:string;countryCode?:string;adminAreaCode?:string;teamSlug?:string};
 
+const CACHE_MS = 2 * 60 * 1000;
+type CacheEntry<T> = { at:number; value:T };
+const directoryCache = new Map<string,CacheEntry<PublicDirectoryTeam[]>>();
+const rosterCache = new Map<string,CacheEntry<PublicRosterMember[]>>();
+const detailCache = new Map<string,CacheEntry<PublicTeamDetail|undefined>>();
+
+function fresh<T>(entry:CacheEntry<T>|undefined):T|undefined{
+  if(!entry || Date.now()-entry.at>CACHE_MS) return undefined;
+  return entry.value;
+}
+function cacheKey(filters:TeamDirectoryFilters){
+  return JSON.stringify({
+    organizationShortName:filters.organizationShortName??null,
+    continentCode:filters.continentCode??null,
+    countryCode:filters.countryCode??null,
+    adminAreaCode:filters.adminAreaCode??null,
+    teamSlug:filters.teamSlug??null
+  });
+}
+
 export function hacsaFallbackDirectory():PublicDirectoryTeam[]{return hacsaTeams.map(team=>({
  id:team.id,slug:team.id,organizationName:'Historical Armored Combat Sports Association',organizationShortName:'HACSA',name:team.name,location:team.location,
  continentCode:team.continentCode,continentName:team.continentName,countryCode:team.countryCode,countryName:team.countryName,adminAreaCode:team.adminAreaCode,
@@ -41,29 +61,62 @@ function mapRow(row:any):PublicDirectoryTeam{return {
 }}
 
 export async function loadPublicTeamDirectory(filters:TeamDirectoryFilters={}):Promise<PublicDirectoryTeam[]>{
- if(!publicSupabase)return hacsaFallbackDirectory();
- const {data,error}=await publicSupabase.rpc('public_team_directory_v2'); if(error)throw error;
- return (data??[]).map(mapRow).filter((team:PublicDirectoryTeam)=>
-  (!filters.organizationShortName||team.organizationShortName.toLowerCase()===filters.organizationShortName.toLowerCase())&&
-  (!filters.continentCode||team.continentCode===filters.continentCode)&&(!filters.countryCode||team.countryCode===filters.countryCode)&&
-  (!filters.adminAreaCode||team.adminAreaCode===filters.adminAreaCode)&&(!filters.teamSlug||team.slug===filters.teamSlug));
+ if(!publicSupabase){
+   const rows=hacsaFallbackDirectory();
+   return rows.filter(team =>
+     (!filters.organizationShortName||team.organizationShortName.toLowerCase()===filters.organizationShortName.toLowerCase())&&
+     (!filters.continentCode||team.continentCode===filters.continentCode)&&
+     (!filters.countryCode||team.countryCode===filters.countryCode)&&
+     (!filters.adminAreaCode||team.adminAreaCode===filters.adminAreaCode)&&
+     (!filters.teamSlug||team.slug===filters.teamSlug)
+   );
+ }
+ const key=cacheKey(filters);
+ const cached=fresh(directoryCache.get(key));
+ if(cached) return cached;
+
+ const {data,error}=await publicSupabase.rpc('public_team_directory_v3',{
+   p_organization_short_name:filters.organizationShortName??null,
+   p_continent_code:filters.continentCode??null,
+   p_country_code:filters.countryCode??null,
+   p_admin_area_code:filters.adminAreaCode??null,
+   p_team_slug:filters.teamSlug??null
+ });
+ if(error)throw error;
+ const rows=(data??[]).map(mapRow);
+ directoryCache.set(key,{at:Date.now(),value:rows});
+ return rows;
 }
 
 export async function loadPublicTeamRoster(teamId:string):Promise<PublicRosterMember[]>{
  if(!publicSupabase)return[];
+ const cached=fresh(rosterCache.get(teamId));
+ if(cached)return cached;
  const {data,error}=await publicSupabase.rpc('public_team_roster',{p_team_id:teamId}); if(error)throw error;
- return (data??[]).map((row:any)=>({identityId:row.identity_id??undefined,displayName:row.display_name,nickname:row.nickname??undefined,avatarPath:row.avatar_path??undefined,
+ const rows=(data??[]).map((row:any)=>({identityId:row.identity_id??undefined,displayName:row.display_name,nickname:row.nickname??undefined,avatarPath:row.avatar_path??undefined,
   bio:row.bio??undefined,publicRegion:row.public_region??undefined,role:row.role??undefined,sourceKind:row.source_kind??undefined}));
+ rosterCache.set(teamId,{at:Date.now(),value:rows});
+ return rows;
 }
 
 export async function loadPublicTeamDetail(teamId:string):Promise<PublicTeamDetail|undefined>{
  if(!publicSupabase)return undefined;
+ const cached=fresh(detailCache.get(teamId));
+ if(cached!==undefined)return cached;
  const {data,error}=await publicSupabase.rpc('public_team_detail',{p_team_id:teamId}); if(error)throw error;
- const row=(data??[])[0]; if(!row)return undefined;
- return {teamId:row.team_id,logoPath:row.logo_path??undefined,description:row.public_description??undefined,captain:row.captain??undefined,
+ const row=(data??[])[0]; if(!row){detailCache.set(teamId,{at:Date.now(),value:undefined});return undefined;}
+ const detail={teamId:row.team_id,logoPath:row.logo_path??undefined,description:row.public_description??undefined,captain:row.captain??undefined,
   club:row.club??undefined,gender:row.gender??undefined,conference:row.conference??undefined,country:row.country??undefined,city:row.city??undefined,
   trainingInfo:row.training_info??undefined,trainingLocation:row.training_location??undefined,websiteUrl:row.website_url??undefined,email:row.public_contact_email??undefined,
   rank5v5:row.rank_5v5??undefined,averagePoints5v5:row.average_points_5v5??undefined,points5v5:row.points_5v5??undefined,
   rank12v12:row.rank_12v12??undefined,points12v12:row.points_12v12??undefined,tournamentsJoined:Array.isArray(row.tournaments_joined)?row.tournaments_joined:[],
   eventsHistory:row.events_history??{},sourceUrl:row.source_url??undefined,verifiedAt:row.source_verified_at?String(row.source_verified_at).slice(0,10):undefined};
+ detailCache.set(teamId,{at:Date.now(),value:detail});
+ return detail;
+}
+
+export function clearPublicTeamCaches(){
+  directoryCache.clear();
+  rosterCache.clear();
+  detailCache.clear();
 }
