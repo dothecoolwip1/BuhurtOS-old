@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { NotFoundPage, RouteBoundary } from './components/RouteBoundary';
+import { NotFoundPage, RouteBoundary, RouteEffects } from './components/RouteBoundary';
 import { HashRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { ShowcaseShell } from './components/ShowcaseShell';
 import { AdminShell } from './components/AdminShell';
@@ -105,7 +105,7 @@ function RouteFallback() {
 }
 
 export function App(){
-  return <HashRouter><AccountProvider><RouteBoundary><Suspense fallback={<RouteFallback/>}><Routes>
+  return <HashRouter><AccountProvider><RouteEffects/><RouteBoundary><Suspense fallback={<RouteFallback/>}><Routes>
     <Route path="/" element={<Navigate to="/public" replace/>}/>
     <Route path="/about" element={<Navigate to="/public" replace/>}/>
     <Route path="/embed/events" element={<EmbedEventsPage/>}/>

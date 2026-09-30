@@ -1753,3 +1753,8 @@ html.nx-locked{overflow:hidden}
   .marshal-format-tabs button,.marshal-quick-search button,.directory-view-switch button{font-size:13px}
   .bhome-empty a,.bhome-events-strip a,.bhome a.show-btn,.directory-load-more a{min-height:44px;display:inline-flex;align-items:center}
 }
+
+/* Skip link and focus target */
+.nx-skip{position:fixed;left:8px;top:-60px;z-index:1000;min-height:44px;padding:0 16px;border-radius:10px;border:2px solid #ffbd80;background:#0b1015;color:#fff;font-weight:800;transition:top .15s}
+.nx-skip:focus{top:8px}
+main[tabindex="-1"]:focus{outline:none}

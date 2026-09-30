@@ -42,3 +42,13 @@ describe('event page actions', () => {
     expect(eventPageSource).toContain("user?'/admin/events/manage?event='");
   });
 });
+
+import { titleForPath } from '../src/components/RouteBoundary';
+describe('page titles', () => {
+  it('gives each area its own tab title', () => {
+    expect(titleForPath('/events')).toBe('Events · BuhurtOS');
+    expect(titleForPath('/teams/some-team')).toBe('Teams · BuhurtOS');
+    expect(titleForPath('/admin/events/roster')).toContain('· BuhurtOS');
+    expect(titleForPath('/public')).toContain('Everything Buhurt');
+  });
+});

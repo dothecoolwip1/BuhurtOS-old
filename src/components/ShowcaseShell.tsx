@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAccount } from '../features/Account';
 import { hasAdminArea, publicBottom, publicPrimary, publicSecondary } from '../lib/navigation';
-import { AccountMenu } from './chrome';
+import { AccountMenu, SkipLink } from './chrome';
 
 /** The public site: explains the sport and lets anyone discover teams, events, fighters, rankings and rules. */
 export function ShowcaseShell() {
@@ -61,6 +61,7 @@ export function ShowcaseShell() {
 
   if (isLanding) {
     return <div className="landing-shell">
+      <SkipLink />
       <header className="landing-nav">
         <NavLink to="/public" className="show-brand landing-brand">
           <span className="show-brand-mark">B</span>
@@ -74,11 +75,12 @@ export function ShowcaseShell() {
         <span className="landing-menu-wrap">{menuButton}</span>
       </header>
       {menu}
-      <main className="landing-main" id="main-content"><Outlet /></main>
+      <main className="landing-main" id="main-content" tabIndex={-1}><Outlet /></main>
     </div>;
   }
 
   return <div className="show-shell">
+    <SkipLink />
     <aside className="show-sidebar" aria-label="Public site menu">
       <NavLink to="/public" className="show-brand"><span className="show-brand-mark">B</span><span><b>BuhurtOS</b><small>Public site</small></span></NavLink>
       <nav className="show-nav" aria-label="Public navigation">{publicPrimary.map(item => <NavLink key={item.to} to={item.to}><span aria-hidden="true">{item.icon}</span><b>{item.label}</b></NavLink>)}</nav>
@@ -87,7 +89,7 @@ export function ShowcaseShell() {
         <small>Everything here is public and read-only. Private account data is never shown.</small>
       </div>
     </aside>
-    <main className="show-main" id="main-content">
+    <main className="show-main" id="main-content" tabIndex={-1}>
       <header className="show-topbar">
         {menuButton}
         <NavLink to="/public" className="show-mobile-brand"><span className="show-brand-mark">B</span><b>BuhurtOS</b></NavLink>

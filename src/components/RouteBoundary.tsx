@@ -1,5 +1,6 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { Component, useEffect, type ErrorInfo, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { breadcrumbsFor } from '../lib/navigation';
 
 type Props = { children: ReactNode; resetKey: string };
 type State = { failed: boolean; message: string };
@@ -57,4 +58,29 @@ export function NotFoundPage() {
     </div>
     <p className="auth-back"><Link to="/me">My workspace</Link></p>
   </section></main>;
+}
+
+const BASE_TITLE = 'BuhurtOS';
+const publicTitles: Record<string, string> = {
+  '/public': 'Home', '/events': 'Events', '/teams': 'Teams', '/fighters': 'Fighters', '/rankings': 'Rankings', '/rules': 'Rules',
+  '/governance': 'Organizations', '/organizations': 'Organizations', '/sign-in': 'Sign in', '/register': 'Register'
+};
+
+export function titleForPath(pathname: string): string {
+  const crumbs = breadcrumbsFor(pathname);
+  const last = crumbs[crumbs.length - 1]?.label;
+  if (last) return `${last} · ${BASE_TITLE}`;
+  const top = '/' + (pathname.split('/')[1] ?? '');
+  const name = publicTitles[pathname] ?? publicTitles[top];
+  return name && name !== 'Home' ? `${name} · ${BASE_TITLE}` : `${BASE_TITLE} | Everything Buhurt. One system.`;
+}
+
+/** Per-route housekeeping for a HashRouter app: a new page starts at the top and has its own tab title. */
+export function RouteEffects() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.title = titleForPath(pathname);
+  }, [pathname]);
+  return null;
 }

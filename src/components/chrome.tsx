@@ -103,6 +103,11 @@ function ItemLink({ to, label, end, onClick, description }: { to: string; label:
   return <NavLink to={to} end={end} onClick={onClick} className={({ isActive }) => 'nx-link' + (isActive ? ' active' : '')} title={description}>{label}</NavLink>;
 }
 
+/** First tab stop: jumps past the menus. A button, because a #hash link would change the HashRouter route. */
+export function SkipLink() {
+  return <button type="button" className="nx-skip" onClick={() => { const main = document.getElementById('main-content'); main?.focus(); main?.scrollIntoView({ block: 'start' }); }}>Skip to main content</button>;
+}
+
 /** Sidebar on desktop; a menu sheet plus a short bottom bar on phones. One structure for Workspace and Administration. */
 export function AppShell({ area, brandSub, sections, bottom, status, header, blocked }: ShellProps) {
   const location = useLocation();
@@ -148,6 +153,7 @@ export function AppShell({ area, brandSub, sections, bottom, status, header, blo
   });
 
   return <div className={`nx-shell nx-${area}`}>
+    <SkipLink />
     <header className="nx-top" inert={menuOpen}>
       <button ref={toggle} type="button" className="nx-menu-button" aria-label="Open menu" aria-expanded={menuOpen} aria-controls="nx-sheet" onClick={() => setMenuOpen(true)}>
         <span aria-hidden="true">☰</span>
@@ -159,7 +165,7 @@ export function AppShell({ area, brandSub, sections, bottom, status, header, blo
 
     <div className="nx-body" inert={menuOpen}>
       <aside className="nx-side" aria-label={areaLabel[area] + ' menu'}>{nav()}</aside>
-      <main className="nx-main" id="main-content">
+      <main className="nx-main" id="main-content" tabIndex={-1}>
         <Breadcrumbs crumbs={crumbs} />
         {header}
         {blocked ?? <Outlet />}
