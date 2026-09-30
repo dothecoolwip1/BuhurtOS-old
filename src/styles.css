@@ -938,3 +938,35 @@ button.ghost:hover{color:var(--text);border-color:#3d4c59;background:#111920}
   .fighter-signup-footer{padding:10px 12px 14px;align-items:stretch;flex-direction:column}
   .fighter-signup-footer .show-btn{width:100%}
 }
+
+
+.fighter-signup-modal.native{grid-template-rows:auto auto 1fr auto}
+.fighter-signup-form{overflow:auto;padding:14px 18px 4px;display:grid;gap:14px}
+.fighter-signup-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fighter-signup-form label,.fighter-signup-grid label{display:grid;gap:6px;color:#bcc8d2;font-size:.73rem;font-weight:800}
+.fighter-signup-form input,.fighter-signup-form select,.fighter-signup-form textarea{
+  width:100%;border:1px solid var(--line-strong);border-radius:12px;background:#0d151c;color:#fff;
+  padding:12px;min-height:48px
+}
+.fighter-signup-form textarea{resize:vertical;line-height:1.45}
+.fighter-category-picker{border:1px solid var(--line);border-radius:14px;padding:12px;margin:0}
+.fighter-category-picker legend{padding:0 7px;color:#cbd5dd;font-size:.72rem;font-weight:900}
+.fighter-category-picker>div{display:flex;gap:8px;flex-wrap:wrap}
+.fighter-category-picker button{
+  min-height:40px;border:1px solid var(--line-strong);border-radius:999px;background:#111a23;color:#aebbc6;
+  padding:0 12px;font-weight:850
+}
+.fighter-category-picker button.selected{border-color:var(--accent);background:rgba(255,138,31,.12);color:#fff}
+.fighter-signup-consent{grid-template-columns:auto 1fr!important;display:grid!important;align-items:flex-start;gap:10px!important;
+  border:1px solid var(--line);border-radius:12px;background:#0f171f;padding:12px}
+.fighter-signup-consent input{width:20px;height:20px;min-height:0;accent-color:var(--accent)}
+.fighter-signup-success{display:grid;place-items:center;align-content:center;text-align:center;gap:10px;padding:34px;min-height:420px}
+.fighter-signup-success-mark{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:rgba(64,212,138,.14);
+  color:var(--green);font-size:1.8rem;font-weight:950;border:1px solid rgba(64,212,138,.35)}
+.fighter-signup-success h3{font-size:1.5rem;margin:6px 0 0}
+.fighter-signup-success p{max-width:520px}
+@media(max-width:720px){
+  .fighter-signup-grid{grid-template-columns:1fr}
+  .fighter-signup-form{padding:12px}
+  .fighter-signup-modal.native{grid-template-rows:auto auto 1fr auto}
+}
