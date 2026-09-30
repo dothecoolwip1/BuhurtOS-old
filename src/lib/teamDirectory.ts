@@ -48,7 +48,7 @@ export function hacsaFallbackDirectory():PublicDirectoryTeam[]{return hacsaTeams
 }))}
 
 function mapRow(row:any):PublicDirectoryTeam{return {
- id:row.id,slug:row.directory_slug,organizationId:row.organization_id,organizationName:row.organization_name??row.organization_short_name,
+ id:row.id,slug:row.directory_slug??row.id,organizationId:row.organization_id,organizationName:row.organization_name??row.organization_short_name,
  organizationShortName:row.organization_short_name,name:row.team_name,location:row.city_or_region??'Location pending',
  continentCode:row.continent_code??'',continentName:row.continent_name??row.continent_code??'Region pending',countryCode:row.country_code??'',
  countryName:row.country_name??row.country_code??'Country pending',adminAreaCode:row.admin_area_code??'',adminAreaName:row.admin_area_name??'Region pending',
