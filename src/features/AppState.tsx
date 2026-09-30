@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { Announcement, EventRecord, EventTeam, FightCard, MatchRecord, MatchStatus, RosterEntry, ScoreRound, UserContext } from '../types';
 import { demoUser } from '../data/demo';
 import { loadEventSnapshot } from '../lib/repository';
+import { coalesce } from '../lib/realtime';
 import { isSupabaseConfigured, subscribeToEvent, supabase } from '../lib/supabase';
 import { authNoticeForEvent, finishExternalAuthReturn, readExternalAuthReturn, type AuthNotice } from '../lib/auth';
 import { validateScore } from '../lib/scoring';
@@ -225,8 +226,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!event || !supabase) return;
     const client = supabase;
-    const channel = subscribeToEvent(event.id, reload);
-    return () => { if (channel) client.removeChannel(channel); };
+    const refresh = coalesce(reload);
+    const channel = subscribeToEvent(event.id, refresh);
+    return () => { refresh.cancel(); if (channel) client.removeChannel(channel); };
   }, [event?.id, reload]);
 
   const updateCompliance = useCallback(async (entryId: string, field: 'checkedIn' | 'armorCleared' | 'medicalCleared' | 'waiverConfirmed' | 'weighInCleared', value: boolean) => {

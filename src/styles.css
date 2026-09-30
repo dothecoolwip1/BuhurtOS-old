@@ -1505,3 +1505,31 @@ button.ghost:hover{color:var(--text);border-color:#3d4c59;background:#111920}
 .embed-preview{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
 .embed-preview iframe{display:block;width:100%;border:0}
 .embed-code{width:100%;min-height:120px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.74rem;border:1px solid var(--line-strong);background:#0b1219;color:#d6e2ee;border-radius:10px;padding:10px}
+
+/* ---- Pack 9: PWA update notice ---- */
+.update-banner{position:fixed;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:1000;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;max-width:min(560px,calc(100vw - 24px));padding:10px 14px;border:1px solid var(--line-strong);border-radius:14px;background:#111a23;color:#fff;box-shadow:var(--shadow);font-size:.85rem}
+.update-banner button{min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-weight:800}
+.update-banner button.quiet{background:transparent;border-color:var(--line-strong);color:var(--muted)}
+
+/* ---- Pack 9: mobile audit fixes (360-1024px) ---- */
+html,body{max-width:100%;overflow-x:clip}
+.show-filter-row>*{min-width:0}
+.show-filter-row select{max-width:100%;text-overflow:ellipsis;min-height:44px}
+.show-search{min-height:44px;height:auto}
+.show-search input{min-width:0;min-height:40px;font-size:16px}
+.show-link-btn{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px}
+.show-public-section-head a{display:inline-flex;align-items:center;min-height:44px}
+.marshal-format-tabs button,.marshal-quick-search button{min-height:40px}
+.show-pill{max-width:100%}
+.directory-view-switch button{min-height:40px}
+@media(max-width:720px){
+  .show-explain-card{grid-template-columns:32px 1fr}
+  .show-explain-card>a{grid-column:2;display:inline-flex;align-items:center;min-height:44px}
+  .rule-source-status>div{flex-wrap:wrap}
+  .public-directory-toolbar .show-filter-row{grid-template-columns:1fr}
+  select,input,textarea{font-size:16px}
+}
+.bhome-event-stage-head a,footer>a[target="_blank"]{display:inline-flex;align-items:center;min-height:44px}
+.show-pill{white-space:normal;overflow-wrap:anywhere}
+.marshal-rule-card>header,.marshal-rule-card header{flex-wrap:wrap}
+.landing-nav-links a,.landing-nav-links button{display:inline-flex;align-items:center;min-height:40px}
