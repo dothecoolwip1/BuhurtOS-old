@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppState } from '../features/AppState';
 import {
@@ -52,6 +52,10 @@ export function PlatformControlPage() {
   const [teams, setTeams] = useState<Array<{ id: string; name: string }>>([]);
   const [seasons, setSeasons] = useState<SetupSeason[]>([]);
   const [events, setEvents] = useState<Array<{ id: string; name: string; venue: string; startsAt: string; status: string }>>([]);
+  const selectionRequest = useRef(0);
+  const [resourcesLoading, setResourcesLoading] = useState(true);
+  const [organizationsLoaded, setOrganizationsLoaded] = useState(false);
+  const [section, setSection] = useState('overview');
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -109,11 +113,15 @@ export function PlatformControlPage() {
   const refreshOrganizations = async () => {
     const rows = await listPlatformOrganizations();
     setOrganizations(rows);
+    setOrganizationsLoaded(true);
     setSelectedOrganizationId(current => current || rows[0]?.id || '');
   };
 
   const refreshSelected = async (organizationId: string) => {
+    const request = ++selectionRequest.current;
+    setResourcesLoading(true);
     if (!organizationId) {
+      setResourcesLoading(false);
       setRelationships([]);
       setClubs([]);
       setTeams([]);
@@ -121,20 +129,25 @@ export function PlatformControlPage() {
       setEvents([]);
       return;
     }
-    const [snapshot, seasonRows, eventRows] = await Promise.all([
-      loadGovernanceSnapshot(organizationId),
-      listSeasons(organizationId),
-      listEvents(organizationId)
-    ]);
-    setRelationships(snapshot.relationships);
-    setClubs(snapshot.clubs.map(row => ({ id: row.id, name: row.name })));
-    setTeams(snapshot.teams.map(row => ({ id: row.id, name: row.name })));
-    setSeasons(seasonRows);
-    setEvents(eventRows);
-    setEventForm(form => ({
-      ...form,
-      seasonId: seasonRows.some(row => row.id === form.seasonId) ? form.seasonId : seasonRows[0]?.id || ''
-    }));
+    try {
+      const [snapshot, seasonRows, eventRows] = await Promise.all([
+        loadGovernanceSnapshot(organizationId),
+        listSeasons(organizationId),
+        listEvents(organizationId)
+      ]);
+      if (request !== selectionRequest.current) return;
+      setRelationships(snapshot.relationships);
+      setClubs(snapshot.clubs.map(row => ({ id: row.id, name: row.name })));
+      setTeams(snapshot.teams.map(row => ({ id: row.id, name: row.name })));
+      setSeasons(seasonRows);
+      setEvents(eventRows);
+      setEventForm(form => ({
+        ...form,
+        seasonId: seasonRows.some(row => row.id === form.seasonId) ? form.seasonId : seasonRows[0]?.id || ''
+      }));
+    } finally {
+      if (request === selectionRequest.current) setResourcesLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -193,34 +206,47 @@ export function PlatformControlPage() {
 
   const activeRelationships = relationships.filter(row => !row.endsOn);
 
-  return <>
-    <section className="section-head">
-      <div>
-        <span className="eyebrow">Platform owner</span>
-        <h1>BuhurtOS Platform Control</h1>
-        <p>Full platform-level control above BI, HACSA and every other organization, with organization, hierarchy, season, event, team, member and access administration from one place.</p>
+  return <div className="owner-console">
+    <section className="owner-hero">
+      <div><span className="eyebrow">BUHURTOS / ADMINISTRATION</span>
+        <h1>Your platform.<br/><span>Under control.</span></h1>
+        <p>Manage the organizations, people and events that bring the sport together.</p>
       </div>
-      <div className="header-actions">
-        <span className="status-chip">{dataMode === 'supabase' ? 'Live DB' : 'Demo'}</span>
-        <span className="status-chip">Platform Super Admin</span>
-      </div>
+      <Link className="owner-public-link" to="/public">View public site ↗</Link>
     </section>
-
-    {message && <div className="auth-message">{message}</div>}
-
-    <section className="panel-card">
-      <h2>Owner shortcuts</h2>
-      <div className="header-actions">
-        <Link className="button" to="/ops/access-admin">Accounts & Early Access</Link>
-        <Link className="button" to="/ops/rulesets">Rulesets</Link>
-        <Link className="button" to="/ops/identity-review">Identity Review</Link>
-        <Link className="button" to="/ops/foundation">Fighters & Divisions</Link>
-        <Link className="button" to="/ops/setup">Event Setup</Link>
+    <div className="owner-workspace">
+      <label>Working organization
+        <select value={selectedOrganizationId} onChange={e => setSelectedOrganizationId(e.target.value)}>
+          <option value="">Choose organization</option>
+          {organizations.map(org => <option key={org.id} value={org.id}>{org.name}</option>)}
+        </select>
+      </label>
+      <span className="owner-scope">{dataMode === 'supabase' ? 'Connected to live data' : 'Preview data'}<small>Teams, seasons and events below belong to this organization.</small></span>
+    </div>
+    <nav className="owner-tabs" aria-label="Platform sections">
+      {[['overview', 'Overview'], ['organizations', 'Organizations'], ['events', 'Seasons & events'], ['people', 'Teams & people']].map(([id, title]) =>
+        <button key={id} aria-current={section === id ? 'page' : undefined} onClick={() => setSection(id)}>{title}</button>)}
+    </nav>
+    {message && <div className="auth-message" role="status">{message}</div>}
+    {section === 'overview' && <>
+      <div className="owner-metrics">
+        {[[organizationsLoaded ? organizations.length : '…', 'Organizations', 'Across the platform'], [resourcesLoading ? '…' : teams.length, 'Teams', 'In this organization'], [resourcesLoading ? '…' : events.length, 'Events', 'In this organization'], [resourcesLoading ? '…' : seasons.length, 'Seasons', 'In this organization']].map(([count, title, scope]) =>
+          <div key={title}><span>{title}</span><strong>{count}</strong><small>{scope}</small></div>)}
       </div>
-    </section>
-
+      <div className="owner-section-heading"><h2>Make things happen</h2><p>Your everyday administration tools.</p></div>
+      <div className="owner-shortcuts">
+        {[
+          ['/ops/access-admin', '01', 'Accounts & access', 'Manage who can use the platform.'],
+          ['/ops/codes', '02', 'Access codes', 'Control invitations and delegated access.'],
+          ['/ops/identity-review', '03', 'Identity review', 'Resolve fighter claims and duplicate records.'],
+          ['/ops/rulesets', '04', 'Rulesets', 'Manage the rules behind competition.'],
+          ['/ops/foundation', '05', 'Fighters & divisions', 'Organize sporting identities and divisions.'],
+          ['/ops/setup', '06', 'Event setup', 'Prepare the next event for your community.']
+        ].map(([to, number, title, description]) => <Link key={to} to={to}><span className="shortcut-number">{number}</span><strong>{title}<span>↗</span></strong><p>{description}</p></Link>)}
+      </div>
+    </>}
     <div className="admin-grid">
-      <section className="panel-card">
+      <section className="panel-card" hidden={section !== 'organizations'}>
         <h2>Create top-level organization</h2>
         <p>Create another organization at the same platform level as BI or HACSA.</p>
         <div className="form-stack">
@@ -248,7 +274,7 @@ export function PlatformControlPage() {
         </div>
       </section>
 
-      <section className="panel-card">
+      <section className="panel-card" hidden={section !== 'organizations'}>
         <h2>Edit any organization</h2>
         <label>Organization
           <select value={selectedOrganizationId} onChange={e => setSelectedOrganizationId(e.target.value)}>
@@ -284,7 +310,7 @@ export function PlatformControlPage() {
         </div>}
       </section>
 
-      <section className="panel-card">
+      <section className="panel-card" hidden={section !== 'organizations'}>
         <h2>Organization hierarchy</h2>
         <p>Define who governs, recognizes, affiliates with or sanctions whom. BuhurtOS remains above the entire tree.</p>
         <div className="form-stack">
@@ -322,7 +348,7 @@ export function PlatformControlPage() {
         </div>
       </section>
 
-      <section className="panel-card">
+      <section className="panel-card" hidden={section !== 'events'}>
         <h2>Seasons</h2>
         <div className="form-stack">
           <input placeholder="Season name" value={seasonForm.name} onChange={e => setSeasonForm(form => ({ ...form, name: e.target.value }))}/>
@@ -356,7 +382,7 @@ export function PlatformControlPage() {
         </div>
       </section>
 
-      <section className="panel-card">
+      <section className="panel-card" hidden={section !== 'events'}>
         <h2>Events</h2>
         <div className="form-stack">
           <label>Season
@@ -406,7 +432,7 @@ export function PlatformControlPage() {
         </div>
       </section>
 
-      <section className="panel-card">
+      <section className="panel-card" hidden={section !== 'people'}>
         <h2>Clubs & teams</h2>
         <h3>Create club</h3>
         <div className="form-stack">
@@ -449,7 +475,7 @@ export function PlatformControlPage() {
         <small>{clubs.length} clubs · {teams.length} teams in the selected organization</small>
       </section>
 
-      <section className="panel-card">
+      <section className="panel-card" hidden={section !== 'people'}>
         <h2>Add people</h2>
         <p>Invite admins, captains, coaches, fighters, support staff or club members. Their account remains personal while the role is scoped to the organization structure you choose.</p>
         <div className="form-stack">
@@ -492,7 +518,7 @@ export function PlatformControlPage() {
         </div>
       </section>
 
-      <section className="panel-card">
+      <section className="panel-card" hidden={section !== 'overview'}>
         <h2>Platform inventory</h2>
         <p>{organizations.length} organizations are currently registered in BuhurtOS.</p>
         <div className="membership-list">
@@ -501,10 +527,10 @@ export function PlatformControlPage() {
               <strong>{org.name}</strong>
               <small>{org.shortName} · {label(org.kind || 'independent_organization')} · {org.region} · {label(org.status)}</small>
             </div>
-            <button disabled={busy} onClick={() => setSelectedOrganizationId(org.id)}>Manage</button>
+            <button disabled={busy} onClick={() => { setSelectedOrganizationId(org.id); setSection('organizations'); }}>Manage</button>
           </article>)}
         </div>
       </section>
     </div>
-  </>;
+  </div>;
 }

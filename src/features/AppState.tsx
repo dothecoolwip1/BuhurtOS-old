@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { Announcement, EventRecord, EventTeam, FightCard, MatchRecord, MatchStatus, RosterEntry, ScoreRound, UserContext } from '../types';
 import { demoUser } from '../data/demo';
 import { loadEventSnapshot } from '../lib/repository';
@@ -76,6 +76,7 @@ function routeNeedsEventSnapshot(): boolean {
 }
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
+  const sessionGeneration = useRef(0);
   const [loading, setLoading] = useState(true);
   const [authReady, setAuthReady] = useState(!isSupabaseConfigured);
   const [authNotice, setAuthNotice] = useState<AuthNotice>(null);
@@ -93,16 +94,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const refreshPending = useCallback(async () => setPendingCount((await listMutations()).length), []);
 
   const reload = useCallback(async () => {
+    const generation = sessionGeneration.current;
     try {
       setError(null);
       const requestedEventId = requestedEventIdFromLocation();
       let accessMode: 'public' | 'private' = 'public';
       if (supabase) {
         const { data: authData, error: authError } = await supabase.auth.getUser();
+        if (generation !== sessionGeneration.current) return;
         if (authError || !authData.user) {
           setUser(null);
         } else {
-          setUser(await loadUserContext(authData.user.id, authData.user.email ?? 'Signed in user'));
+          const context = await loadUserContext(authData.user.id, authData.user.email ?? 'Signed in user');
+          if (generation !== sessionGeneration.current) return;
+          setUser(context);
           if (isProtectedOperationsRoute()) accessMode = 'private';
         }
       }
@@ -117,6 +122,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       }
 
       const snap = await loadEventSnapshot(requestedEventId, accessMode);
+      if (generation !== sessionGeneration.current) return;
       setEvent(snap.event);
       setMatches(snap.matches);
       setRoster(snap.roster);
@@ -151,12 +157,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     let hadAuthenticatedSession = false;
 
     const loadContext = async (authUser: { id: string; email?: string | null }) => {
+      const generation = sessionGeneration.current;
       const context = await loadUserContext(authUser.id, authUser.email ?? 'Signed in user');
-      if (active) setUser(context);
+      if (active && generation === sessionGeneration.current) setUser(context);
     };
 
+    const initialGeneration = sessionGeneration.current;
     supabase.auth.getUser().then(async ({ data, error: authError }) => {
-      if (!active) return;
+      if (!active || initialGeneration !== sessionGeneration.current) return;
       if (authError || !data.user) {
         setUser(null);
       } else {
@@ -172,6 +180,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       const intentional = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('buhurtos:intentional-signout') === '1';
       if (event === 'SIGNED_OUT') {
+        sessionGeneration.current += 1;
+        setEvent(null);
+        setMatches([]);
+        setRoster([]);
+        setFightCards([]);
+        setTeams([]);
+        setAnnouncements([]);
         if (intentional) sessionStorage.removeItem('buhurtos:intentional-signout');
         setAuthNotice(authNoticeForEvent(event, hadAuthenticatedSession, intentional));
         setUser(null);

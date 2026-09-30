@@ -1,5 +1,20 @@
 # BuhurtOS Handoff
 
+## Owner console and logout repair, September 30
+
+The owner console now separates overview, organizations, events, and people;
+shows organization scope; provides shortcut cards and responsive navigation.
+Sign out is in the header on mobile and desktop, handles request errors, and
+ends the current Supabase session. Session-generation guards prevent pending
+account/event reads from restoring signed-out state; private event state clears
+on SIGNED_OUT. No database schema or authorization policies changed.
+
+Validation: 78 unit tests, TypeScript, production build, and navigation audit
+passed locally. Browser verification was attempted but this execution environment
+blocks Chromium startup (socket operation not permitted); visual and authenticated
+browser verification remain outstanding. Hosted deployment status must be checked
+against the resulting commit, not inferred from the local build.
+
 Last updated: 2026-09-29
 
 ## Current handoff: Pack 1 release baseline

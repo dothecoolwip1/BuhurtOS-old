@@ -1365,3 +1365,84 @@ button.ghost:hover{color:var(--text);border-color:#3d4c59;background:#111920}
 .event-hero-media img{display:block;width:100%;max-height:min(70vh,640px);object-fit:contain}
 @media (min-width:900px){.event-hero-media{background:radial-gradient(circle at 30% 20%,rgba(255,138,31,.12),transparent 40%),#0b1219}}
 .event-media-preview{max-width:100%;max-height:260px;object-fit:contain;border:1px solid var(--line);border-radius:12px;background:#0b1219}
+/* Owner workspace */
+.owner-shell { background: #0c1118; grid-template-columns: 248px minmax(0,1fr); }
+.owner-shell .side-rail { background: #101720; overflow-y: auto; gap: 22px; }
+.owner-shell .page-wrap { max-width: 1280px; padding: 36px; }
+.owner-shell .topbar { background: #0c1118ee; }
+.topbar-title { display: grid; min-width: 0; margin-right: auto; }
+.logout-button,.ops-menu-toggle { min-height: 44px; border: 1px solid #425263; background: #1b2733; color: #f4f7f9; padding: 10px 16px; border-radius: 9px; font-weight: 650; white-space: nowrap; }
+.ops-menu-toggle { display: none; }
+.owner-hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding: 12px 0 30px; }
+.owner-hero h1 { font-size: clamp(36px,4vw,56px); letter-spacing: -.045em; line-height: 1.08; margin: 16px 0; font-weight: 750; }
+.owner-hero h1 span { color: #b9c7d2; }
+.owner-hero p { max-width: 480px; color: #9aabba; font-size: 15px; line-height: 1.6; margin: 0; }
+.owner-public-link { color: #eac398; font-size: 13px; padding: 12px 0; text-decoration: none; white-space: nowrap; }
+.owner-workspace { display: flex; align-items: center; gap: 28px; border: 1px solid #2a3846; border-radius: 12px; background: #151f2a; padding: 20px; }
+.owner-workspace label { flex: 1; max-width: 420px; font-size: 12px; font-weight: 650; color: #cbd5df; display: grid; gap: 9px; }
+.owner-workspace select { width: 100%; min-height: 46px; }
+.owner-scope { font-size: 12px; color: #97dbb3; }
+.owner-scope small { display: block; color: #a5b2bf; max-width: 260px; margin-top: 7px; line-height: 1.5; }
+.owner-tabs { display: flex; gap: 24px; border-bottom: 1px solid #293644; margin: 22px 0 26px; overflow-x: auto; }
+.owner-tabs button { background: transparent; border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 16px 0; color: #9faebd; font-size: 13px; white-space: nowrap; min-height: 48px; }
+.owner-tabs button[aria-current] { color: #ffbd80; border-bottom-color: #ff9b47; }
+.owner-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 14px; }
+.owner-metrics>div { background: #131c26; border: 1px solid #293644; border-radius: 12px; padding: 20px; display: grid; gap: 10px; }
+.owner-metrics span { font-size: 13px; color: #c6d0db; }
+.owner-metrics strong { font-size: 36px; font-weight: 650; letter-spacing: -.04em; }
+.owner-metrics small { color: #91a2b2; font-size: 11px; }
+.owner-section-heading { margin: 32px 0 16px; }
+.owner-section-heading h2 { font-size: 20px; margin-bottom: 6px; }
+.owner-section-heading p { color: #96a6b7; font-size: 13px; }
+.owner-shortcuts { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; margin-bottom: 28px; }
+.owner-shortcuts a { border: 1px solid #2c3a49; background: #151f2a; border-radius: 12px; padding: 22px; text-decoration: none; transition: border-color .15s,background .15s; }
+.owner-shortcuts a:hover { background: #1b2835; border-color: #b98759; }
+.shortcut-number { display: block; color: #d5a374; font-size: 11px; margin-bottom: 22px; font-variant-numeric: tabular-nums; }
+.owner-shortcuts strong { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; }
+.owner-shortcuts strong span { color: #b4c2cf; }
+.owner-shortcuts p { color: #9caebe; font-size: 12px; line-height: 1.6; margin: 8px 0 0; }
+.owner-console .admin-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; gap: 20px; }
+.owner-console .panel-card { background: #131c26; box-shadow: none; border-radius: 12px; padding: 24px; min-width: 0; }
+.owner-console .panel-card[hidden] { display: none; }
+.owner-console .panel-card:last-child { grid-column: 1 / -1; }
+.owner-console .panel-card h2 { font-size: 19px; letter-spacing: -.02em; }
+.owner-console .panel-card p { color: #9eaebe; line-height: 1.6; font-size: 13px; }
+.owner-console .form-stack { gap: 16px; }
+.owner-console label { display: grid; gap: 8px; color: #b9c8d6; font-size: 12px; }
+.owner-console input,.owner-console select { width: 100%; min-width: 0; min-height: 46px; border: 1px solid #394b5b; background: #0d151e; color: #eef3f8; border-radius: 8px; padding: 11px 12px; color-scheme: dark; }
+.owner-console button { min-height: 44px; }
+.owner-console code { overflow-wrap: anywhere; }
+.owner-console .membership-list article { gap: 14px; }
+.owner-console :focus-visible,.owner-shell button:focus-visible { outline: 2px solid #ffbd80; outline-offset: 4px; }
+@media(max-width:1000px) {
+ .owner-shell { grid-template-columns: 210px minmax(0,1fr); }
+ .owner-shell .page-wrap { padding: 24px; }
+ .owner-shortcuts { grid-template-columns: repeat(2,minmax(0,1fr)); }
+ .owner-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:760px) {
+ .owner-shell { display: block; }
+ .owner-shell .page-wrap { padding: 22px 16px 100px; }
+ .app-shell .ops-menu-toggle { display: block; padding: 8px 10px; }
+ .app-shell .side-rail { display: none; }
+ .app-shell .side-rail.menu-open { display: flex; position: fixed; top: 68px; bottom: 70px; left: 0; width: min(310px,90vw); height: auto; z-index: 60; overflow-y: auto; box-shadow: 20px 0 60px #0009; }
+ .app-shell .topbar { padding: 0 12px; gap: 10px; }
+ .app-shell .status-row .status-pill:not(.action) { display: none; }
+ .app-shell .topbar strong { font-size: 13px; }
+ .app-shell .logout-button { padding: 8px 12px; font-size: 12px; }
+ .owner-hero { display: block; padding: 4px 0 24px; }
+ .owner-hero h1 { font-size: 40px; }
+ .owner-public-link { display: inline-block; margin-top: 8px; }
+ .owner-workspace { display: block; padding: 16px; }
+ .owner-workspace label { max-width: none; }
+ .owner-scope { display: block; margin-top: 12px; }
+ .owner-scope small { max-width: none; }
+ .owner-tabs { gap: 22px; }
+ .owner-console .admin-grid { grid-template-columns: minmax(0,1fr); }
+ .owner-console .panel-card { padding: 20px 16px; }
+ .owner-shortcuts { grid-template-columns: minmax(0,1fr); gap: 10px; }
+ .owner-shortcuts a { padding: 18px; }
+ .shortcut-number { margin-bottom: 12px; }
+ .owner-metrics { gap: 10px; }
+ .owner-metrics>div { padding: 16px; }
+}

@@ -97,8 +97,10 @@ export async function updatePassword(password: string): Promise<void> {
 export async function signOut(): Promise<void> {
   if (!supabase) return;
   if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('buhurtos:intentional-signout', '1');
-  const { error } = await supabase.auth.signOut();
-  if (error) {
+  try {
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+    if (error) throw error;
+  } catch (error) {
     if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem('buhurtos:intentional-signout');
     throw error;
   }
