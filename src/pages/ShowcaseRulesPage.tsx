@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useMemo } from 'react';
+import { useQueryStates } from '../lib/urlState';
 import { biRuleEntries, biRuleReferenceVerifiedAt, biRuleSources, biRulesLandingPage } from '../data/biMarshalRules';
 import { filterBiRules, formatFromMatchCategory, ruleFilterLabels, type RuleFilter } from '../lib/ruleReference';
 import { PageHeader, Pill } from '../components/ShowcaseUI';
@@ -13,17 +13,14 @@ function initialFilter(raw: string | null): RuleFilter {
 }
 
 export function ShowcaseRulesPage(){
-  const [params,setParams]=useSearchParams();
-  const [format,setFormatState]=useState<RuleFilter>(()=>initialFilter(params.get('format')));
-  const [query,setQuery]=useState(params.get('q') ?? '');
-  const [sourceId,setSourceId]=useState(params.get('source') ?? 'all');
-
-  const setFormat=(next:RuleFilter)=>{
-    setFormatState(next);
-    const updated=new URLSearchParams(params);
-    if(next==='all') updated.delete('format'); else updated.set('format',next);
-    setParams(updated,{replace:true});
-  };
+  // Format, search and source document all live in the URL, so a rule view can be shared and survives reload and Back.
+  const [state,setState]=useQueryStates({format:'',q:'',source:'all'});
+  const format=initialFilter(state.format||null);
+  const query=state.q;
+  const sourceId=biRuleSources.some(source=>source.id===state.source)?state.source:'all';
+  const setFormat=(next:RuleFilter)=>setState({format:next==='all'?'':next});
+  const setQuery=(next:string)=>setState({q:next});
+  const setSourceId=(next:string)=>setState({source:next});
 
   const rules=useMemo(()=>{
     const filtered=filterBiRules(biRuleEntries,format,query);
@@ -41,13 +38,14 @@ export function ShowcaseRulesPage(){
     />
 
     <div className="rule-source-status">
-      <div><Pill tone="green">Source-backed</Pill><strong>{biRuleEntries.length} indexed rule sections</strong><span>Source set checked {biRuleReferenceVerifiedAt}</span></div>
+      <div><Pill tone="green">Source-backed</Pill><strong>{biRuleEntries.length} indexed rule sections</strong><span>Source set last checked {biRuleReferenceVerifiedAt}</span></div>
       <span>Current fight corpus: Buhurt Rules 26.4.1, Buhurt Regulations 26.4, Duels Rules 26.4, Duels Regulations 26.4, Outrance 26.4 and Weapons / Shield Chart 26.2.1.</span>
+      <span>Coverage limit: only these BI documents are indexed. Formats and rule sets that are not listed here, such as Long Axe or Marathon, or other organizations' rules, are not covered yet. Check the official document for the event you are working.</span>
     </div>
 
     <section className="marshal-filter-panel">
-      <div className="marshal-format-tabs" role="tablist" aria-label="Fight format">
-        {filters.map(value=><button key={value} className={format===value?'selected':''} onClick={()=>setFormat(value)}>{ruleFilterLabels[value]}</button>)}
+      <div className="marshal-format-tabs" role="group" aria-label="Fight format">
+        {filters.map(value=><button key={value} type="button" className={format===value?'selected':''} aria-pressed={format===value} onClick={()=>setFormat(value)}>{ruleFilterLabels[value]}</button>)}
       </div>
       <div className="marshal-search-row">
         <label className="show-search grow"><span>⌕</span><input aria-label="Search BI rules" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Try: grounded, back of knee, armor failure, yellow card…"/></label>
@@ -58,14 +56,14 @@ export function ShowcaseRulesPage(){
       </div>
       <div className="marshal-quick-search" aria-label="Common marshal questions">
         <span>Quick calls</span>
-        {quickSearches.map(value=><button key={value} onClick={()=>setQuery(value)}>{value}</button>)}
-        {(query||sourceId!=='all')?<button className="clear" onClick={()=>{setQuery('');setSourceId('all');}}>Clear</button>:null}
+        {quickSearches.map(value=><button key={value} type="button" onClick={()=>setQuery(value)}>{value}</button>)}
+        {(query||sourceId!=='all')?<button type="button" className="clear" onClick={()=>setState({q:'',source:'all'})}>Clear</button>:null}
       </div>
     </section>
 
     <div className="marshal-result-head">
       <div><span className="eyebrow">Showing</span><h2>{ruleFilterLabels[format]}</h2></div>
-      <strong>{rules.length} matching sections</strong>
+      <strong role="status">{rules.length} matching sections</strong>
     </div>
 
     {rules.length===0?<div className="state-card">No BI rule section matches those filters. Clear the search or choose another fight format.</div>:<div className="marshal-rule-grid">{rules.map(entry=>{

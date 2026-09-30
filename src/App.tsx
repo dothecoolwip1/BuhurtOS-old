@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { NotFoundPage, RouteBoundary } from './components/RouteBoundary';
 import { HashRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { ShowcaseShell } from './components/ShowcaseShell';
 import { AdminShell } from './components/AdminShell';
@@ -104,7 +105,7 @@ function RouteFallback() {
 }
 
 export function App(){
-  return <HashRouter><AccountProvider><Suspense fallback={<RouteFallback/>}><Routes>
+  return <HashRouter><AccountProvider><RouteBoundary><Suspense fallback={<RouteFallback/>}><Routes>
     <Route path="/" element={<Navigate to="/public" replace/>}/>
     <Route path="/about" element={<Navigate to="/public" replace/>}/>
     <Route path="/embed/events" element={<EmbedEventsPage/>}/>
@@ -172,7 +173,7 @@ export function App(){
         <Route path="rules/divisions" element={<FoundationPage/>}/>
         <Route path="settings" element={<SettingsPage/>}/>
         <Route path="system/sync" element={<SyncPage/>}/>
-        <Route path="*" element={<Navigate to="/admin" replace/>}/>
+        <Route path="*" element={<NotFoundPage/>}/>
       </Route>
     </Route>
 
@@ -181,6 +182,6 @@ export function App(){
     <Route path="/ops" element={<LegacyRedirect/>}/>
     <Route path="/ops/*" element={<LegacyRedirect/>}/>
 
-    <Route path="*" element={<Navigate to="/" replace/>}/>
-  </Routes></Suspense></AccountProvider></HashRouter>;
+    <Route path="*" element={<NotFoundPage/>}/>
+  </Routes></Suspense></RouteBoundary></AccountProvider></HashRouter>;
 }

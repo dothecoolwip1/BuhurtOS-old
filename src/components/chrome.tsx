@@ -117,7 +117,18 @@ export function AppShell({ area, brandSub, sections, bottom, status, header, blo
     if (!menuOpen) return;
     document.documentElement.classList.add('nx-locked');
     sheet.current?.querySelector<HTMLElement>('a,button')?.focus();
-    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setMenuOpen(false); };
+    // Focus stays inside the open sheet: Tab wraps at both ends and the page behind is inert.
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setMenuOpen(false); return; }
+      if (event.key !== 'Tab' || !sheet.current) return;
+      const focusable = [...sheet.current.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),summary,input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(node => node.offsetParent !== null);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || !sheet.current.contains(active))) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && (active === last || !sheet.current.contains(active))) { event.preventDefault(); first.focus(); }
+    };
     document.addEventListener('keydown', onKey);
     const opener = toggle.current;
     return () => { document.documentElement.classList.remove('nx-locked'); document.removeEventListener('keydown', onKey); opener?.focus(); };
@@ -137,7 +148,7 @@ export function AppShell({ area, brandSub, sections, bottom, status, header, blo
   });
 
   return <div className={`nx-shell nx-${area}`}>
-    <header className="nx-top">
+    <header className="nx-top" inert={menuOpen}>
       <button ref={toggle} type="button" className="nx-menu-button" aria-label="Open menu" aria-expanded={menuOpen} aria-controls="nx-sheet" onClick={() => setMenuOpen(true)}>
         <span aria-hidden="true">☰</span>
       </button>
@@ -146,7 +157,7 @@ export function AppShell({ area, brandSub, sections, bottom, status, header, blo
       <div className="nx-top-right">{status}<AccountMenu current={area} /></div>
     </header>
 
-    <div className="nx-body">
+    <div className="nx-body" inert={menuOpen}>
       <aside className="nx-side" aria-label={areaLabel[area] + ' menu'}>{nav()}</aside>
       <main className="nx-main" id="main-content">
         <Breadcrumbs crumbs={crumbs} />
@@ -155,7 +166,7 @@ export function AppShell({ area, brandSub, sections, bottom, status, header, blo
       </main>
     </div>
 
-    <nav className="nx-bottom" aria-label="Main">
+    <nav className="nx-bottom" aria-label="Main" inert={menuOpen}>
       {bottom.map(item => <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => 'nx-bottom-link' + (isActive ? ' active' : '')}><span aria-hidden="true">{item.icon}</span><small>{item.label}</small></NavLink>)}
       <button type="button" className="nx-bottom-link" aria-label="Open menu" aria-expanded={menuOpen} aria-controls="nx-sheet" onClick={() => setMenuOpen(true)}><span aria-hidden="true">☰</span><small>Menu</small></button>
     </nav>
