@@ -5,103 +5,77 @@ import {Pill} from '../components/ShowcaseUI';
 import {loadPublicOrganizations,loadPublicEvents,type PublicOrganizationSummary,type PublicEventSummary} from '../lib/publicDirectory';
 import {loadPublicTeamMap,type PublicDirectoryTeam} from '../lib/teamDirectory';
 
-type RoleKey='spectator'|'fighter'|'team'|'organizer'|'organization';
-type FlowKey='discover'|'prepare'|'event'|'history';
+type FormatKey='melee'|'duels'|'outrance';
+type VisitorKey='curious'|'watch'|'fight'|'organize';
 
-const roleContent:Record<RoleKey,{label:string;kicker:string;title:string;copy:string;items:string[];cta:string;to:string}>={
-  spectator:{
-    label:'Spectators',
-    kicker:'UNDERSTAND THE SPORT',
-    title:'Follow Buhurt without needing a rulebook open beside you.',
-    copy:'Find teams, learn formats, open fighter profiles, follow real events and understand how the sport connects from federation to fighter.',
-    items:['Public team and fighter discovery','Event schedules, brackets and results as they are published','Rules and competition format reference'],
-    cta:'Explore the public sport',
-    to:'/teams'
+const formats:Record<FormatKey,{tab:string;kicker:string;title:string;copy:string;points:string[];tag:string}>={
+  melee:{
+    tab:'Team melee',
+    kicker:'MULTIPLE FIGHTERS · ONE LIST',
+    title:'The version that looks impossible until you see it.',
+    copy:'Teams enter the fighting area together in full armor. Striking, clinching, grappling and takedowns all matter, with the exact format and scoring controlled by the event ruleset.',
+    points:['Common team formats include 5v5 and larger melees','Fighters use regulated blunt weapons and protective armor','Marshals control the fight and enforce the rules'],
+    tag:'Fast · physical · tactical'
   },
-  fighter:{
-    label:'Fighters',
-    kicker:'ONE SPORTING IDENTITY',
-    title:'A career should follow the fighter, not the spreadsheet.',
-    copy:'BuhurtOS is designed around one long-term fighter identity that can connect teams, events, results, rankings and achievements over time.',
-    items:['Permanent public sporting profile','Team associations without losing history','Future claim and self-service workflows'],
-    cta:'Browse fighters',
-    to:'/fighters'
+  duels:{
+    tab:'Duels',
+    kicker:'ONE FIGHTER · ONE FIGHTER',
+    title:'Technical armored combat, one opponent at a time.',
+    copy:'Duels focus on individual skill and scoring within a defined weapon category. Events can include longsword, sword and buckler, sword and shield, polearm and other approved divisions.',
+    points:['Individual rather than team competition','Weapon category determines the rules and scoring','Results can feed event and ranking records'],
+    tag:'Precise · technical · competitive'
   },
-  team:{
-    label:'Teams',
-    kicker:'TEAM OPERATIONS',
-    title:'Give every team a real home inside the sport.',
-    copy:'Team pages bring together roster, location, source-backed rankings, events and public discovery, with management tools growing behind the same record.',
-    items:['Searchable public team profile and map presence','Roster and event connections','Future delegated team management without duplicate records'],
-    cta:'Find a team',
-    to:'/teams'
-  },
-  organizer:{
-    label:'Organizers',
-    kicker:'EVENT OPERATIONS',
-    title:'Plan the event once, then let the same data power event day.',
-    copy:'The operating side is being built for registration, check-in, fight cards, fields, brackets, scoring, announcements and public event output.',
-    items:['Tournament and non-tournament event models','Role-based event operations','Offline-aware workflows for real venues'],
-    cta:'Explore events',
-    to:'/events'
-  },
-  organization:{
-    label:'Organizations',
-    kicker:'CONNECTED GOVERNANCE',
-    title:'Represent the sport hierarchy without rebuilding it in every tool.',
-    copy:'Federations, national bodies, regional organizations and teams can be connected in one hierarchy while keeping public records and private administration separate.',
-    items:['Connected organization hierarchy','Scoped memberships and permissions','Rulesets, events and future delegated management'],
-    cta:'Explore organizations',
-    to:'/governance'
+  outrance:{
+    tab:'Outrance',
+    kicker:'INDIVIDUAL FULL CONTACT',
+    title:'A different individual format with its own ruleset.',
+    copy:'Outrance is another armored combat discipline used at some tournaments. It is separate from standard dueling and team melee, with its own competition rules and event structure.',
+    points:['Individual armored competition','Separate rules from standard duels','Availability depends on the event and governing ruleset'],
+    tag:'Individual · intense · ruleset specific'
   }
 };
 
-const flowContent:Record<FlowKey,{label:string;eyebrow:string;title:string;copy:string;steps:Array<[string,string]>;to:string;cta:string}>={
-  discover:{
-    label:'Discover',
-    eyebrow:'PUBLIC DISCOVERY',
-    title:'Start anywhere. Keep drilling down.',
-    copy:'A newcomer should be able to find a team, see who governs it, open its roster, discover nearby events and learn the rules without knowing where to look first.',
-    steps:[['01','Find an organization or team'],['02','Open fighters and public history'],['03','See upcoming events'],['04','Learn the rules behind the format']],
-    to:'/teams',
-    cta:'Open team directory'
+const visitorPaths:Record<VisitorKey,{label:string,title:string,copy:string,actions:Array<[string,string]>}>={
+  curious:{
+    label:'I am just curious',
+    title:'Start with the sport itself.',
+    copy:'You do not need to know a team, a ruleset or even what a “list” is. Start with the basics, then explore real teams and events when something catches your eye.',
+    actions:[['Learn the formats','/rules'],['See teams near the action','/teams']]
   },
-  prepare:{
-    label:'Before the event',
-    eyebrow:'PRE-EVENT',
-    title:'Turn planning into structured event data.',
-    copy:'BuhurtOS is growing toward one preparation flow for published event details, registration, rosters, clearances, divisions, fields, schedules and organizer access.',
-    steps:[['01','Publish the real event'],['02','Collect registrations'],['03','Prepare rosters and divisions'],['04','Build the operational fight plan']],
-    to:'/events',
-    cta:'Browse events'
+  watch:{
+    label:'I want to watch',
+    title:'Find what is happening and understand it while you watch.',
+    copy:'Open published events, see the host, venue, schedule and competition information that has actually been entered, then use the rules area whenever something is unfamiliar.',
+    actions:[['Find events','/events'],['Open the rules guide','/rules']]
   },
-  event:{
-    label:'Event day',
-    eyebrow:'FIELD OPERATIONS',
-    title:'One result should travel everywhere it needs to go.',
-    copy:'The event operations model is designed so organizers and officials work from the same event record while the public sees only the information intended for them.',
-    steps:[['01','Check in and clear fighters'],['02','Run fields and fight queues'],['03','Finalize real results'],['04','Publish the right public output']],
-    to:'/ops/login',
-    cta:'Open management sign in'
+  fight:{
+    label:'I want to try it',
+    title:'Find the people already training near you.',
+    copy:'The easiest first step is usually a local team. BuhurtOS maps public team locations and profiles so a newcomer can discover who is active and where to start asking questions.',
+    actions:[['Find a team','/teams'],['Browse fighter profiles','/fighters']]
   },
-  history:{
-    label:'After the event',
-    eyebrow:'LONG-TERM RECORD',
-    title:'Do not let the sport reset after every tournament.',
-    copy:'Finalized event data can become durable history for fighters, teams, rankings and organizations instead of disappearing into a spreadsheet or social post.',
-    steps:[['01','Preserve finalized results'],['02','Connect fighter and team history'],['03','Support rankings and standings'],['04','Keep the source and ruleset context']],
-    to:'/rankings',
-    cta:'Explore rankings'
+  organize:{
+    label:'I help run the sport',
+    title:'This is where BuhurtOS becomes an operating system.',
+    copy:'Organizations, teams and event staff can use the same underlying records for public discovery, access control, registration and event operations instead of rebuilding the same information in separate tools.',
+    actions:[['See the organization structure','/governance'],['Sign in to manage','/ops/login']]
   }
 };
+
+const platformLayers=[
+  ['DISCOVER','Teams · fighters · events · rules','The public front door'],
+  ['ORGANIZE','Organizations · rosters · access','The people and structure'],
+  ['OPERATE','Registration · fields · fight cards','The event-day system'],
+  ['RECORD','Results · rankings · history','What survives after the event']
+] as const;
 
 const exploreCards=[
-  {icon:'⌘',title:'Organizations',copy:'See how federations, national bodies, regional organizations and teams connect.',to:'/governance'},
-  {icon:'♜',title:'Teams',copy:'Search real public team records, open profiles and explore the map.',to:'/teams'},
-  {icon:'♟',title:'Fighters',copy:'Browse public fighter identities and the sporting records connected to them.',to:'/fighters'},
-  {icon:'⚔',title:'Events',copy:'Find tournaments, demos, training, gatherings and other published events.',to:'/events'},
-  {icon:'↗',title:'Rankings',copy:'See competitive standings only when real source data supports them.',to:'/rankings'},
-  {icon:'§',title:'Rules',copy:'Use a readable reference for rulesets, formats and competition categories.',to:'/rules'}
+  {icon:'⌘',title:'Organizations',copy:'See how governing bodies and teams connect.',to:'/governance',meta:'STRUCTURE'},
+  {icon:'♜',title:'Teams',copy:'Search real public team records and explore the map.',to:'/teams',meta:'FIND YOUR PEOPLE'},
+  {icon:'♟',title:'Fighters',copy:'Browse public sporting identities and connected records.',to:'/fighters',meta:'ATHLETES'},
+  {icon:'⚔',title:'Events',copy:'Find published tournaments, demos, training and gatherings.',to:'/events',meta:'WHAT IS NEXT'},
+  {icon:'↗',title:'Rankings',copy:'See standings only when real source data supports them.',to:'/rankings',meta:'COMPETITION'},
+  {icon:'§',title:'Rules',copy:'Understand formats, rulesets and what officials are calling.',to:'/rules',meta:'LEARN THE SPORT'}
 ] as const;
 
 const currentCapabilities=[
@@ -112,18 +86,18 @@ const currentCapabilities=[
   'Rules and rankings discovery',
   'Role-based management access',
   'Event operations foundation',
-  'Fighter signup and delegated access foundations'
+  'Signup and delegated access foundations'
 ];
 
 const futureCapabilities=[
   'Richer permanent fighter careers',
   'Team and organization claiming',
-  'Broader event categories and calendars',
-  'Embedded standings, teams and event widgets',
-  'Deeper source-backed rankings and statistics',
-  'More complete tournament-day automation',
-  'Expanded historical records and season views',
-  'Distribution tools for clubs and governing bodies'
+  'Broader calendars and event types',
+  'Embeddable standings and team widgets',
+  'Deeper source-backed statistics',
+  'More complete event-day automation',
+  'Expanded season and historical records',
+  'Distribution tools for the wider sport'
 ];
 
 function formatEventDate(value:string){
@@ -139,8 +113,8 @@ export function ShowcasePublicPage(){
   const [teamsLoading,setTeamsLoading]=useState(true);
   const [error,setError]=useState('');
   const [teamsError,setTeamsError]=useState('');
-  const [role,setRole]=useState<RoleKey>('spectator');
-  const [flow,setFlow]=useState<FlowKey>('discover');
+  const [format,setFormat]=useState<FormatKey>('melee');
+  const [visitor,setVisitor]=useState<VisitorKey>('curious');
 
   useEffect(()=>{
     let active=true;
@@ -159,167 +133,160 @@ export function ShowcasePublicPage(){
   const countries=useMemo(()=>new Set(teams.map(t=>t.countryCode||t.countryName).filter(Boolean)).size,[teams]);
   const upcoming=useMemo(()=>events.filter(e=>new Date(e.endsAt).getTime()>=Date.now()).slice(0,4),[events]);
   const rosterSourceCount=useMemo(()=>orgs.reduce((sum,o)=>sum+o.rosterCount,0),[orgs]);
-  const activeRole=roleContent[role];
-  const activeFlow=flowContent[flow];
+  const activeFormat=formats[format];
+  const activeVisitor=visitorPaths[visitor];
   const spotlightEvent=upcoming[0];
 
   return <div className="bhome">
-    <section className="bhome-hero">
-      <div className="bhome-hero-copy">
-        <span className="bhome-kicker"><i/> THE CONNECTED PLATFORM FOR ARMORED COMBAT</span>
-        <h1>Everything Buhurt.<br/><em>One platform.</em></h1>
-        <p className="bhome-lead">BuhurtOS is being built to connect the entire sport: governing organizations, teams, fighters, events, tournament operations, rankings, rules and public discovery.</p>
-        <div className="bhome-hero-actions">
-          <Link className="show-btn primary bhome-big-btn" to="/teams">Explore the sport <span>→</span></Link>
-          <Link className="show-btn secondary bhome-big-btn" to="/about">What are we building?</Link>
-        </div>
-        <div className="bhome-trust-row">
-          <span><b>PUBLIC FIRST</b><small>Useful without an account</small></span>
-          <span><b>REAL DATA</b><small>No invented sports records</small></span>
-          <span><b>ONE SYSTEM</b><small>Public + operations connected</small></span>
-        </div>
-      </div>
-
-      <div className="bhome-command">
-        <div className="bhome-command-top">
-          <div><i/><span>BUHURTOS NETWORK</span></div>
-          <small>{loading||teamsLoading?'SYNCING PUBLIC DATA':'PUBLIC DATA CONNECTED'}</small>
-        </div>
-        <div className="bhome-command-title">
-          <span>SPORT SNAPSHOT</span>
-          <strong>One connected view of Buhurt</strong>
-          <p>Live counts below come from the public records currently available to BuhurtOS.</p>
-        </div>
-        <div className="bhome-command-stats">
-          <Link to="/teams"><strong>{teamsLoading?'…':teams.length}</strong><span>Teams</span></Link>
-          <Link to="/governance"><strong>{loading?'…':orgs.length}</strong><span>Organizations</span></Link>
-          <Link to="/teams"><strong>{teamsLoading?'…':countries}</strong><span>Countries</span></Link>
-          <Link to="/events"><strong>{loading?'…':events.length}</strong><span>Published events</span></Link>
-        </div>
-        <div className="bhome-command-divider"/>
-        {spotlightEvent?
-          <Link className="bhome-event-spotlight" to={'/events/'+spotlightEvent.id}>
-            <div><span>NEXT PUBLISHED EVENT</span><strong>{spotlightEvent.name}</strong><small>{formatEventDate(spotlightEvent.startsAt)} · {spotlightEvent.venue||'Venue TBA'}</small></div>
-            <b>→</b>
-          </Link>
-          :<div className="bhome-event-spotlight empty"><div><span>EVENT NETWORK</span><strong>No future published event yet</strong><small>When a real event is published, it will appear here automatically.</small></div></div>}
-        <div className="bhome-command-links">
-          <Link to="/teams">Team map <span>↗</span></Link>
-          <Link to="/events">Event calendar <span>↗</span></Link>
-          <Link to="/rules">Rules reference <span>↗</span></Link>
-        </div>
-      </div>
-    </section>
-
-    <section className="bhome-ecosystem" aria-label="BuhurtOS ecosystem">
-      <Link to="/governance"><small>GOVERNANCE</small><b>International + national organizations</b><span>⌘</span></Link>
-      <i>→</i>
-      <Link to="/teams"><small>TEAMS</small><b>Clubs and fight teams</b><span>♜</span></Link>
-      <i>→</i>
-      <Link to="/fighters"><small>FIGHTERS</small><b>Permanent sporting identities</b><span>♟</span></Link>
-      <i>→</i>
-      <Link to="/events"><small>EVENTS</small><b>The sport in motion</b><span>⚔</span></Link>
-    </section>
-
-    <section className="bhome-section bhome-intro">
-      <div className="bhome-section-head">
-        <div>
-          <span className="eyebrow">WHAT IS BUHURTOS?</span>
-          <h2>The operating layer the sport has been missing.</h2>
-        </div>
-        <p>BuhurtOS is not meant to be only a bracket app, team directory or scoring screen. The goal is one shared platform that can carry the same trusted information from discovery, through event operations, into long-term sporting history.</p>
-      </div>
-      <div className="bhome-pillars">
-        <article><span>01</span><h3>Discover</h3><p>Find organizations, teams, fighters, events, rankings and rules from one public front door.</p><Link to="/teams">Start exploring →</Link></article>
-        <article><span>02</span><h3>Organize</h3><p>Give teams and organizations structured records, scoped access and a place to manage the real work behind the sport.</p><Link to="/governance">See the structure →</Link></article>
-        <article><span>03</span><h3>Operate</h3><p>Support real event-day workflows including registration, fields, fight cards, scoring, announcements and public output.</p><Link to="/events">Open events →</Link></article>
-        <article><span>04</span><h3>Remember</h3><p>Turn finalized competition data into durable fighter, team, event and ranking history instead of disposable files.</p><Link to="/rankings">View rankings →</Link></article>
-      </div>
-    </section>
-
-    <section className="bhome-dark-band">
-      <div className="bhome-section-head compact">
-        <div><span className="eyebrow">BUILT FOR EVERY SIDE OF THE SPORT</span><h2>Pick your view.</h2></div>
-        <p>Each role needs different tools, but they should all work from the same underlying sport records.</p>
-      </div>
-      <div className="bhome-role-layout">
-        <div className="bhome-role-tabs" role="tablist" aria-label="BuhurtOS roles">
-          {(Object.keys(roleContent) as RoleKey[]).map(key=><button key={key} type="button" role="tab" aria-selected={role===key} className={role===key?'active':''} onClick={()=>setRole(key)}><span>{roleContent[key].label}</span><b>→</b></button>)}
-        </div>
-        <div className="bhome-role-panel">
-          <span className="eyebrow">{activeRole.kicker}</span>
-          <h3>{activeRole.title}</h3>
-          <p>{activeRole.copy}</p>
-          <div className="bhome-check-list">{activeRole.items.map(item=><span key={item}><i>✓</i>{item}</span>)}</div>
-          <Link className="show-btn primary" to={activeRole.to}>{activeRole.cta} →</Link>
-        </div>
-        <div className="bhome-role-visual" aria-hidden="true">
-          <div className="bhome-visual-window">
-            <div className="bhome-visual-bar"><i/><i/><i/><span>{activeRole.label}</span></div>
-            <div className="bhome-visual-body">
-              <small>{activeRole.kicker}</small>
-              <strong>{activeRole.title}</strong>
-              {activeRole.items.map((item,index)=><div key={item}><span>{String(index+1).padStart(2,'0')}</span><b>{item}</b></div>)}
-            </div>
+    <section className="bhome-cinema">
+      <div className="bhome-cinema-photo" aria-hidden="true"/>
+      <div className="bhome-cinema-wash" aria-hidden="true"/>
+      <div className="bhome-cinema-grain" aria-hidden="true"/>
+      <div className="bhome-cinema-content">
+        <div className="bhome-cinema-copy">
+          <span className="bhome-kicker"><i/> THIS IS A REAL SPORT</span>
+          <h1>Steel armor.<br/>Full contact.<br/><em>Real competition.</em></h1>
+          <p>Buhurt is modern armored combat using historically inspired protective armor and regulated blunt weapons. It is refereed, organized and competitive, not a staged medieval fight.</p>
+          <div className="bhome-cinema-actions">
+            <button className="show-btn primary bhome-big-btn" type="button" onClick={()=>document.getElementById('what-is-buhurt')?.scrollIntoView({behavior:'smooth'})}>I have never seen this before <span>↓</span></button>
+            <Link className="show-btn glass bhome-big-btn" to="/events">Show me real events</Link>
+          </div>
+          <div className="bhome-cinema-facts">
+            <span><b>FULL CONTACT</b><small>Striking, grappling and takedowns</small></span>
+            <span><b>ARMORED</b><small>Protective equipment is checked</small></span>
+            <span><b>SPORT</b><small>Rules, officials, events and rankings</small></span>
           </div>
         </div>
+
+        <aside className="bhome-101">
+          <div className="bhome-101-top"><span>BUHURT 101</span><b>What am I looking at?</b></div>
+          <div className="bhome-101-row"><span>01</span><div><b>The armor is functional</b><small>Modern-made protective equipment is built to meet safety and historical appearance requirements.</small></div></div>
+          <div className="bhome-101-row"><span>02</span><div><b>The weapons are regulated</b><small>Competition uses approved blunt weapons rather than sharpened battlefield weapons.</small></div></div>
+          <div className="bhome-101-row"><span>03</span><div><b>The contact is real</b><small>Fighters compete under a ruleset with trained officials called marshals.</small></div></div>
+          <div className="bhome-101-row"><span>04</span><div><b>There are different formats</b><small>Team melees, one-on-one duels and other categories can appear at an event.</small></div></div>
+          <Link to="/rules">Open the beginner rules guide <span>→</span></Link>
+        </aside>
+      </div>
+      <div className="bhome-scroll-cue"><span>SCROLL TO ENTER THE SPORT</span><i>↓</i></div>
+    </section>
+
+    <section className="bhome-beginner" id="what-is-buhurt">
+      <div className="bhome-beginner-lead">
+        <span className="eyebrow">NEW TO BUHURT?</span>
+        <h2>Think combat sport.<br/><em>Then add armor.</em></h2>
+        <p>You do not need to understand the organizations, rankings or rulebooks first. The simple version is that trained competitors fight in protective medieval-style armor under modern sporting rules.</p>
+        <div className="bhome-word">
+          <span>BUHURT</span>
+          <div><b>also called armored combat</b><small>A modern full-contact combat sport, not choreographed reenactment.</small></div>
+        </div>
+      </div>
+      <div className="bhome-format-explorer">
+        <div className="bhome-format-tabs" role="tablist" aria-label="Common competition formats">
+          {(Object.keys(formats) as FormatKey[]).map(key=><button key={key} type="button" role="tab" aria-selected={format===key} className={format===key?'active':''} onClick={()=>setFormat(key)}>{formats[key].tab}</button>)}
+        </div>
+        <div className="bhome-format-card">
+          <span>{activeFormat.kicker}</span>
+          <h3>{activeFormat.title}</h3>
+          <p>{activeFormat.copy}</p>
+          <div>{activeFormat.points.map(point=><small key={point}><i>✓</i>{point}</small>)}</div>
+          <b>{activeFormat.tag}</b>
+        </div>
       </div>
     </section>
 
-    <section className="bhome-section">
+    <section className="bhome-not-reenactment">
+      <div>
+        <span className="bhome-mega-word">NOT STAGED.</span>
+        <span className="bhome-mega-word outline">NOT FANTASY.</span>
+        <span className="bhome-mega-word accent">SPORT.</span>
+      </div>
+      <p>The historical look matters, but the competition is contemporary. Fighters train, equipment is inspected, marshals officiate, events publish results, and governing bodies maintain rules and standards.</p>
+    </section>
+
+    <section className="bhome-paths">
       <div className="bhome-section-head">
-        <div><span className="eyebrow">HOW THE PLATFORM CONNECTS</span><h2>Before, during and long after the fight.</h2></div>
-        <p>Explore the intended flow. The public platform and operational tools are being built as different views of the same connected records.</p>
+        <div><span className="eyebrow">YOU DO NOT NEED TO KNOW WHERE TO START</span><h2>Tell BuhurtOS why you are here.</h2></div>
+        <p>The homepage changes the next step depending on whether you are discovering the sport, looking for something to watch, trying to join, or already helping run it.</p>
       </div>
-      <div className="bhome-flow-tabs" role="tablist" aria-label="BuhurtOS workflow stages">
-        {(Object.keys(flowContent) as FlowKey[]).map(key=><button type="button" role="tab" aria-selected={flow===key} className={flow===key?'active':''} onClick={()=>setFlow(key)} key={key}>{flowContent[key].label}</button>)}
-      </div>
-      <div className="bhome-flow-panel">
-        <div className="bhome-flow-copy">
-          <span className="eyebrow">{activeFlow.eyebrow}</span>
-          <h3>{activeFlow.title}</h3>
-          <p>{activeFlow.copy}</p>
-          <Link to={activeFlow.to}>{activeFlow.cta} →</Link>
+      <div className="bhome-path-layout">
+        <div className="bhome-path-tabs" role="tablist" aria-label="Visitor goals">
+          {(Object.keys(visitorPaths) as VisitorKey[]).map(key=><button key={key} type="button" role="tab" aria-selected={visitor===key} className={visitor===key?'active':''} onClick={()=>setVisitor(key)}><span>{visitorPaths[key].label}</span><i>→</i></button>)}
         </div>
-        <div className="bhome-flow-steps">{activeFlow.steps.map(([number,text],index)=><div key={number}><span>{number}</span><b>{text}</b>{index<activeFlow.steps.length-1?<i>→</i>:null}</div>)}</div>
+        <div className="bhome-path-panel">
+          <span className="eyebrow">YOUR NEXT STEP</span>
+          <h3>{activeVisitor.title}</h3>
+          <p>{activeVisitor.copy}</p>
+          <div>{activeVisitor.actions.map(([label,to],index)=><Link key={to} className={index===0?'show-btn primary':'show-btn secondary'} to={to}>{label} →</Link>)}</div>
+        </div>
+      </div>
+    </section>
+
+    <section className="bhome-platform">
+      <div className="bhome-platform-intro">
+        <span className="eyebrow">SO WHAT IS BUHURTOS?</span>
+        <h2>The digital layer connecting the sport from first click to final result.</h2>
+        <p>Today, the sport can live across websites, spreadsheets, forms, messages and isolated event systems. BuhurtOS is being built so the same real records can serve the public, teams, organizers, officials and governing organizations without being recreated over and over.</p>
+      </div>
+      <div className="bhome-platform-stack">
+        {platformLayers.map(([title,items,caption],index)=><div key={title} className={'bhome-layer layer-'+index}><span>{String(index+1).padStart(2,'0')}</span><div><small>{caption}</small><b>{title}</b><p>{items}</p></div><i>↘</i></div>)}
+      </div>
+    </section>
+
+    <section className="bhome-network">
+      <div className="bhome-network-copy">
+        <span className="eyebrow">THE NETWORK ALREADY HAS REAL DATA</span>
+        <h2>This is not a pretend product tour.</h2>
+        <p>The numbers here come from the public sport records currently available to BuhurtOS. No invented fan counts, fake fighters or made-up live events.</p>
+        <Link className="show-btn secondary" to="/teams">Explore the real directory →</Link>
+      </div>
+      <div className="bhome-network-stats">
+        <Link to="/teams"><strong>{teamsLoading?'…':teams.length}</strong><span>public teams</span><small>Open the directory</small></Link>
+        <Link to="/governance"><strong>{loading?'…':orgs.length}</strong><span>organizations</span><small>See the hierarchy</small></Link>
+        <Link to="/teams"><strong>{teamsLoading?'…':countries}</strong><span>countries</span><small>Explore the map</small></Link>
+        <Link to="/fighters"><strong>{loading?'…':rosterSourceCount}</strong><span>roster records</span><small>Publicly listed</small></Link>
       </div>
     </section>
 
     <section className="bhome-section bhome-explore">
       <div className="bhome-section-head">
-        <div><span className="eyebrow">EXPLORE THE SPORT</span><h2>Six ways into the same ecosystem.</h2></div>
-        <p>You do not need an account to start. The public side is designed to be useful to fighters, fans, teams and newcomers immediately.</p>
+        <div><span className="eyebrow">GO ANYWHERE FROM HERE</span><h2>One sport. Six public doors.</h2></div>
+        <p>Each area answers a different question, but they all connect back to the same ecosystem.</p>
       </div>
-      <div className="bhome-explore-grid">{exploreCards.map(card=><Link to={card.to} className="bhome-explore-card" key={card.title}><span>{card.icon}</span><div><h3>{card.title}</h3><p>{card.copy}</p></div><b>↗</b></Link>)}</div>
+      <div className="bhome-explore-grid">{exploreCards.map(card=><Link to={card.to} className="bhome-explore-card" key={card.title}><div className="bhome-explore-icon">{card.icon}</div><div><small>{card.meta}</small><h3>{card.title}</h3><p>{card.copy}</p></div><b>↗</b></Link>)}</div>
     </section>
 
-    <section className="bhome-section bhome-map-section">
-      <div className="bhome-section-head">
-        <div><span className="eyebrow">GLOBAL TEAM DISCOVERY</span><h2>The sport should be visible on a map.</h2></div>
-        <div className="bhome-map-meta"><strong>{teamsLoading?'…':mapped.length}</strong><span>mapped teams</span><Link to="/teams">Open full directory →</Link></div>
+    <section className="bhome-event-stage">
+      <div className="bhome-event-stage-head">
+        <div><span className="eyebrow">WHAT IS ACTUALLY HAPPENING?</span><h2>Real published events.</h2><p>If an event is not published, BuhurtOS does not pretend it is live. When organizers publish real information, it can appear here.</p></div>
+        <Link to="/events">Open full event calendar →</Link>
+      </div>
+      {error?<div className="state-card"><strong>Unable to load public directory data</strong><p>{error}</p></div>:null}
+      {spotlightEvent?<div className="bhome-featured-event">
+        <div className="bhome-featured-date"><span>UP NEXT</span><strong>{new Date(spotlightEvent.startsAt).getDate()}</strong><small>{formatEventDate(spotlightEvent.startsAt)}</small></div>
+        <div className="bhome-featured-copy"><div><Pill tone={spotlightEvent.status==='live'?'red':'green'}>{spotlightEvent.status}</Pill><span>{spotlightEvent.eventType.replaceAll('_',' ')}</span></div><h3>{spotlightEvent.name}</h3><p>{spotlightEvent.venue||'Venue TBA'}{spotlightEvent.organizerName?' · '+spotlightEvent.organizerName:''}</p><Link className="show-btn primary" to={'/events/'+spotlightEvent.id}>Open event →</Link></div>
+        <div className="bhome-featured-index"><span>BUHURTOS</span><b>EVENT</b><i>⚔</i></div>
+      </div>:!loading?<div className="bhome-empty"><span>⚔</span><div><strong>No future published events yet.</strong><p>The public calendar will populate from real event records as organizers publish them.</p></div><Link to="/events">View event directory →</Link></div>:<div className="state-card">Loading published events…</div>}
+      {upcoming.length>1?<div className="bhome-events-strip">{upcoming.slice(1).map(event=><Link to={'/events/'+event.id} key={event.id}><small>{formatEventDate(event.startsAt)}</small><b>{event.name}</b><span>{event.venue||'Venue TBA'}</span><i>→</i></Link>)}</div>:null}
+    </section>
+
+    <section className="bhome-map-stage">
+      <div className="bhome-map-copy">
+        <span className="eyebrow">WHERE DOES THIS EVEN EXIST?</span>
+        <h2>Closer than you might think.</h2>
+        <p>BuhurtOS maps public team locations so somebody discovering the sport for the first time can go from “what is this?” to “who trains near me?” without hunting through disconnected social pages.</p>
+        <div><strong>{teamsLoading?'…':mapped.length}</strong><span>teams currently mapped</span></div>
+        <Link className="show-btn primary" to="/teams">Find teams →</Link>
       </div>
       <div className="bhome-map-shell">
-        <div className="bhome-map-note"><span>◎</span><div><b>Interactive team map</b><small>Approximate public team locations only. Select a marker to open the team profile.</small></div></div>
+        <div className="bhome-map-note"><span>◎</span><div><b>Interactive team map</b><small>Approximate public locations only. Select a marker to open the team profile.</small></div></div>
         {teamsLoading?<div className="state-card">Loading team locations…</div>:teamsError?<div className="state-card"><strong>Unable to load team locations</strong><p>{teamsError}</p></div>:mapped.length?<PublicTeamMap teams={mapped}/>:<div className="state-card">Team locations are still being normalized.</div>}
       </div>
     </section>
 
-    <section className="bhome-section">
+    <section className="bhome-org-stage">
       <div className="bhome-section-head">
-        <div><span className="eyebrow">WHAT'S HAPPENING NEXT?</span><h2>Real published events.</h2></div>
-        <Link className="bhome-inline-link" to="/events">Open all events →</Link>
-      </div>
-      {error?<div className="state-card"><strong>Unable to load public directory data</strong><p>{error}</p></div>:null}
-      {upcoming.length?<div className="bhome-events-grid">{upcoming.map(event=><Link to={'/events/'+event.id} key={event.id} className="bhome-event-card">
-        <div className="bhome-event-date"><span>{formatEventDate(event.startsAt).split(' ')[0]}</span><strong>{new Date(event.startsAt).getDate()}</strong><small>{new Date(event.startsAt).getFullYear()}</small></div>
-        <div className="bhome-event-content"><div><Pill tone={event.status==='live'?'red':'green'}>{event.status}</Pill><span>{event.eventType.replaceAll('_',' ')}</span></div><h3>{event.name}</h3><p>{event.venue||'Venue TBA'}{event.organizerName?' · '+event.organizerName:''}</p><b>Open event →</b></div>
-      </Link>)}</div>:!loading?<div className="bhome-empty"><span>⚔</span><div><strong>No future published events yet.</strong><p>Draft and private events stay private. The moment a real event is published, it can appear here.</p></div><Link to="/events">View event directory →</Link></div>:<div className="state-card">Loading published events…</div>}
-    </section>
-
-    <section className="bhome-section">
-      <div className="bhome-section-head">
-        <div><span className="eyebrow">THE SPORT'S STRUCTURE</span><h2>Organizations are part of the map too.</h2></div>
-        <Link className="bhome-inline-link" to="/governance">View organization hierarchy →</Link>
+        <div><span className="eyebrow">WHO ACTUALLY RUNS ALL OF THIS?</span><h2>The sport has layers of organizations and teams.</h2></div>
+        <p>BuhurtOS models those relationships instead of pretending every group is the same thing. A governing body can connect to organizations and teams without turning the platform itself into the owner of the sport.</p>
       </div>
       {orgs.length?<div className="bhome-org-grid">{orgs.slice(0,6).map(org=><Link key={org.key} to={'/organizations/'+org.key} className="bhome-org-card">
         <div className="bhome-org-mark">{org.shortName.slice(0,4)}</div>
@@ -328,25 +295,25 @@ export function ShowcasePublicPage(){
       </Link>)}</div>:loading?<div className="state-card">Loading organizations…</div>:null}
     </section>
 
-    <section className="bhome-section bhome-roadmap">
+    <section className="bhome-roadmap">
       <div className="bhome-section-head">
-        <div><span className="eyebrow">BUHURTOS NOW + NEXT</span><h2>A real platform being built in layers.</h2></div>
-        <p>The public site should be clear about what exists today and what the architecture is being prepared to support next.</p>
+        <div><span className="eyebrow">THIS IS THE START, NOT THE FINISH</span><h2>BuhurtOS now, and where it is going.</h2></div>
+        <p>The public experience should never pretend unfinished work is complete. These are the pieces already represented in the platform and the direction the architecture is prepared to support.</p>
       </div>
       <div className="bhome-roadmap-grid">
-        <article className="now"><div><span>NOW</span><h3>The proof platform</h3><p>Working public discovery and connected operations foundations using real sport records.</p></div><div className="bhome-cap-list">{currentCapabilities.map(item=><span key={item}><i>✓</i>{item}</span>)}</div></article>
-        <article className="next"><div><span>GROWING TOWARD</span><h3>The sport's shared operating system</h3><p>More complete self-service, tournament automation, historical records and distribution without creating parallel identities.</p></div><div className="bhome-cap-list">{futureCapabilities.map(item=><span key={item}><i>→</i>{item}</span>)}</div></article>
+        <article className="now"><div><span>WORKING FOUNDATION</span><h3>The proof platform</h3><p>Public discovery and connected operations foundations using real sport records.</p></div><div className="bhome-cap-list">{currentCapabilities.map(item=><span key={item}><i>✓</i>{item}</span>)}</div></article>
+        <article className="next"><div><span>GROWING TOWARD</span><h3>The sport's shared operating system</h3><p>More complete self-service, event automation, historical records and distribution without creating parallel identities.</p></div><div className="bhome-cap-list">{futureCapabilities.map(item=><span key={item}><i>→</i>{item}</span>)}</div></article>
       </div>
     </section>
 
     <section className="bhome-final-cta">
-      <div><span className="eyebrow">START WITH THE PUBLIC SIDE</span><h2>See the sport as one connected system.</h2><p>Browse what is already public, then sign in when you need the management side.</p></div>
+      <div><span className="eyebrow">YOU KNOW ENOUGH TO START EXPLORING</span><h2>Pick a team. Open an event. Learn the sport.</h2><p>BuhurtOS should make sense before you ever need an account.</p></div>
       <div><Link className="show-btn primary bhome-big-btn" to="/teams">Explore BuhurtOS →</Link><Link className="show-btn secondary bhome-big-btn" to="/ops/login">Sign in / manage</Link></div>
     </section>
 
     <footer className="bhome-footer-note">
       <span>BuhurtOS</span>
-      <p>Public records are shown only when backed by BuhurtOS or an identified public source. Private account and organizer data stays outside the public directory.</p>
+      <p>Public sports records are shown only when backed by BuhurtOS or an identified public source. Private account and organizer data stays outside the public directory.</p>
     </footer>
   </div>;
 }
