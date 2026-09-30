@@ -14,7 +14,7 @@ export interface TournamentBracketSummary {
   generationHash?: string;
   publishedAt?: string;
   /** Planned areas and start times saved with the bracket, when the organizer used the schedule planner. */
-  schedule?: { finishesAt?: string; slots: Array<{ matchId: string; areaId: string; startsAt: string; endsAt: string; order: number }> };
+  schedule?: { finishesAt?: string; settings?: { startsAt: string; boutMinutes: number; changeoverMinutes: number; minRestMinutes: number; areaIds: string[]; breaks?: Array<{ label: string; startsAt: string; minutes: number }> }; slots: Array<{ matchId: string; areaId: string; startsAt: string; endsAt: string; order: number }> };
 }
 
 export async function listTournamentBrackets(eventId: string): Promise<TournamentBracketSummary[]> {

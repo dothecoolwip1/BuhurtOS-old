@@ -332,13 +332,13 @@ export function scheduleMatches(matches: SchedulableMatch[], settings: ScheduleS
 }
 
 /** Puts the planned area and order onto the matches (the stored draw itself is untouched). */
-export function applySchedule<T extends { id: UUID; fightCardId?: UUID; scheduledOrder: number }>(matches: T[], plan: SchedulePlan): T[] {
+export function applySchedule<T extends { id: UUID; fightCardId?: UUID; scheduledOrder: number }>(matches: T[], plan: SchedulePlan, orderOffset = 0): T[] {
   const byMatch = new Map(plan.slots.map(slot => [slot.matchId, slot]));
   const unplaced = matches.filter(match => !byMatch.has(match.id));
-  let next = plan.slots.length;
+  let next = orderOffset + plan.slots.length;
   return matches.map(match => {
     const slot = byMatch.get(match.id);
-    if (slot) return { ...match, fightCardId: slot.areaId, scheduledOrder: slot.order };
+    if (slot) return { ...match, fightCardId: slot.areaId, scheduledOrder: orderOffset + slot.order };
     next += 1;
     return unplaced.includes(match) ? { ...match, scheduledOrder: next } : match;
   });
@@ -355,4 +355,17 @@ export function scheduleMetadata(plan: SchedulePlan, settings: ScheduleSettings)
     finishesAt: plan.finishesAt,
     slots: plan.slots.map(slot => ({ matchId: slot.matchId, areaId: slot.areaId, startsAt: slot.startsAt, endsAt: slot.endsAt, order: slot.order }))
   };
+}
+
+const ROUND_UP_MINUTES = 5;
+
+/**
+ * When the playoff can start: after the pool stage is planned to finish, or right now if pools ran late, plus the rest time so
+ * nobody walks straight from a pool bout into a knockout bout. Rounded up to a tidy five minutes.
+ */
+export function playoffStart(poolFinishesAt: string | undefined, minRestMinutes: number, now = Date.now()): string {
+  const planned = poolFinishesAt ? new Date(poolFinishesAt).getTime() : 0;
+  const base = Math.max(Number.isNaN(planned) ? 0 : planned, now) + Math.max(0, minRestMinutes) * MINUTE;
+  const step = ROUND_UP_MINUTES * MINUTE;
+  return new Date(Math.ceil(base / step) * step).toISOString();
 }

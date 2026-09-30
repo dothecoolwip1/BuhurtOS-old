@@ -154,3 +154,31 @@ describe('labels', () => {
     expect(matches[0].label).toMatch(/^Pool A • Match 1$/);
   });
 });
+
+import { playoffStart } from '../src/lib/tournamentPlanner';
+describe('playoff scheduling', () => {
+  it('starts after the pools are due to finish, plus rest, on a tidy five minutes', () => {
+    const start = playoffStart('2026-06-06T17:01:00Z', 10, Date.parse('2026-06-06T15:00:00Z'));
+    expect(start).toBe('2026-06-06T17:15:00.000Z');
+  });
+  it('starts from now when the pools ran late', () => {
+    const start = playoffStart('2026-06-06T17:00:00Z', 10, Date.parse('2026-06-06T18:02:00Z'));
+    expect(Date.parse(start)).toBeGreaterThanOrEqual(Date.parse('2026-06-06T18:12:00Z'));
+    expect(Date.parse(start) % (5 * 60_000)).toBe(0);
+  });
+  it('plans a knockout after pools without overlapping them, and keeps global order', () => {
+    const poolMatches = build(12, 'pools_to_bracket', { targetPoolSize: 4 }).plan.matches;
+    const poolPlan = scheduleMatches(poolMatches, settings());
+    const knockout = build(8, 'single_elimination').plan.matches;
+    const at = playoffStart(poolPlan.finishesAt, 10);
+    const plan = scheduleMatches(knockout, settings({ startsAt: at }));
+    expect(Date.parse(plan.slots[0].startsAt)).toBeGreaterThanOrEqual(Date.parse(poolPlan.finishesAt!));
+    const offset = poolMatches.length;
+    const applied = applySchedule(knockout, plan, offset);
+    expect(Math.min(...applied.map(m => m.scheduledOrder))).toBeGreaterThan(offset);
+    const final = knockout.find(m => !m.winnerAdvancesToMatchId)!;
+    const semis = knockout.filter(m => m.winnerAdvancesToMatchId === final.id);
+    const slot = (id: string) => plan.slots.find(s => s.matchId === id)!;
+    for (const semi of semis) expect(Date.parse(slot(final.id).startsAt)).toBeGreaterThanOrEqual(Date.parse(slot(semi.id).endsAt));
+  });
+});

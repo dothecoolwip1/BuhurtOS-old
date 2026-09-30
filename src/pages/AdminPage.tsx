@@ -9,7 +9,8 @@ import { competitionFormatById, competitionFormats } from '../lib/competitionFor
 import { listEventDivisions, listEventRulesetSnapshots } from '../lib/governance';
 import { applyRulesetToFormat } from '../lib/rulesetAdmin';
 import { SchedulePlanner, StructureAdvisor, type PlannedSchedule } from '../features/TournamentPlanner';
-import { applySchedule } from '../lib/tournamentPlanner';
+import { applySchedule, playoffStart, scheduleMatches, scheduleMetadata } from '../lib/tournamentPlanner';
+import { eventClock } from '../lib/eventTime';
 import type { Bracket, EventDivision, EventRole, EventRulesetSnapshot } from '../types';
 
 const assignableRoles: Array<{value: EventRole; label: string}> = [
@@ -223,6 +224,25 @@ export function AdminPage() {
         match.divisionId=source.divisionId;
         match.rulesetSnapshotId=source.rulesetSnapshotId;
       });
+      // Plan the playoff on the same areas and timing as the pools, starting when the pools are due to finish (or now, if they ran late).
+      const poolSchedule=publishedBrackets.find(item=>item.id===sourceBracketId)?.schedule;
+      let playoffSchedule:ReturnType<typeof scheduleMetadata>|undefined;
+      let scheduleNote=' No times were planned for the pools, so the playoff has no planned times either.';
+      if(poolSchedule?.settings){
+        const realCardIds=new Set(fightCards.map(card=>card.id));
+        const settings={
+          ...poolSchedule.settings,
+          startsAt:playoffStart(poolSchedule.finishesAt,poolSchedule.settings.minRestMinutes),
+          dayEndsAt:undefined
+        };
+        const plan=scheduleMatches(playoff.matches,settings);
+        if(plan.slots.length){
+          const offset=matches.reduce((max,match)=>Math.max(max,match.scheduledOrder),0);
+          playoff.matches=applySchedule(playoff.matches,plan,offset).map(match=>({...match,fightCardId:match.fightCardId&&realCardIds.has(match.fightCardId)?match.fightCardId:(fightCardId||source.fightCardId)}));
+          playoffSchedule=scheduleMetadata(plan,settings);
+          scheduleNote=' Playoff planned '+eventClock(plan.slots[0].startsAt,event.timezone)+' to '+eventClock(plan.finishesAt??plan.slots[0].endsAt,event.timezone)+' ('+event.timezone+').';
+        }
+      }
       await saveBracketPlan(event, playoff, {
         id: bracketId,
         name: source.category + ' Playoff',
@@ -232,12 +252,14 @@ export function AdminPage() {
         format: 'single_elimination',
         metadata: {
           sourcePoolBracketId: sourceBracketId,
+          schedule: playoffSchedule,
           qualifiersPerPool,
           pools: qualification.pools.map(pool => ({ name: pool.name, qualifiers: pool.standings.slice(0, qualifiersPerPool).map(row => row.rosterEntryId) }))
         }
       });
       await reload();
-      setMessage('Pool qualifiers seeded into a ' + playoff.matches.length + '-match playoff bracket.');
+      await loadCompetitionPolicy();
+      setMessage('Pool qualifiers seeded into a ' + playoff.matches.length + '-match playoff bracket.' + scheduleNote);
     } catch (e) {
       setMessage(e instanceof Error ? e.message : 'Unable to advance pool qualifiers.');
     } finally {
