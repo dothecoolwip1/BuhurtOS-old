@@ -22,8 +22,27 @@ export interface FighterEventSignup {
   updatedAt:string;
 }
 
+export interface EventSignupCode {
+  id:string;
+  label:string;
+  codePrefix:string;
+  maxUses:number;
+  uses:number;
+  expiresAt?:string;
+  disabledAt?:string;
+  createdAt:string;
+}
+
+export async function validateFighterSignupCode(eventId:string,code:string):Promise<{valid:boolean;message?:string;label?:string;prefix?:string}>{
+  if(!publicSupabase) throw new Error('BuhurtOS is not connected.');
+  const {data,error}=await publicSupabase.rpc('validate_event_signup_code',{p_event:eventId,p_code:code.trim().toUpperCase()});
+  if(error) throw error;
+  return (data??{}) as {valid:boolean;message?:string;label?:string;prefix?:string};
+}
+
 export async function submitFighterSignup(input:{
   eventId:string;
+  code:string;
   displayName:string;
   email:string;
   phone?:string;
@@ -37,19 +56,20 @@ export async function submitFighterSignup(input:{
   consentAcknowledged:boolean;
 }):Promise<void>{
   if(!publicSupabase) throw new Error('BuhurtOS is not connected.');
-  const {error}=await publicSupabase.from('fighter_event_signups').insert({
-    event_id:input.eventId,
-    display_name:input.displayName.trim(),
-    email:input.email.trim().toLowerCase(),
-    phone:input.phone?.trim()||null,
-    team_name:input.teamName?.trim()||null,
-    experience_years:input.experienceYears ?? null,
-    fighting_categories:input.fightingCategories,
-    armor_status:input.armorStatus?.trim()||null,
-    attendance_notes:input.attendanceNotes?.trim()||null,
-    emergency_contact:input.emergencyContact?.trim()||null,
-    additional_notes:input.additionalNotes?.trim()||null,
-    consent_acknowledged:input.consentAcknowledged
+  const {error}=await publicSupabase.rpc('submit_event_fighter_signup',{
+    p_event:input.eventId,
+    p_code:input.code.trim().toUpperCase(),
+    p_display_name:input.displayName,
+    p_email:input.email,
+    p_phone:input.phone||null,
+    p_team_name:input.teamName||null,
+    p_experience_years:input.experienceYears??null,
+    p_fighting_categories:input.fightingCategories,
+    p_armor_status:input.armorStatus||null,
+    p_attendance_notes:input.attendanceNotes||null,
+    p_emergency_contact:input.emergencyContact||null,
+    p_additional_notes:input.additionalNotes||null,
+    p_consent:input.consentAcknowledged
   });
   if(error) throw error;
 }
@@ -78,5 +98,34 @@ export async function updateFighterSignup(id:string,status:FighterSignupStatus,o
   const {error}=await supabase.from('fighter_event_signups').update({
     status,organizer_notes:organizerNotes.trim()||null,reviewed_at:new Date().toISOString()
   }).eq('id',id);
+  if(error) throw error;
+}
+
+export async function createEventSignupCode(input:{eventId:string;label?:string;maxUses?:number;expiresAt?:string}):Promise<string>{
+  if(!supabase) throw new Error('BuhurtOS is not connected.');
+  const {data,error}=await supabase.rpc('create_event_signup_code',{
+    p_event:input.eventId,
+    p_label:input.label?.trim()||null,
+    p_max_uses:input.maxUses??1,
+    p_expires_at:input.expiresAt?new Date(input.expiresAt).toISOString():null
+  });
+  if(error) throw error;
+  return String(data??'');
+}
+
+export async function listEventSignupCodes(eventId:string):Promise<EventSignupCode[]>{
+  if(!supabase) return [];
+  const {data,error}=await supabase.rpc('list_event_signup_codes',{p_event:eventId});
+  if(error) throw error;
+  return (data??[]).map((row:any)=>({
+    id:row.id,label:row.label,codePrefix:row.code_prefix,maxUses:Number(row.max_uses??1),
+    uses:Number(row.uses??0),expiresAt:row.expires_at??undefined,disabledAt:row.disabled_at??undefined,
+    createdAt:row.created_at
+  }));
+}
+
+export async function disableEventSignupCode(id:string):Promise<void>{
+  if(!supabase) throw new Error('BuhurtOS is not connected.');
+  const {error}=await supabase.rpc('disable_event_signup_code',{p_code_id:id});
   if(error) throw error;
 }
