@@ -38,6 +38,9 @@ export type PublicEventSummary = {
   publicDescription?:string;
   publicLinks?:Record<string,unknown>;
   registrationOpen?:boolean;
+  slug?:string;
+  hostTeamId?:string;
+  imagePath?:string;
 };
 
 export type PublicFighterSummary = {
@@ -107,21 +110,36 @@ export async function loadPublicOrganization(key:string):Promise<{organization:P
   return {organization,teams};
 }
 
-export async function loadPublicEvents():Promise<PublicEventSummary[]>{
-  if(!publicSupabase)return [];
-  if(eventsCache && isFresh(eventsCache.at)) return eventsCache.value;
-  const {data,error}=await publicSupabase.from('events')
-    .select('id,organization_id,name,venue,starts_at,ends_at,organizer_name,event_type,standings_mode,status,timezone,public_description,public_links,registration_open')
-    .in('status',['published','live','completed','cancelled'])
-    .not('published_at','is',null)
-    .order('starts_at',{ascending:true});
-  if(error)throw error;
-  const rows=(data??[]).map((row:any)=>({
+const EVENT_BASE_COLUMNS='id,organization_id,name,venue,starts_at,ends_at,organizer_name,event_type,standings_mode,status,timezone,public_description,public_links,registration_open';
+const EVENT_EXTENDED_COLUMNS=EVENT_BASE_COLUMNS+',slug,host_team_id,image_path';
+
+function mapEventRow(row:any):PublicEventSummary{
+  const links=row.public_links??{};
+  const linkedHost=typeof links.host_team_id==='string'?links.host_team_id:undefined;
+  return {
     id:row.id,organizationId:row.organization_id,name:row.name,venue:row.venue,startsAt:row.starts_at,endsAt:row.ends_at,
     organizerName:row.organizer_name??undefined,eventType:row.event_type,standingsMode:row.standings_mode,status:row.status,
     timezone:row.timezone,publicDescription:row.public_description??undefined,
-    publicLinks:row.public_links??{},registrationOpen:Boolean(row.registration_open)
-  }));
+    publicLinks:links,registrationOpen:Boolean(row.registration_open),
+    slug:row.slug??undefined,hostTeamId:row.host_team_id??linkedHost,imagePath:row.image_path??undefined
+  };
+}
+
+/** Uses the general-event columns when the database has them and degrades to the legacy columns otherwise. */
+export async function loadPublicEvents():Promise<PublicEventSummary[]>{
+  if(!publicSupabase)return [];
+  if(eventsCache && isFresh(eventsCache.at)) return eventsCache.value;
+  const query=(columns:string)=>publicSupabase!.from('events')
+    .select(columns)
+    .in('status',['published','live','completed','cancelled'])
+    .not('published_at','is',null)
+    .order('starts_at',{ascending:true});
+  let {data,error}=await query(EVENT_EXTENDED_COLUMNS);
+  if(error){
+    ({data,error}=await query(EVENT_BASE_COLUMNS));
+  }
+  if(error)throw error;
+  const rows=((data??[]) as any[]).map(mapEventRow);
   eventsCache={at:Date.now(),value:rows};
   return rows;
 }

@@ -1,6 +1,6 @@
 export type UUID = string;
 
-export type EventType = 'ranked_competitive' | 'demo_fun' | 'exhibition' | 'clinic_training' | 'custom';
+export type EventType = 'ranked_competitive' | 'demo_fun' | 'exhibition' | 'clinic_training' | 'custom' | 'tournament' | 'demo' | 'training' | 'clinic_workshop' | 'recruitment' | 'fundraiser' | 'gathering_social' | 'meeting_agm' | 'community_appearance';
 export type StandingsMode = 'season_and_event' | 'event_only' | 'no_standings';
 export type EventStatus = 'draft' | 'published' | 'live' | 'completed' | 'cancelled' | 'archived';
 export type MatchStatus = 'scheduled' | 'on_deck' | 'in_the_hole' | 'active' | 'completed' | 'finalized' | 'forfeit' | 'cancelled';

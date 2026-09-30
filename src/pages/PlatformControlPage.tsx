@@ -36,7 +36,7 @@ const organizationKinds: OrganizationKind[] = [
 ];
 
 const relationshipKinds: OrganizationRelationshipKind[] = ['governs', 'recognizes', 'affiliate', 'sanctioned', 'predecessor'];
-const eventTypes: EventType[] = ['ranked_competitive', 'demo_fun', 'exhibition', 'clinic_training', 'custom'];
+const eventTypes: EventType[] = ['tournament', 'exhibition', 'demo', 'training', 'clinic_workshop', 'recruitment', 'fundraiser', 'gathering_social', 'meeting_agm', 'community_appearance', 'custom', 'ranked_competitive', 'demo_fun', 'clinic_training'];
 const standingsModes: StandingsMode[] = ['season_and_event', 'event_only', 'no_standings'];
 
 const label = (value: string) => value.replaceAll('_', ' ').replace(/\b\w/g, letter => letter.toUpperCase());

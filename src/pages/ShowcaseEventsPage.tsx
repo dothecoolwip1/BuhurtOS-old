@@ -1,24 +1,62 @@
-import {useEffect,useState} from 'react';
+import {useEffect,useMemo,useState} from 'react';
 import {Link} from 'react-router-dom';
 import {LoadingGrid,PageHeader,Pill,StatePanel} from '../components/ShowcaseUI';
-import {loadPublicEvents,type PublicEventSummary} from '../lib/publicDirectory';
+import {loadPublicEvents,loadPublicOrganizations,type PublicEventSummary,type PublicOrganizationSummary} from '../lib/publicDirectory';
+import {eventCategoryLabel,eventCategoryLabels,eventCategoryOrder,eventCategoryTone,eventCta,filterEvents,groupByMonth,normalizeEventCategory,splitUpcomingPast} from '../lib/eventCategories';
 
 const label=(v:string)=>v.replaceAll('_',' ').replace(/\b\w/g,l=>l.toUpperCase());
 
+function dateText(event:PublicEventSummary){
+ const start=new Date(event.startsAt),end=new Date(event.endsAt);
+ const same=start.toDateString()===end.toDateString();
+ return same?start.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}):start.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' → '+end.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+}
+
 export function ShowcaseEventsPage(){
  const [events,setEvents]=useState<PublicEventSummary[]>([]);
+ const [orgs,setOrgs]=useState<PublicOrganizationSummary[]>([]);
  const [loading,setLoading]=useState(true);
  const [error,setError]=useState('');
- useEffect(()=>{let active=true;loadPublicEvents().then(rows=>{if(active)setEvents(rows)}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load published events.')}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[]);
- const upcoming=events.filter(e=>new Date(e.endsAt).getTime()>=Date.now());
- const past=events.filter(e=>new Date(e.endsAt).getTime()<Date.now()).reverse();
+ const [when,setWhen]=useState<'upcoming'|'past'>('upcoming');
+ const [category,setCategory]=useState('all');
+ const [organizationId,setOrganizationId]=useState('all');
+ const [teamId,setTeamId]=useState('all');
+ useEffect(()=>{let active=true;
+  loadPublicEvents().then(rows=>{if(active)setEvents(rows)}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load published events.')}).finally(()=>{if(active)setLoading(false)});
+  loadPublicOrganizations().then(rows=>{if(active)setOrgs(rows)}).catch(()=>{});
+  return()=>{active=false}},[]);
+ const orgName=useMemo(()=>new Map(orgs.map(o=>[o.id??'',o.shortName])),[orgs]);
+ const presentCategories=useMemo(()=>eventCategoryOrder.filter(c=>events.some(e=>normalizeEventCategory(e.eventType)===c)),[events]);
+ const presentOrgs=useMemo(()=>[...new Set(events.map(e=>e.organizationId))].filter(id=>orgName.has(id)),[events,orgName]);
+ const hostTeams=useMemo(()=>{const map=new Map<string,string>();events.forEach(e=>{if(e.hostTeamId)map.set(e.hostTeamId,e.organizerName||'Host team')});return [...map.entries()]},[events]);
+ const {upcoming,past}=useMemo(()=>splitUpcomingPast(filterEvents(events,{category,organizationId,teamId})),[events,category,organizationId,teamId]);
+ const shown=when==='upcoming'?upcoming:past;
+ const months=useMemo(()=>groupByMonth(shown),[shown]);
+ const filtered=category!=='all'||organizationId!=='all'||teamId!=='all';
  return <>
-  <PageHeader eyebrow="PUBLIC CALENDAR" title="Events" description="Only events actually published in BuhurtOS appear here. Draft and private events stay hidden."/>
+  <PageHeader eyebrow="PUBLIC CALENDAR" title="Events" description="Tournaments, demos, training, meetings and community gatherings. Only events actually published in BuhurtOS appear here. Draft and private events stay hidden."/>
   {loading?<LoadingGrid count={4}/>:error?<StatePanel tone="error" title="Unable to load events" text={error}/>:<>
-   <section className="show-public-section"><div className="show-public-section-head"><div><span className="eyebrow">UPCOMING</span><h2>Upcoming events</h2></div></div>
-    {upcoming.length?<div className="show-event-cards">{upcoming.map(event=><Link to={'/events/'+event.id} key={event.id} className="show-event-card"><div className="show-event-card-top"><div><span className="eyebrow">{event.organizerName||'BUHURTOS'}</span><h2>{event.name}</h2><p>{new Date(event.startsAt).toLocaleString()} · {event.venue}</p></div><Pill tone={event.status==='live'?'red':'green'}>{label(event.status)}</Pill></div><div className="show-event-footer"><span><small>TYPE</small><b>{label(event.eventType)}</b></span><span><small>DATES</small><b>{new Date(event.startsAt).toLocaleDateString()} → {new Date(event.endsAt).toLocaleDateString()}</b></span><i>Open event →</i></div></Link>)}</div>:<StatePanel title="No published upcoming events yet." text="When an organizer publishes a real event, it will show here automatically."/>}
-   </section>
-   {past.length?<section className="show-public-section"><div className="show-public-section-head"><div><span className="eyebrow">HISTORY</span><h2>Past events</h2></div></div><div className="show-event-cards">{past.map(event=><Link to={'/events/'+event.id} key={event.id} className="show-event-card"><div className="show-event-card-top"><div><h2>{event.name}</h2><p>{new Date(event.startsAt).toLocaleDateString()} · {event.venue}</p></div><Pill>{label(event.status)}</Pill></div></Link>)}</div></section>:null}
+   <div className="public-directory-toolbar events-toolbar">
+    <div className="directory-view-switch" role="group" aria-label="Upcoming or past events">
+     <button type="button" className={when==='upcoming'?'selected':''} aria-pressed={when==='upcoming'} onClick={()=>setWhen('upcoming')}>Upcoming ({upcoming.length})</button>
+     <button type="button" className={when==='past'?'selected':''} aria-pressed={when==='past'} onClick={()=>setWhen('past')}>Past ({past.length})</button>
+    </div>
+    <div className="show-filter-row">
+     <select aria-label="Filter by category" value={category} onChange={e=>setCategory(e.target.value)}><option value="all">All categories</option>{presentCategories.map(c=><option key={c} value={c}>{eventCategoryLabels[c]}</option>)}</select>
+     {presentOrgs.length>1?<select aria-label="Filter by organization" value={organizationId} onChange={e=>setOrganizationId(e.target.value)}><option value="all">All organizations</option>{presentOrgs.map(id=><option key={id} value={id}>{orgName.get(id)}</option>)}</select>:null}
+     {hostTeams.length>0?<select aria-label="Filter by host team" value={teamId} onChange={e=>setTeamId(e.target.value)}><option value="all">All host teams</option>{hostTeams.map(([id,name])=><option key={id} value={id}>{name}</option>)}</select>:null}
+    </div>
+   </div>
+   {shown.length===0?<StatePanel title={filtered?'No events match those filters.':when==='upcoming'?'No published upcoming events yet.':'No past events yet.'} text={filtered?'Clear a filter to see more events.':'When an organizer publishes a real event, it will show here automatically.'}/>:months.map(month=><section className="show-public-section event-month" key={month.key}>
+    <div className="show-public-section-head"><div><span className="eyebrow">{when==='upcoming'?'AGENDA':'HISTORY'}</span><h2>{month.label}</h2></div></div>
+    <div className="show-event-cards">{month.events.map(event=>{
+     const cta=eventCta(event.eventType,{registrationOpen:Boolean(event.registrationOpen),hasLink:true,status:event.status});
+     return <Link to={'/events/'+event.id} key={event.id} className="show-event-card">
+      <div className="show-event-card-top"><div><span className="eyebrow">{orgName.get(event.organizationId)||event.organizerName||'BUHURTOS'}</span><h2>{event.name}</h2><p>{dateText(event)} · {event.venue}</p></div>
+       <div className="show-inline-pills"><Pill tone={eventCategoryTone(event.eventType)}>{eventCategoryLabel(event.eventType)}</Pill>{event.status!=='published'?<Pill tone={event.status==='live'?'red':event.status==='cancelled'?'amber':'neutral'}>{label(event.status)}</Pill>:null}</div></div>
+      <div className="show-event-footer"><span><small>HOST</small><b>{event.organizerName||orgName.get(event.organizationId)||'TBA'}</b></span><span><small>DATES</small><b>{dateText(event)}</b></span><i>{cta.label} →</i></div>
+     </Link>})}</div>
+   </section>)}
   </>}
  </>;
 }
