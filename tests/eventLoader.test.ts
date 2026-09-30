@@ -95,14 +95,21 @@ describe('event list loader', () => {
 });
 
 describe('public schedule loader', () => {
-  it('maps planned slots', async () => {
-    state.rpc = () => ({ data: [{ match_id: 'm1', area_id: 'a1', area_name: 'Ring 1', starts_at: '2026-06-06T16:00:00Z', ends_at: '2026-06-06T16:06:00Z', sort_order: 1 }], error: null });
-    expect(await loadPublicEventSchedule('e1')).toEqual([{ matchId: 'm1', areaId: 'a1', areaName: 'Ring 1', startsAt: '2026-06-06T16:00:00Z', endsAt: '2026-06-06T16:06:00Z', order: 1 }]);
+  it('reads planned slots from the saved bracket schedule and skips unusable ones', async () => {
+    state.tableRows.brackets = [
+      { id: 'b1', metadata: { schedule: { slots: [
+        { matchId: 'm2', areaId: 'a1', startsAt: '2026-06-06T16:10:00Z', endsAt: '2026-06-06T16:16:00Z', order: 2 },
+        { matchId: 'm1', areaId: 'a1', startsAt: '2026-06-06T16:00:00Z', endsAt: '2026-06-06T16:06:00Z', order: 1 },
+        { matchId: 'bad', startsAt: 'nope', endsAt: 'nope', order: 3 }
+      ] } } },
+      { id: 'b2', metadata: {} },
+      { id: 'b3', metadata: null }
+    ];
+    const slots = await loadPublicEventSchedule('e1');
+    expect(slots.map(slot => slot.matchId)).toEqual(['m1', 'm2']);
   });
-  it('treats a backend without the function as no schedule, but real failures as errors', async () => {
-    state.rpc = () => ({ data: null, error: { code: 'PGRST202', message: 'Could not find the function public.public_event_schedule' } });
+  it('returns nothing when no tournament has a schedule', async () => {
+    state.tableRows.brackets = [{ id: 'b1', metadata: {} }];
     expect(await loadPublicEventSchedule('e1')).toEqual([]);
-    state.rpc = () => ({ data: null, error: { code: '57014', message: 'statement timeout' } });
-    await expect(loadPublicEventSchedule('e1')).rejects.toMatchObject({ code: '57014' });
   });
 });

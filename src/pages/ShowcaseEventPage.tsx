@@ -37,11 +37,15 @@ const pretty=(value:string)=>value.replaceAll('_',' ').replace(/\b\w/g,c=>c.toUp
 
 function PlannedTimes({slots,details}:{slots:PublicScheduleSlot[];details:PublicEventDetails}){
   const tz=details.event.timezone;
-  const label=new Map(details.matches.map(match=>[match.id,match.label]));
-  const areas=[...new Set(slots.map(slot=>slot.areaName||'Fighting area'))];
+  const live=details.matches.filter(match=>match.status!=='cancelled');
+  const label=new Map(live.map(match=>[match.id,match.label]));
+  const fieldName=(slot:PublicScheduleSlot)=>slot.areaName||details.fields.find(field=>field.id===slot.areaId)?.name||'Fighting area';
+  slots=slots.filter(slot=>label.has(slot.matchId));
+  if(slots.length===0)return null;
+  const areas=[...new Set(slots.map(fieldName))];
   return <div className="planned-times">
     <p className="show-note" role="note">Planned times in {zoneLabel(tz)}. Bouts can start earlier or later than planned, so check with the marshals on the day.</p>
-    <div className="planned-grid">{areas.map(area=><section key={area}><h4>{area}</h4><ol>{slots.filter(slot=>(slot.areaName||'Fighting area')===area).map(slot=><li key={slot.matchId}><time dateTime={slot.startsAt}>{eventClock(slot.startsAt,tz)}</time><span>{label.get(slot.matchId)??'Bout'}</span></li>)}</ol></section>)}</div>
+    <div className="planned-grid">{areas.map(area=><section key={area}><h4>{area}</h4><ol>{slots.filter(slot=>fieldName(slot)===area).map(slot=><li key={slot.matchId}><time dateTime={slot.startsAt}>{eventClock(slot.startsAt,tz)}</time><span>{label.get(slot.matchId)??'Bout'}</span></li>)}</ol></section>)}</div>
   </div>;
 }
 

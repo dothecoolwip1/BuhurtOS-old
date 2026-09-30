@@ -34,7 +34,7 @@ Base: `de6f251`. Tested and deployed code: `54cd7b0` (CI on the exact SHA passed
 | Automatic playoff scheduling after pools | yes | unit + demo browser run | yes | Starts at planned pool finish or now, whichever is later |
 | Optional third-place match | yes | unit | yes | Single elimination and pool playoffs, four or more competitors |
 | Order of play, pools, bracket views; find fighter or team; copy, print by area, calendar export | yes | unit + demo browser run | yes | Planned times only |
-| Public schedule with times | no | | | Anonymous users cannot read bracket metadata (select revoked); needs a reviewed database function |
+| Public schedule with times on the event page | yes | unit + render tests | yes (this commit) | Read from bracket metadata, which anonymous visitors can already read for public events (column grant from the Pack 2 privilege migration); no database change. Planned times only; not checked against live rows |
 | Editing saved times after publishing | no | | | Needs a database function |
 | Verified on hosted with real signed-in accounts | no | | | Only the demo build was exercised end to end |
 

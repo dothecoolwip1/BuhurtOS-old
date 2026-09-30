@@ -323,19 +323,22 @@ export async function loadPublicOrganizationEvents(organizationId:string|undefin
 export type PublicScheduleSlot = { matchId: string; areaId?: string; areaName?: string; startsAt: string; endsAt: string; order: number };
 
 /**
- * Planned bout times for a published event. Resolves to [] when the backend has not installed the schedule function yet
- * (an older backend), and rejects on any other failure so the page can say it could not load.
+ * Planned bout times for a published event, read from the schedule the organizer saved with each tournament.
+ * Anonymous visitors already have column-level read access to bracket metadata for public events (see the Pack 2 privilege grants),
+ * so this needs no new database function. Only matches that still exist and are not cancelled are returned.
  */
 export async function loadPublicEventSchedule(eventId:string):Promise<PublicScheduleSlot[]>{
   if(!publicSupabase||!eventId)return [];
-  const {data,error}=await publicSupabase.rpc('public_event_schedule',{p_event_id:eventId});
-  if(error){
-    const missing=error.code==='PGRST202'||error.code==='42883'||/could not find the function/i.test(error.message??'');
-    if(missing)return [];
-    throw error;
+  const {data,error}=await publicSupabase.from('brackets').select('id,metadata').eq('event_id',eventId);
+  if(error)throw error;
+  const slots:PublicScheduleSlot[]=[];
+  for(const row of data??[]){
+    const list=(row as any).metadata?.schedule?.slots;
+    if(!Array.isArray(list))continue;
+    for(const slot of list){
+      if(!slot||typeof slot.matchId!=='string'||Number.isNaN(Date.parse(slot.startsAt))||Number.isNaN(Date.parse(slot.endsAt)))continue;
+      slots.push({matchId:slot.matchId,areaId:slot.areaId,startsAt:slot.startsAt,endsAt:slot.endsAt,order:Number(slot.order??0)});
+    }
   }
-  return (data??[]).map((row:any)=>({
-    matchId:row.match_id,areaId:row.area_id??undefined,areaName:row.area_name??undefined,
-    startsAt:row.starts_at,endsAt:row.ends_at,order:Number(row.sort_order??0)
-  }));
+  return slots.sort((a,b)=>a.startsAt.localeCompare(b.startsAt)||a.order-b.order);
 }
