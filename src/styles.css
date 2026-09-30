@@ -1828,3 +1828,5 @@ main[tabindex="-1"]:focus{outline:none}
 .nx-step.complete .nx-step-mark{color:#3fb37f}.nx-step.warning .nx-step-mark{color:#e0a030}.nx-step.unknown .nx-step-mark{color:#8a97a3}
 .nx-step-body p{margin:4px 0 0}
 @media (max-width:640px){.nx-step{grid-template-columns:28px 1fr}.nx-step .nx-btn{grid-column:2}}
+
+.nx-more{margin:20px 0 8px;font-size:15px;opacity:.75}

@@ -34,6 +34,9 @@ export function friendlyError(error: unknown, options: { log?: boolean } = {}): 
   if (codeText === '42501' || /permission denied|row-level security|not allowed/i.test(text) || status === 403) {
     return { message: 'Your account does not have access to do that. If you think it should, contact the organizer.', action: 'contact_organizer' };
   }
+  if (/not connected/i.test(text)) {
+    return { message: 'This needs a connected BuhurtOS backend. Demo mode only has sample data.', action: 'return_to_event' };
+  }
   if (/failed to fetch|networkerror|network request failed|load failed/i.test(text)) {
     return { message: 'We could not reach BuhurtOS. Check your connection and try again.', action: 'retry' };
   }

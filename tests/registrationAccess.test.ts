@@ -53,6 +53,9 @@ describe('friendlyError', () => {
     expect(friendlyError({ message: 'JWT expired' }, quiet).action).toBe('sign_in');
     expect(friendlyError(new TypeError('Failed to fetch'), quiet).action).toBe('retry');
   });
+  it('explains demo mode instead of blaming the server', () => {
+    expect(friendlyError(new Error('BuhurtOS is not connected.'), quiet).message).toMatch(/demo mode/i);
+  });
   it('logs the raw error for developers', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     friendlyError(new Error('boom'));
