@@ -4,7 +4,8 @@ import { useAppState } from '../features/AppState';
 import { listTournamentBrackets, type TournamentBracketSummary } from '../lib/adminActions';
 import { computePoolQualificationState } from '../lib/bracket';
 import { groupBracketRounds } from '../lib/bracketView';
-import { eventClock } from '../lib/eventTime';
+import { eventClock, eventDayKey } from '../lib/eventTime';
+import { minutesBehindPlan } from '../lib/tournamentPlanner';
 import { downloadText, htmlTable, matchesCsv, openPrintableReport } from '../lib/export';
 import { buildBoutsIcs } from '../lib/ics';
 import { groupRowsByArea, scheduleAsText, type ScheduleRow } from '../lib/scheduleText';
@@ -63,6 +64,9 @@ export function BracketPage() {
   });
   const shown = useMemo(() => ordered.filter(involves), [ordered, needle, roster, teams]); // eslint-disable-line react-hooks/exhaustive-deps
   const nextUpId = ordered.find(m => m.status !== 'finalized' && m.status !== 'forfeit' && m.status !== 'completed')?.id;
+  // Only meaningful on the event day itself: compare the next unfinished bout's planned start with the clock.
+  const nextSlot = nextUpId ? slotByMatch.get(nextUpId) : undefined;
+  const behind = event && nextSlot && eventDayKey(nextSlot.startsAt, timezone) === eventDayKey(new Date().toISOString(), timezone) ? minutesBehindPlan(nextSlot.startsAt) : 0;
   const poolBracketIds = useMemo(() => [...new Set(scoped.filter(m => m.stage === 'pool' && m.bracketId).map(m => m.bracketId!))], [scoped]);
   const rounds = groupBracketRounds(scoped.filter(m => m.stage !== 'pool'));
   const hasPools = poolBracketIds.length > 0;
@@ -106,6 +110,7 @@ export function BracketPage() {
 
     {empty ? <div className="state-card"><strong>No tournament yet</strong><p>Build one in a few steps: choose the competitors, pick a format (BuhurtOS suggests one for your field size), and plan times and fighting areas.</p><Link className="primary big" to={'/admin/events/tools?event=' + (event?.id ?? '')} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',textDecoration:'none',padding:'0 18px'}}>Build tournament</Link></div> : <>
       {copied ? <p className="auth-message" role="status">{copied}</p> : null}
+      {behind > 0 ? <p className="tp-warning" role="status">The day is running about {behind} minutes behind the plan: the next bout was planned for {eventClock(nextSlot!.startsAt, timezone)}. Planned times are not changed automatically. Tell fighters and adjust the order if needed.</p> : null}
       <div className="bp-controls">
         <div className="directory-view-switch" role="group" aria-label="Schedule view">
           <button type="button" className={view === 'play' ? 'selected' : ''} aria-pressed={view === 'play'} onClick={() => setFilters({ view: 'play' })}>Order of play</button>

@@ -24,6 +24,20 @@ Base: `de6f251`. Tested and deployed code: `54cd7b0` (CI on the exact SHA passed
 | Menu sheet focus trap + inert background | yes | browser (demo build, mobile) | yes | no | screen-reader pass not done |
 | Route error boundary, explanatory 404 | yes | markup | yes | bundle only | |
 
+## Tournament planning (added 2026-09-30)
+
+| Capability | Implemented | Tested locally | Deployed | Notes |
+|---|---|---|---|---|
+| Structure advice by field size and format family, fit-the-day check | yes | unit + render tests | yes | Bout lengths are editable estimates, not ruleset values |
+| Snake pool draw, recorded random draw by default | yes | unit | yes | Replays from the saved draw code |
+| Schedule planner (areas, rest, breaks, event timezone) | yes | unit + demo browser run | yes | Saved with the bracket metadata; no database change |
+| Automatic playoff scheduling after pools | yes | unit + demo browser run | yes | Starts at planned pool finish or now, whichever is later |
+| Optional third-place match | yes | unit | yes | Single elimination and pool playoffs, four or more competitors |
+| Order of play, pools, bracket views; find fighter or team; copy, print by area, calendar export | yes | unit + demo browser run | yes | Planned times only |
+| Public schedule with times | no | | | Anonymous users cannot read bracket metadata (select revoked); needs a reviewed database function |
+| Editing saved times after publishing | no | | | Needs a database function |
+| Verified on hosted with real signed-in accounts | no | | | Only the demo build was exercised end to end |
+
 ## Honest list of what is unverified
 
 * No signed-in flow was exercised on the hosted site; I cannot create or sign in to real accounts. Signed-in behavior was checked in demo mode and unit tests only.

@@ -213,3 +213,15 @@ describe('areas needed', () => {
     expect(areasNeeded(0, 8, { boutMinutes: 5, changeoverMinutes: 2 })).toBe(1);
   });
 });
+
+import { minutesBehindPlan } from '../src/lib/tournamentPlanner';
+describe('running behind', () => {
+  it('reports lateness beyond the grace period only', () => {
+    const planned = '2026-06-06T16:00:00Z';
+    expect(minutesBehindPlan(planned, Date.parse('2026-06-06T16:03:00Z'))).toBe(0);
+    expect(minutesBehindPlan(planned, Date.parse('2026-06-06T16:20:00Z'))).toBe(20);
+    expect(minutesBehindPlan(planned, Date.parse('2026-06-06T15:30:00Z'))).toBe(0);
+    expect(minutesBehindPlan(undefined)).toBe(0);
+    expect(minutesBehindPlan('junk')).toBe(0);
+  });
+});

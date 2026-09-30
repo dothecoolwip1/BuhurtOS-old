@@ -376,3 +376,15 @@ export function playoffStart(poolFinishesAt: string | undefined, minRestMinutes:
   const step = ROUND_UP_MINUTES * MINUTE;
   return new Date(Math.ceil(base / step) * step).toISOString();
 }
+
+/**
+ * How far the day is running behind its plan: the next unfinished bout was planned to start earlier than now.
+ * Returns whole minutes, or 0 when on time (within `graceMinutes`) or when there is nothing to compare.
+ */
+export function minutesBehindPlan(nextPlannedStart: string | undefined, now = Date.now(), graceMinutes = 5): number {
+  if (!nextPlannedStart) return 0;
+  const planned = new Date(nextPlannedStart).getTime();
+  if (Number.isNaN(planned)) return 0;
+  const late = Math.round((now - planned) / MINUTE);
+  return late > graceMinutes ? late : 0;
+}
