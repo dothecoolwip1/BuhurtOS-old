@@ -6,14 +6,35 @@ import {loadPublicEventDetails,type PublicEventDetails} from '../lib/publicDirec
 import {ListCrumbs} from '../components/chrome';
 import {eventCategoryLabel,eventCategoryTone,eventModules,isCompetitionCapable} from '../lib/eventCategories';
 import {eventImageThumbUrl,eventImageUrl} from '../lib/eventMedia';
+import {buildIcs} from '../lib/ics';
+import {toEventDTO} from '../lib/publicApiV1';
+import {downloadText} from '../lib/export';
+import {useAccount} from '../features/Account';
 import {formatEventRange,formatEventTime,zoneLabel} from '../lib/eventTime';
 import {loadOfficialEventStats} from '../lib/publicStats';
 import type {EventStats} from '../lib/canonicalStats';
 
+const slugName=(name:string)=>name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'event';
+/** Native share sheet on phones; otherwise copy the link and say so. Never throws at the visitor. */
+function ShareButton({title}:{title:string}){
+  const [note,setNote]=useState('');
+  const share=async()=>{
+    const url=window.location.href;
+    try{
+      if(navigator.share){await navigator.share({title,url});return;}
+      await navigator.clipboard.writeText(url);
+      setNote('Link copied');
+    }catch(error){
+      if((error as Error)?.name!=='AbortError')setNote('Could not share. Copy the address from your browser.');
+    }
+    setTimeout(()=>setNote(''),3000);
+  };
+  return <button type="button" className="show-btn secondary" onClick={share} aria-live="polite">{note||'Share'}</button>;
+}
 const pretty=(value:string)=>value.replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
 
 
-export function EventDetailView({details,onFighterSignup,stats,statsError}:{details:PublicEventDetails;onFighterSignup:()=>void;stats?:EventStats;statsError?:boolean}){
+export function EventDetailView({details,onFighterSignup,stats,statsError,organizerToolsHref}:{details:PublicEventDetails;onFighterSignup:()=>void;stats?:EventStats;statsError?:boolean;organizerToolsHref?:string}){
   const event=details.event;
   const scheduleTba=Boolean(event.publicLinks?.schedule_tba);
   const facebook=typeof event.publicLinks?.facebook==='string'?event.publicLinks.facebook:undefined;
@@ -29,8 +50,10 @@ export function EventDetailView({details,onFighterSignup,stats,statsError}:{deta
       description={formatEventRange(event.startsAt,event.endsAt,event.timezone,true)+' • '+event.venue}
       actions={<>
         {modules.fighterSignup&&event.status!=='cancelled'&&event.status!=='completed'?<button className="show-btn primary" type="button" onClick={()=>onFighterSignup()}>Fighter interest form</button>:null}
+        <button type="button" className="show-btn secondary" onClick={()=>downloadText(slugName(event.name)+'.ics',buildIcs([toEventDTO(event)],event.name),'text/calendar;charset=utf-8')}>Add to calendar</button>
+        <ShareButton title={event.name}/>
         {facebook?<a className="show-btn secondary" href={facebook} target="_blank" rel="noopener noreferrer">Facebook event ↗</a>:null}
-        <Link className="show-btn secondary" to={'/admin/events/manage?event='+event.id}>Organizer tools</Link>
+        {organizerToolsHref?<Link className="show-btn secondary" to={organizerToolsHref}>Organizer tools</Link>:null}
       </>}
     />
 
@@ -108,6 +131,7 @@ export function EventDetailView({details,onFighterSignup,stats,statsError}:{deta
 }
 
 export function ShowcaseEventPage(){
+  const {user}=useAccount();
   const {eventId=''}=useParams();
   const [details,setDetails]=useState<PublicEventDetails>();
   const [loading,setLoading]=useState(true);
@@ -138,6 +162,6 @@ export function ShowcaseEventPage(){
 
   return <>
     <FighterSignupModal open={fighterSignupOpen} onClose={()=>setFighterSignupOpen(false)} eventId={details.event.id} eventName={details.event.name}/>
-    <EventDetailView details={details} onFighterSignup={()=>setFighterSignupOpen(true)} stats={stats} statsError={statsError}/>
+    <EventDetailView details={details} onFighterSignup={()=>setFighterSignupOpen(true)} stats={stats} statsError={statsError} organizerToolsHref={user?'/admin/events/manage?event='+details.event.id:undefined}/>
   </>;
 }

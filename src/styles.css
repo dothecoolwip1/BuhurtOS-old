@@ -1732,3 +1732,24 @@ html.nx-locked{overflow:hidden}
 .auth-help summary{cursor:pointer;font-weight:800;color:var(--text);min-height:32px}
 .auth-help ul{margin:8px 0 0;padding-left:18px;display:grid;gap:6px;line-height:1.45}
 .show-note{margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--yellow);border-radius:10px;background:#141b23;color:var(--muted);font-size:.85rem}
+
+/* Mobile-first readability and touch targets (phones): nothing tappable under 44px, nothing readable under 12px */
+@media(max-width:700px){
+  .show-btn,.show-link-btn,.directory-view-switch button,.marshal-format-tabs button,.marshal-quick-search button,.nx-btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .directory-load-more .show-btn{width:100%}
+  .show-filter-row select,.marshal-search-row select,.show-search input{min-height:44px;font-size:16px}
+  .marshal-section,.marshal-rule-card small,.marshal-rule-card footer b,.marshal-rule-card footer a,.show-pill,.eyebrow,.bhome-kicker,
+  .bhome-cinema-facts small,.bhome-featured-date small,.bhome-events-strip small,.bhome-stats small,.show-team-body small,.team-card-stats small,
+  .show-stat small,.show-explain-card p,.show-note,.source-empty-state p,.announcement-list small{font-size:12px}
+  .marshal-rule-card footer a{min-height:44px;display:inline-flex;align-items:center}
+  .marshal-rule-card p,.marshal-rule-card li{font-size:14px;line-height:1.5}
+  .show-detail-rows>div{min-height:44px}
+  .show-actions{display:flex;flex-wrap:wrap;gap:8px}
+  .show-actions>*{flex:1 1 140px}
+}
+@media(max-width:700px){
+  main small,main .eyebrow,main span,main strong,main b,main p{font-size:max(1em,12px)}
+  small{font-size:12px}
+  .marshal-format-tabs button,.marshal-quick-search button,.directory-view-switch button{font-size:13px}
+  .bhome-empty a,.bhome-events-strip a,.bhome a.show-btn,.directory-load-more a{min-height:44px;display:inline-flex;align-items:center}
+}

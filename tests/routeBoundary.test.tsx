@@ -33,3 +33,12 @@ describe('menu sheet accessibility', () => {
     expect(chromeSource).toContain('aria-modal="true"');
   });
 });
+
+import eventPageSource from '../src/pages/ShowcaseEventPage.tsx?raw';
+describe('event page actions', () => {
+  it('offers calendar download and share, and hides organizer tools from anonymous visitors', () => {
+    expect(eventPageSource).toContain('Add to calendar');
+    expect(eventPageSource).toContain('<ShareButton');
+    expect(eventPageSource).toContain("user?'/admin/events/manage?event='");
+  });
+});
