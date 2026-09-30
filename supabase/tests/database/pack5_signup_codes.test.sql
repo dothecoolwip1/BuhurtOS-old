@@ -6,7 +6,8 @@ select no_plan();
 
 create temp table t_codes(name text primary key, code text);
 create temp table t_results(name text primary key, value text);
-grant all on t_codes, t_results to public;
+create temp table t_ids(name text primary key, id uuid);
+grant all on t_codes, t_results, t_ids to public;
 
 insert into auth.users (
   id,aud,role,email,encrypted_password,email_confirmed_at,
@@ -65,6 +66,9 @@ select throws_ok(
 
 reset role;
 
+insert into t_ids
+select t.name, c.id from t_codes t join public.event_signup_codes c on c.code_hash = extensions.digest(upper(t.code),'sha256');
+
 select ok(
   (select code like 'RDR26-______' from t_codes where name = 'single'),
   'codes are event-recognizable, e.g. RDR26-ABC123'
@@ -77,7 +81,7 @@ select is(
 );
 
 select is(
-  (select count(*)::integer from public.event_signup_codes c join t_codes t on convert_from(c.code_hash,'UTF8') = t.code),
+  (select count(*)::integer from public.event_signup_codes c join t_codes t on c.code_hash = convert_to(t.code,'UTF8')),
   0,
   'plaintext codes are never stored'
 );
@@ -167,7 +171,7 @@ select ok(
 );
 
 select throws_ok(
-  format($$select public.disable_event_signup_code((select id from public.event_signup_codes where code_hash = extensions.digest(upper(%L),'sha256')))$$,(select code from t_codes where name='multi')),
+  format($$select public.disable_event_signup_code(%L::uuid)$$,(select id from t_ids where name='multi')),
   'P0001', 'You cannot manage this event signup code',
   'unrelated users cannot disable codes'
 );
@@ -190,7 +194,7 @@ select is(
 );
 
 select lives_ok(
-  format($$select public.disable_event_signup_code((select id from public.event_signup_codes where code_hash = extensions.digest(upper(%L),'sha256')))$$,(select code from t_codes where name='multi')),
+  format($$select public.disable_event_signup_code(%L::uuid)$$,(select id from t_ids where name='multi')),
   'authorized users can disable a code'
 );
 
