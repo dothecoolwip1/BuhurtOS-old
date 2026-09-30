@@ -2,6 +2,33 @@
 
 Last updated: 2026-09-30
 
+## Product-flow pass (2026-09-30, latest)
+
+Planned / implemented / deployed / applied to hosted / verified, per item. "Verified" says how. CI must be green on the exact SHA before anything is called deployed.
+
+| Item | Implemented | Hosted migration | Verified |
+|---|---|---|---|
+| Event poster works publicly (thumbnail endpoint is 403 because image transformations are not enabled; original URL now used, with fallback; posters on event cards) | yes | none needed | Real browser at 360 px: hero and card load; original URL 200 |
+| Featured organizations and curated featured teams (display priority only; BI, HACSA; 10 curated teams; cap 24) | yes | `20261019000000_public_prominence` applied | Anonymous API: featured orgs BI, HACSA; 10 featured teams; full directory still 354 public teams |
+| Home leads with BI/HACSA; Teams opens on Featured with BI, HACSA and All worldwide tabs; worldwide loads on demand; search spans everything | yes | same | Real browser: home makes 3 data requests and no directory request; worldwide tab loads 354 on demand; search finds a non-BI/HACSA team; direct worldwide team URL works |
+| Registration access: one server function decides eligibility (account -> fighter identity -> active membership -> event scope); eligible skip the code; request-permission fallback; review queue; in-app notifications with bell | yes | `20261020000000_registration_access` applied | pgTAP (36 assertions incl. authority separation, approval grants event access only, dedupe, privacy); hosted anon probes refuse the new functions; existing code flow unchanged. **Not exercised with a real signed-in account** |
+| Event scope default is `invite_only`; Red Deer Rumble has not been switched | n/a | n/a | Owner decision: set "Organization and its teams and clubs" in Fighter signups to let Reavers fighters skip the code |
+| Competition model: `event_competitions` (decision and evidence in `COMPETITION_MODEL_DECISION.md`) plus source-backed BI reference data (categories, tiers with lead times, structure templates, tiebreak policy, document metadata) | yes | `20261021000000_event_competitions` applied | pgTAP; hosted anon reads return 9 categories, 4 templates for 12-16 entrants, tier lead times 45/45/90/120; anon writes refused |
+| Competitions panel and structure advisor in Event settings (multiple competitions per event, overrides with reason, lead-time advice, external approval recorded not granted) | yes | same | Unit tests (14); **UI not exercised signed in** |
+| Event setup guide for any event, new or existing (9 steps; unknown is never shown as none); two-step new-event flow that lands in the guide | yes | none | Unit tests incl. Red Deer Rumble's real facts (3 of 9); demo mode; **not opened against the real Rumble signed in** |
+| Role-aware journeys: "Start here" in My workspace and Administration, phone tabs by role, organizer setup progress | yes | none | Unit tests (14); demo-mode browser check |
+| Rules page lists official BI documents with versions, check dates and links, the tier table, and the source-conflict note | yes | same as competitions | Real browser against live data: 18 documents, 5 tiers |
+| Friendly errors: one `friendlyError()`, raw detail logged only | yes (registration and competition flows, guide, notifications) | none | Unit tests. Other older screens still show raw messages |
+
+### Known gaps (honest list)
+
+* Not done: `alt_text` and a remove-poster function for event media; tiebreak engine still uses the fixed order in `standings.ts` (the BI policy is stored as data but not yet read by standings); the full nine-step wizard (steps are covered by the guide linking to existing editors); rules page search does not yet cover tier or structure data.
+* Source conflicts recorded, not resolved: League Structure (50/100/150/200% of points) vs Tournament Structure (0.5/1/1.25/1.5) for Regional and Conference.
+* Drive-hosted BI documents (Buhurt Regulations, Duel Regulations, marshal and authenticity documents) were not readable as text; their versions come from the existing marshal reference or are "not stated".
+* Two duplicate rows remain for the Reavers (imported "Reavers" vs native "Red Deer Reavers"); a super admin must run `link_duplicate_team`.
+* Signed-in flows were not exercised in a real browser against the hosted project (accounts are not created by automation).
+* Usability: see `RELEASE_USABILITY_TEST.md`; Part B needs a real newcomer.
+
 ## Current state (single table, 2026-09-30)
 
 Base: `de6f251`. Tested and deployed code: `54cd7b0` (CI on the exact SHA passed: navigation audit, typecheck, vitest, build, clean `supabase start` + reset + pgTAP, then Pages deploy). The hosted bundle was fetched afterwards and contains the new 404 page. No database migration was needed or applied for this round. This documentation-only commit follows it.
