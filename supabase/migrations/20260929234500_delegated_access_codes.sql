@@ -407,3 +407,47 @@ grant execute on function public.redeem_delegated_access_code(text) to authentic
 grant execute on function public.list_delegated_access_targets() to authenticated;
 grant execute on function public.list_delegated_access_codes() to authenticated;
 grant execute on function public.disable_delegated_access_code(uuid) to authenticated;
+
+
+-- Harden public RPC wrappers: invoker wrappers call only the explicitly granted,
+-- auth-checking private functions. The private schema is not exposed by PostgREST.
+grant usage on schema private to authenticated;
+grant execute on function private.create_delegated_access_code(public.delegated_access_scope,uuid,text,text,integer,timestamptz) to authenticated;
+grant execute on function private.redeem_delegated_access_code(text) to authenticated;
+grant execute on function private.list_delegated_access_targets() to authenticated;
+grant execute on function private.list_delegated_access_codes() to authenticated;
+grant execute on function private.disable_delegated_access_code(uuid) to authenticated;
+
+create or replace function public.create_delegated_access_code(
+  p_scope public.delegated_access_scope,
+  p_target uuid,
+  p_role text,
+  p_label text default null,
+  p_max_uses integer default 1,
+  p_expires_at timestamptz default null
+) returns text
+language sql security invoker set search_path=''
+as $$ select private.create_delegated_access_code(p_scope,p_target,p_role,p_label,p_max_uses,p_expires_at); $$;
+
+create or replace function public.redeem_delegated_access_code(p_code text)
+returns jsonb
+language sql security invoker set search_path=''
+as $$ select private.redeem_delegated_access_code(p_code); $$;
+
+create or replace function public.list_delegated_access_targets()
+returns table(scope text,target_id uuid,target_name text,role text)
+language sql security invoker set search_path=''
+as $$ select * from private.list_delegated_access_targets(); $$;
+
+create or replace function public.list_delegated_access_codes()
+returns table(
+  id uuid,code_prefix text,label text,target_scope text,target_id uuid,target_name text,role text,
+  max_uses integer,active_uses bigint,expires_at timestamptz,disabled_at timestamptz,created_by uuid,created_at timestamptz
+)
+language sql security invoker set search_path=''
+as $$ select * from private.list_delegated_access_codes(); $$;
+
+create or replace function public.disable_delegated_access_code(p_id uuid)
+returns void
+language sql security invoker set search_path=''
+as $$ select private.disable_delegated_access_code(p_id); $$;
