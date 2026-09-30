@@ -46,3 +46,21 @@ describe('schedule planner', () => {
     expect(html).toContain('America/Edmonton');
   });
 });
+
+import { EventDetailView } from '../src/pages/ShowcaseEventPage';
+import { MemoryRouter } from 'react-router-dom';
+describe('public planned times', () => {
+  it('shows planned times by field with the event timezone and a caution', () => {
+    const details: any = {
+      event: { id: 'e', organizationId: 'o', name: 'Open', venue: 'Hall', startsAt: '2026-06-06T15:00:00Z', endsAt: '2026-06-06T23:00:00Z', eventType: 'tournament', standingsMode: 'event_only', status: 'published', timezone: 'America/Edmonton', publicLinks: {}, registrationOpen: false },
+      announcements: [], fields: [], divisions: [], matches: [{ id: 'm1', label: 'Pool A • Match 1', category: 'Longsword', status: 'scheduled', scheduledOrder: 1 }]
+    };
+    const html = renderToStaticMarkup(createElement(MemoryRouter, null, createElement(EventDetailView, {
+      details, onFighterSignup: () => undefined, schedule: [{ matchId: 'm1', areaName: 'Ring 1', startsAt: '2026-06-06T15:00:00Z', endsAt: '2026-06-06T15:06:00Z', order: 1 }]
+    })));
+    expect(html).toContain('Ring 1');
+    expect(html).toContain('09:00');
+    expect(html).toContain('Pool A');
+    expect(html).toContain('Planned times');
+  });
+});

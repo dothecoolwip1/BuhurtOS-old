@@ -319,3 +319,23 @@ export async function loadPublicOrganizationEvents(organizationId:string|undefin
   const events=await loadPublicEvents();
   return events.filter(event=>event.organizationId===organizationId);
 }
+
+export type PublicScheduleSlot = { matchId: string; areaId?: string; areaName?: string; startsAt: string; endsAt: string; order: number };
+
+/**
+ * Planned bout times for a published event. Resolves to [] when the backend has not installed the schedule function yet
+ * (an older backend), and rejects on any other failure so the page can say it could not load.
+ */
+export async function loadPublicEventSchedule(eventId:string):Promise<PublicScheduleSlot[]>{
+  if(!publicSupabase||!eventId)return [];
+  const {data,error}=await publicSupabase.rpc('public_event_schedule',{p_event_id:eventId});
+  if(error){
+    const missing=error.code==='PGRST202'||error.code==='42883'||/could not find the function/i.test(error.message??'');
+    if(missing)return [];
+    throw error;
+  }
+  return (data??[]).map((row:any)=>({
+    matchId:row.match_id,areaId:row.area_id??undefined,areaName:row.area_name??undefined,
+    startsAt:row.starts_at,endsAt:row.ends_at,order:Number(row.sort_order??0)
+  }));
+}

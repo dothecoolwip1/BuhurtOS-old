@@ -10,7 +10,8 @@ import {buildIcs} from '../lib/ics';
 import {toEventDTO} from '../lib/publicApiV1';
 import {downloadText} from '../lib/export';
 import {useAccount} from '../features/Account';
-import {formatEventRange,formatEventTime,zoneLabel} from '../lib/eventTime';
+import {eventClock,formatEventRange,formatEventTime,zoneLabel} from '../lib/eventTime';
+import {loadPublicEventSchedule,type PublicScheduleSlot} from '../lib/publicDirectory';
 import {loadOfficialEventStats} from '../lib/publicStats';
 import type {EventStats} from '../lib/canonicalStats';
 
@@ -34,7 +35,17 @@ function ShareButton({title}:{title:string}){
 const pretty=(value:string)=>value.replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
 
 
-export function EventDetailView({details,onFighterSignup,stats,statsError,organizerToolsHref}:{details:PublicEventDetails;onFighterSignup:()=>void;stats?:EventStats;statsError?:boolean;organizerToolsHref?:string}){
+function PlannedTimes({slots,details}:{slots:PublicScheduleSlot[];details:PublicEventDetails}){
+  const tz=details.event.timezone;
+  const label=new Map(details.matches.map(match=>[match.id,match.label]));
+  const areas=[...new Set(slots.map(slot=>slot.areaName||'Fighting area'))];
+  return <div className="planned-times">
+    <p className="show-note" role="note">Planned times in {zoneLabel(tz)}. Bouts can start earlier or later than planned, so check with the marshals on the day.</p>
+    <div className="planned-grid">{areas.map(area=><section key={area}><h4>{area}</h4><ol>{slots.filter(slot=>(slot.areaName||'Fighting area')===area).map(slot=><li key={slot.matchId}><time dateTime={slot.startsAt}>{eventClock(slot.startsAt,tz)}</time><span>{label.get(slot.matchId)??'Bout'}</span></li>)}</ol></section>)}</div>
+  </div>;
+}
+
+export function EventDetailView({details,onFighterSignup,stats,statsError,organizerToolsHref,schedule}:{details:PublicEventDetails;onFighterSignup:()=>void;stats?:EventStats;statsError?:boolean;organizerToolsHref?:string;schedule?:PublicScheduleSlot[]}){
   const event=details.event;
   const scheduleTba=Boolean(event.publicLinks?.schedule_tba);
   const facebook=typeof event.publicLinks?.facebook==='string'?event.publicLinks.facebook:undefined;
@@ -80,6 +91,7 @@ export function EventDetailView({details,onFighterSignup,stats,statsError,organi
         </Panel>:null}
 
         {modules.schedule?<Panel title="Schedule & matches">
+          {schedule&&schedule.length>0?<PlannedTimes slots={schedule} details={details}/>:null}
           {upcomingMatches.length===0
             ? <div className="source-empty-state"><strong>{scheduleTba?'Schedule to be announced.':'No matches are published yet.'}</strong><p>Once real matches are placed on the fight card, this section becomes the public fight schedule.</p></div>
             : <div className="show-master-schedule">{upcomingMatches.map((match,index)=><article key={match.id}><span className="show-order-num">{match.scheduledOrder||index+1}</span><Pill>{pretty(match.status)}</Pill><div className="grow"><b>{match.label}</b><small>{match.category}</small></div></article>)}</div>}
@@ -139,16 +151,18 @@ export function ShowcaseEventPage(){
   const [fighterSignupOpen,setFighterSignupOpen]=useState(false);
   const [stats,setStats]=useState<EventStats>();
   const [statsError,setStatsError]=useState(false);
+  const [schedule,setSchedule]=useState<PublicScheduleSlot[]>([]);
   const [attempt,setAttempt]=useState(0);
 
   useEffect(()=>{
     let active=true;
     // A new event id never renders the previous event's data or error.
-    setDetails(undefined);setStats(undefined);setStatsError(false);setError('');setLoading(true);setFighterSignupOpen(false);
+    setDetails(undefined);setStats(undefined);setStatsError(false);setSchedule([]);setError('');setLoading(true);setFighterSignupOpen(false);
     loadPublicEventDetails(eventId)
       .then(result=>{
         if(!active)return;
         setDetails(result);
+        if(result)loadPublicEventSchedule(result.event.id).then(rows=>{if(active)setSchedule(rows)}).catch(()=>undefined);
         if(result)loadOfficialEventStats(result.event.id).then(x=>{if(active)setStats(x)}).catch(()=>{if(active)setStatsError(true)});
       })
       .catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load this event.')})
@@ -162,6 +176,6 @@ export function ShowcaseEventPage(){
 
   return <>
     <FighterSignupModal open={fighterSignupOpen} onClose={()=>setFighterSignupOpen(false)} eventId={details.event.id} eventName={details.event.name}/>
-    <EventDetailView details={details} onFighterSignup={()=>setFighterSignupOpen(true)} stats={stats} statsError={statsError} organizerToolsHref={user?'/admin/events/manage?event='+details.event.id:undefined}/>
+    <EventDetailView details={details} onFighterSignup={()=>setFighterSignupOpen(true)} stats={stats} statsError={statsError} schedule={schedule} organizerToolsHref={user?'/admin/events/manage?event='+details.event.id:undefined}/>
   </>;
 }

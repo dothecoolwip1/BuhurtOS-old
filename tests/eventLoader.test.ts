@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 type Reply = { data: any; error: any };
-const state = vi.hoisted(() => ({ calls: [] as string[], eventReplies: [] as any[], tableRows: {} as Record<string, any[]> }));
+const state = vi.hoisted(() => ({ calls: [] as string[], eventReplies: [] as any[], tableRows: {} as Record<string, any[]>, rpc: undefined as undefined | ((name: string) => any) }));
 
 vi.mock('../src/lib/supabase', () => {
   const builder = (table: string, columns: string) => {
@@ -25,11 +25,11 @@ vi.mock('../src/lib/supabase', () => {
   return {
     isSupabaseConfigured: true,
     supabase: null,
-    publicSupabase: { from: (table: string) => ({ select: (columns: string) => builder(table, columns) }), rpc: async () => ({ data: [], error: null }) }
+    publicSupabase: { from: (table: string) => ({ select: (columns: string) => builder(table, columns) }), rpc: async (name: string) => (state.rpc ? state.rpc(name) : { data: [], error: null }) }
   };
 });
 
-import { clearPublicDirectoryCaches, isMissingColumnError, loadPublicEventDetails, loadPublicEvents } from '../src/lib/publicDirectory';
+import { clearPublicDirectoryCaches, isMissingColumnError, loadPublicEventDetails, loadPublicEventSchedule, loadPublicEvents } from '../src/lib/publicDirectory';
 
 const row = {
   id: 'e1', organization_id: 'o1', name: 'Spring Open', venue: 'Red Deer', starts_at: '2026-05-01T16:00:00Z', ends_at: '2026-05-01T23:00:00Z',
@@ -39,7 +39,7 @@ const row = {
 };
 
 beforeEach(() => {
-  state.calls = []; state.eventReplies = []; state.tableRows = {};
+  state.calls = []; state.eventReplies = []; state.tableRows = {}; state.rpc = undefined;
   clearPublicDirectoryCaches();
 });
 
@@ -91,5 +91,18 @@ describe('event list loader', () => {
   it('keeps ordinary failures as errors', async () => {
     state.eventReplies = [{ data: null, error: { code: '57014', message: 'statement timeout' } }];
     await expect(loadPublicEvents()).rejects.toMatchObject({ code: '57014' });
+  });
+});
+
+describe('public schedule loader', () => {
+  it('maps planned slots', async () => {
+    state.rpc = () => ({ data: [{ match_id: 'm1', area_id: 'a1', area_name: 'Ring 1', starts_at: '2026-06-06T16:00:00Z', ends_at: '2026-06-06T16:06:00Z', sort_order: 1 }], error: null });
+    expect(await loadPublicEventSchedule('e1')).toEqual([{ matchId: 'm1', areaId: 'a1', areaName: 'Ring 1', startsAt: '2026-06-06T16:00:00Z', endsAt: '2026-06-06T16:06:00Z', order: 1 }]);
+  });
+  it('treats a backend without the function as no schedule, but real failures as errors', async () => {
+    state.rpc = () => ({ data: null, error: { code: 'PGRST202', message: 'Could not find the function public.public_event_schedule' } });
+    expect(await loadPublicEventSchedule('e1')).toEqual([]);
+    state.rpc = () => ({ data: null, error: { code: '57014', message: 'statement timeout' } });
+    await expect(loadPublicEventSchedule('e1')).rejects.toMatchObject({ code: '57014' });
   });
 });
