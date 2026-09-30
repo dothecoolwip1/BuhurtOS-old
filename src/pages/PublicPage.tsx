@@ -4,6 +4,7 @@ import { computeEventStandings } from '../lib/standings';
 import { resolveStreamEmbed } from '../lib/stream';
 
 export function PublicPage() {
+  const scrollToSection=(id:string)=>document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
   const { event, matches, roster, announcements, fightCards } = useAppState();
   if (!event) return null;
 
@@ -47,9 +48,10 @@ export function PublicPage() {
     </section>
 
     <nav className="public-event-nav" aria-label="Event sections">
-      <a href="#fields">Live Fields</a><a href="#schedule">Schedule</a>
-      {event.standingsMode!=='no_standings'&&<a href="#standings">Standings</a>}
-      <a href="#updates">Updates</a>
+      <button type="button" onClick={()=>scrollToSection('fields')}>Live Fields</button>
+      <button type="button" onClick={()=>scrollToSection('schedule')}>Schedule</button>
+      {event.standingsMode!=='no_standings'&&<button type="button" onClick={()=>scrollToSection('standings')}>Standings</button>}
+      <button type="button" onClick={()=>scrollToSection('updates')}>Updates</button>
     </nav>
 
     {embed&&<div className="stream-frame"><iframe src={embed.embedUrl} title={embed.provider+" livestream"} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen /></div>}
