@@ -26,6 +26,7 @@ type CacheEntry<T> = { at:number; value:T };
 const directoryCache = new Map<string,CacheEntry<PublicDirectoryTeam[]>>();
 const rosterCache = new Map<string,CacheEntry<PublicRosterMember[]>>();
 const detailCache = new Map<string,CacheEntry<PublicTeamDetail|undefined>>();
+let mapCache:CacheEntry<PublicDirectoryTeam[]>|undefined;
 
 function fresh<T>(entry:CacheEntry<T>|undefined):T|undefined{
   if(!entry || Date.now()-entry.at>CACHE_MS) return undefined;
@@ -88,6 +89,32 @@ export async function loadPublicTeamDirectory(filters:TeamDirectoryFilters={}):P
  return rows;
 }
 
+export async function loadPublicTeamMap():Promise<PublicDirectoryTeam[]>{
+ if(!publicSupabase)return hacsaFallbackDirectory().filter(team=>team.latitude!=null&&team.longitude!=null);
+ const cached=fresh(mapCache);
+ if(cached)return cached;
+ const {data,error}=await publicSupabase.rpc('public_team_map');
+ if(error)throw error;
+ const rows=(data??[]).map((row:any)=>({
+   id:row.team_id,
+   slug:row.directory_slug??row.team_id,
+   organizationName:row.organization_short_name,
+   organizationShortName:row.organization_short_name,
+   name:row.team_name,
+   location:row.city_or_region??'Location pending',
+   continentCode:row.continent_code??'',
+   continentName:row.continent_name??row.continent_code??'Region pending',
+   countryCode:row.country_code??'',
+   countryName:row.country_name??row.country_code??'Country pending',
+   adminAreaCode:row.admin_area_code??'',
+   adminAreaName:row.admin_area_name??'Region pending',
+   latitude:row.public_latitude??undefined,
+   longitude:row.public_longitude??undefined
+ })) as PublicDirectoryTeam[];
+ mapCache={at:Date.now(),value:rows};
+ return rows;
+}
+
 export async function loadPublicTeamRoster(teamId:string):Promise<PublicRosterMember[]>{
  if(!publicSupabase)return[];
  const cached=fresh(rosterCache.get(teamId));
@@ -119,4 +146,5 @@ export function clearPublicTeamCaches(){
   directoryCache.clear();
   rosterCache.clear();
   detailCache.clear();
+  mapCache=undefined;
 }
