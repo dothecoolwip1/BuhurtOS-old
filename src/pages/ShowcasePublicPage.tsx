@@ -20,13 +20,17 @@ export function ShowcasePublicPage(){
  const [events,setEvents]=useState<PublicEventSummary[]>([]);
  const [loading,setLoading]=useState(true);
  const [teamsLoading,setTeamsLoading]=useState(true);
+ const [error,setError]=useState('');
+ const [teamsError,setTeamsError]=useState('');
  useEffect(()=>{
    let active=true;
    Promise.all([loadPublicOrganizations(),loadPublicEvents()])
      .then(([o,e])=>{if(active){setOrgs(o);setEvents(e)}})
+     .catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load public organizations and events.')})
      .finally(()=>{if(active)setLoading(false)});
    loadPublicTeamMap()
      .then(t=>{if(active)setTeams(t)})
+     .catch(err=>{if(active)setTeamsError(err instanceof Error?err.message:'Unable to load team locations.')})
      .finally(()=>{if(active)setTeamsLoading(false)});
    return()=>{active=false};
  },[]);
@@ -44,9 +48,10 @@ export function ShowcasePublicPage(){
 
   <section className="panel-card public-map-panel">
     <div className="show-public-section-head"><div><span className="eyebrow">GLOBAL MAP</span><h2>Find teams around the world</h2><p>Pins use approximate public team locations only.</p></div><Link to="/teams">Open full directory →</Link></div>
-    {teamsLoading?<div className="state-card">Loading team locations…</div>:mapped.length?<PublicTeamMap teams={mapped}/>:<div className="state-card">Team locations are still being normalized.</div>}
+    {teamsLoading?<div className="state-card">Loading team locations…</div>:teamsError?<div className="state-card"><strong>Unable to load team locations</strong><p>{teamsError}</p></div>:mapped.length?<PublicTeamMap teams={mapped}/>:<div className="state-card">Team locations are still being normalized.</div>}
   </section>
 
+  {error?<div className="state-card"><strong>Unable to load public directory data</strong><p>{error}</p></div>:null}
   <section className="show-public-section">
     <div className="show-public-section-head"><div><span className="eyebrow">WHO ORGANIZES THE SPORT?</span><h2>Organizations</h2><p>Open an organization to see what it is, the teams beneath it and its public footprint.</p></div><Link to="/governance">See hierarchy →</Link></div>
     <div className="show-team-grid public-global-grid">{orgs.slice(0,8).map(org=><Link className="show-team-card" key={org.key} to={'/organizations/'+org.key}><div className="show-team-banner official"><span>{org.shortName.slice(0,4)}</span><Pill tone="blue">{org.kind}</Pill></div><div className="show-team-body"><small>{org.region}</small><h2>{org.name}</h2><p>{org.description}</p><div className="team-card-stats"><span><b>{org.teamCount}</b><small>teams</small></span><span><b>{org.rosterCount}</b><small>roster records</small></span><span><b>{org.countries}</b><small>countries</small></span></div><div className="team-public-actions"><span>Learn more</span><b>→</b></div></div></Link>)}</div>

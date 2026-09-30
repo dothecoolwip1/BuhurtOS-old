@@ -11,10 +11,12 @@ export function PublicOrganizationPage(){
   const [organization,setOrganization]=useState<PublicOrganizationSummary>();
   const [teams,setTeams]=useState<PublicDirectoryTeam[]>([]);
   const [loading,setLoading]=useState(true);
+  const [error,setError]=useState('');
 
-  useEffect(()=>{let active=true;loadPublicOrganization(organizationKey).then(result=>{if(active&&result){setOrganization(result.organization);setTeams(result.teams)}}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[organizationKey]);
+  useEffect(()=>{let active=true;loadPublicOrganization(organizationKey).then(result=>{if(active&&result){setOrganization(result.organization);setTeams(result.teams)}}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load this organization.')} ).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[organizationKey]);
 
   if(loading)return <div className="state-card">Loading organization profile…</div>;
+  if(error)return <div className="state-card"><strong>Unable to load organization</strong><p>{error}</p><Link className="show-btn secondary" to="/governance">Back to organizations</Link></div>;
   if(!organization)return <div className="state-card"><h2>Organization not found</h2><Link className="show-btn secondary" to="/public">Back to public view</Link></div>;
 
   return <>
