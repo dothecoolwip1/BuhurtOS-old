@@ -107,21 +107,32 @@ export function recommendStructures(entrants: number, family: CompetitionFamily 
     return out;
   }
 
-  // Aim for pools of about four to five (three to four for melee), then a knockout from the top of each pool.
+  // Aim for pools of about four to five (three to four for melee), and prefer a knockout that fills 4, 8 or 16 places with no byes.
   const target = melee ? 4 : 5;
-  const groups = Math.max(2, Math.round(entrants / target));
+  let best: { groups: number; qualifiers: number; score: number } | undefined;
+  for (let g = 2; g <= Math.max(2, Math.min(8, Math.floor(entrants / 3))); g++) {
+    const sizes = balancedGroupSizes(entrants, g);
+    if (Math.min(...sizes) < 3) continue;
+    for (const q of [2, 3]) {
+      if (Math.min(...sizes) <= q) continue;
+      const advancing = g * q;
+      if (advancing < 4) continue;
+      const score = Math.abs(entrants / g - target) + (nextPowerOfTwo(advancing) === advancing ? 0 : 2.5) + (advancing > entrants * 0.75 ? 3 : 0);
+      if (!best || score < best.score) best = { groups: g, qualifiers: q, score };
+    }
+  }
+  const groups = best?.groups ?? Math.max(2, Math.round(entrants / target));
+  const qualifiers = best?.qualifiers ?? 2;
   const sizes = balancedGroupSizes(entrants, groups);
-  const qualifiers = sizes.every(size => size >= 4) && entrants >= 12 ? 3 : 2;
-  const advancing = sizes.length * qualifiers;
-  // Keep the playoff a clean bracket where possible: prefer qualifier counts that fill 4, 8 or 16 places.
+  const advancing = groups * qualifiers;
   const clean = nextPowerOfTwo(advancing) === advancing;
   out.push(poolsThenKnockout(
     entrants, groups, qualifiers,
-    `${sizes.length} pools, top ${qualifiers} advance`,
-    `Pools of ${sizes[sizes.length - 1]}${sizes[0] !== sizes[sizes.length - 1] ? '–' + sizes[0] : ''} give everyone at least ${Math.min(...sizes) - 1} bouts before the knockout${clean ? '' : ' (the playoff will include byes)'}. The usual format for a full event day.`,
+    `${groups} pools, top ${qualifiers} advance`,
+    `Pools of ${sizes[sizes.length - 1]}${sizes[0] !== sizes[sizes.length - 1] ? '–' + sizes[0] : ''} give everyone at least ${Math.min(...sizes) - 1} bouts before the ${advancing}-place knockout${clean ? '' : ' (which will include byes)'}. The usual format for a full event day.`,
     true
   ));
-  if (groups > 2 && qualifiers === 2) out.push(poolsThenKnockout(entrants, Math.max(2, groups - 1), 2, `${Math.max(2, groups - 1)} larger pools, top 2 advance`, 'Fewer, bigger pools: more bouts each and a smaller playoff.', false));
+  if (groups > 2 && qualifiers === 2) out.push(poolsThenKnockout(entrants, groups - 1, 2, `${groups - 1} larger pools, top 2 advance`, 'Fewer, bigger pools: more bouts each and a smaller playoff.', false));
   out.push(single(false), double(false));
   return out;
 }

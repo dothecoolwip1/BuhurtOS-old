@@ -136,3 +136,21 @@ describe('scheduler', () => {
     expect(scheduleMatches(pools(), settings({ startsAt: 'nope' })).warnings[0]).toMatch(/start time/);
   });
 });
+
+describe('clean playoffs', () => {
+  it('prefers a knockout that fills its places when the field allows', () => {
+    for (const n of [12, 14, 16, 20, 24]) {
+      const top = recommendStructures(n)[0];
+      const advancing = top.groups.length * (top.qualifiersPerPool ?? 0);
+      expect([4, 8, 16]).toContain(advancing);
+      expect(Math.min(...top.groups)).toBeGreaterThanOrEqual(3);
+    }
+  });
+});
+
+describe('labels', () => {
+  it('uses a clean bullet and still reads pool names from older saved labels', () => {
+    const matches = build(8, 'pools_to_bracket', { targetPoolSize: 4 }).plan.matches;
+    expect(matches[0].label).toMatch(/^Pool A • Match 1$/);
+  });
+});

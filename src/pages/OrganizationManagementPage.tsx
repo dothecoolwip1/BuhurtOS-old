@@ -334,7 +334,7 @@ function OrganizationManagementInner({ organizationId }: { organizationId: strin
           {snapshot.organizations.map(org => <article key={org.id}>
             <div className="grow">
               <strong>{org.name}</strong>
-              <small>{org.shortName} ┬╖ {label(org.kind || 'independent_organization')} ┬╖ {org.region}</small>
+              <small>{org.shortName} · {label(org.kind || 'independent_organization')} · {org.region}</small>
             </div>
           </article>)}
         </div>
@@ -373,7 +373,7 @@ function OrganizationManagementInner({ organizationId }: { organizationId: strin
             return <article key={row.id}>
               <div className="grow">
                 <strong>{parent?.shortName || 'Organization'} ΓåÆ {child?.shortName || 'Organization'}</strong>
-                <small>{label(row.relationshipKind)} ┬╖ since {row.startsOn}</small>
+                <small>{label(row.relationshipKind)} · since {row.startsOn}</small>
               </div>
               {(organizationAdmin || platformAdmin) && <button disabled={busy} onClick={() => run(
                 () => endOrganizationRelationship(organizationId, row.id),
@@ -411,7 +411,7 @@ function OrganizationManagementInner({ organizationId }: { organizationId: strin
           {snapshot.clubs.length === 0 ? <div className="state-card">No clubs are visible in this organization yet.</div> : snapshot.clubs.map(club => <article key={club.id}>
             <div className="grow">
               <strong>{club.name}</strong>
-              <small>{[club.shortName, club.region, label(club.visibility || 'members')].filter(Boolean).join(' ┬╖ ')}</small>
+              <small>{[club.shortName, club.region, label(club.visibility || 'members')].filter(Boolean).join(' · ')}</small>
             </div>
             <div className="header-actions">
               {canManageClub(club.id) && <button disabled={busy} onClick={() => editClub(club)}>Edit</button>}
@@ -464,7 +464,7 @@ function OrganizationManagementInner({ organizationId }: { organizationId: strin
                   team.clubId ? snapshot.clubs.find(club => club.id === team.clubId)?.name : 'Direct organization team',
                   team.cityOrRegion,
                   label(team.status || 'active')
-                ].filter(Boolean).join(' ┬╖ ')}</small>
+                ].filter(Boolean).join(' · ')}</small>
               </div>
               <div className="header-actions">
                 {organizationAdmin && <select aria-label={'Status for ' + team.name} disabled={busy} value={team.status || 'active'} onChange={e => run(
@@ -546,7 +546,7 @@ function OrganizationManagementInner({ organizationId }: { organizationId: strin
             return <article key={request.id}>
               <div className="grow">
                 <strong>{request.requestKind === 'invitation' ? request.inviteEmail : 'Membership application'}</strong>
-                <small>{target?.name || 'Target'} ┬╖ {label(role)}{request.expiresAt ? ' ┬╖ expires ' + new Date(request.expiresAt).toLocaleDateString() : ''}</small>
+                <small>{target?.name || 'Target'} · {label(role)}{request.expiresAt ? ' · expires ' + new Date(request.expiresAt).toLocaleDateString() : ''}</small>
               </div>
               <div className="header-actions">
                 {request.requestKind === 'application' && manager && <button disabled={busy} onClick={() => run(
@@ -581,7 +581,7 @@ function OrganizationManagementInner({ organizationId }: { organizationId: strin
             return <article key={membership.id}>
               <div className="grow">
                 <strong>{membership.displayName}</strong>
-                <small>{club?.name || 'Club'} ┬╖ {label(membership.role)} ┬╖ since {membership.startsOn}</small>
+                <small>{club?.name || 'Club'} · {label(membership.role)} · since {membership.startsOn}</small>
               </div>
               <div className="header-actions">
                 {canEdit && roles.length > 0 && <select aria-label={'Role for ' + membership.displayName} disabled={busy} value={membership.role} onChange={e => run(
@@ -609,7 +609,7 @@ function OrganizationManagementInner({ organizationId }: { organizationId: strin
             return <article key={membership.id}>
               <div className="grow">
                 <strong>{membership.displayName}</strong>
-                <small>{team?.name || 'Team'} ┬╖ {label(membership.role)} ┬╖ since {membership.startsOn}</small>
+                <small>{team?.name || 'Team'} · {label(membership.role)} · since {membership.startsOn}</small>
               </div>
               <div className="header-actions">
                 {canEdit && roles.length > 0 && <select aria-label={'Role for ' + membership.displayName} disabled={busy} value={membership.role} onChange={e => run(

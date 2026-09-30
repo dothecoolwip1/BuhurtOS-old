@@ -58,7 +58,7 @@ export function BracketPage() {
   const hasPools = poolBracketIds.length > 0;
   const hasBracket = rounds.length > 0;
   const requested = (filters.view || '') as View;
-  const view: View = requested === 'pools' && hasPools ? 'pools' : requested === 'bracket' && hasBracket ? 'bracket' : requested === 'play' ? 'play' : hasBracket && !hasPools && !requested ? 'bracket' : hasPools && !requested ? 'pools' : 'play';
+  const view: View = requested === 'pools' && hasPools ? 'pools' : requested === 'bracket' && hasBracket ? 'bracket' : 'play';
 
   const printOrder = () => {
     try {

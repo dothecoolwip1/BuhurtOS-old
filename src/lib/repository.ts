@@ -58,7 +58,10 @@ export async function loadEventSnapshot(eventId?: string, accessMode: 'public' |
     const allMatches = [...baseMatches, ...bracketMatches.filter((m: any) => !existingIds.has(m.id))];
     const savedFightCards = typeof localStorage === 'undefined' ? [] : JSON.parse(localStorage.getItem('buhurtos-demo-fight-cards-' + demoEvent.id) ?? '[]');
     const fightCardIds = [...new Set(allMatches.map((match: any) => match.fightCardId).filter(Boolean))] as string[];
-    const fightCards: FightCard[] = savedFightCards.length ? savedFightCards : fightCardIds.map((id,index) => ({ id, eventId: demoEvent.id, name: 'Field ' + (index + 1), listName: 'Field ' + (index + 1), status: 'live', sortOrder: index }));
+    const derivedCards: FightCard[] = fightCardIds.map((id,index) => ({ id, eventId: demoEvent.id, name: 'Field ' + (index + 1), listName: 'Field ' + (index + 1), status: 'live', sortOrder: index }));
+    // Demo mode always offers two fields so multi-area scheduling can be tried.
+    if (derivedCards.length < 2 && !derivedCards.some(card => card.id === 'card-b')) derivedCards.push({ id: 'card-b', eventId: demoEvent.id, name: 'Field ' + (derivedCards.length + 1), listName: 'Field ' + (derivedCards.length + 1), status: 'live', sortOrder: derivedCards.length });
+    const fightCards: FightCard[] = savedFightCards.length ? savedFightCards : derivedCards;
     const rosterTeamIds = new Set(roster.map(r => r.teamId).filter((id): id is string => Boolean(id)));
     const teams: EventTeam[] = demoEventTeams.filter(t => rosterTeamIds.has(t.id)).map(t => ({ id: t.id, name: t.name, cityOrRegion: t.cityOrRegion }));
     return { event, matches: allMatches, roster, fightCards, announcements, teams };

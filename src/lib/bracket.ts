@@ -137,7 +137,7 @@ export function generateSingleElimination(params: {
         eventId: params.eventId,
         fightCardId: params.fightCardId,
         bracketId: params.bracketId,
-        label: round === rounds ? 'Final' : `Round ${round} ΓÇó Match ${index + 1}`,
+        label: round === rounds ? 'Final' : `Round ${round} • Match ${index + 1}`,
         category: params.category,
         matchType: params.matchType,
         scoringConfig: params.scoringConfig,
@@ -260,7 +260,7 @@ export function generateRoundRobin(params: {
         eventId: params.eventId,
         fightCardId: params.fightCardId,
         bracketId: params.bracketId,
-        label: (params.labelPrefix ? params.labelPrefix + ' ΓÇó ' : '') + 'Match ' + order,
+        label: (params.labelPrefix ? params.labelPrefix + ' • ' : '') + 'Match ' + order,
         category: params.category,
         matchType: params.matchType,
         scoringConfig: structuredClone(params.scoringConfig),
@@ -391,7 +391,7 @@ export function generateDoubleElimination(params: {
         eventId: params.eventId,
         fightCardId: params.fightCardId,
         bracketId: params.bracketId,
-        label: 'Lower Round ' + lowerRound + ' ΓÇó Match ' + (index + 1),
+        label: 'Lower Round ' + lowerRound + ' • Match ' + (index + 1),
         category: params.category,
         matchType: params.matchType,
         scoringConfig: structuredClone(params.scoringConfig),
@@ -473,7 +473,7 @@ export function generateDoubleElimination(params: {
   const resetFinal: MatchRecord = {
     ...structuredClone(grandFinal),
     id: newId(params.idFactory),
-    label: 'Grand Final Reset ΓÇó If Required',
+    label: 'Grand Final Reset • If Required',
     status: 'cancelled',
     scheduledOrder: 9001,
     bracketRound: grandFinal.bracketRound! + 1,
@@ -530,7 +530,7 @@ export interface PoolQualificationState {
 function poolNameForMatch(match: MatchRecord): string {
   const slotMatch = match.bracketSlot?.match(/^Pool-([A-Za-z0-9]+)-/);
   if (slotMatch) return 'Pool ' + slotMatch[1];
-  const labelMatch = match.label.match(/^(Pool\s+[^ΓÇó]+)(?:\s*ΓÇó|$)/i);
+  const labelMatch = match.label.match(/^(Pool\s+.+?)(?:\s*(?:•|ΓÇó)|$)/i);
   return labelMatch?.[1]?.trim() ?? 'Pool';
 }
 
