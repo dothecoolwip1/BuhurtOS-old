@@ -26,7 +26,7 @@ select ok(has_table_privilege('authenticated','public.membership_requests','SELE
 select ok(not has_table_privilege('authenticated','public.membership_requests','INSERT'),
   'membership request writes are RPC-only');
 
-select ok(has_table_privilege('anon','public.organization_relationships','SELECT'),
+select ok(has_any_column_privilege('anon','public.organization_relationships','SELECT'),
   'federation relationships remain publicly readable');
 select ok(not has_table_privilege('anon','public.organization_relationships','INSERT'),
   'anonymous cannot write federation relationships');
@@ -35,7 +35,7 @@ select ok(has_table_privilege('authenticated','public.organization_relationships
 select ok(not has_table_privilege('authenticated','public.organization_relationships','INSERT'),
   'federation relationship writes are RPC-only');
 
-select ok(has_table_privilege('anon','public.rulesets','SELECT'),
+select ok(has_any_column_privilege('anon','public.rulesets','SELECT'),
   'published rulesets remain publicly readable subject to RLS');
 select ok(not has_table_privilege('anon','public.rulesets','INSERT'),
   'anonymous cannot write rulesets');

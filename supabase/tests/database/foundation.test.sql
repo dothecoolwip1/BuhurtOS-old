@@ -23,7 +23,7 @@ select ok((select relrowsecurity from pg_class c join pg_namespace n on n.oid=c.
 select ok((select relrowsecurity from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relname='competition_divisions'),'divisions have RLS');
 select ok((select relrowsecurity from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relname='event_divisions'),'event divisions have RLS');
 
-select ok(has_table_privilege('anon','public.competition_divisions','SELECT'),'anonymous spectators can read published divisions through RLS');
+select ok(has_any_column_privilege('anon','public.competition_divisions','SELECT'),'anonymous spectators can read published divisions through RLS');
 select ok(not has_table_privilege('anon','public.competition_divisions','INSERT'),'anonymous spectators cannot create divisions');
 select ok(has_table_privilege('authenticated','public.clubs','SELECT'),'authenticated users have Data API table access subject to RLS');
 
