@@ -198,13 +198,23 @@ export type PublicEventDetails = {
   matches: Array<{id:string;label:string;category:string;status:string;scheduledOrder:number}>;
 };
 
-export async function loadPublicEventDetails(id:string):Promise<PublicEventDetails|undefined>{
+const UUID_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** The stable public address of an event: its slug when it has one, its id otherwise (old links keep working). */
+export function eventPath(event:{id:string;slug?:string}):string{
+  return '/events/'+(event.slug||event.id);
+}
+
+/** Accepts either the event id or its public slug. */
+export async function loadPublicEventDetails(identifier:string):Promise<PublicEventDetails|undefined>{
   if(!publicSupabase)return undefined;
-  const cached=eventDetailCache.get(id);
+  const byId=UUID_PATTERN.test(identifier);
+  if(!byId&&!extendedEventColumnsAvailable)return undefined; // a backend without slugs cannot resolve one
+  const cached=eventDetailCache.get(identifier);
   if(cached && isFresh(cached.at)) return cached.value;
   const fetchEvent=(columns:string)=>publicSupabase!.from('events')
     .select(columns)
-    .eq('id',id)
+    .eq(byId?'id':'slug',identifier)
     .in('status',['published','live','completed','cancelled'])
     .not('published_at','is',null)
     .maybeSingle();
@@ -215,7 +225,8 @@ export async function loadPublicEventDetails(id:string):Promise<PublicEventDetai
   }
   const {data:eventRow,error:eventError}=eventResult;
   if(eventError)throw eventError;
-  if(!eventRow)return undefined;
+  if(!eventRow){eventDetailCache.set(identifier,{at:Date.now(),value:undefined});return undefined;}
+  const id:string=eventRow.id;
 
   const [announcementsRes,fieldsRes,eventDivisionsRes,matchesRes]=await Promise.all([
     publicSupabase.from('announcements')
@@ -265,11 +276,12 @@ export async function loadPublicEventDetails(id:string):Promise<PublicEventDetai
       id:row.id,label:row.label,category:row.category,status:row.status,scheduledOrder:Number(row.scheduled_order??0)
     }))
   };
-  eventDetailCache.set(id,{at:Date.now(),value:result});
+  eventDetailCache.set(identifier,{at:Date.now(),value:result});
   return result;
 }
 
 export function clearPublicDirectoryCaches(){
+  extendedEventColumnsAvailable=true;
   organizationsCache=null;
   eventsCache=null;
   fightersCache=null;

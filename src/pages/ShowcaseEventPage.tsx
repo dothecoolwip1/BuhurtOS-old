@@ -6,6 +6,7 @@ import {loadPublicEventDetails,type PublicEventDetails} from '../lib/publicDirec
 import {ListCrumbs} from '../components/chrome';
 import {eventCategoryLabel,eventCategoryTone,eventModules,isCompetitionCapable} from '../lib/eventCategories';
 import {eventImageThumbUrl,eventImageUrl} from '../lib/eventMedia';
+import {useDocumentTitle} from '../lib/pageTitle';
 import {buildIcs} from '../lib/ics';
 import {toEventDTO} from '../lib/publicApiV1';
 import {downloadText} from '../lib/export';
@@ -174,6 +175,7 @@ export function ShowcaseEventPage(){
     return()=>{active=false};
   },[eventId,attempt]);
 
+  useDocumentTitle(details?.event.name,'Event');
   if(loading)return <div className="state-card" role="status">Loading event…</div>;
   if(error)return <div className="state-card" role="alert"><strong>This event could not be loaded</strong><p>{error}</p><p>This is a connection or server problem, not a missing event.</p><div className="show-actions"><button type="button" className="show-btn" onClick={()=>setAttempt(n=>n+1)}>Try again</button><Link className="show-btn secondary" to="/events">Back to events</Link></div></div>;
   if(!details)return <div className="state-card"><h2>Event not found</h2><p>This event is not published or is no longer publicly available.</p><Link className="show-btn secondary" to="/events">Back to events</Link></div>;

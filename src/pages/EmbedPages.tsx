@@ -37,7 +37,7 @@ export function AgendaView({ events }: { events: EventDTO[] }) {
     <h2>{month.label}</h2>
     {month.events.map(event => {
       const cta = eventCta(event.category, { registrationOpen: event.registrationOpen, hasLink: true, status: event.status });
-      return <a className="embed-row" key={event.id} href={siteLink('/events/' + event.id)} target="_blank" rel="noopener noreferrer">
+      return <a className="embed-row" key={event.id} href={siteLink('/events/' + (event.slug || event.id))} target="_blank" rel="noopener noreferrer">
         <span className="embed-date">{fmtDate(event.startsAt, event.timezone)}</span>
         <span className="embed-main"><strong>{event.name}</strong><small>{event.venue}</small></span>
         <span className="embed-tags"><em>{event.categoryLabel}</em>{event.status === 'cancelled' ? <em className="warn">Cancelled</em> : null}<b>{cta.label} →</b></span>
@@ -58,7 +58,7 @@ export function EventCardView({ event }: { event: EventDTO }) {
       {event.host?.name ? <p className="embed-meta">Hosted by {event.host.name}</p> : null}
       {event.description ? <p className="embed-copy">{event.description}</p> : null}
       <div className="embed-actions">
-        <a className="embed-btn primary" href={siteLink('/events/' + event.id)} target="_blank" rel="noopener noreferrer">{cta.kind === 'none' ? 'Event page' : cta.label}</a>
+        <a className="embed-btn primary" href={siteLink('/events/' + (event.slug || event.id))} target="_blank" rel="noopener noreferrer">{cta.kind === 'none' ? 'Event page' : cta.label}</a>
         {event.links.facebook ? <a className="embed-btn" href={event.links.facebook} target="_blank" rel="noopener noreferrer">Facebook event ↗</a> : null}
       </div>
     </div>

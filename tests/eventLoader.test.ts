@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 type Reply = { data: any; error: any };
-const state = vi.hoisted(() => ({ calls: [] as string[], eventReplies: [] as any[], tableRows: {} as Record<string, any[]>, rpc: undefined as undefined | ((name: string) => any) }));
+const state = vi.hoisted(() => ({ calls: [] as string[], eventReplies: [] as any[], tableRows: {} as Record<string, any[]>, rpc: undefined as undefined | ((name: string) => any), eqs: [] as string[] }));
 
 vi.mock('../src/lib/supabase', () => {
   const builder = (table: string, columns: string) => {
@@ -14,7 +14,8 @@ vi.mock('../src/lib/supabase', () => {
       return { data: state.tableRows[table] ?? [], error: null };
     };
     const chain: any = {};
-    for (const method of ['eq', 'in', 'not', 'order', 'neq', 'or', 'limit', 'gte', 'lte']) chain[method] = () => chain;
+    chain.eq = (column: string, value: string) => { state.eqs.push(column + '=' + value); return chain; };
+    for (const method of ['in', 'not', 'order', 'neq', 'or', 'limit', 'gte', 'lte']) chain[method] = () => chain;
     chain.maybeSingle = async () => {
       const r = reply();
       return Array.isArray(r.data) ? { data: r.data[0] ?? null, error: r.error } : r;
@@ -29,8 +30,9 @@ vi.mock('../src/lib/supabase', () => {
   };
 });
 
-import { clearPublicDirectoryCaches, isMissingColumnError, loadPublicEventDetails, loadPublicEventSchedule, loadPublicEvents } from '../src/lib/publicDirectory';
+import { eventPath, clearPublicDirectoryCaches, isMissingColumnError, loadPublicEventDetails, loadPublicEventSchedule, loadPublicEvents } from '../src/lib/publicDirectory';
 
+const EVENT_UUID = '11111111-1111-4111-8111-111111111111';
 const row = {
   id: 'e1', organization_id: 'o1', name: 'Spring Open', venue: 'Red Deer', starts_at: '2026-05-01T16:00:00Z', ends_at: '2026-05-01T23:00:00Z',
   organizer_name: 'Reavers', event_type: 'tournament', standings_mode: 'ranked', status: 'published', timezone: 'America/Edmonton',
@@ -39,7 +41,7 @@ const row = {
 };
 
 beforeEach(() => {
-  state.calls = []; state.eventReplies = []; state.tableRows = {}; state.rpc = undefined;
+  state.calls = []; state.eventReplies = []; state.tableRows = {}; state.rpc = undefined; state.eqs = [];
   clearPublicDirectoryCaches();
 });
 
@@ -57,7 +59,7 @@ describe('missing-column detection', () => {
 describe('event detail loader', () => {
   it('carries the stored poster, host team and slug through to the detail view model', async () => {
     state.eventReplies = [{ data: row, error: null }];
-    const details = await loadPublicEventDetails('e1');
+    const details = await loadPublicEventDetails(EVENT_UUID);
     expect(state.calls[0]).toContain('image_path');
     expect(state.calls[0]).toContain('host_team_id');
     expect(details?.event.imagePath).toBe('posters/spring.png');
@@ -68,7 +70,7 @@ describe('event detail loader', () => {
   it('falls back to legacy columns only when a column is missing', async () => {
     const { slug, host_team_id, image_path, ...legacy } = row;
     state.eventReplies = [{ data: null, error: { code: '42703', message: 'column events.slug does not exist' } }, { data: legacy, error: null }];
-    const details = await loadPublicEventDetails('e1');
+    const details = await loadPublicEventDetails(EVENT_UUID);
     expect(state.calls).toHaveLength(2);
     expect(state.calls[1]).not.toContain('image_path');
     expect(details?.event.name).toBe('Spring Open');
@@ -77,13 +79,13 @@ describe('event detail loader', () => {
 
   it('keeps ordinary failures as errors instead of silently degrading', async () => {
     state.eventReplies = [{ data: null, error: { code: '42501', message: 'permission denied' } }];
-    await expect(loadPublicEventDetails('e1')).rejects.toMatchObject({ code: '42501' });
+    await expect(loadPublicEventDetails(EVENT_UUID)).rejects.toMatchObject({ code: '42501' });
     expect(state.calls).toHaveLength(1);
   });
 
   it('reports an unpublished event as not found, not as an error', async () => {
     state.eventReplies = [{ data: null, error: null }];
-    expect(await loadPublicEventDetails('missing')).toBeUndefined();
+    expect(await loadPublicEventDetails(EVENT_UUID)).toBeUndefined();
   });
 });
 
@@ -111,5 +113,22 @@ describe('public schedule loader', () => {
   it('returns nothing when no tournament has a schedule', async () => {
     state.tableRows.brackets = [{ id: 'b1', metadata: {} }];
     expect(await loadPublicEventSchedule('e1')).toEqual([]);
+  });
+});
+
+describe('event addresses', () => {
+  it('prefers the slug in links and falls back to the id', () => {
+    expect(eventPath({ id: 'abc', slug: 'red-deer-rumble' })).toBe('/events/red-deer-rumble');
+    expect(eventPath({ id: 'abc' })).toBe('/events/abc');
+  });
+  it('resolves a slug or an id to the same event', async () => {
+    state.eventReplies = [{ data: row, error: null }];
+    const bySlug = await loadPublicEventDetails('spring-open');
+    expect(state.eqs).toContain('slug=spring-open');
+    expect(bySlug?.event.id).toBe('e1');
+    clearPublicDirectoryCaches(); state.eqs = [];
+    state.eventReplies = [{ data: row, error: null }];
+    await loadPublicEventDetails('6028e471-a95c-4d8a-8101-1f168bc68c8b');
+    expect(state.eqs).toContain('id=6028e471-a95c-4d8a-8101-1f168bc68c8b');
   });
 });

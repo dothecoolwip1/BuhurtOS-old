@@ -1,3 +1,4 @@
+import {eventPath} from '../lib/publicDirectory';
 import {useEffect,useState} from 'react';
 import {Link,useParams} from 'react-router-dom';
 import {PageHeader,Pill,Panel} from '../components/ShowcaseUI';
@@ -45,7 +46,7 @@ export function PublicOrganizationPage(){
         </div>
       </Panel>
     </div>
-    {events.length?<section className="show-public-section"><div className="show-public-section-head"><div><span className="eyebrow">EVENTS</span><h2>Published {organization.shortName} events</h2></div><Link to="/events">All events →</Link></div><div className="team-tournament-list">{events.map(ev=><Link key={ev.id} to={'/events/'+ev.id}><b>{ev.name}</b><small>{[ev.startsAt?.slice(0,10),ev.venue].filter(Boolean).join(' · ')}</small></Link>)}</div></section>:null}
+    {events.length?<section className="show-public-section"><div className="show-public-section-head"><div><span className="eyebrow">EVENTS</span><h2>Published {organization.shortName} events</h2></div><Link to="/events">All events →</Link></div><div className="team-tournament-list">{events.map(ev=><Link key={ev.id} to={eventPath(ev)}><b>{ev.name}</b><small>{[ev.startsAt?.slice(0,10),ev.venue].filter(Boolean).join(' · ')}</small></Link>)}</div></section>:null}
     <section className="show-public-section">
       <div className="show-public-section-head"><div><span className="eyebrow">TEAMS</span><h2>Teams connected to {organization.shortName}</h2></div><Link to="/teams">Full team directory →</Link></div>
       {teams.length?<div className="show-team-grid public-global-grid">{teams.map(team=><Link to={'/teams/'+team.slug} className="show-team-card" key={team.id}><div className="show-team-banner official">{team.logoPath?<img className="team-card-logo" src={team.logoPath} alt={team.name+' logo'} loading="lazy" decoding="async"/>:<span>{initials(team.name)}</span>}<Pill tone="green">{team.countryName}</Pill></div><div className="show-team-body"><small>{team.location}</small><h2>{team.name}</h2><p>{team.description||'Open the team profile for roster, ranking and source-backed information.'}</p><div className="team-card-stats">{team.rank5v5!=null?<span><b>#{team.rank5v5}</b><small>5v5 rank</small></span>:null}{team.points5v5!=null?<span><b>{team.points5v5}</b><small>5v5 points</small></span>:null}</div><div className="team-public-actions"><span>Open team</span><b>→</b></div></div></Link>)}</div>:<div className="state-card">No public team records are connected to this organization yet.</div>}

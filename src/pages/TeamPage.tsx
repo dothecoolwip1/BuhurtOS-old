@@ -1,3 +1,4 @@
+import {useDocumentTitle} from '../lib/pageTitle';
 import {useEffect,useState} from 'react';import {Link,useParams} from 'react-router-dom';
 import {loadPublicTeamDetail,loadPublicTeamDirectory,loadPublicTeamRoster,type PublicDirectoryTeam,type PublicRosterMember,type PublicTeamDetail} from '../lib/teamDirectory';
 import {Panel,Pill} from '../components/ShowcaseUI';
@@ -12,6 +13,7 @@ export function TeamPage(){
   // A new team id never shows the previous team's profile, record or error.
   setTeam(undefined);setDetail(undefined);setRoster([]);setStats(undefined);setProvenance(undefined);setStatsError(false);setError('');setLoading(true);
   (async()=>{try{const rows=await loadPublicTeamDirectory({teamSlug:teamId});if(!active)return;setTeam(rows[0]);if(rows[0]){const [r,d]=await Promise.all([loadPublicTeamRoster(rows[0].id),loadPublicTeamDetail(rows[0].id)]);if(active){setRoster(r);setDetail(d)}loadOfficialTeamStats(rows[0].id).then(x=>{if(active)setStats(x)}).catch(()=>{if(active)setStatsError(true)});loadTeamProvenance(rows[0].id).then(x=>{if(active)setProvenance(provenanceToCard(x))}).catch(()=>{if(active)setStatsError(true)})}}catch(err){if(active)setError(err instanceof Error?err.message:'Unable to load this team.')}finally{if(active)setLoading(false)}})();return()=>{active=false}},[teamId,attempt]);
+ useDocumentTitle(team?.name,'Team');
  if(loading)return <div className="state-card" role="status">Loading public team profile…</div>;
  if(error)return <div className="state-card" role="alert"><strong>This team could not be loaded</strong><p>{error}</p><p>This is a connection or server problem, not a missing team.</p><div className="show-actions"><button type="button" className="show-btn" onClick={()=>setAttempt(n=>n+1)}>Try again</button><Link className="show-btn secondary" to="/teams">Back to teams</Link></div></div>;
  if(!team)return <div className="state-card"><h2>Team not found</h2><Link className="show-btn secondary" to="/teams">Back to teams</Link></div>;

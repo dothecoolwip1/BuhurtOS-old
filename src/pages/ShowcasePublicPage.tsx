@@ -2,7 +2,7 @@ import {useEffect,useMemo,useRef,useState} from 'react';
 import {Link} from 'react-router-dom';
 import {PublicTeamMap} from '../components/PublicTeamMap';
 import {Pill,StatePanel} from '../components/ShowcaseUI';
-import {loadPublicOrganizations,loadPublicEvents,type PublicOrganizationSummary,type PublicEventSummary} from '../lib/publicDirectory';
+import {eventPath,loadPublicOrganizations,loadPublicEvents,type PublicOrganizationSummary,type PublicEventSummary} from '../lib/publicDirectory';
 import {formatEventDate,eventDayKey} from '../lib/eventTime';
 import {loadPublicTeamMap,type PublicDirectoryTeam} from '../lib/teamDirectory';
 
@@ -295,10 +295,10 @@ export function ShowcasePublicPage(){
       {eventsError?<StatePanel tone="error" title="Events could not be loaded" text={eventsError+' This does not mean there are no events.'} action={<button type="button" className="show-btn" onClick={()=>setAttempt(n=>n+1)}>Try again</button>}/>:null}
       {spotlightEvent?<div className="bhome-featured-event">
         <div className="bhome-featured-date"><span>UP NEXT</span><strong>{Number(eventDayKey(spotlightEvent.startsAt,spotlightEvent.timezone).slice(8))}</strong><small>{formatEventDate(spotlightEvent.startsAt,spotlightEvent.timezone)}</small></div>
-        <div className="bhome-featured-copy"><div><Pill tone={spotlightEvent.status==='live'?'red':'green'}>{spotlightEvent.status}</Pill><span>{spotlightEvent.eventType.replaceAll('_',' ')}</span></div><h3>{spotlightEvent.name}</h3><p>{spotlightEvent.venue||'Venue TBA'}{spotlightEvent.organizerName?' · '+spotlightEvent.organizerName:''}</p><Link className="show-btn primary" to={'/events/'+spotlightEvent.id}>Open event →</Link></div>
+        <div className="bhome-featured-copy"><div><Pill tone={spotlightEvent.status==='live'?'red':'green'}>{spotlightEvent.status}</Pill><span>{spotlightEvent.eventType.replaceAll('_',' ')}</span></div><h3>{spotlightEvent.name}</h3><p>{spotlightEvent.venue||'Venue TBA'}{spotlightEvent.organizerName?' · '+spotlightEvent.organizerName:''}</p><Link className="show-btn primary" to={eventPath(spotlightEvent)}>Open event →</Link></div>
         <div className="bhome-featured-index"><span>BUHURTOS</span><b>EVENT</b><i>⚔</i></div>
       </div>:!eventsLoading&&!eventsError?<div className="bhome-empty"><span>⚔</span><div><strong>No future published events yet.</strong><p>The public calendar will populate from real event records as organizers publish them.</p></div><Link to="/events">View event directory →</Link></div>:eventsLoading?<div className="state-card" role="status">Loading published events…</div>:null}
-      {upcoming.length>1?<div className="bhome-events-strip">{upcoming.slice(1).map(event=><Link to={'/events/'+event.id} key={event.id}><small>{formatEventDate(event.startsAt,event.timezone)}</small><b>{event.name}</b><span>{event.venue||'Venue TBA'}</span><i>→</i></Link>)}</div>:null}
+      {upcoming.length>1?<div className="bhome-events-strip">{upcoming.slice(1).map(event=><Link to={eventPath(event)} key={event.id}><small>{formatEventDate(event.startsAt,event.timezone)}</small><b>{event.name}</b><span>{event.venue||'Venue TBA'}</span><i>→</i></Link>)}</div>:null}
     </section>
 
     <section className="bhome-map-stage" ref={mapSectionRef}>
