@@ -21,6 +21,9 @@ export type PublicOrganizationSummary = {
   teamCount:number;
   rosterCount:number;
   countries:number;
+  /** Display priority only (configuration); never implies endorsement or affects permissions. */
+  featured:boolean;
+  featuredOrder?:number;
 };
 
 export type PublicEventSummary = {
@@ -68,12 +71,29 @@ const orgInfo:Record<string,{name:string;description:string;websiteUrl?:string;k
   }
 };
 
+/**
+ * Featured organizations come from configuration (organizations.featured / featured_order) through a public RPC.
+ * If that function is not available on the backend yet, fall back to the original BI then HACSA emphasis.
+ */
+async function loadFeaturedOrganizationOrder():Promise<Map<string,number|undefined>>{
+  const result=new Map<string,number|undefined>();
+  if(!publicSupabase)return result;
+  const {data,error}=await publicSupabase.rpc('public_featured_organizations');
+  if(error){
+    const {data:rows}=await publicSupabase.rpc('public_organization_directory_summary');
+    (rows??[]).forEach((row:any)=>{const i=['BI','HACSA'].indexOf(row.organization_short_name);if(i>=0)result.set(row.organization_id,i+1)});
+    return result;
+  }
+  (data??[]).forEach((row:any)=>result.set(row.organization_id,row.featured_order??undefined));
+  return result;
+}
+
 function slug(value:string){return value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
 
 export async function loadPublicOrganizations():Promise<PublicOrganizationSummary[]>{
   if(!publicSupabase)return [];
   if(organizationsCache && isFresh(organizationsCache.at)) return organizationsCache.value;
-  const {data,error}=await publicSupabase.rpc('public_organization_directory_summary');
+  const [{data,error},featured]=await Promise.all([publicSupabase.rpc('public_organization_directory_summary'),loadFeaturedOrganizationOrder()]);
   if(error)throw error;
   const rows:PublicOrganizationSummary[]=(data??[]).map((row:any)=>{
     const shortName=row.organization_short_name;
@@ -89,13 +109,16 @@ export async function loadPublicOrganizations():Promise<PublicOrganizationSummar
       websiteUrl:info?.websiteUrl??row.website_url??undefined,
       teamCount:Number(row.team_count??0),
       rosterCount:Number(row.roster_count??0),
-      countries:Number(row.country_count??0)
+      countries:Number(row.country_count??0),
+      featured:featured.has(row.organization_id),
+      featuredOrder:featured.get(row.organization_id)
     } satisfies PublicOrganizationSummary;
   });
   rows.sort((a,b)=>{
-    const order=['BI','HACSA'];
-    const ai=order.indexOf(a.shortName),bi=order.indexOf(b.shortName);
-    if(ai>=0||bi>=0)return (ai<0?99:ai)-(bi<0?99:bi);
+    if(a.featured||b.featured){
+      if(a.featured&&b.featured)return (a.featuredOrder??99)-(b.featuredOrder??99)||a.name.localeCompare(b.name);
+      return a.featured?-1:1;
+    }
     return a.name.localeCompare(b.name);
   });
   organizationsCache={at:Date.now(),value:rows};

@@ -27,6 +27,7 @@ const directoryCache = new Map<string,CacheEntry<PublicDirectoryTeam[]>>();
 const rosterCache = new Map<string,CacheEntry<PublicRosterMember[]>>();
 const detailCache = new Map<string,CacheEntry<PublicTeamDetail|undefined>>();
 let mapCache:CacheEntry<PublicDirectoryTeam[]>|undefined;
+let featuredCache:CacheEntry<PublicDirectoryTeam[]>|undefined;
 
 function fresh<T>(entry:CacheEntry<T>|undefined):T|undefined{
   if(!entry || Date.now()-entry.at>CACHE_MS) return undefined;
@@ -89,6 +90,22 @@ export async function loadPublicTeamDirectory(filters:TeamDirectoryFilters={}):P
  return rows;
 }
 
+/** Teams BuhurtOS is emphasizing now (configuration, display priority only). Small list; never the worldwide directory. */
+export async function loadFeaturedTeams():Promise<PublicDirectoryTeam[]>{
+ if(!publicSupabase)return hacsaFallbackDirectory();
+ const cached=fresh(featuredCache);
+ if(cached)return cached;
+ const {data,error}=await publicSupabase.rpc('public_featured_teams');
+ if(error){
+   // Backend without the prominence function yet: fall back to the small HACSA directory, not the worldwide one.
+   const rows=(await publicSupabase.rpc('public_team_directory_v3',{p_organization_short_name:'HACSA',p_continent_code:null,p_country_code:null,p_admin_area_code:null,p_team_slug:null})).data;
+   return (rows??[]).map(mapRow);
+ }
+ const rows=(data??[]).map(mapRow);
+ featuredCache={at:Date.now(),value:rows};
+ return rows;
+}
+
 export async function loadPublicTeamMap():Promise<PublicDirectoryTeam[]>{
  if(!publicSupabase)return hacsaFallbackDirectory().filter(team=>team.latitude!=null&&team.longitude!=null);
  const cached=fresh(mapCache);
@@ -147,4 +164,5 @@ export function clearPublicTeamCaches(){
   rosterCache.clear();
   detailCache.clear();
   mapCache=undefined;
+  featuredCache=undefined;
 }

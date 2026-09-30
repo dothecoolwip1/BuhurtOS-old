@@ -4,7 +4,7 @@ import {PublicTeamMap} from '../components/PublicTeamMap';
 import {Pill,StatePanel} from '../components/ShowcaseUI';
 import {eventPath,loadPublicOrganizations,loadPublicEvents,type PublicOrganizationSummary,type PublicEventSummary} from '../lib/publicDirectory';
 import {formatEventDate,eventDayKey} from '../lib/eventTime';
-import {loadPublicTeamMap,type PublicDirectoryTeam} from '../lib/teamDirectory';
+import {loadFeaturedTeams,type PublicDirectoryTeam} from '../lib/teamDirectory';
 
 type FormatKey='melee'|'duels'|'outrance';
 type VisitorKey='curious'|'watch'|'fight'|'organize';
@@ -152,7 +152,7 @@ export function ShowcasePublicPage(){
     let active=true;
     setTeamsLoading(true);
     setTeamsError('');
-    loadPublicTeamMap()
+    loadFeaturedTeams()
       .then(t=>{if(active)setTeams(t)})
       .catch(err=>{if(active)setTeamsError(err instanceof Error?err.message:'Unable to load team locations.')})
       .finally(()=>{if(active)setTeamsLoading(false)});
@@ -160,10 +160,8 @@ export function ShowcasePublicPage(){
   },[mapRequested,teamsAttempt]);
 
   const mapped=useMemo(()=>teams.filter(t=>t.latitude!=null&&t.longitude!=null),[teams]);
-  const countries=useMemo(()=>new Set(teams.map(t=>t.countryCode||t.countryName).filter(Boolean)).size,[teams]);
+  const featuredOrgs=useMemo(()=>{const f=orgs.filter(o=>o.featured);return f.length?f:orgs.slice(0,2)},[orgs]);
   const upcoming=useMemo(()=>events.filter(e=>new Date(e.endsAt).getTime()>=Date.now()).slice(0,4),[events]);
-  const rosterSourceCount=useMemo(()=>orgs.reduce((sum,o)=>sum+o.rosterCount,0),[orgs]);
-  const publicTeamCount=useMemo(()=>orgs.reduce((sum,o)=>sum+o.teamCount,0),[orgs]);
   const activeFormat=formats[format];
   const activeVisitor=visitorPaths[visitor];
   const spotlightEvent=upcoming[0];
@@ -269,13 +267,12 @@ export function ShowcasePublicPage(){
         <span className="eyebrow">THE NETWORK ALREADY HAS REAL DATA</span>
         <h2>This is not a pretend product tour.</h2>
         <p>The numbers here come from the public sport records currently available to BuhurtOS. No invented fan counts, fake fighters or made-up live events.</p>
-        <Link className="show-btn secondary" to="/teams">Explore the real directory →</Link>
+        <Link className="show-btn secondary" to="/teams">Explore teams →</Link><Link className="show-btn secondary" to="/teams?tab=worldwide">Explore all worldwide teams →</Link>
       </div>
       <div className="bhome-network-stats">
-        <Link to="/teams"><strong>{orgsLoading?'…':orgsError?'—':publicTeamCount}</strong><span>public teams</span><small>Open the directory</small></Link>
-        <Link to="/governance"><strong>{orgsLoading?'…':orgsError?'—':orgs.length}</strong><span>organizations</span><small>See the hierarchy</small></Link>
-        <Link to="/teams"><strong>{mapRequested?(teamsLoading?'…':teamsError?'—':countries):'↘'}</strong><span>countries mapped</span><small>{mapRequested?'From public team locations':'Loads with the map below'}</small></Link>
-        <Link to="/fighters"><strong>{orgsLoading?'…':orgsError?'—':rosterSourceCount}</strong><span>roster records</span><small>Publicly listed</small></Link>
+        <Link to="/governance"><strong>{orgsLoading?'…':orgsError?'—':featuredOrgs.length}</strong><span>featured organizations</span><small>Buhurt International and HACSA</small></Link>
+        <Link to="/teams"><strong>{mapRequested?(teamsLoading?'…':teamsError?'—':teams.length):'↘'}</strong><span>featured teams</span><small>{mapRequested?'Open the team directory':'Loads with the map below'}</small></Link>
+        <Link to="/events"><strong>{eventsLoading?'…':eventsError?'—':upcoming.length}</strong><span>upcoming events</span><small>Published by organizers</small></Link>
       </div>
     </section>
 
@@ -304,9 +301,9 @@ export function ShowcasePublicPage(){
     <section className="bhome-map-stage" ref={mapSectionRef}>
       <div className="bhome-map-copy">
         <span className="eyebrow">WHERE DOES THIS EVEN EXIST?</span>
-        <h2>Closer than you might think.</h2>
-        <p>BuhurtOS maps public team locations so somebody discovering the sport for the first time can go from “what is this?” to “who trains near me?” without hunting through disconnected social pages.</p>
-        <div><strong>{!mapRequested?'↘':teamsLoading?'…':mapped.length}</strong><span>{!mapRequested?'map loads as you approach':'teams currently mapped'}</span></div>
+        <h2>Featured teams near the action.</h2>
+        <p>BuhurtOS maps featured public team locations so somebody discovering the sport for the first time can go from “what is this?” to “who trains near me?” without hunting through disconnected social pages.</p>
+        <div><strong>{!mapRequested?'↘':teamsLoading?'…':mapped.length}</strong><span>{!mapRequested?'map loads as you approach':'featured teams mapped'}</span></div>
         <Link className="show-btn primary" to="/teams">Find teams →</Link>
       </div>
       <div className="bhome-map-shell">
@@ -317,10 +314,10 @@ export function ShowcasePublicPage(){
 
     <section className="bhome-org-stage">
       <div className="bhome-section-head">
-        <div><span className="eyebrow">WHO ACTUALLY RUNS ALL OF THIS?</span><h2>The sport has layers of organizations and teams.</h2></div>
-        <p>BuhurtOS models those relationships instead of pretending every group is the same thing. A governing body can connect to organizations and teams without turning the platform itself into the owner of the sport.</p>
+        <div><span className="eyebrow">FEATURED ORGANIZATIONS</span><h2>Buhurt International and HACSA.</h2></div>
+        <p>These are the organizations BuhurtOS is featuring in this release. Featuring is a display choice, not an endorsement or partnership, and every other organization and team stays available under Teams.</p>
       </div>
-      {orgs.length?<div className="bhome-org-grid">{orgs.slice(0,6).map(org=><Link key={org.key} to={'/organizations/'+org.key} className="bhome-org-card">
+      {orgs.length?<div className="bhome-org-grid">{featuredOrgs.map(org=><Link key={org.key} to={'/organizations/'+org.key} className="bhome-org-card">
         <div className="bhome-org-mark">{org.shortName.slice(0,4)}</div>
         <div><span>{org.kind}</span><h3>{org.name}</h3><p>{org.description}</p><small>{org.teamCount} teams · {org.countries} countries · {org.rosterCount} public roster records</small></div>
         <b>→</b>
