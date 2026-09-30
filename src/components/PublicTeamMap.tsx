@@ -25,8 +25,9 @@ function loadLeaflet(){
      return;
    }
    const script=document.createElement('script');script.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';script.async=true;script.dataset.buhurtosLeaflet='true';
-   script.onload=()=>resolve((window as any).L);script.onerror=reject;document.head.appendChild(script);
+   script.onload=()=>resolve((window as any).L);script.onerror=()=>{script.remove();reject(new Error('Leaflet failed to load'))};document.head.appendChild(script);
  });
+ leafletPromise.catch(()=>{leafletPromise=null});
  return leafletPromise;
 }
 
@@ -51,13 +52,14 @@ async function loadMarkerCluster(){
      return;
    }
    const script=document.createElement('script');script.src='https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js';script.async=true;script.dataset.buhurtosCluster='true';
-   script.onload=()=>resolve((window as any).L);script.onerror=reject;document.head.appendChild(script);
+   script.onload=()=>resolve((window as any).L);script.onerror=()=>{script.remove();reject(new Error('Marker clustering failed to load'))};document.head.appendChild(script);
  });
+ clusterPromise.catch(()=>{clusterPromise=null});
  return clusterPromise;
 }
 
 export function PublicTeamMap({teams}:Props){
- const host=useRef<HTMLDivElement|null>(null);const [failed,setFailed]=useState(false);const [ready,setReady]=useState(false);
+ const host=useRef<HTMLDivElement|null>(null);const [failed,setFailed]=useState(false);const [ready,setReady]=useState(false);const [attempt,setAttempt]=useState(0);
  useEffect(()=>{
    if(!host.current)return;
    if(!('IntersectionObserver' in window)){setReady(true);return;}
@@ -123,8 +125,8 @@ export function PublicTeamMap({teams}:Props){
      setTimeout(()=>map?.invalidateSize(),0);
    }).catch(()=>{if(!disposed)setFailed(true)});
    return()=>{disposed=true;if(map)map.remove()};
- },[teams,ready]);
+ },[teams,ready,attempt]);
 
- if(failed)return <div className="state-card">The interactive map could not load. Team locations are still available in the directory.</div>;
+ if(failed)return <div className="state-card" role="alert"><strong>The interactive map could not load.</strong><p>This is usually a connection problem with the map library. Team locations are still available in the directory.</p><button type="button" className="show-btn" onClick={()=>setAttempt(n=>n+1)}>Try the map again</button></div>;
  return <div className="team-leaflet-map" ref={host} aria-label="Interactive world map of public Buhurt teams with clustered markers">{!ready&&<div className="map-load-placeholder">Map loads when visible</div>}</div>;
 }

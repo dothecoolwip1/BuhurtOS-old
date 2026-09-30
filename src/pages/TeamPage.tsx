@@ -15,6 +15,8 @@ export function TeamPage(){
  if(loading)return <div className="state-card" role="status">Loading public team profile…</div>;
  if(error)return <div className="state-card" role="alert"><strong>This team could not be loaded</strong><p>{error}</p><p>This is a connection or server problem, not a missing team.</p><div className="show-actions"><button type="button" className="show-btn" onClick={()=>setAttempt(n=>n+1)}>Try again</button><Link className="show-btn secondary" to="/teams">Back to teams</Link></div></div>;
  if(!team)return <div className="state-card"><h2>Team not found</h2><Link className="show-btn secondary" to="/teams">Back to teams</Link></div>;
+ // Source wording follows the record's real source; a team is never described as a BI record unless BI is its source.
+ const src=team.sourceKind==='bi_ranking'?'BI':team.organizationShortName;
  const recent=[...(detail?.tournamentsJoined??[])].sort((a,b)=>String(b.date??'').localeCompare(String(a.date??''))).slice(0,8);
  return <>
  <ListCrumbs list="/teams" label="Teams" current={team.name}/>
@@ -27,14 +29,14 @@ export function TeamPage(){
  </div>
  <div className="directory-hierarchy compact"><strong>{team.organizationShortName}</strong>{team.continentName&&!team.continentName.includes('pending')?<><span>›</span><b>{team.continentName}</b></>:null}{team.countryName&&!team.countryName.includes('pending')?<><span>›</span><b>{team.countryName}</b></>:null}{team.adminAreaName&&!team.adminAreaName.includes('pending')?<><span>›</span><b>{team.adminAreaName}</b></>:null}</div>
  <div className="show-stat-grid">
-   <div className="show-stat accent"><span>Public roster</span><strong>{roster.length}</strong><small>BI + BuhurtOS public fighters</small></div>
-   <div className="show-stat"><span>5v5 rank</span><strong>{val(detail?.rank5v5??team.rank5v5)}</strong><small>{detail?.averagePoints5v5!=null?String(detail.averagePoints5v5)+' average points':'BI ranking'}</small></div>
-   <div className="show-stat"><span>5v5 points</span><strong>{val(detail?.points5v5??team.points5v5)}</strong><small>current BI points</small></div>
-   <div className="show-stat good"><span>Captain</span><strong className="stat-text">{detail?.captain??team.captain??'—'}</strong><small>BI team record</small></div>
+   <div className="show-stat accent"><span>Public roster</span><strong>{roster.length}</strong><small>{src} listing + BuhurtOS public fighters</small></div>
+   <div className="show-stat"><span>5v5 rank</span><strong>{val(detail?.rank5v5??team.rank5v5)}</strong><small>{detail?.averagePoints5v5!=null?String(detail.averagePoints5v5)+' average points':(team.rank5v5!=null||detail?.rank5v5!=null?src+' ranking':'No published ranking')}</small></div>
+   <div className="show-stat"><span>5v5 points</span><strong>{val(detail?.points5v5??team.points5v5)}</strong><small>{(detail?.points5v5??team.points5v5)!=null?'current '+src+' points':'No published points'}</small></div>
+   <div className="show-stat good"><span>Captain</span><strong className="stat-text">{detail?.captain??team.captain??'—'}</strong><small>{src} team record</small></div>
  </div>
  <div className="show-two-col wide-left"><div className="show-stack">
-   <Panel title="About the team" subtitle="Public team information from the current BI team record.">
-    {detail?.description||team.description?<p className="team-about-copy">{detail?.description??team.description}</p>:<div className="source-empty-state"><strong>No public description supplied</strong><p>BI has not published a team description for this record.</p></div>}
+   <Panel title="About the team" subtitle={'Public team information from the current '+src+' team record.'}>
+    {detail?.description||team.description?<p className="team-about-copy">{detail?.description??team.description}</p>:<div className="source-empty-state"><strong>No public description supplied</strong><p>{src} has not published a team description for this record.</p></div>}
     <div className="show-detail-rows">
       {detail?.club?<div><span>Club</span><b>{detail.club}</b></div>:null}
       {detail?.gender?<div><span>Competition group</span><b>{detail.gender}</b></div>:null}
@@ -42,13 +44,13 @@ export function TeamPage(){
       {detail?.trainingInfo?<div className="detail-row-wide"><span>Training info</span><b>{detail.trainingInfo}</b></div>:null}
     </div>
    </Panel>
-   <Panel title="Public roster" subtitle="BI-listed members and public BuhurtOS fighter identities. BI roster records do not create fake user accounts.">
-    {roster.length?<div className="show-roster-table">{roster.map((f,i)=><article key={f.identityId??(f.displayName+'-'+i)}><span className="show-avatar md">{initials(f.displayName)}</span><div className="grow"><b>{f.displayName}</b><small>{[f.nickname,f.role,f.publicRegion].filter(Boolean).join(' · ')||'Fighter'}{f.sourceKind==='bi_teams'?' · BI source':''}</small></div>{f.identityId?<Link className="show-link-btn" to={'/fighters/'+f.identityId}>Profile →</Link>:<span className="show-pill">BI roster</span>}</article>)}</div>:<div className="source-empty-state"><strong>No public roster entries</strong><p>This BI record currently does not publish member names.</p></div>}
+   <Panel title="Public roster" subtitle={src+'-listed members and public BuhurtOS fighter identities. Roster records from a source do not create user accounts.'}>
+    {roster.length?<div className="show-roster-table">{roster.map((f,i)=><article key={f.identityId??(f.displayName+'-'+i)}><span className="show-avatar md">{initials(f.displayName)}</span><div className="grow"><b>{f.displayName}</b><small>{[f.nickname,f.role,f.publicRegion].filter(Boolean).join(' · ')||'Fighter'}{f.sourceKind==='bi_teams'?' · BI source':f.sourceKind?' · '+f.sourceKind.replaceAll('_',' ')+' source':''}</small></div>{f.identityId?<Link className="show-link-btn" to={'/fighters/'+f.identityId}>Profile →</Link>:<span className="show-pill">{src} roster</span>}</article>)}</div>:<div className="source-empty-state"><strong>No public roster entries</strong><p>This {src} record currently does not publish member names.</p></div>}
    </Panel>
    {statsError?<p className="show-note" role="status">The BuhurtOS record and source details could not be loaded right now. Reload the page to try again.</p>:null}
    {stats&&stats.matches>0?<Panel title="Native BuhurtOS record" subtitle="Official results only: finalized matches from published events."><div className="show-detail-rows"><div><span>Record (W-L-D)</span><b>{summarizeRecord(stats)}</b></div><div><span>Matches</span><b>{stats.matches}</b></div><div><span>Points for / against</span><b>{stats.pointsFor} / {stats.pointsAgainst}</b></div><div><span>Events</span><b>{stats.events}</b></div></div></Panel>:null}
-   <Panel title="Recent BI tournament record">
-    {recent.length?<div className="team-tournament-list">{recent.map((e:any,i)=><article key={String(e.Tournament??'event')+'-'+String(e.date??i)}><div><b>{e.Tournament??'Tournament'}</b><small>{[e.date,e.category].filter(Boolean).join(' · ')}</small></div><div><strong>{e.place?'#'+e.place:'—'}</strong><small>{e.points!=null?String(e.points)+' pts':''}</small></div></article>)}</div>:<div className="source-empty-state"><strong>No current tournament entries</strong><p>BI has not attached current tournament history to this team record.</p></div>}
+   <Panel title={'Recent '+src+' tournament record'}>
+    {recent.length?<div className="team-tournament-list">{recent.map((e:any,i)=><article key={String(e.Tournament??'event')+'-'+String(e.date??i)}><div><b>{e.Tournament??'Tournament'}</b><small>{[e.date,e.category].filter(Boolean).join(' · ')}</small></div><div><strong>{e.place?'#'+e.place:'—'}</strong><small>{e.points!=null?String(e.points)+' pts':''}</small></div></article>)}</div>:<div className="source-empty-state"><strong>No current tournament entries</strong><p>{src} has not attached current tournament history to this team record.</p></div>}
    </Panel>
  </div>
  <div className="show-stack">

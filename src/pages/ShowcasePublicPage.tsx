@@ -181,6 +181,7 @@ export function ShowcasePublicPage(){
           <div className="bhome-cinema-actions">
             <button className="show-btn primary bhome-big-btn" type="button" onClick={()=>document.getElementById('what-is-buhurt')?.scrollIntoView({behavior:'smooth'})}>I have never seen this before <span>↓</span></button>
             <Link className="show-btn glass bhome-big-btn" to="/events">Show me real events</Link>
+            <Link className="show-btn glass bhome-big-btn" to="/teams">Find a team to join</Link>
           </div>
           <div className="bhome-cinema-facts">
             <span><b>FULL CONTACT</b><small>Striking, grappling and takedowns</small></span>
@@ -273,7 +274,7 @@ export function ShowcasePublicPage(){
       <div className="bhome-network-stats">
         <Link to="/teams"><strong>{orgsLoading?'…':orgsError?'—':publicTeamCount}</strong><span>public teams</span><small>Open the directory</small></Link>
         <Link to="/governance"><strong>{orgsLoading?'…':orgsError?'—':orgs.length}</strong><span>organizations</span><small>See the hierarchy</small></Link>
-        <Link to="/teams"><strong>{mapRequested?(teamsLoading?'…':teamsError?'—':countries):'↘'}</strong><span>countries mapped</span><small>{mapRequested?'From verified team locations':'Loads with the map below'}</small></Link>
+        <Link to="/teams"><strong>{mapRequested?(teamsLoading?'…':teamsError?'—':countries):'↘'}</strong><span>countries mapped</span><small>{mapRequested?'From public team locations':'Loads with the map below'}</small></Link>
         <Link to="/fighters"><strong>{orgsLoading?'…':orgsError?'—':rosterSourceCount}</strong><span>roster records</span><small>Publicly listed</small></Link>
       </div>
     </section>
