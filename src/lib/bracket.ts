@@ -304,14 +304,18 @@ export function generateRoundRobinPools(params: {
   const pools: SeededEntry[][] = Array.from({ length: poolCount }, () => []);
   const ordered = [...params.entries].sort((a,b) => a.seed - b.seed || a.entry.displayName.localeCompare(b.entry.displayName));
 
+  // Snake draw: seeds go A,B,C then C,B,A so every pool gets a balanced mix of strong and weak seeds.
+  let drawn = 0;
   for (const candidate of ordered) {
+    const reversed = Math.floor(drawn / poolCount) % 2 === 1;
+    drawn += 1;
     const rankedPools = pools
       .map((pool,index) => ({
         index,
         sameTeam: candidate.entry.teamId ? pool.filter(item => item.entry.teamId === candidate.entry.teamId).length : 0,
         size: pool.length
       }))
-      .sort((a,b) => a.sameTeam - b.sameTeam || a.size - b.size || a.index - b.index);
+      .sort((a,b) => a.sameTeam - b.sameTeam || a.size - b.size || (reversed ? b.index - a.index : a.index - b.index));
     pools[rankedPools[0].index].push(candidate);
   }
 

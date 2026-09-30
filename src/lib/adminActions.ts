@@ -13,6 +13,8 @@ export interface TournamentBracketSummary {
   generationMethod?: string;
   generationHash?: string;
   publishedAt?: string;
+  /** Planned areas and start times saved with the bracket, when the organizer used the schedule planner. */
+  schedule?: { finishesAt?: string; slots: Array<{ matchId: string; areaId: string; startsAt: string; endsAt: string; order: number }> };
 }
 
 export async function listTournamentBrackets(eventId: string): Promise<TournamentBracketSummary[]> {
@@ -30,12 +32,13 @@ export async function listTournamentBrackets(eventId: string): Promise<Tournamen
         generationState: row.generationState ?? 'published',
         generationMethod: row.metadata?.generationConfig?.seedMethod,
         generationHash: row.metadata?.generationHash,
-        publishedAt: row.publishedAt
+        publishedAt: row.publishedAt,
+        schedule: row.metadata?.schedule
       }));
   }
   const { data, error } = await supabase
     .from('brackets')
-    .select('id,event_id,division_id,name,format,category,generation_state,generation_method,generation_hash,published_at')
+    .select('id,event_id,division_id,name,format,category,generation_state,generation_method,generation_hash,published_at,metadata')
     .eq('event_id',eventId)
     .order('created_at',{ ascending:false });
   if (error) throw error;
@@ -49,7 +52,8 @@ export async function listTournamentBrackets(eventId: string): Promise<Tournamen
     generationState:row.generation_state,
     generationMethod:row.generation_method ?? undefined,
     generationHash:row.generation_hash ?? undefined,
-    publishedAt:row.published_at ?? undefined
+    publishedAt:row.published_at ?? undefined,
+    schedule:row.metadata?.schedule ?? undefined
   }));
 }
 

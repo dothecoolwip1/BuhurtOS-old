@@ -97,9 +97,11 @@ export function rosterCsv(roster: RosterEntry[]): string {
   );
 }
 
+const escapeHtml = (value: unknown) => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
 export function htmlTable(headers: Array<string | number>, rows: Array<Array<string | number | boolean>>): string {
-  const head = `<thead><tr>${headers.map(h => `<th>${String(h)}</th>`).join('')}</tr></thead>`;
-  const body = rows.map(row => `<tr>${row.map(cell => `<td>${cell === true ? 'yes' : cell === false ? 'no' : String(cell)}</td>`).join('')}</tr>`).join('');
+  const head = `<thead><tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr></thead>`;
+  const body = rows.map(row => `<tr>${row.map(cell => `<td>${cell === true ? 'yes' : cell === false ? 'no' : escapeHtml(cell)}</td>`).join('')}</tr>`).join('');
   return `<table>${head}<tbody>${body}</tbody></table>`;
 }
 
@@ -116,6 +118,6 @@ export function downloadText(filename: string, content: string, mime = 'text/csv
 export function openPrintableReport(title: string, bodyHtml: string): void {
   const win = window.open('', '_blank', 'noopener,noreferrer');
   if (!win) throw new Error('Pop-up blocked. Allow pop-ups to create the printable report.');
-  win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><style>body{font-family:system-ui;padding:32px;color:#111}table{border-collapse:collapse;width:100%}th,td{padding:8px;border-bottom:1px solid #ddd;text-align:left}h1{margin-top:0}@media print{button{display:none}}</style></head><body><button onclick="window.print()">Print / Save PDF</button><h1>${title}</h1>${bodyHtml}</body></html>`);
+  win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title><style>body{font-family:system-ui;padding:32px;color:#111}table{border-collapse:collapse;width:100%}th,td{padding:8px;border-bottom:1px solid #ddd;text-align:left}h1{margin-top:0}@media print{button{display:none}}</style></head><body><button onclick="window.print()">Print / Save PDF</button><h1>${escapeHtml(title)}</h1>${bodyHtml}</body></html>`);
   win.document.close();
 }

@@ -1758,3 +1758,48 @@ html.nx-locked{overflow:hidden}
 .nx-skip{position:fixed;left:8px;top:-60px;z-index:1000;min-height:44px;padding:0 16px;border-radius:10px;border:2px solid #ffbd80;background:#0b1015;color:#fff;font-weight:800;transition:top .15s}
 .nx-skip:focus{top:8px}
 main[tabindex="-1"]:focus{outline:none}
+
+/* Tournament planner */
+.tp-advisor{border:1px solid var(--line);border-radius:14px;padding:14px;background:#0f1720}
+.tp-advisor h3{margin:0 0 4px;font-size:1rem}
+.tp-note{color:var(--muted);font-size:.82rem;margin:4px 0 10px;line-height:1.45}
+.tp-cards{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.tp-cards li{border:1px solid var(--line);border-radius:12px;padding:12px;background:#121b25}
+.tp-cards li.recommended{border-color:var(--orange)}
+.tp-card-head{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.tp-badge{font-size:.7rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#1c1108;background:var(--orange);border-radius:999px;padding:3px 8px}
+.tp-groups{margin:6px 0;color:#cfd9e2;font-size:.88rem}
+.tp-facts{display:flex;gap:18px;margin:8px 0;flex-wrap:wrap}
+.tp-facts dt{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.tp-facts dd{margin:0;font-weight:900;font-size:1.05rem}
+.tp-schedule{border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0;background:#0f1720;display:grid;gap:10px}
+.tp-check{display:flex!important;flex-direction:row!important;align-items:center;gap:10px;min-height:44px;font-weight:800}
+.tp-check input{width:20px;height:20px}
+.tp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tp-grid label{display:grid;gap:4px;font-size:.78rem;font-weight:800;color:var(--soft)}
+.tp-grid input{min-height:44px;font-size:16px}
+.tp-summary{display:flex;gap:14px;flex-wrap:wrap;align-items:baseline;padding:10px 12px;border-radius:10px;background:#15232d;border:1px solid #2b4a5c}
+.tp-warning{margin:0;padding:10px 12px;border-radius:10px;background:#3a2c14;border:1px solid #6a4e20;color:#ffd695;font-size:.86rem}
+.tp-areas{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.tp-areas section{border:1px solid var(--line);border-radius:12px;padding:10px;background:#121b25}
+.tp-areas h4{margin:0 0 8px}
+.tp-areas ol,.tp-order{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.tp-areas li,.tp-order li{display:grid;grid-template-columns:58px 1fr;gap:8px;align-items:start;padding:6px 0;border-top:1px solid #1f2b37}
+.tp-areas time,.tp-order time{font-weight:900;font-variant-numeric:tabular-nums;color:var(--orange)}
+.tp-areas li span,.tp-order li span{display:grid;gap:2px}
+.tp-areas small,.tp-order small{color:var(--muted)}
+
+/* Order of play */
+.bp-controls{display:grid;gap:10px;margin:0 0 14px}
+.bp-play{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.bp-row{display:grid;grid-template-columns:84px 1fr auto;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-left:4px solid #465564;border-radius:12px;background:var(--panel)}
+.bp-row.status-active{border-left-color:var(--orange)}.bp-row.status-on_deck,.bp-row.status-in_the_hole{border-left-color:var(--yellow)}.bp-row.status-finalized{border-left-color:var(--green);opacity:.85}
+.bp-when{display:grid;gap:2px}.bp-when b{font-size:1.05rem;font-variant-numeric:tabular-nums}.bp-when small,.bp-what small{color:var(--muted)}
+.bp-what{display:grid;gap:3px;min-width:0}.bp-what>div{display:flex;justify-content:space-between;gap:8px}.bp-what .winner{color:#a9f1cb;font-weight:800}
+.bp-status{font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;border:1px solid #354452;border-radius:999px;padding:5px 9px;white-space:nowrap}
+.bp-status.active{color:#1c1108;background:var(--orange);border-color:var(--orange)}.bp-status.finalized{color:#a9f1cb}
+.bp-pools{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.bp-advances td{background:#10281f}
+@media(max-width:700px){.bp-row{grid-template-columns:70px 1fr}.bp-status{grid-column:1/-1;justify-self:start}}
+.bp-pickbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.bp-pickbar span{flex:1 1 160px}

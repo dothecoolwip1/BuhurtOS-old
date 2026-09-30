@@ -34,3 +34,16 @@ describe('event-local dates', () => {
     expect(formatEventRange('garbage', 'garbage', 'UTC')).toBe('Date TBA');
   });
 });
+
+import { eventClock, zonedTimeToIso } from '../src/lib/eventTime';
+describe('wall-clock to instant', () => {
+  it('reads a time in the event zone, including across daylight saving', () => {
+    expect(zonedTimeToIso('2026-06-06', '09:00', 'America/Edmonton')).toBe('2026-06-06T15:00:00.000Z');
+    expect(zonedTimeToIso('2026-01-10', '09:00', 'America/Edmonton')).toBe('2026-01-10T16:00:00.000Z');
+    expect(zonedTimeToIso('2026-06-06', '09:00', 'UTC')).toBe('2026-06-06T09:00:00.000Z');
+    expect(zonedTimeToIso('bad', '09:00', 'UTC')).toBe('');
+  });
+  it('round-trips through the clock helper', () => {
+    expect(eventClock(zonedTimeToIso('2026-06-06', '13:45', 'Pacific/Auckland'), 'Pacific/Auckland')).toBe('13:45');
+  });
+});

@@ -93,12 +93,12 @@ export const adminSections: NavSection[] = [
       { id: 'event-settings', label: 'Event settings', to: '/admin/events/manage', description: 'Dates, registration, fields, announcements and poster.', gate: 'eventManage' },
       { id: 'event-signups', label: 'Fighter signups', to: '/admin/events/signups', description: 'Signup codes and review of fighters who applied.', gate: 'event' },
       { id: 'event-roster', label: 'Roster & check-in', to: '/admin/events/roster', description: 'Who is entered, checked in and cleared to compete.', gate: 'event' },
-      { id: 'event-bracket', label: 'Bracket & schedule', to: '/admin/events/bracket', description: 'Build divisions, pools and the fight order.', gate: 'event' },
+      { id: 'event-bracket', label: 'Bracket & schedule', to: '/admin/events/bracket', description: 'Follow the order of play, pools and bracket.', gate: 'event' },
       { id: 'event-run', label: 'Run fights', to: '/admin/events/run', description: 'The live fight queue for marshals and scorekeepers.', gate: 'event' },
       { id: 'event-results', label: 'Results & standings', to: '/admin/events/results', description: 'Finalized results and standings for the event.', gate: 'event' },
       { id: 'event-discipline', label: 'Discipline', to: '/admin/events/discipline', description: 'Cards and suspensions.', gate: 'discipline' },
       { id: 'event-notes', label: 'Fight notes', to: '/admin/events/notes', description: 'Team and marshal notes.', gate: 'notes' },
-      { id: 'event-tools', label: 'Bracket tools', to: '/admin/events/tools', description: 'Advanced bracket and fighter utilities.', gate: 'bracketManage', advanced: true },
+      { id: 'event-tools', label: 'Build tournament', to: '/admin/events/tools', description: 'Choose a format, draw pools and brackets, and plan times and areas.', gate: 'bracketManage' },
       { id: 'event-all', label: 'All seasons & events', to: '/admin/events/all', description: 'Every season and event across the platform.', gate: 'superAdmin', advanced: true }
     ]
   },
