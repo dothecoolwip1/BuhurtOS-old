@@ -8,12 +8,13 @@ const initials=(n:string)=>n.replace(/^The\s+/i,'').split(/\s+/).filter(Boolean)
 
 export function TeamsPage(){
  const [query,setQuery]=useState(''); const [org,setOrg]=useState('all'); const [country,setCountry]=useState('all');
- const [directory,setDirectory]=useState<PublicDirectoryTeam[]>([]); const [loading,setLoading]=useState(true); const [view,setView]=useState<'directory'|'map'>('directory');
+ const [directory,setDirectory]=useState<PublicDirectoryTeam[]>([]); const [loading,setLoading]=useState(true); const [view,setView]=useState<'directory'|'map'>('directory'); const [visibleCount,setVisibleCount]=useState(60);
  useEffect(()=>{let active=true;loadPublicTeamDirectory().then(x=>{if(active)setDirectory(x)}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[]);
  const orgs=useMemo(()=>[...new Set(directory.map(x=>x.organizationShortName).filter(Boolean))].sort(),[directory]);
  const countries=useMemo(()=>[...new Set(directory.map(x=>x.countryName).filter(x=>x&&x!=='Country pending'))].sort(),[directory]);
  const teams=useMemo(()=>{const n=query.trim().toLowerCase();return directory.filter(t=>(org==='all'||t.organizationShortName===org)&&(country==='all'||t.countryName===country)&&(!n||[t.name,t.location,t.adminAreaName,t.countryName,t.organizationShortName,t.captain??''].some(v=>v.toLowerCase().includes(n))))},[directory,query,org,country]);
- const mapped=teams.filter(t=>t.latitude!=null&&t.longitude!=null);
+ const mapped=teams.filter(t=>t.latitude!=null&&t.longitude!=null); const visibleTeams=teams.slice(0,visibleCount);
+ useEffect(()=>{setVisibleCount(60)},[query,org,country]);
  return <>
   <PageHeader eyebrow="Global Team Directory" title="Every team. One public directory." description="Browse source-backed Buhurt teams worldwide, including logos, public rosters, BI rankings, captains and general locations. Public access is read-only."
    actions={<label className="show-search"><span>⌕</span><input aria-label="Search teams" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search team, captain, city, region or country"/></label>}/>
@@ -23,8 +24,8 @@ export function TeamsPage(){
    <div className="directory-view-switch"><button className={view==='directory'?'selected':''} onClick={()=>setView('directory')}>☷ Directory</button><button className={view==='map'?'selected':''} onClick={()=>setView('map')}>⌖ Map</button></div>
   </div>
   <div className="public-directory-summary"><Pill tone="green">Public · read only</Pill><strong>{teams.length}</strong><span>teams shown</span><b>{mapped.length}</b><span>verified map pins</span></div>
-  {loading?<div className="state-card">Loading global team directory…</div>:view==='map'?(mapped.length?<PublicTeamMap teams={mapped}/>:<div className="state-card">No verified map pins match these filters yet.</div>):teams.length===0?<div className="state-card">No teams match those filters.</div>:<div className="show-team-grid public-global-grid">{teams.map(team=><Link to={'/teams/'+team.slug} className="show-team-card" key={team.id}>
-    <div className="show-team-banner official">{team.logoPath?<img className="team-card-logo" src={team.logoPath} alt={team.name+' logo'}/>:<span>{initials(team.name)}</span>}<Pill tone="green">{team.organizationShortName}</Pill></div>
+  {loading?<div className="state-card">Loading global team directory…</div>:view==='map'?(mapped.length?<PublicTeamMap teams={mapped}/>:<div className="state-card">No verified map pins match these filters yet.</div>):teams.length===0?<div className="state-card">No teams match those filters.</div>:<div className="show-team-grid public-global-grid">{visibleTeams.map(team=><Link to={'/teams/'+team.slug} className="show-team-card" key={team.id}>
+    <div className="show-team-banner official">{team.logoPath?<img className="team-card-logo" src={team.logoPath} alt={team.name+' logo'} loading="lazy" decoding="async"/>:<span>{initials(team.name)}</span>}<Pill tone="green">{team.organizationShortName}</Pill></div>
     <div className="show-team-body"><small>{[team.location,team.adminAreaName,team.countryName].filter(x=>x&&!x.includes('pending')).join(' · ')||'Location being normalized'}</small><h2>{team.name}</h2>
     <p>{team.captain?'Captain: '+team.captain:(team.description||'Public source-backed team record.')}</p>
     <div className="team-card-stats">{team.rank5v5!=null?<span><b>#{team.rank5v5}</b><small>5v5</small></span>:null}{team.points5v5!=null?<span><b>{team.points5v5}</b><small>points</small></span>:null}</div>
