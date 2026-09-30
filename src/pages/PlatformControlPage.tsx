@@ -109,7 +109,7 @@ export function PlatformControlPage() {
   const refreshOrganizations = async () => {
     const rows = await listPlatformOrganizations();
     setOrganizations(rows);
-    setSelectedOrganizationId(current => current || rows.find(row => row.name === 'Red Deer Reavers')?.id || rows[0]?.id || '');
+    setSelectedOrganizationId(current => current || rows[0]?.id || '');
   };
 
   const refreshSelected = async (organizationId: string) => {

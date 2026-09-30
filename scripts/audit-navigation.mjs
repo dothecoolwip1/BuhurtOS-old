@@ -35,6 +35,36 @@ function walk(dir){
     }
   }
 }
+
+const appSource=fs.readFileSync(path.join(root,'src','App.tsx'),'utf8');
+const mainSource=fs.readFileSync(path.join(root,'src','main.tsx'),'utf8');
+const requiredRoutes=[
+  'path="/"',
+  'path="/public"',
+  'path="/governance"',
+  'path="/organizations/:organizationKey"',
+  'path="/teams"',
+  'path="/teams/:teamId"',
+  'path="/fighters"',
+  'path="/fighters/:fighterId"',
+  'path="/events"',
+  'path="/events/:eventId"',
+  'path="/rankings"',
+  'path="/rules"',
+  'path="/ops/login"',
+  'path="platform"',
+  'path="codes"',
+  'path="manage"',
+  'path="signups"'
+];
+for(const route of requiredRoutes){
+  if(!appSource.includes(route))bad.push('src/App.tsx: missing required Pack 1 route '+route+'.');
+}
+if(appSource.includes('ShowcaseDashboard'))bad.push('src/App.tsx: stale ShowcaseDashboard must remain quarantined from production routing.');
+if(!mainSource.includes("params.get('go')")||!mainSource.includes("window.history.replaceState")){
+  bad.push('src/main.tsx: public ?go= deep-link bridge is missing.');
+}
+
 walk(path.join(root,'src'));
 if(bad.length){
   console.error('Navigation audit failed:\n'+[...new Set(bad)].map(x=>' - '+x).join('\n'));

@@ -69,7 +69,7 @@ export function EventManagementPage(){
 
   const filtered=useMemo(()=>filter==='all'?registrations:registrations.filter(item=>item.status===filter),[registrations,filter]);
   const counts=useMemo(()=>registrations.reduce<Record<string,number>>((acc,item)=>{acc[item.status]=(acc[item.status]??0)+1;return acc;},{}),[registrations]);
-  if(!event)return null;
+  if(!event)return <div className="state-card"><strong>No event selected</strong><p>Choose an accessible event before opening the command centre.</p></div>;
 
   const saveSettings=async()=>{
     setBusy(true);setMessage('');
