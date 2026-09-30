@@ -67,7 +67,15 @@ jobs:
         run: supabase db reset
 
       - name: Run pgTAP database tests
-        run: supabase test db
+        run: |
+          set -o pipefail
+          supabase test db 2>&1 | tee pgtap.log
+        shell: bash
+
+      - name: Summarize pgTAP failures
+        if: failure()
+        run: |
+          grep -E "^(not ok|#|.*Failed test|.*ERROR|.*error:|.*failed)" pgtap.log | head -40 | while IFS= read -r line; do echo "::error::${line}"; done || true
 
   deploy:
     name: Deploy GitHub Pages
