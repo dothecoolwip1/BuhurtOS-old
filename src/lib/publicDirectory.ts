@@ -132,8 +132,6 @@ export async function loadPublicFighters():Promise<PublicFighterSummary[]>{
   const {data,error}=await publicSupabase.from('fighter_identities')
     .select('id,display_name,nickname,avatar_path,bio,public_region,verified_at')
     .eq('profile_visibility','public')
-    .is('deleted_at',null)
-    .is('merged_into_identity_id',null)
     .order('display_name');
   if(error)throw error;
   const rows=(data??[]).map((row:any)=>({
@@ -150,8 +148,6 @@ export async function loadPublicFighter(id:string):Promise<PublicFighterSummary|
     .select('id,display_name,nickname,avatar_path,bio,public_region,verified_at')
     .eq('id',id)
     .eq('profile_visibility','public')
-    .is('deleted_at',null)
-    .is('merged_into_identity_id',null)
     .maybeSingle();
   if(error)throw error;
   if(!data)return undefined;
