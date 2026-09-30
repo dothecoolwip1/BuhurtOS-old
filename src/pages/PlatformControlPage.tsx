@@ -401,7 +401,7 @@ export function PlatformControlPage() {
               <strong>{event.name}</strong>
               <small>{event.venue} · {label(event.status)} · {new Date(event.startsAt).toLocaleString()}</small>
             </div>
-            <Link className="button" to={'/ops?event=' + event.id}>Open</Link>
+            <Link className="button" to={'/ops/manage?event=' + event.id}>Manage</Link>
           </article>)}
         </div>
       </section>
