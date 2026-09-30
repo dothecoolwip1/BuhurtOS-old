@@ -91,7 +91,7 @@ const render = (d: PublicEventDetails) =>
   renderToStaticMarkup(createElement(MemoryRouter, null, createElement(EventDetailView, { details: d, onFighterSignup: () => {} })));
 
 describe('public event page rendering', () => {
-  const competitionHeadings = ['Competition', 'Schedule &amp; matches', 'Fight areas', 'Fighter signup', 'Standings'];
+  const competitionHeadings = ['Competition', 'Schedule &amp; matches', 'Fight areas', 'Fighter interest form', 'Standings'];
   it('a noncompetitive event renders no competition UI', () => {
     const html = render(details('meeting_agm'));
     for (const heading of competitionHeadings) expect(html).not.toContain(heading);
@@ -109,7 +109,7 @@ describe('public event page rendering', () => {
   });
   it('a legacy ranked_competitive tournament still renders its competition modules', () => {
     const html = render(details('ranked_competitive'));
-    for (const heading of ['Competition', 'Schedule &amp; matches', 'Fight areas', 'Fighter signup']) expect(html).toContain(heading);
+    for (const heading of ['Competition', 'Schedule &amp; matches', 'Fight areas', 'Fighter interest form']) expect(html).toContain(heading);
   });
   it('a demo without data stays clean but shows data when it exists', () => {
     expect(render(details('demo'))).not.toContain('Fight areas');

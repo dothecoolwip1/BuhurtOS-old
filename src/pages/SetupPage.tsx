@@ -8,6 +8,7 @@ import {
 import { listRulesets } from '../lib/rulesetAdmin';
 import { isSupabaseConfigured } from '../lib/supabase';
 import type { RulesetRecord } from '../types';
+import { eventCategoryLabels, eventCategoryOrder } from '../lib/eventCategories';
 
 const toIso=(value:string)=>new Date(value).toISOString();
 const initialYear=new Date().getFullYear();
@@ -29,7 +30,7 @@ export function SetupPage(){
   });
   const [eventForm,setEventForm]=useState({
     name:'',venue:'',startsAt:'',endsAt:'',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC',
-    eventType:'ranked_competitive',standingsMode:'season_and_event'
+    eventType:'tournament',standingsMode:'season_and_event'
   });
   const [message,setMessage]=useState('');
   const [busy,setBusy]=useState(false);
@@ -169,7 +170,7 @@ export function SetupPage(){
 
       <section className="panel-card"><h2>New event</h2>
         <p>Event dates must fall inside the selected season. The database rejects cross-season or archived-season mistakes.</p>
-        <div className="form-stack"><input placeholder="Event name" value={eventForm.name} onChange={e=>setEventForm(f=>({...f,name:e.target.value}))}/><input placeholder="Venue" value={eventForm.venue} onChange={e=>setEventForm(f=>({...f,venue:e.target.value}))}/><label>Starts<input type="datetime-local" value={eventForm.startsAt} onChange={e=>setEventForm(f=>({...f,startsAt:e.target.value}))}/></label><label>Ends<input type="datetime-local" value={eventForm.endsAt} onChange={e=>setEventForm(f=>({...f,endsAt:e.target.value}))}/></label><label>Timezone<input value={eventForm.timezone} onChange={e=>setEventForm(f=>({...f,timezone:e.target.value}))}/></label><label>Event type<select value={eventForm.eventType} onChange={e=>setEventForm(f=>({...f,eventType:e.target.value}))}><option value="ranked_competitive">Ranked competitive</option><option value="demo_fun">Demo / fun</option><option value="exhibition">Exhibition</option><option value="clinic_training">Clinic / training</option><option value="custom">Custom</option></select></label><label>Standings<select value={eventForm.standingsMode} onChange={e=>setEventForm(f=>({...f,standingsMode:e.target.value}))}><option value="season_and_event">Season + event</option><option value="event_only">Event only</option><option value="no_standings">No standings</option></select></label><button className="primary" onClick={addEvent} disabled={busy||!selectedSeason||selectedSeason.status==='archived'}>Create Event</button></div>
+        <div className="form-stack"><input placeholder="Event name" value={eventForm.name} onChange={e=>setEventForm(f=>({...f,name:e.target.value}))}/><input placeholder="Venue" value={eventForm.venue} onChange={e=>setEventForm(f=>({...f,venue:e.target.value}))}/><label>Starts<input type="datetime-local" value={eventForm.startsAt} onChange={e=>setEventForm(f=>({...f,startsAt:e.target.value}))}/></label><label>Ends<input type="datetime-local" value={eventForm.endsAt} onChange={e=>setEventForm(f=>({...f,endsAt:e.target.value}))}/></label><label>Timezone<input value={eventForm.timezone} onChange={e=>setEventForm(f=>({...f,timezone:e.target.value}))}/></label><label>Event type<select value={eventForm.eventType} onChange={e=>setEventForm(f=>({...f,eventType:e.target.value}))}>{eventCategoryOrder.map(key=><option key={key} value={key}>{eventCategoryLabels[key]}</option>)}</select></label><label>Standings<select value={eventForm.standingsMode} onChange={e=>setEventForm(f=>({...f,standingsMode:e.target.value}))}><option value="season_and_event">Season + event</option><option value="event_only">Event only</option><option value="no_standings">No standings</option></select></label><button className="primary" onClick={addEvent} disabled={busy||!selectedSeason||selectedSeason.status==='archived'}>Create Event</button></div>
       </section>
 
       <section className="panel-card"><h2>Existing events</h2><div className="membership-list">{events.length===0?<div className="state-card">No events in this organization yet.</div>:events.map(item=><article key={item.id}><div><strong>{item.name}</strong><small>{item.venue} · {item.status}</small></div><button onClick={()=>openEvent(item.id)}>Open</button></article>)}</div></section>

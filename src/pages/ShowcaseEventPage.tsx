@@ -28,7 +28,7 @@ export function EventDetailView({details,onFighterSignup,stats,statsError}:{deta
       title={event.name}
       description={formatEventRange(event.startsAt,event.endsAt,event.timezone,true)+' • '+event.venue}
       actions={<>
-        {modules.fighterSignup?<button className="show-btn primary" type="button" onClick={()=>onFighterSignup()}>Fighter signup</button>:null}
+        {modules.fighterSignup&&event.status!=='cancelled'&&event.status!=='completed'?<button className="show-btn primary" type="button" onClick={()=>onFighterSignup()}>Fighter interest form</button>:null}
         {facebook?<a className="show-btn secondary" href={facebook} target="_blank" rel="noopener noreferrer">Facebook event ↗</a>:null}
         <Link className="show-btn secondary" to={'/admin/events/manage?event='+event.id}>Organizer tools</Link>
       </>}
@@ -87,9 +87,9 @@ export function EventDetailView({details,onFighterSignup,stats,statsError}:{deta
         {modules.standings&&stats&&stats.officialResults>0?<Panel title="Official results" subtitle="Finalized matches only."><div className="show-detail-rows"><div><span>Participants</span><b>{stats.participants}</b></div><div><span>Teams</span><b>{stats.teams}</b></div><div><span>Matches finalized</span><b>{stats.finalizedMatches} of {stats.matches}</b></div><div><span>Formats</span><b>{stats.formats.join(', ')||'—'}</b></div></div></Panel>:null}
         <Panel title="Registration">
           <div className="state-card">
-            <strong>{event.registrationOpen?'Registration is open':'Registration is not open yet'}</strong>
-            <p>{event.registrationOpen?'Use the BuhurtOS registration flow for this event.':'Registration details will appear here when the organizers open registration.'}</p>
-            {event.registrationOpen?<Link className="show-btn primary full" to={'/register?event='+event.id}>Register</Link>:null}
+            <strong>{event.status==='cancelled'?'This event was cancelled':event.registrationOpen?'Registration is open':'Registration is not open'}</strong>
+            <p>{event.status==='cancelled'?'No registration is being taken.':event.registrationOpen?'Use the BuhurtOS registration flow for this event.':'Registration details will appear here when the organizers open registration.'}{modules.fighterSignup&&event.status!=='completed'&&event.status!=='cancelled'?' The fighter interest form tells organizers you want to take part with an invite code; it does not reserve a place.':''}</p>
+            {event.registrationOpen&&event.status!=='cancelled'?<Link className="show-btn primary full" to={'/register?event='+event.id}>Register</Link>:null}
           </div>
         </Panel>
 

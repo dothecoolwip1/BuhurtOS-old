@@ -75,11 +75,11 @@ export function FighterSignupModal({open,onClose,eventId,eventName}:{open:boolea
     <section className="fighter-signup-modal native" role="dialog" aria-modal="true" aria-labelledby="fighter-signup-title">
       <header className="fighter-signup-hero">
         <div>
-          <span className="eyebrow">FIGHTER SIGNUP</span>
+          <span className="eyebrow">FIGHTER INTEREST FORM</span>
           <h2 id="fighter-signup-title">{eventName}</h2>
-          <p>Tell the organizers who you are and what you want to fight. This stays inside BuhurtOS.</p>
+          <p>Tell the organizers who you are and what you want to fight. This is preliminary interest, not a confirmed registration or a reserved place. It stays inside BuhurtOS.</p>
         </div>
-        <button className="fighter-signup-close" type="button" onClick={onClose} aria-label="Close fighter signup">×</button>
+        <button className="fighter-signup-close" type="button" onClick={onClose} aria-label="Close fighter interest form">×</button>
       </header>
 
       {submitted ? <div className="fighter-signup-success">
@@ -91,11 +91,11 @@ export function FighterSignupModal({open,onClose,eventId,eventName}:{open:boolea
         {!codeValid ? <div className="fighter-signup-code-gate">
           <div className="fighter-signup-trust">
             <span>🔐</span>
-            <div><b>Invite code required</b><small>Get a Red Deer Rumble signup code from a Red Deer Reavers, HACSA or higher-level BuhurtOS member.</small></div>
+            <div><b>Invite code required</b><small>Ask the event organizers or your team captain for a signup code for this event. Codes can be closed, expired or used up.</small></div>
           </div>
           <div className="fighter-signup-code-entry">
             <input value={code} onChange={e=>{setCode(e.target.value.toUpperCase());setCodeValid(false)}} placeholder="RDR26-ABC123" autoCapitalize="characters"/>
-            <button className="show-btn primary" type="button" disabled={busy||!code.trim()} onClick={verifyCode}>{busy?'Checking…':'Unlock signup'}</button>
+            <button className="show-btn primary" type="button" disabled={busy||!code.trim()} onClick={verifyCode}>{busy?'Checking…':'Unlock form'}</button>
           </div>
           {message&&<div className="auth-message">{message}</div>}
         </div> : <>

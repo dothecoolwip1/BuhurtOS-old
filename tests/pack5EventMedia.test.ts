@@ -43,7 +43,7 @@ describe('Red Deer Rumble public page', () => {
     expect(html).toContain('Horse in Hand Ranch');
     expect(html).toContain('Red Deer Reavers');
     expect(html).toContain('Facebook event');
-    expect(html).toContain('Fighter signup');
+    expect(html).toContain('Fighter interest form');
     expect(html).toContain('Divisions');
     expect(html).toContain('To be announced');
     expect(html).not.toContain('Fight areas');
