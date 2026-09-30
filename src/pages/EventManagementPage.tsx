@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAppState } from '../features/AppState';
 import {
   createEventAnnouncement, createFightCard, deleteEventAnnouncement, listEventRegistrations,
@@ -31,7 +32,9 @@ function fromLocalInput(value:string):string|undefined {
 export function EventManagementPage(){
   const { event, announcements, fightCards, matches, reload } = useAppState();
   const [registrations,setRegistrations]=useState<EventRegistrationAdmin[]>([]);
-  const [tab,setTab]=useState<'settings'|'competitions'|'fields'|'registrations'|'announcements'>('settings');
+  const [searchParams]=useSearchParams();
+  const requestedTab=searchParams.get('tab');
+  const [tab,setTab]=useState<'settings'|'competitions'|'fields'|'registrations'|'announcements'>(['competitions','fields','registrations','announcements'].includes(requestedTab??'')?(requestedTab as 'competitions'):'settings');
   const [message,setMessage]=useState('');
   const [busy,setBusy]=useState(false);
   const [filter,setFilter]=useState<RegistrationReviewStatus|'all'>('all');
@@ -122,7 +125,7 @@ export function EventManagementPage(){
 
   return <>
     <section className="section-head"><div><span className="eyebrow">Event settings</span><h1>Manage {event.name}</h1><p>Govern event publishing, registration, fields, clearances and public communications.</p></div>
-      <div className="header-actions"><button className={tab==='settings'?'primary':''} onClick={()=>setTab('settings')}>Settings</button>{isCompetitionCapable(event.eventType)&&<button className={tab==='competitions'?'primary':''} onClick={()=>setTab('competitions')}>Competitions</button>}<button className={tab==='fields'?'primary':''} onClick={()=>setTab('fields')}>Fields</button><button className={tab==='registrations'?'primary':''} onClick={()=>setTab('registrations')}>Registrations {registrations.length>0?'('+registrations.length+')':''}</button><button className={tab==='announcements'?'primary':''} onClick={()=>setTab('announcements')}>Announcements</button></div>
+      <div className="header-actions"><Link className="nx-btn" to={'/admin/events/guide?event='+event.id}>Setup guide</Link><button className={tab==='settings'?'primary':''} onClick={()=>setTab('settings')}>Settings</button>{isCompetitionCapable(event.eventType)&&<button className={tab==='competitions'?'primary':''} onClick={()=>setTab('competitions')}>Competitions</button>}<button className={tab==='fields'?'primary':''} onClick={()=>setTab('fields')}>Fields</button><button className={tab==='registrations'?'primary':''} onClick={()=>setTab('registrations')}>Registrations {registrations.length>0?'('+registrations.length+')':''}</button><button className={tab==='announcements'?'primary':''} onClick={()=>setTab('announcements')}>Announcements</button></div>
     </section>
 
     {tab==='settings'&&<div className="admin-grid">

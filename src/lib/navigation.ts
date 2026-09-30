@@ -91,6 +91,7 @@ export const adminSections: NavSection[] = [
     id: 'events', label: 'Events & competition', blurb: 'Set up an event, take entries, run the day and publish results.',
     items: [
       { id: 'event-setup', label: 'Seasons & new events', to: '/admin/events/setup', description: 'Create seasons and events for an organization.', gate: 'orgAdmin' },
+      { id: 'event-guide', label: 'Event setup guide', to: '/admin/events/guide', description: 'Step-by-step progress for setting up the event, with what to do next.', gate: 'eventManage' },
       { id: 'event-settings', label: 'Event settings', to: '/admin/events/manage', description: 'Dates, registration, fields, announcements and poster.', gate: 'eventManage' },
       { id: 'event-signups', label: 'Fighter signups', to: '/admin/events/signups', description: 'Signup codes and review of fighters who applied.', gate: 'event' },
       { id: 'event-roster', label: 'Roster & check-in', to: '/admin/events/roster', description: 'Who is entered, checked in and cleared to compete.', gate: 'event' },

@@ -8,11 +8,13 @@ import {
 import { listRulesets } from '../lib/rulesetAdmin';
 import { isSupabaseConfigured } from '../lib/supabase';
 import type { RulesetRecord } from '../types';
-import { eventCategoryLabels, eventCategoryOrder } from '../lib/eventCategories';
+import { isCompetitionCapable } from '../lib/eventCategories';
+import { NewEventStepper, type NewEventValues } from '../components/NewEventStepper';
 
 const toIso=(value:string)=>new Date(value).toISOString();
 const initialYear=new Date().getFullYear();
-const openEvent=(eventId:string)=>{window.location.hash=`/admin/events/run?event=${encodeURIComponent(eventId)}`;};
+// New events continue in the setup guide, which shows what is done and what to do next.
+const openEvent=(eventId:string)=>{window.location.hash=`/admin/events/guide?event=${encodeURIComponent(eventId)}`;};
 
 export function SetupPage(){
   const {user}=useAppState();
@@ -131,15 +133,15 @@ export function SetupPage(){
     );
   };
 
-  const addEvent=()=>run(async()=>{
-    if(!orgId||!seasonId||!eventForm.name||!eventForm.venue||!eventForm.startsAt||!eventForm.endsAt)throw new Error('Complete the event fields first.');
+  const addEvent=(values:NewEventValues)=>run(async()=>{
+    if(!orgId||!seasonId)throw new Error('Choose an organization and a season first.');
     const eventId=await createEvent({
-      organizationId:orgId,seasonId,name:eventForm.name,venue:eventForm.venue,
-      startsAt:toIso(eventForm.startsAt),endsAt:toIso(eventForm.endsAt),timezone:eventForm.timezone,
-      eventType:eventForm.eventType as any,standingsMode:eventForm.standingsMode as any,userId:user.userId
+      organizationId:orgId,seasonId,name:values.name.trim(),venue:values.venue.trim(),
+      startsAt:toIso(values.startsAt),endsAt:toIso(values.endsAt),timezone:values.timezone,
+      eventType:values.eventType as any,standingsMode:(isCompetitionCapable(values.eventType)?'season_and_event':'no_standings') as any,userId:user.userId
     });
     openEvent(eventId);
-  },'Event created.');
+  },'Draft created. Opening the setup guide…');
 
   return <>
     <section className="section-head"><div><span className="eyebrow">Organizations</span><h1>Seasons & new events</h1><p>Build organization, season, and event boundaries without rewriting historical competition policy later.</p></div></section>
@@ -168,10 +170,7 @@ export function SetupPage(){
         {orgId&&<div className="form-stack setup-subform"><h3>Create draft season</h3><input value={seasonForm.name} onChange={e=>setSeasonForm(f=>({...f,name:e.target.value}))}/><label>Starts<input type="datetime-local" value={seasonForm.startsAt} onChange={e=>setSeasonForm(f=>({...f,startsAt:e.target.value}))}/></label><label>Ends<input type="datetime-local" value={seasonForm.endsAt} onChange={e=>setSeasonForm(f=>({...f,endsAt:e.target.value}))}/></label><button onClick={addSeason} disabled={busy}>Create Draft Season</button></div>}
       </section>
 
-      <section className="panel-card"><h2>New event</h2>
-        <p>Event dates must fall inside the selected season. The database rejects cross-season or archived-season mistakes.</p>
-        <div className="form-stack"><input placeholder="Event name" value={eventForm.name} onChange={e=>setEventForm(f=>({...f,name:e.target.value}))}/><input placeholder="Venue" value={eventForm.venue} onChange={e=>setEventForm(f=>({...f,venue:e.target.value}))}/><label>Starts<input type="datetime-local" value={eventForm.startsAt} onChange={e=>setEventForm(f=>({...f,startsAt:e.target.value}))}/></label><label>Ends<input type="datetime-local" value={eventForm.endsAt} onChange={e=>setEventForm(f=>({...f,endsAt:e.target.value}))}/></label><label>Timezone<input value={eventForm.timezone} onChange={e=>setEventForm(f=>({...f,timezone:e.target.value}))}/></label><label>Event type<select value={eventForm.eventType} onChange={e=>setEventForm(f=>({...f,eventType:e.target.value}))}>{eventCategoryOrder.map(key=><option key={key} value={key}>{eventCategoryLabels[key]}</option>)}</select></label><label>Standings<select value={eventForm.standingsMode} onChange={e=>setEventForm(f=>({...f,standingsMode:e.target.value}))}><option value="season_and_event">Season + event</option><option value="event_only">Event only</option><option value="no_standings">No standings</option></select></label><button className="primary" onClick={addEvent} disabled={busy||!selectedSeason||selectedSeason.status==='archived'}>Create Event</button></div>
-      </section>
+      <NewEventStepper busy={busy} initial={{name:'',venue:'',startsAt:'',endsAt:'',timezone:eventForm.timezone,eventType:'tournament'}} onCreate={values=>addEvent(values)}/>
 
       <section className="panel-card"><h2>Existing events</h2><div className="membership-list">{events.length===0?<div className="state-card">No events in this organization yet.</div>:events.map(item=><article key={item.id}><div><strong>{item.name}</strong><small>{item.venue} · {item.status}</small></div><button onClick={()=>openEvent(item.id)}>Open</button></article>)}</div></section>
     </div>

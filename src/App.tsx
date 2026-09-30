@@ -44,6 +44,7 @@ const SyncPage = lazy(() => import('./pages/SyncPage').then(module => ({ default
 const SetupPage = lazy(() => import('./pages/SetupPage').then(module => ({ default: module.SetupPage })));
 const RegistrationPage = lazy(() => import('./pages/RegistrationPage').then(module => ({ default: module.RegistrationPage })));
 const PublicPage = lazy(() => import('./pages/PublicPage').then(module => ({ default: module.PublicPage })));
+const EventGuidePage = lazy(() => import('./pages/EventGuidePage').then(module => ({ default: module.EventGuidePage })));
 const EventManagementPage = lazy(() => import('./pages/EventManagementPage').then(module => ({ default: module.EventManagementPage })));
 const FoundationPage = lazy(() => import('./pages/FoundationPage').then(module => ({ default: module.FoundationPage })));
 const RulesetsPage = lazy(() => import('./pages/RulesetsPage').then(module => ({ default: module.RulesetsPage })));
@@ -151,6 +152,7 @@ export function App(){
       <Route path="/admin" element={<AdminGate/>}>
         <Route index element={<AdminHome/>}/>
         <Route path="events/setup" element={<SetupPage/>}/>
+        <Route path="events/guide" element={<RequirePermission permission="event.manage"><EventGuidePage/></RequirePermission>}/>
         <Route path="events/manage" element={<RequirePermission permission="event.manage"><EventManagementPage/></RequirePermission>}/>
         <Route path="events/signups" element={<FighterSignupAdminPage/>}/>
         <Route path="events/roster" element={<RosterPage/>}/>
