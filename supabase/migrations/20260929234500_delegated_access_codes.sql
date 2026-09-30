@@ -1,4 +1,15 @@
 do $$ begin
+  create type public.team_status as enum ('forming','pending','active','suspended','archived');
+exception when duplicate_object then null;
+end $$;
+
+alter table public.teams
+  add column if not exists status public.team_status not null default 'active';
+
+update public.teams
+set status = case when is_active then 'active'::public.team_status else 'suspended'::public.team_status end;
+
+do $$ begin
   create type public.club_role as enum ('club_admin','coach','member');
 exception when duplicate_object then null;
 end $$;
