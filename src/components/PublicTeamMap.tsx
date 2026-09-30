@@ -101,7 +101,7 @@ export function PublicTeamMap({teams}:Props){
          })
        });
        const location=[team.location,team.adminAreaName,team.countryName].filter(x=>x&&!x.includes('pending')).join(' · ');
-       marker.bindPopup('<div class="buhurt-map-popup"><strong>'+escapeHtml(team.name)+'</strong><span>'+escapeHtml(location)+'</span><a href="#/teams/'+encodeURIComponent(team.slug)+'">Open team profile →</a></div>');
+       const teamUrl=window.location.pathname+'?go='+encodeURIComponent('/teams/'+team.slug);\n       marker.bindPopup('<div class="buhurt-map-popup"><strong>'+escapeHtml(team.name)+'</strong><span>'+escapeHtml(location)+'</span><a href="'+escapeHtml(teamUrl)+'">Open team profile →</a></div>');
        clusters.addLayer(marker);
        bounds.push([team.latitude,team.longitude]);
      }
