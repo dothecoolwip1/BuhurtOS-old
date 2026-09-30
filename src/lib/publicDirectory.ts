@@ -28,6 +28,8 @@ export type PublicEventSummary = {
   status:string;
   timezone:string;
   publicDescription?:string;
+  publicLinks?:Record<string,unknown>;
+  registrationOpen?:boolean;
 };
 
 export type PublicFighterSummary = {
@@ -108,7 +110,7 @@ export async function loadPublicOrganization(key:string):Promise<{organization:P
 export async function loadPublicEvents():Promise<PublicEventSummary[]>{
   if(!publicSupabase)return [];
   const {data,error}=await publicSupabase.from('events')
-    .select('id,organization_id,name,venue,starts_at,ends_at,organizer_name,event_type,standings_mode,status,timezone,public_description')
+    .select('id,organization_id,name,venue,starts_at,ends_at,organizer_name,event_type,standings_mode,status,timezone,public_description,public_links,registration_open')
     .in('status',['published','live','completed','cancelled'])
     .not('published_at','is',null)
     .order('starts_at',{ascending:true});
@@ -116,7 +118,8 @@ export async function loadPublicEvents():Promise<PublicEventSummary[]>{
   return (data??[]).map((row:any)=>({
     id:row.id,organizationId:row.organization_id,name:row.name,venue:row.venue,startsAt:row.starts_at,endsAt:row.ends_at,
     organizerName:row.organizer_name??undefined,eventType:row.event_type,standingsMode:row.standings_mode,status:row.status,
-    timezone:row.timezone,publicDescription:row.public_description??undefined
+    timezone:row.timezone,publicDescription:row.public_description??undefined,
+    publicLinks:row.public_links??{},registrationOpen:Boolean(row.registration_open)
   }));
 }
 
@@ -138,4 +141,89 @@ export async function loadPublicFighters():Promise<PublicFighterSummary[]>{
 export async function loadPublicFighter(id:string):Promise<PublicFighterSummary|undefined>{
   const rows=await loadPublicFighters();
   return rows.find(row=>row.id===id);
+}
+
+
+export type PublicEventDetails = {
+  event: PublicEventSummary;
+  announcements: Array<{id:string;title:string;body:string;scheduledFor?:string;createdAt:string}>;
+  fields: Array<{id:string;name:string;listName:string;status:string;sortOrder:number}>;
+  divisions: Array<{id:string;name:string;registrationOpen:boolean}>;
+  matches: Array<{id:string;label:string;category:string;status:string;scheduledOrder:number}>;
+};
+
+export async function loadPublicEventDetails(id:string):Promise<PublicEventDetails|undefined>{
+  if(!publicSupabase)return undefined;
+  const {data:eventRow,error:eventError}=await publicSupabase.from('events')
+    .select('id,organization_id,name,venue,starts_at,ends_at,organizer_name,event_type,standings_mode,status,timezone,public_description,public_links,registration_open,published_at')
+    .eq('id',id)
+    .in('status',['published','live','completed','cancelled'])
+    .not('published_at','is',null)
+    .maybeSingle();
+  if(eventError)throw eventError;
+  if(!eventRow)return undefined;
+
+  const [announcementsRes,fieldsRes,eventDivisionsRes,matchesRes]=await Promise.all([
+    publicSupabase.from('announcements')
+      .select('id,title,body,scheduled_for,created_at')
+      .eq('event_id',id)
+      .eq('is_public',true)
+      .order('scheduled_for',{ascending:true,nullsFirst:false}),
+    publicSupabase.from('fight_cards')
+      .select('id,name,list_name,status,sort_order')
+      .eq('event_id',id)
+      .neq('status','archived')
+      .order('sort_order'),
+    publicSupabase.from('event_divisions')
+      .select('id,division_id,is_registration_open')
+      .eq('event_id',id),
+    publicSupabase.from('matches')
+      .select('id,label,category,status,scheduled_order')
+      .eq('event_id',id)
+      .order('scheduled_order')
+  ]);
+
+  if(announcementsRes.error)throw announcementsRes.error;
+  if(fieldsRes.error)throw fieldsRes.error;
+  if(eventDivisionsRes.error)throw eventDivisionsRes.error;
+  if(matchesRes.error)throw matchesRes.error;
+
+  const divisionIds=(eventDivisionsRes.data??[]).map((row:any)=>row.division_id).filter(Boolean);
+  let divisionNames=new Map<string,string>();
+  if(divisionIds.length){
+    const {data,error}=await publicSupabase.from('competition_divisions').select('id,name').in('id',divisionIds);
+    if(error)throw error;
+    divisionNames=new Map((data??[]).map((row:any)=>[row.id,row.name]));
+  }
+
+  return {
+    event:{
+      id:eventRow.id,
+      organizationId:eventRow.organization_id,
+      name:eventRow.name,
+      venue:eventRow.venue,
+      startsAt:eventRow.starts_at,
+      endsAt:eventRow.ends_at,
+      organizerName:eventRow.organizer_name??undefined,
+      eventType:eventRow.event_type,
+      standingsMode:eventRow.standings_mode,
+      status:eventRow.status,
+      timezone:eventRow.timezone,
+      publicDescription:eventRow.public_description??undefined,
+      publicLinks:eventRow.public_links??{},
+      registrationOpen:Boolean(eventRow.registration_open)
+    },
+    announcements:(announcementsRes.data??[]).map((row:any)=>({
+      id:row.id,title:row.title,body:row.body,scheduledFor:row.scheduled_for??undefined,createdAt:row.created_at
+    })),
+    fields:(fieldsRes.data??[]).map((row:any)=>({
+      id:row.id,name:row.name,listName:row.list_name,status:row.status,sortOrder:Number(row.sort_order??0)
+    })),
+    divisions:(eventDivisionsRes.data??[]).map((row:any)=>({
+      id:row.id,name:divisionNames.get(row.division_id)??'Competition division',registrationOpen:Boolean(row.is_registration_open)
+    })),
+    matches:(matchesRes.data??[]).map((row:any)=>({
+      id:row.id,label:row.label,category:row.category,status:row.status,scheduledOrder:Number(row.scheduled_order??0)
+    }))
+  };
 }
