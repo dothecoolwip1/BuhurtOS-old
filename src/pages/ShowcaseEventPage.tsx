@@ -5,6 +5,8 @@ import {FighterSignupModal} from '../components/FighterSignupModal';
 import {loadPublicEventDetails,type PublicEventDetails} from '../lib/publicDirectory';
 import {eventCategoryLabel,eventCategoryTone,eventModules,isCompetitionCapable} from '../lib/eventCategories';
 import {eventImageThumbUrl,eventImageUrl} from '../lib/eventMedia';
+import {loadOfficialEventStats} from '../lib/publicStats';
+import type {EventStats} from '../lib/canonicalStats';
 
 const pretty=(value:string)=>value.replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
 
@@ -17,7 +19,7 @@ function dateRange(startIso:string,endIso:string){
   return startText+' – '+endText;
 }
 
-export function EventDetailView({details,onFighterSignup}:{details:PublicEventDetails;onFighterSignup:()=>void}){
+export function EventDetailView({details,onFighterSignup,stats}:{details:PublicEventDetails;onFighterSignup:()=>void;stats?:EventStats}){
   const event=details.event;
   const scheduleTba=Boolean(event.publicLinks?.schedule_tba);
   const facebook=typeof event.publicLinks?.facebook==='string'?event.publicLinks.facebook:undefined;
@@ -86,6 +88,7 @@ export function EventDetailView({details,onFighterSignup}:{details:PublicEventDe
           </div>
         </Panel>
 
+        {modules.standings&&stats&&stats.officialResults>0?<Panel title="Official results" subtitle="Finalized matches only."><div className="show-detail-rows"><div><span>Participants</span><b>{stats.participants}</b></div><div><span>Teams</span><b>{stats.teams}</b></div><div><span>Matches finalized</span><b>{stats.finalizedMatches} of {stats.matches}</b></div><div><span>Formats</span><b>{stats.formats.join(', ')||'—'}</b></div></div></Panel>:null}
         <Panel title="Registration">
           <div className="state-card">
             <strong>{event.registrationOpen?'Registration is open':'Registration is not open yet'}</strong>
@@ -114,11 +117,12 @@ export function ShowcaseEventPage(){
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState('');
   const [fighterSignupOpen,setFighterSignupOpen]=useState(false);
+  const [stats,setStats]=useState<EventStats>();
 
   useEffect(()=>{
     let active=true;
     loadPublicEventDetails(eventId)
-      .then(result=>{if(active)setDetails(result)})
+      .then(result=>{if(active)setDetails(result);if(result)loadOfficialEventStats(result.event.id).then(x=>{if(active)setStats(x)})})
       .catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load this event.')})
       .finally(()=>{if(active)setLoading(false)});
     return()=>{active=false};
@@ -130,6 +134,6 @@ export function ShowcaseEventPage(){
 
   return <>
     <FighterSignupModal open={fighterSignupOpen} onClose={()=>setFighterSignupOpen(false)} eventId={details.event.id} eventName={details.event.name}/>
-    <EventDetailView details={details} onFighterSignup={()=>setFighterSignupOpen(true)}/>
+    <EventDetailView details={details} onFighterSignup={()=>setFighterSignupOpen(true)} stats={stats}/>
   </>;
 }
