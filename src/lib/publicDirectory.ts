@@ -1,6 +1,14 @@
 import { publicSupabase } from './supabase';
 import { loadPublicTeamDirectory, type PublicDirectoryTeam } from './teamDirectory';
 
+const CACHE_MS = 2 * 60 * 1000;
+let organizationsCache: {at:number; value:PublicOrganizationSummary[]} | null = null;
+let eventsCache: {at:number; value:PublicEventSummary[]} | null = null;
+let fightersCache: {at:number; value:PublicFighterSummary[]} | null = null;
+const eventDetailCache = new Map<string,{at:number; value:PublicEventDetails|undefined}>();
+
+function isFresh(at:number){ return Date.now()-at < CACHE_MS; }
+
 export type PublicOrganizationSummary = {
   key:string;
   id?:string;
@@ -60,6 +68,38 @@ const orgInfo:Record<string,{name:string;description:string;websiteUrl?:string;k
 function slug(value:string){return value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
 
 export async function loadPublicOrganizations():Promise<PublicOrganizationSummary[]>{
+  if(!publicSupabase)return [];
+  if(organizationsCache && isFresh(organizationsCache.at)) return organizationsCache.value;
+  const {data,error}=await publicSupabase.rpc('public_organization_directory_summary');
+  if(error)throw error;
+  const rows=(data??[]).map((row:any)=>{
+    const shortName=row.organization_short_name;
+    const info=orgInfo[shortName];
+    return {
+      key:slug(shortName||row.organization_name),
+      id:row.organization_id,
+      shortName,
+      name:info?.name??row.organization_name,
+      region:row.region??(shortName==='BI'?'International':'Global'),
+      kind:info?.kind??row.kind??'Buhurt organization',
+      description:info?.description??row.description??'A Buhurt organization represented in the public team directory.',
+      websiteUrl:info?.websiteUrl??row.website_url??undefined,
+      teamCount:Number(row.team_count??0),
+      rosterCount:Number(row.roster_count??0),
+      countries:Number(row.country_count??0)
+    } satisfies PublicOrganizationSummary;
+  });
+  rows.sort((a,b)=>{
+    const order=['BI','HACSA'];
+    const ai=order.indexOf(a.shortName),bi=order.indexOf(b.shortName);
+    if(ai>=0||bi>=0)return (ai<0?99:ai)-(bi<0?99:bi);
+    return a.name.localeCompare(b.name);
+  });
+  organizationsCache={at:Date.now(),value:rows};
+  return rows;
+}
+
+export async function loadPublicOrganizations():Promise<PublicOrganizationSummary[]>{
   const teams=await loadPublicTeamDirectory();
   const grouped=new Map<string,PublicDirectoryTeam[]>();
   for(const team of teams){
@@ -100,31 +140,35 @@ export async function loadPublicOrganizations():Promise<PublicOrganizationSummar
 }
 
 export async function loadPublicOrganization(key:string):Promise<{organization:PublicOrganizationSummary;teams:PublicDirectoryTeam[]}|undefined>{
-  const [organizations,teams]=await Promise.all([loadPublicOrganizations(),loadPublicTeamDirectory()]);
+  const organizations=await loadPublicOrganizations();
   const organization=organizations.find(org=>org.key===key||slug(org.shortName)===key||slug(org.name)===key);
   if(!organization)return undefined;
-  const matching=teams.filter(team=>team.organizationShortName===organization.shortName);
-  return {organization,teams:matching};
+  const teams=await loadPublicTeamDirectory({organizationShortName:organization.shortName});
+  return {organization,teams};
 }
 
 export async function loadPublicEvents():Promise<PublicEventSummary[]>{
   if(!publicSupabase)return [];
+  if(eventsCache && isFresh(eventsCache.at)) return eventsCache.value;
   const {data,error}=await publicSupabase.from('events')
     .select('id,organization_id,name,venue,starts_at,ends_at,organizer_name,event_type,standings_mode,status,timezone,public_description,public_links,registration_open')
     .in('status',['published','live','completed','cancelled'])
     .not('published_at','is',null)
     .order('starts_at',{ascending:true});
   if(error)throw error;
-  return (data??[]).map((row:any)=>({
+  const rows=(data??[]).map((row:any)=>({
     id:row.id,organizationId:row.organization_id,name:row.name,venue:row.venue,startsAt:row.starts_at,endsAt:row.ends_at,
     organizerName:row.organizer_name??undefined,eventType:row.event_type,standingsMode:row.standings_mode,status:row.status,
     timezone:row.timezone,publicDescription:row.public_description??undefined,
     publicLinks:row.public_links??{},registrationOpen:Boolean(row.registration_open)
   }));
+  eventsCache={at:Date.now(),value:rows};
+  return rows;
 }
 
 export async function loadPublicFighters():Promise<PublicFighterSummary[]>{
   if(!publicSupabase)return [];
+  if(fightersCache && isFresh(fightersCache.at)) return fightersCache.value;
   const {data,error}=await publicSupabase.from('fighter_identities')
     .select('id,display_name,nickname,avatar_path,bio,public_region,verified_at')
     .eq('profile_visibility','public')
@@ -132,15 +176,29 @@ export async function loadPublicFighters():Promise<PublicFighterSummary[]>{
     .is('merged_into_identity_id',null)
     .order('display_name');
   if(error)throw error;
-  return (data??[]).map((row:any)=>({
+  const rows=(data??[]).map((row:any)=>({
     id:row.id,displayName:row.display_name,nickname:row.nickname??undefined,avatarPath:row.avatar_path??undefined,
     bio:row.bio??undefined,publicRegion:row.public_region??undefined,verified:Boolean(row.verified_at)
   }));
+  fightersCache={at:Date.now(),value:rows};
+  return rows;
 }
 
 export async function loadPublicFighter(id:string):Promise<PublicFighterSummary|undefined>{
-  const rows=await loadPublicFighters();
-  return rows.find(row=>row.id===id);
+  if(!publicSupabase)return undefined;
+  const {data,error}=await publicSupabase.from('fighter_identities')
+    .select('id,display_name,nickname,avatar_path,bio,public_region,verified_at')
+    .eq('id',id)
+    .eq('profile_visibility','public')
+    .is('deleted_at',null)
+    .is('merged_into_identity_id',null)
+    .maybeSingle();
+  if(error)throw error;
+  if(!data)return undefined;
+  return {
+    id:data.id,displayName:data.display_name,nickname:data.nickname??undefined,avatarPath:data.avatar_path??undefined,
+    bio:data.bio??undefined,publicRegion:data.public_region??undefined,verified:Boolean(data.verified_at)
+  };
 }
 
 
@@ -154,6 +212,8 @@ export type PublicEventDetails = {
 
 export async function loadPublicEventDetails(id:string):Promise<PublicEventDetails|undefined>{
   if(!publicSupabase)return undefined;
+  const cached=eventDetailCache.get(id);
+  if(cached && isFresh(cached.at)) return cached.value;
   const {data:eventRow,error:eventError}=await publicSupabase.from('events')
     .select('id,organization_id,name,venue,starts_at,ends_at,organizer_name,event_type,standings_mode,status,timezone,public_description,public_links,registration_open,published_at')
     .eq('id',id)
@@ -196,7 +256,7 @@ export async function loadPublicEventDetails(id:string):Promise<PublicEventDetai
     divisionNames=new Map((data??[]).map((row:any)=>[row.id,row.name]));
   }
 
-  return {
+  const result:PublicEventDetails = {
     event:{
       id:eventRow.id,
       organizationId:eventRow.organization_id,
@@ -226,4 +286,13 @@ export async function loadPublicEventDetails(id:string):Promise<PublicEventDetai
       id:row.id,label:row.label,category:row.category,status:row.status,scheduledOrder:Number(row.scheduled_order??0)
     }))
   };
+  eventDetailCache.set(id,{at:Date.now(),value:result});
+  return result;
+}
+
+export function clearPublicDirectoryCaches(){
+  organizationsCache=null;
+  eventsCache=null;
+  fightersCache=null;
+  eventDetailCache.clear();
 }
