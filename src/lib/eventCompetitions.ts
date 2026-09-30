@@ -22,6 +22,9 @@ export interface EventCompetition {
 
 export type EventCompetitionInput = Partial<Omit<EventCompetition, 'id' | 'eventId'>>;
 
+/** Explicit columns: anonymous visitors cannot read the creator columns, so a select-star would be refused. */
+const COLUMNS = 'id,event_id,name,league,tier,tier_classification,classification,category_id,authority,rules_version,ranked,entrant_cap,status,format_selection,external_approval,sort_order';
+
 function map(row: any): EventCompetition {
   return {
     id: row.id, eventId: row.event_id, name: row.name, league: row.league, tier: row.tier ?? undefined,
@@ -36,7 +39,7 @@ function map(row: any): EventCompetition {
 export async function listEventCompetitions(eventId: string, asOrganizer = false): Promise<EventCompetition[]> {
   const client = asOrganizer ? supabase : publicSupabase;
   if (!client) return [];
-  const { data, error } = await client.from('event_competitions').select('*').eq('event_id', eventId).order('sort_order');
+  const { data, error } = await client.from('event_competitions').select(COLUMNS).eq('event_id', eventId).order('sort_order');
   if (error) throw error;
   return (data ?? []).map(map);
 }
