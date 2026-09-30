@@ -6,7 +6,7 @@ const categories=['5v5','12v12','30v30','Longsword','Sword & Buckler','Polearm',
 export function FighterSignupModal({open,onClose,eventId,eventName}:{open:boolean;onClose:()=>void;eventId:string;eventName:string}){
   const [form,setForm]=useState({
     displayName:'',email:'',phone:'',teamName:'',experienceYears:'',
-    armorStatus:'Full kit','attendanceNotes:'',emergencyContact:'',additionalNotes:'',consent:false
+    armorStatus:'Full kit',attendanceNotes:'',emergencyContact:'',additionalNotes:'',consent:false
   });
   const [selected,setSelected]=useState<string[]>([]);
   const [busy,setBusy]=useState(false);
