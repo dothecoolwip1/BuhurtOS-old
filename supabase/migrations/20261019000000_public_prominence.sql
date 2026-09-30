@@ -66,7 +66,7 @@ as $$
     join private.public_featured_team_ids() f on f.team_id = d.id
    order by f.featured_order nulls last, d.team_name
    limit 24; -- a small curated proof set, never a directory dump
-$;
+$$;
 
 revoke all on function private.public_featured_organizations() from public, anon, authenticated;
 revoke all on function private.public_featured_team_ids() from public, anon, authenticated;
