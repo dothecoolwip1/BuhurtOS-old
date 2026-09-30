@@ -4,6 +4,11 @@ begin;
 create extension if not exists pgtap with schema extensions;
 select no_plan();
 
+
+select diag('ANON-WRITE: ' || coalesce((select string_agg(c.relname || ':' || p.privilege, ', ') from pg_class c join pg_namespace n on n.oid = c.relnamespace cross join unnest(array['INSERT','UPDATE','DELETE','TRUNCATE']) p(privilege) where n.nspname = 'public' and c.relkind = 'r' and has_table_privilege('anon', c.oid, p.privilege)), 'none'));
+select diag('ANON-READ-SENSITIVE: ' || coalesce((select string_agg(t.name, ', ') from unnest(array['fighter_event_signups','event_signup_codes','platform_settings','claim_requests','team_source_records','platform_memberships','organization_memberships','event_memberships','profiles','audit_log','fighter_identity_private_profiles','event_registrations']) t(name) where to_regclass('public.' || t.name) is not null and has_table_privilege('anon', to_regclass('public.' || t.name), 'SELECT')), 'none'));
+select diag('AUTH-WRITE-ACCESS: ' || coalesce((select string_agg(t.name || ':' || p.privilege, ', ') from unnest(array['event_signup_codes','platform_settings','claim_requests','platform_memberships','organization_memberships','event_memberships','team_memberships','club_memberships','audit_log']) t(name) cross join unnest(array['INSERT','UPDATE','DELETE']) p(privilege) where to_regclass('public.' || t.name) is not null and has_table_privilege('authenticated', to_regclass('public.' || t.name), p.privilege)), 'none'));
+
 -- 1. Row level security is enabled on every ordinary table in the public schema.
 select is(
   (select count(*)::integer
