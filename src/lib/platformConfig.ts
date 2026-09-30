@@ -79,23 +79,33 @@ export function isClaimEnabled(config: PlatformConfig, entity: ClaimEntityType):
 }
 
 const CACHE_MS = 60 * 1000;
-let cache: { at: number; value: PlatformConfig } | undefined;
 
-export async function loadPlatformConfig(force = false): Promise<PlatformConfig> {
+/** Where the values came from: the server, or the launch defaults because the server could not be asked. */
+export type PlatformConfigStatus = { config: PlatformConfig; source: 'server' | 'default'; error?: string };
+let cache: { at: number; status: PlatformConfigStatus } | undefined;
+
+/** Like loadPlatformConfig, but says whether the values are real or only the fallback defaults. */
+export async function loadPlatformConfigStatus(force = false): Promise<PlatformConfigStatus> {
   const client = publicSupabase ?? supabase;
-  if (!client) return defaultPlatformConfig;
-  if (!force && cache && Date.now() - cache.at < CACHE_MS) return cache.value;
+  if (!client) return { config: defaultPlatformConfig, source: 'default' };
+  if (!force && cache && Date.now() - cache.at < CACHE_MS) return cache.status;
   try {
     const { data, error } = await client.rpc('get_platform_config');
     if (error) throw error;
-    const value = parsePlatformConfig(data);
-    cache = { at: Date.now(), value };
-    return value;
-  } catch {
-    // Backends that predate the configuration layer keep launch behavior; do not retry for a minute.
-    cache = { at: Date.now(), value: cache?.value ?? defaultPlatformConfig };
-    return cache.value;
+    const status: PlatformConfigStatus = { config: parsePlatformConfig(data), source: 'server' };
+    cache = { at: Date.now(), status };
+    return status;
+  } catch (err) {
+    // Keep the last good values if there are any; otherwise launch behavior. Either way the failure is reported, not hidden.
+    const message = err instanceof Error ? err.message : 'The platform settings could not be read.';
+    const status: PlatformConfigStatus = { config: cache?.status.config ?? defaultPlatformConfig, source: cache?.status.source ?? 'default', error: message };
+    cache = { at: Date.now(), status };
+    return status;
   }
+}
+
+export async function loadPlatformConfig(force = false): Promise<PlatformConfig> {
+  return (await loadPlatformConfigStatus(force)).config;
 }
 
 export async function savePlatformSetting(key: string, value: string | boolean): Promise<PlatformConfig> {
@@ -103,7 +113,7 @@ export async function savePlatformSetting(key: string, value: string | boolean):
   const { data, error } = await supabase.rpc('set_platform_setting', { p_key: key, p_value: value });
   if (error) throw error;
   const next = parsePlatformConfig(data);
-  cache = { at: Date.now(), value: next };
+  cache = { at: Date.now(), status: { config: next, source: 'server' } };
   return next;
 }
 

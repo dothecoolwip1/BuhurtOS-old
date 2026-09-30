@@ -1725,3 +1725,10 @@ html.nx-locked{overflow:hidden}
 .nx-picker small{color:var(--muted);font-size:.76rem}
 .nx-scope-pick{margin-left:auto}
 @media(max-width:700px){.nx-scope-pick{margin-left:0;width:100%}.nx-scope-pick select,.nx-picker select{width:100%}}
+
+/* Sign-in form and help */
+.auth-card form{display:grid;gap:12px}
+.auth-help{border:1px solid var(--line);border-radius:11px;padding:10px 12px;font-size:.82rem;color:var(--muted)}
+.auth-help summary{cursor:pointer;font-weight:800;color:var(--text);min-height:32px}
+.auth-help ul{margin:8px 0 0;padding-left:18px;display:grid;gap:6px;line-height:1.45}
+.show-note{margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--yellow);border-radius:10px;background:#141b23;color:var(--muted);font-size:.85rem}

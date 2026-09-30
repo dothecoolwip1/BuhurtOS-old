@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  defaultPlatformConfig, eventCreationModes, listClaimRequests, loadPlatformConfig, registrationModes,
+  defaultPlatformConfig, eventCreationModes, listClaimRequests, loadPlatformConfigStatus, registrationModes,
   reviewClaimRequest, savePlatformSetting, settingLabels, type ClaimRequestRow, type PlatformConfig
 } from '../lib/platformConfig';
 
@@ -17,10 +17,11 @@ export function PlatformSettingsPanel({ isSuperAdmin }: { isSuperAdmin: boolean 
   const [claims, setClaims] = useState<ClaimRequestRow[]>([]);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  const [loadProblem, setLoadProblem] = useState('');
 
   useEffect(() => {
     let active = true;
-    loadPlatformConfig(true).then(value => { if (active) setConfig(value); });
+    loadPlatformConfigStatus(true).then(status => { if (active) { setConfig(status.config); setLoadProblem(status.error ?? (status.source === 'default' ? 'No live settings were returned, so launch defaults are shown.' : '')); } });
     if (isSuperAdmin) listClaimRequests().then(rows => { if (active) setClaims(rows); }).catch(() => undefined);
     return () => { active = false; };
   }, [isSuperAdmin]);
@@ -46,12 +47,14 @@ export function PlatformSettingsPanel({ isSuperAdmin }: { isSuperAdmin: boolean 
     <section className="panel-card">
       <h2>Adoption switches</h2>
       <p>One place to control how open the platform is. Public viewing always stays open.</p>
+      {loadProblem ? <p className="hint" role="alert">The live settings could not be confirmed: {loadProblem} The values shown may not match what is actually in effect; reload before changing anything.</p> : null}
       {!isSuperAdmin ? <p className="hint">Only platform super administrators can change these settings.</p> : null}
       <div className="form-stack">
         <label>{settingLabels.account_registration_mode}
           <select disabled={!isSuperAdmin || busy} value={config.accountRegistrationMode} onChange={e => change('account_registration_mode', e.target.value)}>
             {registrationModes.map(mode => <option key={mode} value={mode}>{settingLabels[mode]}</option>)}
           </select>
+          <small>Controls whether this site offers the sign-up form. It does not lock account creation at the authentication service, so treat it as guidance for visitors, not a security control. Event creation and claim switches below are enforced by the database.</small>
         </label>
         <label>{settingLabels.event_creation_mode}
           <select disabled={!isSuperAdmin || busy} value={config.eventCreationMode} onChange={e => change('event_creation_mode', e.target.value)}>
