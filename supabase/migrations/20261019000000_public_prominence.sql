@@ -48,7 +48,8 @@ as $$
    where t.featured and t.deleted_at is null and t.visibility = 'public' and t.is_active and t.status = 'active';
 $$;
 
--- Same row shape as public_team_directory_v3, restricted to featured teams.
+-- Same row shape as public_team_directory_v3, restricted to individually curated teams (teams.featured).
+-- Featuring an organization does NOT feature its teams.
 create or replace function public.public_featured_teams()
 returns table (
   id uuid, directory_slug text, organization_id uuid, organization_name text, organization_short_name text, team_name text,
@@ -63,8 +64,9 @@ as $$
   select d.*
     from public.public_team_directory_v2() d
     join private.public_featured_team_ids() f on f.team_id = d.id
-   order by f.featured_order nulls last, d.team_name;
-$$;
+   order by f.featured_order nulls last, d.team_name
+   limit 24; -- a small curated proof set, never a directory dump
+$;
 
 revoke all on function private.public_featured_organizations() from public, anon, authenticated;
 revoke all on function private.public_featured_team_ids() from public, anon, authenticated;
