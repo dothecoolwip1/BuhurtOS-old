@@ -115,6 +115,17 @@ const EVENT_EXTENDED_COLUMNS=EVENT_BASE_COLUMNS+',slug,host_team_id,image_path';
 /** Remembered for the session so a backend without the general-event columns is not probed on every load. */
 let extendedEventColumnsAvailable=true;
 
+/**
+ * Postgres 42703 / PostgREST PGRST204 mean "that column does not exist": the backend predates the general-event columns.
+ * Only that case may fall back to the legacy column list; every other failure must surface as an error.
+ */
+export function isMissingColumnError(error:unknown):boolean{
+  const e=error as {code?:string;message?:string}|null|undefined;
+  if(!e)return false;
+  if(e.code==='42703'||e.code==='PGRST204')return true;
+  return /column .* does not exist/i.test(e.message??'');
+}
+
 function mapEventRow(row:any):PublicEventSummary{
   const links=row.public_links??{};
   const linkedHost=typeof links.host_team_id==='string'?links.host_team_id:undefined;
@@ -137,7 +148,7 @@ export async function loadPublicEvents():Promise<PublicEventSummary[]>{
     .not('published_at','is',null)
     .order('starts_at',{ascending:true});
   let {data,error}=await query(extendedEventColumnsAvailable?EVENT_EXTENDED_COLUMNS:EVENT_BASE_COLUMNS);
-  if(error&&extendedEventColumnsAvailable){
+  if(error&&extendedEventColumnsAvailable&&isMissingColumnError(error)){
     extendedEventColumnsAvailable=false;
     ({data,error}=await query(EVENT_BASE_COLUMNS));
   }
@@ -191,12 +202,18 @@ export async function loadPublicEventDetails(id:string):Promise<PublicEventDetai
   if(!publicSupabase)return undefined;
   const cached=eventDetailCache.get(id);
   if(cached && isFresh(cached.at)) return cached.value;
-  const {data:eventRow,error:eventError}=await publicSupabase.from('events')
-    .select('id,organization_id,name,venue,starts_at,ends_at,organizer_name,event_type,standings_mode,status,timezone,public_description,public_links,registration_open,published_at')
+  const fetchEvent=(columns:string)=>publicSupabase!.from('events')
+    .select(columns)
     .eq('id',id)
     .in('status',['published','live','completed','cancelled'])
     .not('published_at','is',null)
     .maybeSingle();
+  let eventResult:{data:any;error:any}=await fetchEvent((extendedEventColumnsAvailable?EVENT_EXTENDED_COLUMNS:EVENT_BASE_COLUMNS)+',published_at');
+  if(eventResult.error&&extendedEventColumnsAvailable&&isMissingColumnError(eventResult.error)){
+    extendedEventColumnsAvailable=false;
+    eventResult=await fetchEvent(EVENT_BASE_COLUMNS+',published_at');
+  }
+  const {data:eventRow,error:eventError}=eventResult;
   if(eventError)throw eventError;
   if(!eventRow)return undefined;
 
@@ -234,22 +251,7 @@ export async function loadPublicEventDetails(id:string):Promise<PublicEventDetai
   }
 
   const result:PublicEventDetails = {
-    event:{
-      id:eventRow.id,
-      organizationId:eventRow.organization_id,
-      name:eventRow.name,
-      venue:eventRow.venue,
-      startsAt:eventRow.starts_at,
-      endsAt:eventRow.ends_at,
-      organizerName:eventRow.organizer_name??undefined,
-      eventType:eventRow.event_type,
-      standingsMode:eventRow.standings_mode,
-      status:eventRow.status,
-      timezone:eventRow.timezone,
-      publicDescription:eventRow.public_description??undefined,
-      publicLinks:eventRow.public_links??{},
-      registrationOpen:Boolean(eventRow.registration_open)
-    },
+    event:mapEventRow(eventRow),
     announcements:(announcementsRes.data??[]).map((row:any)=>({
       id:row.id,title:row.title,body:row.body,scheduledFor:row.scheduled_for??undefined,createdAt:row.created_at
     })),
