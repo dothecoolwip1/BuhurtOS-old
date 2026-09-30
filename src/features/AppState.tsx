@@ -40,7 +40,7 @@ const AppStateContext = createContext<AppStateValue | null>(null);
 function isProtectedOperationsRoute(): boolean {
   if (typeof window === 'undefined') return false;
   const route = window.location.hash.replace(/^#/, '').split('?')[0];
-  return (route === '/ops' || route.startsWith('/ops/')) && route !== '/ops/login';
+  return route === '/admin' || route.startsWith('/admin/') || route === '/me' || route.startsWith('/me/');
 }
 
 function requestedEventIdFromLocation(): string | undefined {
@@ -57,22 +57,28 @@ function currentHashRoute(): string {
   return window.location.hash.replace(/^#/, '').split('?')[0] || '/';
 }
 
+/** Pages that never need an event; they must not wait for (or fail on) an event snapshot. */
+const eventIndependentRoutes = new Set([
+  '/sign-in',
+  '/admin/events/setup',
+  '/admin/events/all',
+  '/admin/organizations',
+  '/admin/organizations/manage',
+  '/admin/teams',
+  '/admin/settings',
+  '/admin/people/accounts',
+  '/admin/people/codes',
+  '/admin/people/invite',
+  '/admin/people/identity-review',
+  '/admin/rules/divisions',
+  '/admin/rules/rulesets',
+  '/admin/rules/reference',
+  '/admin/system/sync'
+]);
+
 function routeNeedsEventSnapshot(): boolean {
   const route = currentHashRoute();
-  const eventIndependentRoutes = new Set([
-    '/ops/login',
-    '/ops/setup',
-    '/ops/access',
-    '/ops/access-admin',
-    '/ops/platform',
-    '/ops/codes',
-    '/ops/foundation',
-    '/ops/governance',
-    '/ops/invite',
-    '/ops/rulesets',
-    '/ops/identity',
-    '/ops/identity-review'
-  ]);
+  if (route === '/me' || route.startsWith('/me/')) return false;
   return !eventIndependentRoutes.has(route);
 }
 

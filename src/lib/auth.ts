@@ -1,9 +1,10 @@
+import { DEFAULT_SIGNED_IN_PATH, SAFE_RETURN_PREFIXES } from './navigation';
 import { supabase } from './supabase';
 
 export type AuthNotice = 'signed_out' | 'session_expired' | null;
 export type ExternalAuthMode = 'signin' | 'recovery';
 
-const DEFAULT_AUTH_RETURN = '/ops';
+const DEFAULT_AUTH_RETURN = DEFAULT_SIGNED_IN_PATH;
 
 export function sanitizeAuthReturnPath(value?: string | null): string {
   if (!value) return DEFAULT_AUTH_RETURN;
@@ -11,7 +12,7 @@ export function sanitizeAuthReturnPath(value?: string | null): string {
   try {
     const parsed = new URL(value, 'https://buhurtos.invalid');
     if (parsed.origin !== 'https://buhurtos.invalid') return DEFAULT_AUTH_RETURN;
-    if (parsed.pathname !== '/ops' && !parsed.pathname.startsWith('/ops/')) return DEFAULT_AUTH_RETURN;
+    if (!SAFE_RETURN_PREFIXES.some(prefix => parsed.pathname === prefix || parsed.pathname.startsWith(prefix + '/'))) return DEFAULT_AUTH_RETURN;
     return `${parsed.pathname}${parsed.search}`;
   } catch {
     return DEFAULT_AUTH_RETURN;
@@ -44,7 +45,7 @@ export function finishExternalAuthReturn(mode: ExternalAuthMode, next: string): 
   if (typeof window === 'undefined') return;
   const safeNext = sanitizeAuthReturnPath(next);
   const target = mode === 'recovery'
-    ? `/ops/login?mode=recovery&next=${encodeURIComponent(safeNext)}`
+    ? `/sign-in?mode=recovery&next=${encodeURIComponent(safeNext)}`
     : safeNext;
   window.history.replaceState({}, document.title, window.location.pathname);
   window.location.hash = `#${target}`;

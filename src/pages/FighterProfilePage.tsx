@@ -1,6 +1,7 @@
 import {useEffect,useState} from 'react';
 import {Link,useParams} from 'react-router-dom';
 import {Avatar,Panel,Pill} from '../components/ShowcaseUI';
+import {ListCrumbs} from '../components/chrome';
 import {loadPublicFighter,type PublicFighterSummary} from '../lib/publicDirectory';
 
 const initials=(n:string)=>n.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]?.toUpperCase()).join('');
@@ -15,6 +16,7 @@ export function FighterProfilePage(){
  if(error)return <div className="state-card"><strong>Unable to load fighter</strong><p>{error}</p><Link className="show-btn secondary" to="/fighters">Back to fighters</Link></div>;
  if(!fighter)return <div className="state-card"><h2>Fighter profile not found</h2><p>This may be a source-only roster name that has not yet been linked to a public BuhurtOS identity.</p><Link className="show-btn secondary" to="/fighters">Back to fighters</Link></div>;
  return <>
+  <ListCrumbs list="/fighters" label="Fighters" current={fighter.displayName}/>
   <div className="show-profile-hero fighter steel">
    {fighter.avatarPath?<img className="show-fighter-avatar-image profile" src={fighter.avatarPath} alt={fighter.displayName}/>:<Avatar initials={initials(fighter.displayName)} tone="steel" size="xl"/>}
    <div className="grow"><span className="eyebrow">PUBLIC FIGHTER PROFILE</span><h1>{fighter.nickname?fighter.displayName+' “'+fighter.nickname+'”':fighter.displayName}</h1><p>{fighter.publicRegion||'Region not published'}</p><div className="show-inline-pills">{fighter.verified?<Pill tone="green">Verified identity</Pill>:<Pill>Public profile</Pill>}</div></div>

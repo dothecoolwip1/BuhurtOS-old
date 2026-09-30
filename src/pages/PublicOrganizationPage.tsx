@@ -1,6 +1,7 @@
 import {useEffect,useState} from 'react';
 import {Link,useParams} from 'react-router-dom';
 import {PageHeader,Pill,Panel} from '../components/ShowcaseUI';
+import {ListCrumbs} from '../components/chrome';
 import {loadPublicOrganization,loadPublicOrganizationEvents,loadPublicOrganizationLinks,relationshipLabel,type PublicEventSummary,type PublicOrganizationLink,type PublicOrganizationSummary} from '../lib/publicDirectory';
 import type {PublicDirectoryTeam} from '../lib/teamDirectory';
 
@@ -22,6 +23,7 @@ export function PublicOrganizationPage(){
   if(!organization)return <div className="state-card"><h2>Organization not found</h2><Link className="show-btn secondary" to="/public">Back to public view</Link></div>;
 
   return <>
+    <ListCrumbs list="/governance" label="Organizations" current={organization.shortName}/>
     <PageHeader eyebrow={organization.kind} title={organization.name} description={organization.description} actions={<>{organization.websiteUrl?<a className="show-btn secondary" href={organization.websiteUrl} target="_blank" rel="noopener noreferrer">Official website ↗</a>:null}<Link className="show-btn primary" to="/teams">Browse teams</Link></>}/>
     <div className="show-stat-grid">
       <div className="show-stat accent"><span>Teams</span><strong>{organization.teamCount}</strong><small>Public directory</small></div>

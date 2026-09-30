@@ -119,7 +119,7 @@ export function EventManagementPage(){
   const removeAnnouncement=async(id:string)=>{setBusy(true);setMessage('');try{await deleteEventAnnouncement(event.id,id);await reload();setMessage('Announcement removed.');}catch(error){setMessage(error instanceof Error?error.message:'Unable to remove announcement.');}finally{setBusy(false);}};
 
   return <>
-    <section className="section-head"><div><span className="eyebrow">Event command centre</span><h1>Manage {event.name}</h1><p>Govern event publishing, registration, fields, clearances and public communications.</p></div>
+    <section className="section-head"><div><span className="eyebrow">Event settings</span><h1>Manage {event.name}</h1><p>Govern event publishing, registration, fields, clearances and public communications.</p></div>
       <div className="header-actions"><button className={tab==='settings'?'primary':''} onClick={()=>setTab('settings')}>Settings</button><button className={tab==='fields'?'primary':''} onClick={()=>setTab('fields')}>Fields</button><button className={tab==='registrations'?'primary':''} onClick={()=>setTab('registrations')}>Registrations {registrations.length>0?'('+registrations.length+')':''}</button><button className={tab==='announcements'?'primary':''} onClick={()=>setTab('announcements')}>Announcements</button></div>
     </section>
 

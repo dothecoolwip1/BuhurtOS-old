@@ -5,14 +5,17 @@ describe('account redirect safety', () => {
   it('keeps protected BuhurtOS return paths', () => {
     expect(sanitizeAuthReturnPath('/ops/bracket?event=abc')).toBe('/ops/bracket?event=abc');
     expect(sanitizeAuthReturnPath('/ops')).toBe('/ops');
+    expect(sanitizeAuthReturnPath('/admin/events/bracket?event=abc')).toBe('/admin/events/bracket?event=abc');
+    expect(sanitizeAuthReturnPath('/me/teams')).toBe('/me/teams');
+    expect(sanitizeAuthReturnPath(null)).toBe('/me');
   });
 
   it('rejects external protocol relative and lookalike redirects', () => {
-    expect(sanitizeAuthReturnPath('https://example.com/ops')).toBe('/ops');
-    expect(sanitizeAuthReturnPath('//example.com/ops')).toBe('/ops');
-    expect(sanitizeAuthReturnPath('/ops-evil')).toBe('/ops');
-    expect(sanitizeAuthReturnPath('/public')).toBe('/ops');
-    expect(sanitizeAuthReturnPath('/ops\\evil')).toBe('/ops');
+    expect(sanitizeAuthReturnPath('https://example.com/ops')).toBe('/me');
+    expect(sanitizeAuthReturnPath('//example.com/ops')).toBe('/me');
+    expect(sanitizeAuthReturnPath('/ops-evil')).toBe('/me');
+    expect(sanitizeAuthReturnPath('/public')).toBe('/me');
+    expect(sanitizeAuthReturnPath('/ops\\evil')).toBe('/me');
   });
 });
 

@@ -1,12 +1,13 @@
 import {useEffect,useMemo,useState} from 'react';
-import {Link} from 'react-router-dom';
+import {Link,useLocation} from 'react-router-dom';
+import {rememberListSearch,useQueryState} from '../lib/urlState';
 import {Avatar,LoadingGrid,PageHeader,Pill,StatePanel} from '../components/ShowcaseUI';
 import {loadPublicFighters,type PublicFighterSummary} from '../lib/publicDirectory';
 
 const initials=(n:string)=>n.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]?.toUpperCase()).join('');
 
 export function FightersPage(){
- const [query,setQuery]=useState('');
+ const [query,setQuery]=useQueryState('q'); const location=useLocation(); useEffect(()=>rememberListSearch('/fighters',location.search),[location.search]);
  const [fighters,setFighters]=useState<PublicFighterSummary[]>([]);
  const [loading,setLoading]=useState(true);
  const [error,setError]=useState('');

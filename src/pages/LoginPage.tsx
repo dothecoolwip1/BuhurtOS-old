@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import { useAppState } from '../features/AppState';
 import {
   requestPasswordReset,
@@ -98,7 +98,7 @@ export function LoginPage() {
   return <main className="auth-shell"><section className="auth-card">
     <span className="brand-mark large">B</span>
     <span className="eyebrow">BuhurtOS</span>
-    <h1>{mode === 'signup' ? 'Create Account' : mode === 'forgot' ? 'Reset Password' : mode === 'verify' ? 'Verify Email' : mode === 'recovery' ? 'Choose New Password' : 'Field Sign In'}</h1>
+    <h1>{mode === 'signup' ? 'Create Account' : mode === 'forgot' ? 'Reset Password' : mode === 'verify' ? 'Verify Email' : mode === 'recovery' ? 'Choose New Password' : 'Sign in'}</h1>
 
     {mode === 'signin' && <p>Use your BuhurtOS account. Public event pages never require a login.</p>}
     {mode === 'signup' && !registrationOpen && <p role="alert">New account registration is currently closed. Ask an organizer for an invitation.</p>}
@@ -140,5 +140,6 @@ export function LoginPage() {
     </>}
 
     {mode === 'recovery' && <button className="primary big" disabled={busy || !password || !confirmation} onClick={() => run('recovery')}>{busy ? 'Updating…' : 'Update Password'}</button>}
+    <p className="auth-back"><Link to="/public">← Back to the public site</Link></p>
   </section></main>;
 }

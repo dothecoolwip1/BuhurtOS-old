@@ -111,8 +111,8 @@ export function IdentityReviewPage() {
   return <>
     <section className="section-head">
       <div>
-        <span className="eyebrow">Identity governance</span>
-        <h1>Claims & Merge Review</h1>
+        <span className="eyebrow">People & access</span>
+        <h1>Fighter claims & duplicate review</h1>
         <p>Claims and duplicate suggestions require human review. Merge requests do not rewrite completed event roster references, results or historical match participation.</p>
       </div>
     </section>

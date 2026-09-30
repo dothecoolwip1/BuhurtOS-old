@@ -294,8 +294,8 @@ export function OrganizationManagementPage() {
   return <>
     <section className="section-head">
       <div>
-        <span className="eyebrow">Pack 4 operations</span>
-        <h1>Organizations, Clubs & Teams</h1>
+        <span className="eyebrow">Teams & members</span>
+        <h1>Teams, clubs & members</h1>
         <p>Manage governing relationships, club and team lifecycle, delegated leadership, historical memberships, applications, and secure invitations without rewriting sporting history.</p>
       </div>
       <div className="header-actions">

@@ -137,7 +137,7 @@ export function DisciplinePage() {
 
   return <>
     <section className="section-head">
-      <div><span className="eyebrow">Season discipline</span><h1>Cards &amp; Suspensions</h1><p>Cards stay tied to both the event and season so repeat issues can be reviewed across events. Suspensions block competition clearance while active.</p></div>
+      <div><span className="eyebrow">Event</span><h1>Cards &amp; suspensions</h1><p>Cards stay tied to both the event and season so repeat issues can be reviewed across events. Suspensions block competition clearance while active.</p></div>
       <div className="header-actions">
         <button onClick={() => downloadText('buhurtos-discipline-cards.csv', disciplineCsv(cards.map(c => ({ name: name(c.rosterEntryId), color: c.color, reason: c.reason, notes: c.notes, issuedAt: c.issuedAt }))))}>Export cards CSV</button>
         <button onClick={() => downloadText('buhurtos-suspensions.csv', suspensionsCsv(suspensions.map(s => ({ name: fighterName(s.fighterId, s.rosterEntryId), reason: s.reason, startsAt: s.startsAt, endsAt: s.endsAt, status: suspensionStatus(s), revokedAt: s.revokedAt }))))}>Export suspensions CSV</button>

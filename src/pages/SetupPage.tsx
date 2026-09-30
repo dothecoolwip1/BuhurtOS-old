@@ -11,7 +11,7 @@ import type { RulesetRecord } from '../types';
 
 const toIso=(value:string)=>new Date(value).toISOString();
 const initialYear=new Date().getFullYear();
-const openEvent=(eventId:string)=>{window.location.hash=`/ops?event=${encodeURIComponent(eventId)}`;};
+const openEvent=(eventId:string)=>{window.location.hash=`/admin/events/run?event=${encodeURIComponent(eventId)}`;};
 
 export function SetupPage(){
   const {user}=useAppState();
@@ -141,7 +141,7 @@ export function SetupPage(){
   },'Event created.');
 
   return <>
-    <section className="section-head"><div><span className="eyebrow">Organizations & governed seasons</span><h1>BuhurtOS Setup</h1><p>Build organization, season, and event boundaries without rewriting historical competition policy later.</p></div></section>
+    <section className="section-head"><div><span className="eyebrow">Organizations</span><h1>Seasons & new events</h1><p>Build organization, season, and event boundaries without rewriting historical competition policy later.</p></div></section>
     {!platformAdmin&&user.organizationRoles.length===0&&<section className="panel-card setup-callout"><h2>Bootstrap first administrator</h2><p>Only a brand-new BuhurtOS database can claim this one-time platform administrator role.</p><button className="primary" disabled={busy} onClick={claim}>Claim First Platform Admin</button></section>}
     <div className="admin-grid">
       <section className="panel-card"><h2>Organization</h2>

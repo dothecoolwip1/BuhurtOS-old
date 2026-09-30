@@ -71,7 +71,7 @@ export function DelegatedAccessPage(){
   return <>
     <section className="section-head">
       <div>
-        <span className="eyebrow">Delegated onboarding</span>
+        <span className="eyebrow">People & access</span>
         <h1>Access Codes</h1>
         <p>Create codes only for groups and roles below your authority. The server enforces the hierarchy, so a subgroup cannot promote itself above its parent.</p>
       </div>

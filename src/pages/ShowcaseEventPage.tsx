@@ -3,6 +3,7 @@ import {Link,useParams} from 'react-router-dom';
 import {PageHeader,Panel,Pill} from '../components/ShowcaseUI';
 import {FighterSignupModal} from '../components/FighterSignupModal';
 import {loadPublicEventDetails,type PublicEventDetails} from '../lib/publicDirectory';
+import {ListCrumbs} from '../components/chrome';
 import {eventCategoryLabel,eventCategoryTone,eventModules,isCompetitionCapable} from '../lib/eventCategories';
 import {eventImageThumbUrl,eventImageUrl} from '../lib/eventMedia';
 import {loadOfficialEventStats} from '../lib/publicStats';
@@ -27,6 +28,7 @@ export function EventDetailView({details,onFighterSignup,stats}:{details:PublicE
   const modules=eventModules(event.eventType,{divisions:details.divisions.length,matches:details.matches.length,fields:details.fields.length});
   const upcomingMatches=details.matches.filter(match=>!['completed','finalized','cancelled'].includes(match.status));
   return <>
+    <ListCrumbs list="/events" label="Events" current={event.name}/>
     {event.imagePath?<figure className="event-hero-media"><picture><source media="(max-width: 640px)" srcSet={eventImageThumbUrl(event.imagePath,640)}/><img src={eventImageUrl(event.imagePath)} alt={event.name+' poster'} decoding="async" fetchPriority="high"/></picture></figure>:null}
     <PageHeader
       eyebrow={event.status==='live'?'LIVE EVENT':'PUBLISHED EVENT'}
@@ -35,7 +37,7 @@ export function EventDetailView({details,onFighterSignup,stats}:{details:PublicE
       actions={<>
         {modules.fighterSignup?<button className="show-btn primary" type="button" onClick={()=>onFighterSignup()}>Fighter signup</button>:null}
         {facebook?<a className="show-btn secondary" href={facebook} target="_blank" rel="noopener noreferrer">Facebook event ↗</a>:null}
-        <Link className="show-btn secondary" to={'/ops/manage?event='+event.id}>Organizer tools</Link>
+        <Link className="show-btn secondary" to={'/admin/events/manage?event='+event.id}>Organizer tools</Link>
       </>}
     />
 

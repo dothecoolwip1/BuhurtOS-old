@@ -13,7 +13,7 @@ export function SyncPage() {
   const discard = async (id: string) => { await discardMutation(id); await refreshQueue(); await load(); };
   const sync = async () => { setBusy(true); try { await syncNow(); await load(); } finally { setBusy(false); } };
   return <>
-    <section className="section-head"><div><span className="eyebrow">Offline recovery</span><h1>Sync Queue</h1><p>Queued field actions stay on this device until the server accepts them. Conflicts require an explicit decision instead of silently overwriting another marshal.</p></div><div className="header-actions"><button disabled={!online || busy} onClick={sync}>{busy ? 'Syncing…' : 'Sync Now'}</button></div></section>
+    <section className="section-head"><div><span className="eyebrow">This device</span><h1>Offline sync</h1><p>Queued field actions stay on this device until the server accepts them. Conflicts require an explicit decision instead of silently overwriting another marshal.</p></div><div className="header-actions"><button disabled={!online || busy} onClick={sync}>{busy ? 'Syncing…' : 'Sync Now'}</button></div></section>
     {!online && <div className="state-card">This device is offline. You can inspect or discard queued work, and BuhurtOS will retry automatically when the connection returns.</div>}
     {items.length === 0 ? <div className="state-card">No queued, failed, or conflicted actions.</div> : <div className="sync-list">{items.map(item => <article className="sync-item" key={item.id}>
       <div className="sync-item-head"><div><strong>{item.entity.replaceAll('_',' ')}</strong><div><code>{item.entityId}</code></div></div><span className={`sync-state ${item.state}`}>{item.state}</span></div>

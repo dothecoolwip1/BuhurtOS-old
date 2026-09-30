@@ -1,6 +1,7 @@
 import {useEffect,useState} from 'react';import {Link,useParams} from 'react-router-dom';
 import {loadPublicTeamDetail,loadPublicTeamDirectory,loadPublicTeamRoster,type PublicDirectoryTeam,type PublicRosterMember,type PublicTeamDetail} from '../lib/teamDirectory';
 import {Panel,Pill} from '../components/ShowcaseUI';
+import {ListCrumbs} from '../components/chrome';
 import {loadOfficialTeamStats,loadTeamProvenance,provenanceToCard,type PublicTeamStats} from '../lib/publicStats';
 import {summarizeRecord} from '../lib/canonicalStats';
 const initials=(n:string)=>n.replace(/^The\s+/i,'').split(/\s+/).filter(Boolean).slice(0,3).map(x=>x[0]?.toUpperCase()).join('');
@@ -13,6 +14,7 @@ export function TeamPage(){
  if(!team)return <div className="state-card"><h2>Team not found</h2><Link className="show-btn secondary" to="/teams">Back to teams</Link></div>;
  const recent=[...(detail?.tournamentsJoined??[])].sort((a,b)=>String(b.date??'').localeCompare(String(a.date??''))).slice(0,8);
  return <>
+ <ListCrumbs list="/teams" label="Teams" current={team.name}/>
  <div className="show-profile-hero team official-team-hero">
    {detail?.logoPath||team.logoPath?<img className="show-team-logo-image" src={detail?.logoPath??team.logoPath} alt={team.name+' logo'}/>:<div className="show-team-logo-xl">{initials(team.name)}</div>}
    <div className="grow"><span className="eyebrow">PUBLIC TEAM PROFILE</span><h1>{team.name}</h1>

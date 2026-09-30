@@ -53,7 +53,7 @@ export function FighterSignupAdminPage(){
   };
 
   return <>
-    <section className="section-head"><div><span className="eyebrow">Event intake</span><h1>Fighter Signups</h1><p>{event.name} · preliminary fighter interest stored privately in BuhurtOS.</p></div></section>
+    <section className="section-head"><div><span className="eyebrow">Event entries</span><h1>Fighter Signups</h1><p>{event.name} · preliminary fighter interest stored privately in BuhurtOS.</p></div></section>
     <div className="admin-grid">
       <section className="panel-card">
         <h2>Create fighter signup code</h2>

@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState} from 'react';
-import {Link} from 'react-router-dom';
+import {Link,useLocation} from 'react-router-dom';
+import {rememberListSearch,useQueryState} from '../lib/urlState';
 import {LoadingGrid,PageHeader,Pill,StatePanel} from '../components/ShowcaseUI';
 import {loadPublicEvents,loadPublicOrganizations,type PublicEventSummary,type PublicOrganizationSummary} from '../lib/publicDirectory';
 import {downloadText} from '../lib/export';
@@ -20,10 +21,12 @@ export function ShowcaseEventsPage(){
  const [orgs,setOrgs]=useState<PublicOrganizationSummary[]>([]);
  const [loading,setLoading]=useState(true);
  const [error,setError]=useState('');
- const [when,setWhen]=useState<'upcoming'|'past'>('upcoming');
- const [category,setCategory]=useState('all');
- const [organizationId,setOrganizationId]=useState('all');
- const [teamId,setTeamId]=useState('all');
+ const [whenValue,setWhen]=useQueryState('when','upcoming');
+ const when=(whenValue==='past'?'past':'upcoming') as 'upcoming'|'past';
+ const [category,setCategory]=useQueryState('category','all');
+ const [organizationId,setOrganizationId]=useQueryState('org','all');
+ const [teamId,setTeamId]=useQueryState('team','all');
+ const location=useLocation(); useEffect(()=>rememberListSearch('/events',location.search),[location.search]);
  useEffect(()=>{let active=true;
   loadPublicEvents().then(rows=>{if(active)setEvents(rows)}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load published events.')}).finally(()=>{if(active)setLoading(false)});
   loadPublicOrganizations().then(rows=>{if(active)setOrgs(rows)}).catch(()=>{});
@@ -58,7 +61,7 @@ export function ShowcaseEventsPage(){
      const cta=eventCta(event.eventType,{registrationOpen:Boolean(event.registrationOpen),hasLink:true,status:event.status});
      return <Link to={'/events/'+event.id} key={event.id} className="show-event-card">
       <div className="show-event-card-top"><div><span className="eyebrow">{orgName.get(event.organizationId)||event.organizerName||'BUHURTOS'}</span><h2>{event.name}</h2><p>{dateText(event)} · {event.venue}</p></div>
-       <div className="show-inline-pills"><Pill tone={eventCategoryTone(event.eventType)}>{eventCategoryLabel(event.eventType)}</Pill>{event.status!=='published'?<Pill tone={event.status==='live'?'red':event.status==='cancelled'?'amber':'neutral'}>{label(event.status)}</Pill>:null}</div></div>
+       <div className="show-inline-pills"><Pill tone={eventCategoryTone(event.eventType)}>{eventCategoryLabel(event.eventType)}</Pill>{when==='upcoming'&&event.status!=='cancelled'?<Pill tone={event.registrationOpen?'green':'neutral'}>{event.registrationOpen?'Registration open':'Registration not open yet'}</Pill>:null}{event.status!=='published'?<Pill tone={event.status==='live'?'red':event.status==='cancelled'?'amber':'neutral'}>{label(event.status)}</Pill>:null}</div></div>
       <div className="show-event-footer"><span><small>HOST</small><b>{event.organizerName||orgName.get(event.organizationId)||'TBA'}</b></span><span><small>DATES</small><b>{dateText(event)}</b></span><i>{cta.label} →</i></div>
      </Link>})}</div>
    </section>)}

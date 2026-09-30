@@ -269,8 +269,8 @@ export function FoundationPage() {
   return <>
     <section className="section-head">
       <div>
-        <span className="eyebrow">Permanent foundation</span>
-        <h1>Identity, Clubs & Divisions</h1>
+        <span className="eyebrow">Rules & structure</span>
+        <h1>Fighters, clubs & divisions</h1>
         <p>Manage durable fighter identities and history separately from event-day roster entries. Claims and merges preserve the roster IDs already referenced by matches and results.</p>
       </div>
     </section>

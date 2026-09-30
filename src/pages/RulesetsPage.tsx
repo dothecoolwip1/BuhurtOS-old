@@ -199,7 +199,7 @@ export function RulesetsPage(){
   const hasPublicSource=sources.some(source=>source.sourceKind!=='internal');
 
   return <>
-    <section className="section-head"><div><span className="eyebrow">Versioned policy engine</span><h1>Rulesets</h1><p>Source, review, publish, inherit, and snapshot the exact policy version used by an event. Eligibility, scoring, tournament, and ranking policy stay separate.</p></div></section>
+    <section className="section-head"><div><span className="eyebrow">Rules & structure</span><h1>Rulesets</h1><p>Source, review, publish, inherit, and snapshot the exact policy version used by an event. Eligibility, scoring, tournament, and ranking policy stay separate.</p></div></section>
 
     <div className="admin-grid">
       <section className="panel-card"><h2>Create ruleset version</h2><div className="form-stack">

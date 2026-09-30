@@ -16,10 +16,10 @@ export function AccessCodePage() {
     setBusy(true);
     setMessage('');
     try {
-      let destination = '/ops';
+      let destination = '/me';
       try {
         const delegated = await redeemDelegatedAccessCode(code);
-        destination = '/ops/codes';
+        destination = '/me';
         setMessage('Access granted: ' + delegated.targetName + ' · ' + delegated.role.replaceAll('_',' ') + '.');
       } catch (delegatedError) {
         const text = delegatedError instanceof Error ? delegatedError.message : '';
@@ -37,8 +37,8 @@ export function AccessCodePage() {
   };
 
   return <section className="panel-card">
-    <span className="eyebrow">Access & membership</span>
-    <h1>Enter your BuhurtOS code</h1>
+    <span className="eyebrow">My workspace</span>
+    <h1>Join with a code</h1>
     <p>{user.hasPlatformAccess ? 'Your account already has BuhurtOS access. You can still enter another code to join an organization, club or team.' : 'Public teams, fighters, events, rankings and rules remain open. Enter the code supplied by your parent group to unlock the correct BuhurtOS access and role.'}</p>
     <label className="form-stack">Access code
       <input
@@ -55,6 +55,6 @@ export function AccessCodePage() {
     </button>
     {message && <div className="auth-message" role="status">{message}</div>}
     {user.hasPlatformAccess && <p><small>Your current platform access stays active. Redeeming a subgroup code adds the scoped membership carried by that code.</small></p>}
-    {!user.hasPlatformAccess && <p><small>If you are setting up a brand-new BuhurtOS database, the first account can use the one-time <Link to="/ops/setup">platform admin bootstrap</Link>.</small></p>}
+    {!user.hasPlatformAccess && <p><small>If you are setting up a brand-new BuhurtOS database, the first account can use the one-time <Link to="/admin/events/setup">platform admin bootstrap</Link>.</small></p>}
   </section>;
 }

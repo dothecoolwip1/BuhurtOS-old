@@ -51,11 +51,14 @@ const requiredRoutes=[
   'path="/events/:eventId"',
   'path="/rankings"',
   'path="/rules"',
-  'path="/ops/login"',
-  'path="platform"',
-  'path="codes"',
-  'path="manage"',
-  'path="signups"'
+  'path="/sign-in"',
+  'path="/me"',
+  'path="/admin"',
+  'path="events/manage"',
+  'path="events/signups"',
+  'path="people/codes"',
+  'path="settings"',
+  'path="/ops/*"'
 ];
 for(const route of requiredRoutes){
   if(!appSource.includes(route))bad.push('src/App.tsx: missing required Pack 1 route '+route+'.');

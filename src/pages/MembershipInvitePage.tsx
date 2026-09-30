@@ -33,11 +33,11 @@ export function MembershipInvitePage() {
   };
 
   return <section className="panel-card">
-    <span className="eyebrow">Membership invitation</span>
-    <h1>Join through BuhurtOS</h1>
+    <span className="eyebrow">Invitation</span>
+    <h1>Accept your invitation</h1>
     <p>The invitation is tied to the email address it was issued to. BuhurtOS will also verify that the issuer still has authority to grant the requested role.</p>
     {!accepted && <button className="primary big" disabled={busy} onClick={accept}>{busy ? 'Checking InvitationΓÇª' : 'Accept Invitation'}</button>}
     {message && <div className="auth-message">{message}</div>}
-    {accepted && <Link className="primary big" to="/ops/governance">Open Organizations & Teams</Link>}
+    {accepted && <Link className="primary big" to="/admin/organizations/manage">Open Organizations & Teams</Link>}
   </section>;
 }

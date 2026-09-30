@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState} from 'react';
-import {Link} from 'react-router-dom';
+import {Link,useLocation} from 'react-router-dom';
+import {rememberListSearch,useQueryStates} from '../lib/urlState';
 import {loadPublicTeamDirectory,type PublicDirectoryTeam} from '../lib/teamDirectory';
 import {LoadingGrid,PageHeader,Pill,StatePanel} from '../components/ShowcaseUI';
 import {PublicTeamMap} from '../components/PublicTeamMap';
@@ -7,8 +8,8 @@ import {PublicTeamMap} from '../components/PublicTeamMap';
 const initials=(n:string)=>n.replace(/^The\s+/i,'').split(/\s+/).filter(Boolean).slice(0,3).map(x=>x[0]?.toUpperCase()).join('');
 
 export function TeamsPage(){
- const [query,setQuery]=useState(''); const [org,setOrg]=useState('all'); const [country,setCountry]=useState('all'); const [region,setRegion]=useState('all');
- const [directory,setDirectory]=useState<PublicDirectoryTeam[]>([]); const [loading,setLoading]=useState(true); const [error,setError]=useState(''); const [view,setView]=useState<'directory'|'map'>('directory'); const [visibleCount,setVisibleCount]=useState(60);
+ const [filters,setFilters]=useQueryStates({q:'',org:'all',country:'all',region:'all',view:'directory'}); const query=filters.q,org=filters.org,country=filters.country,region=filters.region,view=(filters.view==='map'?'map':'directory') as 'directory'|'map'; const setQuery=(v:string)=>setFilters({q:v}),setOrg=(v:string)=>setFilters({org:v}),setRegion=(v:string)=>setFilters({region:v}),setView=(v:'directory'|'map')=>setFilters({view:v}); const location=useLocation(); useEffect(()=>rememberListSearch('/teams',location.search),[location.search]);
+ const [directory,setDirectory]=useState<PublicDirectoryTeam[]>([]); const [loading,setLoading]=useState(true); const [error,setError]=useState(''); const [visibleCount,setVisibleCount]=useState(60);
  useEffect(()=>{let active=true;loadPublicTeamDirectory().then(x=>{if(active)setDirectory(x)}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load the team directory.')}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[]);
  const orgs=useMemo(()=>[...new Set(directory.map(x=>x.organizationShortName).filter(Boolean))].sort(),[directory]);
  const countries=useMemo(()=>[...new Set(directory.map(x=>x.countryName).filter(x=>x&&x!=='Country pending'))].sort(),[directory]);
@@ -21,7 +22,7 @@ export function TeamsPage(){
    actions={<label className="show-search"><span>⌕</span><input aria-label="Search teams" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search team, captain, city, region or country"/></label>}/>
   <div className="public-directory-toolbar">
    <div className="show-filter-row"><select aria-label='Filter by organization' value={org} onChange={e=>setOrg(e.target.value)}><option value="all">All organizations</option>{orgs.map(x=><option key={x}>{x}</option>)}</select>
-   <select aria-label='Filter by country' value={country} onChange={e=>{setCountry(e.target.value);setRegion('all')}}><option value="all">All countries</option>{countries.map(x=><option key={x}>{x}</option>)}</select>
+   <select aria-label='Filter by country' value={country} onChange={e=>setFilters({country:e.target.value,region:'all'})}><option value="all">All countries</option>{countries.map(x=><option key={x}>{x}</option>)}</select>
    {regions.length>1?<select aria-label='Filter by region' value={region} onChange={e=>setRegion(e.target.value)}><option value='all'>All regions</option>{regions.map(x=><option key={x}>{x}</option>)}</select>:null}</div>
    <div className="directory-view-switch"><button className={view==='directory'?'selected':''} onClick={()=>setView('directory')}>☷ Directory</button><button className={view==='map'?'selected':''} onClick={()=>setView('map')}>⌖ Map</button></div>
   </div>

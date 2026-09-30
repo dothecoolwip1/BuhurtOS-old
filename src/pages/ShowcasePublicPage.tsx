@@ -58,7 +58,7 @@ const visitorPaths:Record<VisitorKey,{label:string,title:string,copy:string,acti
     label:'I help run the sport',
     title:'This is where BuhurtOS becomes an operating system.',
     copy:'Organizations, teams and event staff can use the same underlying records for public discovery, access control, registration and event operations instead of rebuilding the same information in separate tools.',
-    actions:[['See the organization structure','/governance'],['Sign in to manage','/ops/login']]
+    actions:[['See the organization structure','/governance'],['Sign in to manage','/sign-in']]
   }
 };
 
@@ -331,7 +331,7 @@ export function ShowcasePublicPage(){
 
     <section className="bhome-final-cta">
       <div><span className="eyebrow">YOU KNOW ENOUGH TO START EXPLORING</span><h2>Pick a team. Open an event. Learn the sport.</h2><p>BuhurtOS should make sense before you ever need an account.</p></div>
-      <div><Link className="show-btn primary bhome-big-btn" to="/teams">Explore BuhurtOS →</Link><Link className="show-btn secondary bhome-big-btn" to="/ops/login">Sign in / manage</Link></div>
+      <div><Link className="show-btn primary bhome-big-btn" to="/teams">Explore BuhurtOS →</Link><Link className="show-btn secondary bhome-big-btn" to="/sign-in">Sign in / manage</Link></div>
     </section>
 
     <footer className="bhome-footer-note">

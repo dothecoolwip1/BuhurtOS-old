@@ -55,12 +55,12 @@ export function OpsPage() {
 
   if (loading) return <div className="state-card">Loading tournament operations…</div>;
   const requestedEvent = typeof window !== 'undefined' ? new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('event') : null;
-  if (isPlatformSuperAdmin && !requestedEvent) return <Navigate to="/ops/platform" replace/>;
+  if (isPlatformSuperAdmin && !requestedEvent) return <Navigate to="/admin" replace/>;
   if (error) return <div className="state-card error">{error}</div>;
 
   return <>
     <section className="hero-grid">
-      <div className="hero-card"><span className="eyebrow">Field status</span><h1>Marshal Console</h1><p>Each field has its own fight order, active match, on-deck match, and bullpen state.</p></div>
+      <div className="hero-card"><span className="eyebrow">Fight day</span><h1>Run fights</h1><p>Each field has its own fight order, active match, on-deck match, and bullpen state.</p></div>
       <div className="bullpen"><div><span>NOW</span><strong>{active?.label ?? 'No active match'}</strong></div><div><span>ON DECK</span><strong>{onDeck?.label ?? 'None'}</strong></div><div><span>IN THE HOLE</span><strong>{inHole?.label ?? 'None'}</strong></div></div>
     </section>
 
@@ -68,7 +68,7 @@ export function OpsPage() {
       {fieldOptions.map(field => <button key={field.id} className={field.id===activeFieldId?'selected':''} onClick={()=>setSelectedField(field.id)}><b>{field.name}</b><small>{matches.filter(match => field.id==='unassigned' ? !match.fightCardId || !fightCards.some(card => card.id===match.fightCardId) : match.fightCardId===field.id).filter(match=>match.status!=='finalized'&&match.status!=='cancelled').length} remaining</small></button>)}
     </div>
 
-    <section className="section-head"><div><span className="eyebrow">Fight card</span><h2>{activeField?.listName ?? activeField?.name ?? 'Field Order'}</h2></div><div className="header-actions">{active ? <Link className="rules-fight-link" to={`/ops/marshal-reference?format=${encodeURIComponent(active.category)}`}>§ Rules for this fight</Link> : <Link className="rules-fight-link" to="/ops/marshal-reference">§ BI rules</Link>}<button onClick={exportCard}>Export card CSV</button><button onClick={printCard}>Print / PDF</button><span>{ordered.filter(m => m.status !== 'finalized' && m.status !== 'cancelled').length} remaining</span></div></section>
+    <section className="section-head"><div><span className="eyebrow">Fight card</span><h2>{activeField?.listName ?? activeField?.name ?? 'Field Order'}</h2></div><div className="header-actions">{active ? <Link className="rules-fight-link" to={`/admin/rules/reference?format=${encodeURIComponent(active.category)}`}>§ Rules for this fight</Link> : <Link className="rules-fight-link" to="/admin/rules/reference">§ BI rules</Link>}<button onClick={exportCard}>Export card CSV</button><button onClick={printCard}>Print / PDF</button><span>{ordered.filter(m => m.status !== 'finalized' && m.status !== 'cancelled').length} remaining</span></div></section>
     {ordered.length===0 ? <div className="state-card">No matches are assigned to this field.</div> : <div className="match-list">{ordered.map(match => <MatchCard key={match.id} match={match} roster={roster} onScore={canScore ? () => setScoring(match) : undefined} onMove={canReorder ? d => reorderMatch(match.id, d) : undefined} onStatus={canReorder ? status => setMatchStatus(match.id, status) : undefined} />)}</div>}
     {scoring && <ScoreDialog match={scoring} roster={roster} onClose={() => setScoring(null)} onSubmit={(rounds, forfeit) => finalizeResult(scoring.id, rounds, forfeit)} />}
   </>;

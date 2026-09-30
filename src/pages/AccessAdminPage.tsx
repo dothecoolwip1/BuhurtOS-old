@@ -96,8 +96,8 @@ export function AccessAdminPage() {
 
   return <>
     <section className="section-head"><div>
-      <span className="eyebrow">Platform control</span>
-      <h1>Early Access Codes</h1>
+      <span className="eyebrow">People & access</span>
+      <h1>Accounts & early access</h1>
       <p>Control entry into the live BuhurtOS operations system without changing team, marshal, fighter or organization roles.</p>
     </div></section>
 

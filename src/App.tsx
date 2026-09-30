@@ -1,7 +1,10 @@
 import { lazy, Suspense } from 'react';
 import { HashRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { ShowcaseShell } from './components/ShowcaseShell';
-import { Layout } from './components/Layout';
+import { AdminShell } from './components/AdminShell';
+import { WorkspaceShell } from './components/WorkspaceShell';
+import { AccountProvider } from './features/Account';
+import { legacyRedirects, resolveLegacyPath } from './lib/navigation';
 import { RequirePermission } from './components/RequirePermission';
 import { AppStateProvider, useAppState } from './features/AppState';
 
@@ -9,10 +12,8 @@ const PublicOrganizationPage = lazy(() => import('./pages/PublicOrganizationPage
 const GovernancePage = lazy(() => import('./pages/GovernancePage').then(module => ({ default: module.GovernancePage })));
 const TeamsPage = lazy(() => import('./pages/TeamsPage').then(module => ({ default: module.TeamsPage })));
 const TeamPage = lazy(() => import('./pages/TeamPage').then(module => ({ default: module.TeamPage })));
-const TeamHQPage = lazy(() => import('./pages/TeamHQPage').then(module => ({ default: module.TeamHQPage })));
 const FightersPage = lazy(() => import('./pages/FightersPage').then(module => ({ default: module.FightersPage })));
 const FighterProfilePage = lazy(() => import('./pages/FighterProfilePage').then(module => ({ default: module.FighterProfilePage })));
-const MyProfilePage = lazy(() => import('./pages/MyProfilePage').then(module => ({ default: module.MyProfilePage })));
 const EmbedEventsPage = lazy(() => import('./pages/EmbedPages').then(module => ({ default: module.EmbedEventsPage })));
 const EmbedEventPage = lazy(() => import('./pages/EmbedPages').then(module => ({ default: module.EmbedEventPage })));
 const EmbedTeamPage = lazy(() => import('./pages/EmbedPages').then(module => ({ default: module.EmbedTeamPage })));
@@ -23,6 +24,10 @@ const ShowcaseEventPage = lazy(() => import('./pages/ShowcaseEventPage').then(mo
 const ShowcaseRankingsPage = lazy(() => import('./pages/ShowcaseRankingsPage').then(module => ({ default: module.ShowcaseRankingsPage })));
 const ShowcaseRulesPage = lazy(() => import('./pages/ShowcaseRulesPage').then(module => ({ default: module.ShowcaseRulesPage })));
 const ShowcasePublicPage = lazy(() => import('./pages/ShowcasePublicPage').then(module => ({ default: module.ShowcasePublicPage })));
+const WorkspaceHome = lazy(() => import('./pages/WorkspaceHome').then(module => ({ default: module.WorkspaceHome })));
+const WorkspaceTeams = lazy(() => import('./pages/WorkspaceTeams').then(module => ({ default: module.WorkspaceTeams })));
+const AdminHome = lazy(() => import('./pages/AdminHome').then(module => ({ default: module.AdminHome })));
+const SettingsPage = lazy(() => import('./pages/SettingsPage').then(module => ({ default: module.SettingsPage })));
 const LoginPage = lazy(() => import('./pages/LoginPage').then(module => ({ default: module.LoginPage })));
 const OpsPage = lazy(() => import('./pages/OpsPage').then(module => ({ default: module.OpsPage })));
 const RosterPage = lazy(() => import('./pages/RosterPage').then(module => ({ default: module.RosterPage })));
@@ -53,21 +58,37 @@ function OperationsProvider() {
   return <AppStateProvider><Outlet /></AppStateProvider>;
 }
 
-function OperationalGate() {
+function signInRedirect(location: { pathname: string; search: string }, reason?: string | null) {
+  const next = encodeURIComponent(location.pathname + location.search);
+  return `/sign-in?next=${next}${reason ? '&reason=' + encodeURIComponent(reason) : ''}`;
+}
+
+/** My workspace: any signed-in person. No platform access or event data is required. */
+function WorkspaceGate() {
+  const { authReady, authNotice, user, dataMode } = useAppState();
+  const location = useLocation();
+  if (dataMode === 'supabase' && !authReady) return <div className="state-card" role="status">Checking account access…</div>;
+  if (dataMode === 'supabase' && !user) return <Navigate to={signInRedirect(location, authNotice)} replace />;
+  return <WorkspaceShell />;
+}
+
+/** Administration: signed in, with platform access. Redeeming a code and accepting an invitation stay reachable. */
+function AdminGate() {
   const { loading, authReady, authNotice, user, dataMode } = useAppState();
   const location = useLocation();
-  if (dataMode === 'supabase' && !authReady) return <div className="state-card">Checking account access…</div>;
-  if (dataMode === 'supabase' && !user) {
-    const next = encodeURIComponent(location.pathname + location.search);
-    const reason = authNotice ? `&reason=${encodeURIComponent(authNotice)}` : '';
-    return <Navigate to={`/ops/login?next=${next}${reason}`} replace />;
-  }
-  const accessBypass = location.pathname === '/ops/access' || location.pathname === '/ops/setup';
-  if (dataMode === 'supabase' && user && !user.hasPlatformAccess && !accessBypass) {
-    return <Navigate to="/ops/access" replace />;
-  }
-  if (loading) return <div className="state-card">Loading tournament operations…</div>;
-  return <Layout />;
+  if (dataMode === 'supabase' && !authReady) return <div className="state-card" role="status">Checking account access…</div>;
+  if (dataMode === 'supabase' && !user) return <Navigate to={signInRedirect(location, authNotice)} replace />;
+  const reachableWithoutAccess = location.pathname === '/admin/events/setup' || location.pathname === '/admin/people/invite';
+  if (dataMode === 'supabase' && user && !user.hasPlatformAccess && !reachableWithoutAccess) return <Navigate to="/me/join" replace />;
+  if (loading) return <div className="state-card" role="status">Loading…</div>;
+  return <AdminShell />;
+}
+
+/** Old /ops links (emails, bookmarks, chats) keep working. */
+function LegacyRedirect() {
+  const location = useLocation();
+  const target = resolveLegacyPath(location.pathname, location.search) ?? '/admin';
+  return <Navigate to={target} replace />;
 }
 
 function RouteFallback() {
@@ -75,13 +96,15 @@ function RouteFallback() {
 }
 
 export function App(){
-  return <HashRouter><Suspense fallback={<RouteFallback/>}><Routes>
+  return <HashRouter><AccountProvider><Suspense fallback={<RouteFallback/>}><Routes>
     <Route path="/" element={<Navigate to="/public" replace/>}/>
     <Route path="/about" element={<Navigate to="/public" replace/>}/>
     <Route path="/embed/events" element={<EmbedEventsPage/>}/>
     <Route path="/embed/event/:eventId" element={<EmbedEventPage/>}/>
     <Route path="/embed/team/:slug" element={<EmbedTeamPage/>}/>
     <Route path="/embed/standings/:eventId" element={<EmbedStandingsPage/>}/>
+
+    {/* PUBLIC SITE */}
     <Route element={<ShowcaseShell/>}>
       <Route path="/public" element={<ShowcasePublicPage/>}/>
       <Route path="/home" element={<Navigate to="/public" replace/>}/>
@@ -89,10 +112,8 @@ export function App(){
       <Route path="/governance" element={<GovernancePage/>}/>
       <Route path="/teams" element={<TeamsPage/>}/>
       <Route path="/teams/:teamId" element={<TeamPage/>}/>
-      <Route path="/team-hq" element={<TeamHQPage/>}/>
       <Route path="/fighters" element={<FightersPage/>}/>
       <Route path="/fighters/:fighterId" element={<FighterProfilePage/>}/>
-      <Route path="/me" element={<MyProfilePage/>}/>
       <Route path="/events" element={<ShowcaseEventsPage/>}/>
       <Route path="/events/:eventId" element={<ShowcaseEventPage/>}/>
       <Route path="/rankings" element={<ShowcaseRankingsPage/>}/>
@@ -104,33 +125,51 @@ export function App(){
       <Route path="/live" element={<PublicPage/>}/>
       <Route path="/register" element={<RegistrationPage/>}/>
       <Route path="/widget/standings" element={<StandingsWidgetPage/>}/>
-      <Route path="/ops/login" element={<LoginPage/>}/>
-      <Route path="/ops" element={<OperationalGate/>}>
-        <Route index element={<OpsPage/>}/>
-        <Route path="roster" element={<RosterPage/>}/>
-        <Route path="bracket" element={<BracketPage/>}/>
-        <Route path="standings" element={<StandingsPage/>}/>
-        <Route path="manage" element={<RequirePermission permission="event.manage"><EventManagementPage/></RequirePermission>}/>
-        <Route path="signups" element={<FighterSignupAdminPage/>}/>
-        <Route path="admin" element={<RequirePermission permission="bracket.manage"><AdminPage/></RequirePermission>}/>
-        <Route path="discipline" element={<RequirePermission permission="discipline.manage"><DisciplinePage/></RequirePermission>}/>
-        <Route path="notes" element={<RequirePermission permission="notes.team"><NotesPage/></RequirePermission>}/>
-        <Route path="identity" element={<IdentityPage/>}/>
-        <Route path="identity-review" element={<IdentityReviewPage/>}/>
-        <Route path="governance" element={<OrganizationManagementPage/>}/>
-        <Route path="invite" element={<MembershipInvitePage/>}/>
-        <Route path="access" element={<AccessCodePage/>}/>
-        <Route path="access-admin" element={<AccessAdminPage/>}/>
-        <Route path="platform" element={<PlatformControlPage/>}/>
-        <Route path="codes" element={<DelegatedAccessPage/>}/>
-        <Route path="foundation" element={<FoundationPage/>}/>
-        <Route path="rulesets" element={<RulesetsPage/>}/>
-        <Route path="marshal-reference" element={<ShowcaseRulesPage/>}/>
-        <Route path="sync" element={<SyncPage/>}/>
-        <Route path="setup" element={<SetupPage/>}/>
+      <Route path="/sign-in" element={<LoginPage/>}/>
+
+      {/* MY WORKSPACE */}
+      <Route path="/me" element={<WorkspaceGate/>}>
+        <Route index element={<WorkspaceHome/>}/>
+        <Route path="profile" element={<IdentityPage/>}/>
+        <Route path="teams" element={<WorkspaceTeams/>}/>
+        <Route path="join" element={<AccessCodePage/>}/>
+      </Route>
+
+      {/* ADMINISTRATION */}
+      <Route path="/admin" element={<AdminGate/>}>
+        <Route index element={<AdminHome/>}/>
+        <Route path="events/setup" element={<SetupPage/>}/>
+        <Route path="events/manage" element={<RequirePermission permission="event.manage"><EventManagementPage/></RequirePermission>}/>
+        <Route path="events/signups" element={<FighterSignupAdminPage/>}/>
+        <Route path="events/roster" element={<RosterPage/>}/>
+        <Route path="events/bracket" element={<BracketPage/>}/>
+        <Route path="events/run" element={<OpsPage/>}/>
+        <Route path="events/results" element={<StandingsPage/>}/>
+        <Route path="events/discipline" element={<RequirePermission permission="discipline.manage"><DisciplinePage/></RequirePermission>}/>
+        <Route path="events/notes" element={<RequirePermission permission="notes.team"><NotesPage/></RequirePermission>}/>
+        <Route path="events/tools" element={<RequirePermission permission="bracket.manage"><AdminPage/></RequirePermission>}/>
+        <Route path="events/all" element={<PlatformControlPage section="events"/>}/>
+        <Route path="organizations" element={<PlatformControlPage section="organizations"/>}/>
+        <Route path="organizations/manage" element={<OrganizationManagementPage/>}/>
+        <Route path="teams" element={<PlatformControlPage section="people"/>}/>
+        <Route path="people/accounts" element={<AccessAdminPage/>}/>
+        <Route path="people/codes" element={<DelegatedAccessPage/>}/>
+        <Route path="people/invite" element={<MembershipInvitePage/>}/>
+        <Route path="people/identity-review" element={<IdentityReviewPage/>}/>
+        <Route path="rules/reference" element={<ShowcaseRulesPage/>}/>
+        <Route path="rules/rulesets" element={<RulesetsPage/>}/>
+        <Route path="rules/divisions" element={<FoundationPage/>}/>
+        <Route path="settings" element={<SettingsPage/>}/>
+        <Route path="system/sync" element={<SyncPage/>}/>
+        <Route path="*" element={<Navigate to="/admin" replace/>}/>
       </Route>
     </Route>
 
+    {/* Old links keep working */}
+    {legacyRedirects.filter(entry => entry.from !== '/ops').map(entry => <Route key={entry.from} path={entry.from} element={<LegacyRedirect/>}/>)}
+    <Route path="/ops" element={<LegacyRedirect/>}/>
+    <Route path="/ops/*" element={<LegacyRedirect/>}/>
+
     <Route path="*" element={<Navigate to="/" replace/>}/>
-  </Routes></Suspense></HashRouter>;
+  </Routes></Suspense></AccountProvider></HashRouter>;
 }

@@ -42,7 +42,10 @@ const standingsModes: StandingsMode[] = ['season_and_event', 'event_only', 'no_s
 
 const label = (value: string) => value.replaceAll('_', ' ').replace(/\b\w/g, letter => letter.toUpperCase());
 
-export function PlatformControlPage() {
+type PlatformSection = 'overview' | 'organizations' | 'events' | 'people' | 'settings';
+
+/** When `section` is given the page is embedded in the administration shell, which provides the title and navigation. */
+export function PlatformControlPage({ section: fixedSection }: { section?: PlatformSection } = {}) {
   const { user, dataMode } = useAppState();
   const isSuperAdmin = Boolean(user?.platformRoles.includes('platform_super_admin'));
 
@@ -56,7 +59,9 @@ export function PlatformControlPage() {
   const selectionRequest = useRef(0);
   const [resourcesLoading, setResourcesLoading] = useState(true);
   const [organizationsLoaded, setOrganizationsLoaded] = useState(false);
-  const [section, setSection] = useState('overview');
+  const [sectionState, setSection] = useState<PlatformSection>('overview');
+  const section = fixedSection ?? sectionState;
+  const embedded = Boolean(fixedSection);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -208,15 +213,15 @@ export function PlatformControlPage() {
   const activeRelationships = relationships.filter(row => !row.endsOn);
 
   return <div className="owner-console">
-    <section className="owner-hero">
+    {!embedded && <section className="owner-hero">
       <div><span className="eyebrow">BUHURTOS / ADMINISTRATION</span>
         <h1>Your platform.<br/><span>Under control.</span></h1>
         <p>Manage the organizations, people and events that bring the sport together.</p>
       </div>
       <Link className="owner-public-link" to="/public">View public site ↗</Link>
-    </section>
+    </section>}
     <div className="owner-workspace">
-      <label>Working organization
+      <label>Organization you are working on
         <select value={selectedOrganizationId} onChange={e => setSelectedOrganizationId(e.target.value)}>
           <option value="">Choose organization</option>
           {organizations.map(org => <option key={org.id} value={org.id}>{org.name}</option>)}
@@ -224,10 +229,10 @@ export function PlatformControlPage() {
       </label>
       <span className="owner-scope">{dataMode === 'supabase' ? 'Connected to live data' : 'Preview data'}<small>Teams, seasons and events below belong to this organization.</small></span>
     </div>
-    <nav className="owner-tabs" aria-label="Platform sections">
+    {!embedded && <nav className="owner-tabs" aria-label="Platform sections">
       {[['overview', 'Overview'], ['organizations', 'Organizations'], ['events', 'Seasons & events'], ['people', 'Teams & people'], ['settings', 'Platform settings']].map(([id, title]) =>
-        <button key={id} aria-current={section === id ? 'page' : undefined} onClick={() => setSection(id)}>{title}</button>)}
-    </nav>
+        <button key={id} aria-current={section === id ? 'page' : undefined} onClick={() => setSection(id as PlatformSection)}>{title}</button>)}
+    </nav>}
     {message && <div className="auth-message" role="status">{message}</div>}
     {section === 'overview' && <>
       <div className="owner-metrics">
@@ -237,12 +242,12 @@ export function PlatformControlPage() {
       <div className="owner-section-heading"><h2>Make things happen</h2><p>Your everyday administration tools.</p></div>
       <div className="owner-shortcuts">
         {[
-          ['/ops/access-admin', '01', 'Accounts & access', 'Manage who can use the platform.'],
-          ['/ops/codes', '02', 'Access codes', 'Control invitations and delegated access.'],
-          ['/ops/identity-review', '03', 'Identity review', 'Resolve fighter claims and duplicate records.'],
-          ['/ops/rulesets', '04', 'Rulesets', 'Manage the rules behind competition.'],
-          ['/ops/foundation', '05', 'Fighters & divisions', 'Organize sporting identities and divisions.'],
-          ['/ops/setup', '06', 'Event setup', 'Prepare the next event for your community.']
+          ['/admin/people/accounts', '01', 'Accounts & access', 'Manage who can use the platform.'],
+          ['/admin/people/codes', '02', 'Access codes', 'Control invitations and delegated access.'],
+          ['/admin/people/identity-review', '03', 'Identity review', 'Resolve fighter claims and duplicate records.'],
+          ['/admin/rules/rulesets', '04', 'Rulesets', 'Manage the rules behind competition.'],
+          ['/admin/rules/divisions', '05', 'Fighters & divisions', 'Organize sporting identities and divisions.'],
+          ['/admin/events/setup', '06', 'Event setup', 'Prepare the next event for your community.']
         ].map(([to, number, title, description]) => <Link key={to} to={to}><span className="shortcut-number">{number}</span><strong>{title}<span>↗</span></strong><p>{description}</p></Link>)}
       </div>
     </>}
@@ -429,7 +434,7 @@ export function PlatformControlPage() {
               <strong>{event.name}</strong>
               <small>{event.venue} · {label(event.status)} · {new Date(event.startsAt).toLocaleString()}</small>
             </div>
-            <Link className="button" to={'/ops/manage?event=' + event.id}>Manage</Link>
+            <Link className="button" to={'/admin/events/manage?event=' + event.id}>Manage</Link>
           </article>)}
         </div>
       </section>
@@ -512,7 +517,7 @@ export function PlatformControlPage() {
               clubRole: inviteForm.scope === 'club' ? inviteForm.role as ClubRole : undefined,
               teamRole: inviteForm.scope === 'team' ? inviteForm.role as TeamRole : undefined
             });
-            const path = '/ops/invite?token=' + encodeURIComponent(token);
+            const path = '/admin/people/invite?token=' + encodeURIComponent(token);
             setInviteLink(window.location.origin + window.location.pathname + '#' + path);
             setInviteForm(form => ({ ...form, email: '' }));
           }, 'Invitation created.')}>Create Invitation</button>
