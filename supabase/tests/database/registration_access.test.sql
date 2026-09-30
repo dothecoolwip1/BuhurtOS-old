@@ -160,7 +160,8 @@ select set_config('request.jwt.claim.sub','70000000-0000-0000-0000-000000000001'
 select lives_ok(
   $$select public.review_event_registration_access_request((select id from public.list_event_registration_access_requests('70000000-0000-0000-0000-000000000051') limit 1),'denied','Not this time')$$,
   'an organization admin can deny');
-select is(pg_temp.state_for('70000000-0000-0000-0000-000000000003'), 'denied', 'a denied fighter is reported as denied');
+select set_config('request.jwt.claim.sub','70000000-0000-0000-0000-000000000003',true);
+select is(public.get_event_registration_access('70000000-0000-0000-0000-000000000051')->>'state', 'denied', 'a denied fighter is reported as denied');
 select throws_ok(
   $$select public.submit_event_fighter_signup('70000000-0000-0000-0000-000000000051',null,'Unrelated Fighter','u@example.com',null,null,null,'{}',null,null,null,null,true)$$,
   'P0001','A signup code is required for this event','denial keeps registration unavailable without a code');
