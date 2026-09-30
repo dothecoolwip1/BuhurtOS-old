@@ -62,6 +62,11 @@ const neverCompetition: EventCategory[] = [
   'training', 'clinic_workshop', 'recruitment', 'fundraiser', 'gathering_social', 'meeting_agm', 'community_appearance'
 ];
 
+/** Whether an event of this category can have competition details that are merely not announced yet. */
+export function isCompetitionCapable(raw: string | null | undefined): boolean {
+  return !neverCompetition.includes(normalizeEventCategory(raw));
+}
+
 export type EventCompetitionCounts = { divisions: number; matches: number; fields: number };
 export type EventModules = { divisions: boolean; schedule: boolean; fields: boolean; standings: boolean; fighterSignup: boolean };
 

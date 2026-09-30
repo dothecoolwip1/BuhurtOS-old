@@ -7,6 +7,7 @@ import {
 } from '../lib/eventAdmin';
 import type { FightCard } from '../types';
 import { downloadText, fightCardCsv } from '../lib/export';
+import { EventMediaPanel } from '../components/EventMediaPanel';
 
 const reviewStates: Array<{value: Exclude<RegistrationReviewStatus,'pending'>; label:string}> = [
   { value:'approved', label:'Approve' }, { value:'waitlisted', label:'Waitlist' },
@@ -143,6 +144,7 @@ export function EventManagementPage(){
         <label>Livestream URL<input value={settings.livestreamUrl} onChange={e=>setSettings(s=>({...s,livestreamUrl:e.target.value}))} placeholder="https://…"/></label>
         <button className="primary big" disabled={busy||event.status==='archived'} onClick={saveSettings}>Save Event Settings</button>
       </div></section>
+      <EventMediaPanel eventId={event.id}/>
     </div>}
 
     {tab==='fields'&&<div className="admin-grid">

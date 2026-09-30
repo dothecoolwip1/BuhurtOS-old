@@ -3,7 +3,8 @@ import {Link,useParams} from 'react-router-dom';
 import {PageHeader,Panel,Pill} from '../components/ShowcaseUI';
 import {FighterSignupModal} from '../components/FighterSignupModal';
 import {loadPublicEventDetails,type PublicEventDetails} from '../lib/publicDirectory';
-import {eventCategoryLabel,eventCategoryTone,eventModules} from '../lib/eventCategories';
+import {eventCategoryLabel,eventCategoryTone,eventModules,isCompetitionCapable} from '../lib/eventCategories';
+import {eventImageThumbUrl,eventImageUrl} from '../lib/eventMedia';
 
 const pretty=(value:string)=>value.replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
 
@@ -24,6 +25,7 @@ export function EventDetailView({details,onFighterSignup}:{details:PublicEventDe
   const modules=eventModules(event.eventType,{divisions:details.divisions.length,matches:details.matches.length,fields:details.fields.length});
   const upcomingMatches=details.matches.filter(match=>!['completed','finalized','cancelled'].includes(match.status));
   return <>
+    {event.imagePath?<figure className="event-hero-media"><picture><source media="(max-width: 640px)" srcSet={eventImageThumbUrl(event.imagePath,640)}/><img src={eventImageUrl(event.imagePath)} alt={event.name+' poster'} decoding="async" fetchPriority="high"/></picture></figure>:null}
     <PageHeader
       eyebrow={event.status==='live'?'LIVE EVENT':'PUBLISHED EVENT'}
       title={event.name}
@@ -78,6 +80,8 @@ export function EventDetailView({details,onFighterSignup}:{details:PublicEventDe
             <div><span>Venue</span><b>{event.venue}</b></div>
             <div><span>Host</span><b>{event.organizerName||'TBA'}</b></div>
             <div><span>Category</span><b>{eventCategoryLabel(event.eventType)}</b></div>
+            {isCompetitionCapable(event.eventType)&&!modules.divisions?<div><span>Divisions</span><b>To be announced</b></div>:null}
+            {isCompetitionCapable(event.eventType)&&!modules.schedule?<div><span>Fight schedule</span><b>To be announced</b></div>:null}
             {modules.standings?<div><span>Standings</span><b>{pretty(event.standingsMode)}</b></div>:null}
           </div>
         </Panel>
