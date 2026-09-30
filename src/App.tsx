@@ -23,7 +23,6 @@ const ShowcaseEventPage = lazy(() => import('./pages/ShowcaseEventPage').then(mo
 const ShowcaseRankingsPage = lazy(() => import('./pages/ShowcaseRankingsPage').then(module => ({ default: module.ShowcaseRankingsPage })));
 const ShowcaseRulesPage = lazy(() => import('./pages/ShowcaseRulesPage').then(module => ({ default: module.ShowcaseRulesPage })));
 const ShowcasePublicPage = lazy(() => import('./pages/ShowcasePublicPage').then(module => ({ default: module.ShowcasePublicPage })));
-const MarketingHome = lazy(() => import('./pages/MarketingHome').then(module => ({ default: module.MarketingHome })));
 const LoginPage = lazy(() => import('./pages/LoginPage').then(module => ({ default: module.LoginPage })));
 const OpsPage = lazy(() => import('./pages/OpsPage').then(module => ({ default: module.OpsPage })));
 const RosterPage = lazy(() => import('./pages/RosterPage').then(module => ({ default: module.RosterPage })));
@@ -78,7 +77,7 @@ function RouteFallback() {
 export function App(){
   return <HashRouter><Suspense fallback={<RouteFallback/>}><Routes>
     <Route path="/" element={<Navigate to="/public" replace/>}/>
-    <Route path="/about" element={<MarketingHome/>}/>
+    <Route path="/about" element={<Navigate to="/public" replace/>}/>
     <Route path="/embed/events" element={<EmbedEventsPage/>}/>
     <Route path="/embed/event/:eventId" element={<EmbedEventPage/>}/>
     <Route path="/embed/team/:slug" element={<EmbedTeamPage/>}/>

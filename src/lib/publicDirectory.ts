@@ -112,6 +112,8 @@ export async function loadPublicOrganization(key:string):Promise<{organization:P
 
 const EVENT_BASE_COLUMNS='id,organization_id,name,venue,starts_at,ends_at,organizer_name,event_type,standings_mode,status,timezone,public_description,public_links,registration_open';
 const EVENT_EXTENDED_COLUMNS=EVENT_BASE_COLUMNS+',slug,host_team_id,image_path';
+/** Remembered for the session so a backend without the general-event columns is not probed on every load. */
+let extendedEventColumnsAvailable=true;
 
 function mapEventRow(row:any):PublicEventSummary{
   const links=row.public_links??{};
@@ -134,8 +136,9 @@ export async function loadPublicEvents():Promise<PublicEventSummary[]>{
     .in('status',['published','live','completed','cancelled'])
     .not('published_at','is',null)
     .order('starts_at',{ascending:true});
-  let {data,error}=await query(EVENT_EXTENDED_COLUMNS);
-  if(error){
+  let {data,error}=await query(extendedEventColumnsAvailable?EVENT_EXTENDED_COLUMNS:EVENT_BASE_COLUMNS);
+  if(error&&extendedEventColumnsAvailable){
+    extendedEventColumnsAvailable=false;
     ({data,error}=await query(EVENT_BASE_COLUMNS));
   }
   if(error)throw error;
@@ -298,10 +301,10 @@ export async function loadPublicOrganizationLinks(organizationId:string):Promise
   const rows=data??[];
   const otherIds=[...new Set(rows.map((r:any)=>r.parent_organization_id===organizationId?r.child_organization_id:r.parent_organization_id))];
   if(!otherIds.length)return [];
-  const {data:orgs,error:orgError}=await publicSupabase.from('organizations').select('id,name,short_name').in('id',otherIds);
-  if(orgError)throw orgError;
-  const names=new Map((orgs??[]).map((o:any)=>[o.id,o]));
-  return rows.map((r:any)=>{
+  // Anonymous visitors cannot read the organizations table, so names come from the public directory RPC.
+  const directory=await loadPublicOrganizations();
+  const names=new Map(directory.map(o=>[o.id,{name:o.name,short_name:o.shortName}]));
+  return rows.filter((r:any)=>names.has(r.parent_organization_id===organizationId?r.child_organization_id:r.parent_organization_id)).map((r:any)=>{
     const direction=r.parent_organization_id===organizationId?'parent':'child';
     const otherId=direction==='parent'?r.child_organization_id:r.parent_organization_id;
     const other=names.get(otherId) as any;

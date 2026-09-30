@@ -90,3 +90,19 @@ export function buildIframeCode(url: string, spec: Pick<EmbedSpec, 'type' | 'hei
 export function specNeedsEntity(type: EmbedWidgetType): boolean {
   return type !== 'events';
 }
+
+function relativeLuminance(hex: string): number {
+  const channel = (value: number) => { const c = value / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+  const n = parseInt(hex.replace('#', ''), 16);
+  return 0.2126 * channel((n >> 16) & 255) + 0.7152 * channel((n >> 8) & 255) + 0.0722 * channel(n & 255);
+}
+
+/** Picks black or white text, whichever reads better on the given accent (WCAG contrast). */
+export function readableTextOn(accentHex: string): '#111111' | '#ffffff' {
+  const accent = parseAccent(accentHex);
+  if (!accent) return '#ffffff';
+  const l = relativeLuminance(accent);
+  const whiteContrast = 1.05 / (l + 0.05);
+  const blackContrast = (l + 0.05) / (relativeLuminance('#111111') + 0.05);
+  return whiteContrast >= blackContrast ? '#ffffff' : '#111111';
+}

@@ -1,7 +1,7 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { eventCta, groupByMonth } from '../lib/eventCategories';
-import { parseAccent, parseTheme, type EmbedTheme } from '../lib/embedBuilder';
+import { parseAccent, parseTheme, readableTextOn, type EmbedTheme } from '../lib/embedBuilder';
 import { calendar, getEvent, getTeam, getTeamStats, type EventDTO, type TeamDTO, type TeamStatsDTO } from '../lib/publicApiV1';
 import { loadEventSnapshot } from '../lib/repository';
 import { computeEventStandings, type StandingRow } from '../lib/standings';
@@ -14,7 +14,7 @@ export function siteLink(path: string): string {
 }
 
 export function EmbedFrame({ theme, accent, children }: { theme: EmbedTheme; accent?: string; children: ReactNode }) {
-  const style = accent ? ({ '--embed-accent': accent } as CSSProperties) : undefined;
+  const style = accent ? ({ '--embed-accent': accent, '--embed-on-accent': readableTextOn(accent) } as CSSProperties) : undefined;
   return <div className="embed-shell" data-theme={theme} style={style}>
     {children}
     <div className="embed-foot"><a href={siteLink('/public')} target="_blank" rel="noopener noreferrer">Powered by BuhurtOS</a></div>

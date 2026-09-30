@@ -92,8 +92,9 @@ export async function loadPlatformConfig(force = false): Promise<PlatformConfig>
     cache = { at: Date.now(), value };
     return value;
   } catch {
-    // Backends that predate the configuration layer keep launch behavior.
-    return cache?.value ?? defaultPlatformConfig;
+    // Backends that predate the configuration layer keep launch behavior; do not retry for a minute.
+    cache = { at: Date.now(), value: cache?.value ?? defaultPlatformConfig };
+    return cache.value;
   }
 }
 

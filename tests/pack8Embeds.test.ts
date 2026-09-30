@@ -2,7 +2,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import {
-  buildEmbedUrl, buildIframeCode, clampHeight, embedPath, escapeAttr, parseAccent, parseTheme
+  buildEmbedUrl, buildIframeCode, clampHeight, embedPath, escapeAttr, parseAccent, parseTheme, readableTextOn
 } from '../src/lib/embedBuilder';
 import { buildIcs } from '../src/lib/ics';
 import {
@@ -100,6 +100,14 @@ describe('embed builder', () => {
     expect(parseAccent('')).toBeUndefined();
     expect(parseTheme('dark')).toBe('dark');
     expect(parseTheme('neon')).toBe('auto');
+  });
+
+  it('picks readable text for any accent color', () => {
+    expect(readableTextOn('#ffffff')).toBe('#111111');
+    expect(readableTextOn('#ff8a1f')).toBe('#111111');
+    expect(readableTextOn('#b4540a')).toBe('#ffffff');
+    expect(readableTextOn('#000000')).toBe('#ffffff');
+    expect(readableTextOn('not-a-color')).toBe('#ffffff');
   });
 
   it('escapes attribute values in generated iframe code and clamps height', () => {
