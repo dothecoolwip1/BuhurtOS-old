@@ -1,5 +1,13 @@
 # BuhurtOS Handoff
 
+## Current handoff: November 1 release candidate
+
+All ten master-plan packs are complete on `main` at `2ccab64` with CI and the Pages deploy green. **Read the "November 1 release candidate summary" at the end of `docs/BUHURTOS_STATUS.md` first**: it lists what is live, what is verified, the five hosted migrations (`20261014…`–`20261018…`) that still need applying to `tapfpboszgoftbwcwsmn`, what is deferred, and the post-launch priorities. Release freeze rules apply: blocker, security, critical mobile, performance and factual fixes only.
+
+New files to know: `src/lib/eventCategories.ts`, `src/lib/eventMedia.ts`, `src/lib/platformConfig.ts`, `src/lib/canonicalStats.ts`, `src/lib/publicStats.ts`, `src/lib/publicApiV1.ts`, `src/lib/embedBuilder.ts`, `src/lib/ics.ts`, `src/lib/pwa.ts`, `src/lib/realtime.ts`, `src/pages/EmbedPages.tsx`, `src/pages/EmbedBuilderPage.tsx`, `scripts/swPrecachePlugin.mjs`, `docs/PUBLIC_API_V1.md`.
+
+Rules added by this release: never widen table privileges for anon or authenticated (the release gate fails CI); competition UI must stay conditional on event category and data; all stats come from the canonical layer; embeds and the public API use whitelist DTOs only; the service worker must never cache cross-origin or Authorization-bearing requests.
+
 ## Owner console and logout repair, September 30
 
 The owner console now separates overview, organizations, events, and people;

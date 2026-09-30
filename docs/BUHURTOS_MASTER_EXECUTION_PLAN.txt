@@ -3592,3 +3592,24 @@ Run them in order.
 
 Do not begin the next pack until the current pack's acceptance conditions
 are met or a documented blocker makes further progress impossible.
+
+
+======================================================================
+56. EXECUTION STATUS (updated 2026-09-30)
+======================================================================
+
+[x] PACK 1  Stability, CI, routing and deployment
+[x] PACK 2  Public experience, design consistency and performance
+[x] PACK 3  Organizations, teams, fighters, rankings and rules
+[x] PACK 4  General events and public event calendar
+[x] PACK 5  Red Deer Rumble, event media and fighter signup (poster image not supplied; signup review UI not re-verified)
+[x] PACK 6  Access hierarchy, Platform Control and future adoption switches
+[x] PACK 7  Canonical stats, provenance and source reconciliation
+[x] PACK 8  Embeds, Embed Builder and public data contract
+[x] PACK 9  Mobile, PWA, offline/realtime (Android proof skipped)
+[x] PACK 10 Final QA, security, accessibility, performance and release candidate
+
+Release candidate: main @ 2ccab64, CI and GitHub Pages deploy green.
+Open before calling the hosted project current: apply migrations
+20261014000000 through 20261018000000 to Supabase project tapfpboszgoftbwcwsmn,
+then run the Supabase security advisor. See docs/BUHURTOS_STATUS.md.

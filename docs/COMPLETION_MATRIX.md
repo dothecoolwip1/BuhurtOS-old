@@ -506,3 +506,25 @@ items — a team standings board, fight-card-level exports, and
 such as an org-level federation admin UI, production-verified livestream
 embedding, and the profile photo upload flow stay on the roadmap as noted in
 their individual matrix rows.
+
+---
+
+## November 1 Master Execution Plan: Packs 2–10
+
+| Pack | Requirement | Status | Evidence |
+|---|---|---|---|
+| 2 | Public experience, shared states, lazy map, mobile | ✅ | `63eb038`, CI green |
+| 3 | Directory: team region filter, Reavers slug, source-backed rankings, org events/relationships | ✅ | `tests/pack3Directory.test.ts` |
+| 4 | General event model and public event directory | ✅ | migration `20261014…`, `tests/pack4Events.test.ts`, `pack4_general_events.test.sql` |
+| 5 | Event media, Rumble page, signup code tests | ✅ | migration `20261015…`, `pack5_event_media.test.sql`, `pack5_signup_codes.test.sql` |
+| 5 | Signup review accept/deny/notes re-verified | 🟡 | Existing workflow; not re-verified end to end in this pass |
+| 6 | Platform settings, event-creation mode, claim records | ✅ | migration `20261016…`, `pack6_platform_configuration.test.sql` |
+| 6 | Claim submission UI | ⛔ | Deferred by design (foundation and platform review only) |
+| 7 | Canonical stats, provenance, reconciliation | ✅ | migration `20261017…`, `pack7_canonical_stats.test.sql`, `tests/pack7CanonicalStats.test.ts` |
+| 8 | Iframe embeds, builder, public data contract v1 | ✅ | `docs/PUBLIC_API_V1.md`, `tests/pack8Embeds.test.ts`, browser verification |
+| 8 | Subscribable `.ics` feed | ⛔ | Client-side download only; live feed needs an HTTP edge |
+| 9 | Mobile audit and fixes, PWA precache/update, coalesced realtime | ✅ | `tests/pack9Pwa.test.ts`, 5-width browser audit |
+| 9 | Capacitor/Android proof | ⛔ | Optional; not attempted |
+| 10 | Release security gate, accessibility, content accuracy | ✅ | `release_security_gate.test.sql`, migration `20261018…` |
+| 10 | Supabase security advisor | 🟡 | Needs connector authorization; run after applying migrations |
+| Hosted | Migrations 20261014–20261018 applied to the hosted project | ❌ | Pending; see the release summary in `BUHURTOS_STATUS.md` |

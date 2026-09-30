@@ -1,6 +1,6 @@
 # BuhurtOS Status
 
-Last updated: 2026-09-29
+Last updated: 2026-09-30
 
 ## Master Execution Plan Pack 1 complete
 
@@ -435,3 +435,44 @@ The public and operations rule views now use a source-backed BI marshal referenc
 * **Pack 7** complete: one statistics/provenance foundation. `src/lib/canonicalStats.ts` defines what an official result is (finalized, recorded winner, not a bye, two real sides) and derives team, fighter (linked identities only) and event stats plus native result provenance (event, ruleset snapshot, finalization time, audit flag) and source reconciliation (`reconcileTeamRecords`: explicit links first, normalized name+country otherwise; highest-priority source is shown, disagreements are reported as conflicts and never overwritten). Migration `20261017000000_canonical_stats_provenance.sql` adds `team_canonical_links` (+ `link_duplicate_team` for super admins, `resolve_canonical_team`), `public_team_provenance`, `official_team_stats`, `official_event_stats` and `official_match_provenance` using the same official-result definition in SQL. Team pages show the native record and sources/provenance panels; event pages show official results only when finalized results exist. Tests: `tests/pack7CanonicalStats.test.ts`, `supabase/tests/database/pack7_canonical_stats.test.sql`. **Migration must be applied to the hosted project; until then the pages simply omit the new panels.**
 * **Pack 8** complete: versioned public data contract (`src/lib/publicApiV1.ts`, documented in `docs/PUBLIC_API_V1.md`) with whitelist DTOs for organizations, teams, team stats, events and calendar, and `resolveApiV1` mapping the conceptual `/api/v1/*` routes. Four iframe embeds under `#/embed/...` (events agenda with organization/team/category filters, team card + stats, event card, standings for an explicit event id) with light/dark/auto theme, accent color, "Powered by BuhurtOS", and clear empty/error states, plus an Embed Builder at `#/embed-builder` (widget, organization/team/event, theme, height, preview, copy iframe code) and a client-side `.ics` download on the Events page. Verified by pasting generated iframes into a plain standalone HTML page served locally against the hosted backend: real Red Deer Rumble and Reavers data render at desktop and 375px widths; invalid team/event ids show "Not available"; private fields never enter widget payloads (tested). Also fixed a pre-existing public-data bug: the event snapshot query embedded `match_participants` ambiguously (two foreign keys to `matches`), which made every public snapshot load fail against the hosted database; it now uses `match_participants!match_participants_match_id_fkey`. Tests: `tests/pack8Embeds.test.ts`.
 * **Pack 9** complete (Android proof deliberately skipped): mobile audit run programmatically against the hosted-data build at 360, 390, 412, 768 and 1024px across public home, organizations, organization detail, teams, team detail, fighters, events, event detail, rankings, rules, login and the embed builder. Fixed `/teams` (127px horizontal overflow from the three filter selects), rules pill overflow, explain-card links squeezed to 32px, sub-36px tap targets (search, link buttons, rule tabs, "Open source", agenda links) and iOS input zoom (16px form text); final run shows no horizontal overflow and no small targets at any width. The owner console, event management and fighter-signup admin require sign-in and were not measurable in this pass. PWA: separate `any`/`maskable` icons; `sw.js` now precaches the full built asset list (injected by `scripts/swPrecachePlugin.mjs`, per-build cache name, old caches dropped), a new worker waits until the visitor taps "Reload to update" (`UpdateBanner`), stale lazy-chunk failures after a deploy trigger one guarded reload, and the worker still never caches cross-origin (Supabase) or Authorization-bearing requests; verified by running the built worker in a Node sandbox (68 assets precached, policy and skip-waiting behavior correct). Realtime: topic helpers (`event:`/`field:`/`match:`), bursts coalesced into one refresh. The offline queue is unchanged (its 8 existing tests cover queue, backoff, conflict-retained, stale-syncing repair and single-flight). Tests: `tests/pack9Pwa.test.ts`. Capacitor/Android was not attempted (no Android SDK here); it remains optional.
+* **Pack 10** complete (release freeze): security gate (`supabase/tests/database/release_security_gate.test.sql`) found leftover table privileges (anonymous UPDATE/DELETE/TRUNCATE and SELECT on `fighter_event_signups`, client write and TRUNCATE on `audit_log`), fixed by migration `20261018000000_release_privilege_hardening.sql` (guarded RPCs that append their own audit row keep INSERT). Also: legacy `/about` page with invented fighter/rank/match content now redirects to the public home; organization relationship names resolve through the public directory RPC (anonymous visitors cannot read the organizations table); global focus rings, reduced-motion support and accessible embed accent contrast; event probing remembers a backend without the general-event columns; CI now surfaces failing pgTAP assertions as annotations.
+
+## November 1 release candidate summary (Packs 1–10)
+
+Release candidate head: `2ccab64` on `main`. Its CI workflow is green end to end (navigation audit, TypeScript, 142 unit tests, production build, clean Supabase rebuild from every migration, all pgTAP suites including the new release security gate, and the GitHub Pages deploy). Site: <https://dothecoolwip1.github.io/BuhurtOS/>.
+
+### What is live
+* Public site: home, organizations (with published events and active governing links), teams (search, organization/country/region filters, map, stable `red-deer-reavers` slug with UUID fallback), team profiles, fighters, events directory (categories, upcoming/past, organization/host-team filters, month agenda, `.ics` download), event pages (competition modules only when they apply), source-backed rankings (5v5/12v12 with provenance), BI rules reference, and the `#/embed-builder` page.
+* Iframe embeds: `#/embed/events`, `#/embed/team/{slug}`, `#/embed/event/{id}`, `#/embed/standings/{id}`; versioned public data contract in `src/lib/publicApiV1.ts` (`docs/PUBLIC_API_V1.md`).
+* Real proof event: Red Deer Rumble (`6028e471-a95c-4d8a-8101-1f168bc68c8b`), Nov 14–15 2026, Horse in Hand Ranch, Blackfalds, Alberta, host Red Deer Reavers; unknown details show "To be announced"; invite-code signup validates codes on the live backend.
+* PWA: installable manifest, full-asset precache, visitor-controlled updates, no caching of Supabase or authenticated traffic.
+
+### What is verified
+* CI gates above on every pack, each deployed separately.
+* Database (pgTAP): general event model, event media storage policies, signup codes (hashed, anonymous submit, no anonymous/unrelated reads, expired/disabled/max-use), platform settings and claim records, canonical stats and provenance, and the release security gate (RLS on every public table, no anonymous writes, sensitive tables unreadable by anon, no client TRUNCATE, append-only audit history, administrative functions not executable by anon, only `event-media` bucket public).
+* Browser, against the hosted backend: embeds pasted into a plain HTML page (desktop and 375px), invalid team/event ids, real Rumble and Reavers data, public-page overflow/tap-target audit at 360/390/412/768/1024px, bad-code signup flow, structural accessibility scan (labels, names, alt text, one h1 per route), request counts.
+* Secret scan: no keys in the repository; the only credential in CI config is the public publishable key; service-role keys are read from environment inside Edge Functions.
+
+### Hosted project: migrations still to apply (security-relevant, do this first)
+The deployed site degrades gracefully without them, but the hosted project `tapfpboszgoftbwcwsmn` does not yet have these forward-only migrations:
+
+1. `20261014000000_general_event_model.sql` (event categories, slug, host team, image path)
+2. `20261015000000_event_media.sql` (poster bucket and policies)
+3. `20261016000000_platform_configuration.sql` (platform settings, event-creation mode, claim records)
+4. `20261017000000_canonical_stats_provenance.sql` (official stats, provenance, canonical team links)
+5. `20261018000000_release_privilege_hardening.sql` (revokes leftover table privileges found by the release gate)
+
+Apply with `supabase link --project-ref tapfpboszgoftbwcwsmn` then `supabase db push`, then re-run the Supabase security advisor. Only the BuhurtOS project may be used.
+
+### Intentionally deferred
+Capacitor/Android proof, PowerSync, MapLibre rewrite, Lit/web-component embeds, AI rulings, payment provider and webhook (paid registration still fails closed), subscribable live `.ics` URLs (needs an HTTP edge), server-side enforcement of `account_registration_mode` (needs a Supabase Auth hook; the setting currently drives the login UI only), claim submission UI (records and platform review exist).
+
+### Known non-blocking limitations
+* The HACSA directory lists the Reavers twice ("Reavers" and "Red Deer Reavers"). After migration 4 is applied, link them with `select public.link_duplicate_team('<alias id>', '<canonical id>', 'Same team listed twice');` as a platform super administrator.
+* No Rumble poster is stored: the supplied image was not available in this session. Upload it from Event management, Settings, Event poster once migration 2 is applied.
+* The Supabase security advisor could not be run from this session (the Supabase connector needs authorization); the repository-level gate above is the substitute.
+* Owner console, event management and fighter-signup admin pages need sign-in and were not included in the automated mobile audit; the signup review (accept/deny/notes) UI was not re-verified end to end in this pass.
+* The Rumble page shows its real "Main List" fight area in draft status.
+
+### Next priorities after launch
+Apply and verify the five migrations on the hosted project; run the security advisor; link duplicate team rows; upload the Rumble poster; audit the signed-in admin pages on phones; end-to-end test organizer code creation and signup review with real accounts; enable claims when ready; add the Auth hook for registration modes; add a calendar feed edge function; consider the Android proof.
