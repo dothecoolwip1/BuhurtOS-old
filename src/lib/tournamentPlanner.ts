@@ -161,6 +161,13 @@ export function estimateMinutes(bouts: number, areas: number, timing: Pick<BoutT
   return Math.ceil(bouts / Math.max(1, areas)) * slot;
 }
 
+/** How many fighting areas a bout count needs to fit in the time available (at least one). */
+export function areasNeeded(bouts: number, hoursAvailable: number, timing: Pick<BoutTiming, 'boutMinutes' | 'changeoverMinutes'>): number {
+  const minutes = Math.max(1, hoursAvailable * 60);
+  const slot = timing.boutMinutes + timing.changeoverMinutes;
+  return Math.max(1, Math.ceil((bouts * slot) / minutes));
+}
+
 export function formatDuration(minutes: number): string {
   if (minutes < 60) return `${minutes} min`;
   const hours = Math.floor(minutes / 60);

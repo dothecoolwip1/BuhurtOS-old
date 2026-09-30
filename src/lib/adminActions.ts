@@ -13,6 +13,8 @@ export interface TournamentBracketSummary {
   generationMethod?: string;
   generationHash?: string;
   publishedAt?: string;
+  /** Set on a playoff: the pool stage it was built from. */
+  sourcePoolBracketId?: string;
   /** Planned areas and start times saved with the bracket, when the organizer used the schedule planner. */
   schedule?: { finishesAt?: string; settings?: { startsAt: string; boutMinutes: number; changeoverMinutes: number; minRestMinutes: number; areaIds: string[]; breaks?: Array<{ label: string; startsAt: string; minutes: number }> }; slots: Array<{ matchId: string; areaId: string; startsAt: string; endsAt: string; order: number }> };
 }
@@ -33,6 +35,7 @@ export async function listTournamentBrackets(eventId: string): Promise<Tournamen
         generationMethod: row.metadata?.generationConfig?.seedMethod,
         generationHash: row.metadata?.generationHash,
         publishedAt: row.publishedAt,
+        sourcePoolBracketId: row.metadata?.sourcePoolBracketId,
         schedule: row.metadata?.schedule
       }));
   }
@@ -53,6 +56,7 @@ export async function listTournamentBrackets(eventId: string): Promise<Tournamen
     generationMethod:row.generation_method ?? undefined,
     generationHash:row.generation_hash ?? undefined,
     publishedAt:row.published_at ?? undefined,
+    sourcePoolBracketId:row.metadata?.sourcePoolBracketId ?? undefined,
     schedule:row.metadata?.schedule ?? undefined
   }));
 }

@@ -134,12 +134,19 @@ export function BracketPage() {
 
       {view === 'pools' ? <div className="bp-pools">{poolBracketIds.map(id => {
         const state = computePoolQualificationState(matches, roster, id, 2);
-        return state.pools.map(pool => <section key={id + pool.name} className="panel-card">
+        const poolBouts = matches.filter(m => m.bracketId === id && m.stage === 'pool' && m.status !== 'cancelled');
+        const done = poolBouts.length - state.incompleteMatchIds.length;
+        const hasPlayoff = brackets.some(b => b.generationState === 'published' && b.sourcePoolBracketId === id);
+        return [<section key={id + '-progress'} className="bp-progress panel-card" role="status">
+          <strong>{done} of {poolBouts.length} pool bouts finished</strong>
+          <progress max={poolBouts.length} value={done} aria-label="Pool stage progress" />
+          {hasPlayoff ? <span>The playoff has been created. See the Order of play or Bracket view for its times.</span> : state.ready ? <span>All pools are done. <Link to={'/admin/events/tools?event=' + (event?.id ?? '')}>Create the playoff</Link> (it is scheduled automatically).</span> : <span>The playoff can be created once every pool bout is final.</span>}
+        </section>, ...state.pools.map(pool => <section key={id + pool.name} className="panel-card">
           <h2>{pool.name}</h2>
           <div className="table-wrap"><table><thead><tr><th>#</th><th>Competitor</th><th>W-L-D</th><th>Diff</th><th>Pts</th></tr></thead>
             <tbody>{pool.standings.map((row, index) => <tr key={row.rosterEntryId} className={index < 2 ? 'bp-advances' : ''}><td>{index + 1}</td><td>{row.name}</td><td>{row.wins}-{row.losses}-{row.draws}</td><td>{row.differential > 0 ? '+' : ''}{row.differential}</td><td>{row.standingPoints}</td></tr>)}</tbody></table></div>
           <small className="tp-note">Top two advance (highlighted). Ties are broken by the tiebreak policy saved with this tournament.</small>
-        </section>);
+        </section>)];
       })}</div> : null}
 
       {view === 'bracket' ? <div className="bracket-scroll"><div className="bracket-grid">{rounds.map(group => <section className="bracket-round" key={group.round}>

@@ -204,3 +204,12 @@ describe('third-place match', () => {
     }
   });
 });
+
+import { areasNeeded } from '../src/lib/tournamentPlanner';
+describe('areas needed', () => {
+  it('rounds up to fit the day', () => {
+    expect(areasNeeded(34, 8, { boutMinutes: 5, changeoverMinutes: 2 })).toBe(1);
+    expect(areasNeeded(100, 4, { boutMinutes: 5, changeoverMinutes: 2 })).toBe(3);
+    expect(areasNeeded(0, 8, { boutMinutes: 5, changeoverMinutes: 2 })).toBe(1);
+  });
+});

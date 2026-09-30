@@ -2,21 +2,27 @@ import { useEffect, useMemo, useState } from 'react';
 import type { CompetitionFamily } from '../lib/competitionFormats';
 import { eventClock, eventDayKey, zonedTimeToIso, zoneLabel } from '../lib/eventTime';
 import {
-  defaultTiming, estimateMinutes, formatDuration, recommendStructures, scheduleMatches, scheduleMetadata,
+  areasNeeded, defaultTiming, estimateMinutes, formatDuration, recommendStructures, scheduleMatches, scheduleMetadata,
   type ScheduleSettings, type SchedulePlan, type StructureSuggestion
 } from '../lib/tournamentPlanner';
 import type { FightCard, MatchRecord } from '../types';
 
 /** Plain-language structure advice for the number of competitors chosen. */
-export function StructureAdvisor({ entrants, family, matchType, areas, onUse }: {
+export function StructureAdvisor({ entrants, family, matchType, areas: fields, onUse }: {
   entrants: number; family: CompetitionFamily; matchType: string; areas: number; onUse: (suggestion: StructureSuggestion) => void;
 }) {
   const suggestions = useMemo(() => recommendStructures(entrants, family), [entrants, family]);
   const timing = defaultTiming(matchType);
+  const [areas, setAreas] = useState(Math.max(1, fields));
+  const [hours, setHours] = useState(8);
   if (entrants < 2) return <div className="state-card">Tick at least two cleared competitors below and BuhurtOS will suggest how to run them, with bout counts and a time estimate.</div>;
   return <div className="tp-advisor" aria-label="Suggested structures">
     <h3>Suggested ways to run {entrants} {family === 'melee' ? 'teams' : 'competitors'}</h3>
-    <p className="tp-note">Time estimates use {timing.boutMinutes} minutes per bout plus {timing.changeoverMinutes} to reset, on {areas} area{areas === 1 ? '' : 's'}. Change these in the schedule step.</p>
+    <div className="tp-grid">
+      <label>Fighting areas<input type="number" min={1} max={8} value={areas} onChange={e => setAreas(Math.max(1, Math.min(8, Number(e.target.value) || 1)))} /></label>
+      <label>Hours available<input type="number" min={1} max={16} step={0.5} value={hours} onChange={e => setHours(Math.max(1, Math.min(16, Number(e.target.value) || 1)))} /></label>
+    </div>
+    <p className="tp-note">Estimates use {timing.boutMinutes} minutes per bout plus {timing.changeoverMinutes} to reset. You can change these in the schedule step.</p>
     <ul className="tp-cards">{suggestions.map(item => <li key={item.id} className={item.recommended ? 'recommended' : ''}>
       <div className="tp-card-head"><strong>{item.title}</strong>{item.recommended ? <span className="tp-badge">Suggested</span> : null}</div>
       {item.groups.length > 1 ? <p className="tp-groups">Pools of {[...new Set(item.groups)].join(' and ')} ({item.groups.length} pools){item.qualifiersPerPool ? `, top ${item.qualifiersPerPool} from each go to the knockout` : ''}</p> : null}
@@ -25,6 +31,9 @@ export function StructureAdvisor({ entrants, family, matchType, areas, onUse }: 
         <div><dt>Each fights</dt><dd>{item.minBoutsPerCompetitor === item.maxBoutsPerCompetitor ? item.minBoutsPerCompetitor : `${item.minBoutsPerCompetitor}–${item.maxBoutsPerCompetitor}`}</dd></div>
         <div><dt>About</dt><dd>{formatDuration(estimateMinutes(item.bouts, areas, timing))}</dd></div>
       </dl>
+      {estimateMinutes(item.bouts, areas, timing) <= hours * 60
+        ? <p className="tp-fit ok">Fits in {hours} hours on {areas} area{areas === 1 ? '' : 's'}.</p>
+        : <p className="tp-fit over">Too long for {hours} hours on {areas} area{areas === 1 ? '' : 's'}. You would need {areasNeeded(item.bouts, hours, timing)} areas, or a faster structure.</p>}
       <p>{item.why}</p>
       <button type="button" className={item.recommended ? 'primary' : ''} onClick={() => onUse(item)}>Use this structure</button>
     </li>)}</ul>
