@@ -29,3 +29,21 @@ export function Avatar({ initials, tone='steel', size='md' }: { initials:string;
 export function EmptyState({ icon='＋', title, text, action }: { icon?:string; title:string; text:string; action?:ReactNode }) {
   return <div className="show-empty"><span>{icon}</span><h3>{title}</h3><p>{text}</p>{action}</div>;
 }
+
+export function StatePanel({ title, text, tone='neutral', action }: { title:string; text?:string; tone?:'neutral'|'error'|'success'; action?:ReactNode }) {
+  return <div className={`show-state-panel ${tone}`} role={tone==='error'?'alert':'status'}>
+    <div><strong>{title}</strong>{text ? <p>{text}</p> : null}</div>
+    {action ? <div className="show-state-action">{action}</div> : null}
+  </div>;
+}
+
+export function LoadingGrid({ count=6, compact=false }: { count?:number; compact?:boolean }) {
+  return <div className={`show-skeleton-grid ${compact?'compact':''}`} aria-label="Loading content" aria-busy="true">
+    {Array.from({length:count},(_,index)=><div className="show-skeleton-card" key={index} aria-hidden="true">
+      <span className="show-skeleton-block hero"/>
+      <span className="show-skeleton-line wide"/>
+      <span className="show-skeleton-line"/>
+      <span className="show-skeleton-line short"/>
+    </div>)}
+  </div>;
+}
