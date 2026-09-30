@@ -5,7 +5,6 @@ import { Layout } from './components/Layout';
 import { RequirePermission } from './components/RequirePermission';
 import { AppStateProvider, useAppState } from './features/AppState';
 
-const ShowcaseDashboard = lazy(() => import('./pages/ShowcaseDashboard').then(module => ({ default: module.ShowcaseDashboard })));
 const PublicOrganizationPage = lazy(() => import('./pages/PublicOrganizationPage').then(module => ({ default: module.PublicOrganizationPage })));
 const GovernancePage = lazy(() => import('./pages/GovernancePage').then(module => ({ default: module.GovernancePage })));
 const TeamsPage = lazy(() => import('./pages/TeamsPage').then(module => ({ default: module.TeamsPage })));
