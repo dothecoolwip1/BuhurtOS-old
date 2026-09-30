@@ -42,7 +42,7 @@ export function ShowcaseEventPage(){
   if(!details||!event)return <div className="state-card"><h2>Event not found</h2><p>This event is not published or is no longer publicly available.</p><Link className="show-btn secondary" to="/events">Back to events</Link></div>;
 
   return <>
-    <FighterSignupModal open={fighterSignupOpen} onClose={()=>setFighterSignupOpen(false)} eventName={event.name}/>
+    <FighterSignupModal open={fighterSignupOpen} onClose={()=>setFighterSignupOpen(false)} eventId={event.id} eventName={event.name}/>
     <PageHeader
       eyebrow={event.status==='live'?'LIVE EVENT':'PUBLISHED EVENT'}
       title={event.name}
