@@ -1,0 +1,1331 @@
+BUHURTOS — NOVEMBER 1 PROOF RELEASE BLUEPRINT
+============================================================
+Target: November 1, 2026
+
+PURPOSE
+=======
+
+BuhurtOS must be ready by November 1, 2026 as a polished, stable proof of what the future of armored combat software can look like.
+
+The goal is NOT to build every possible future feature before November 1.
+
+The goal is to launch a convincing, reliable platform that demonstrates the complete vision:
+
+- one place for organizations
+- teams
+- fighters
+- events
+- rankings
+- rules
+- public sport discovery
+- team/event management
+- fighter signup
+- event operations
+- statistics
+- website embeds
+- calendar distribution
+- future account delegation
+
+The release must feel intentional and real.
+
+It must not feel like:
+
+- a prototype
+- a demo
+- a collection of half-built admin pages
+- AI-generated placeholder software
+- a tournament-only application
+
+The November 1 release should be small enough to finish properly and large enough that people can immediately see where BuhurtOS is going.
+
+============================================================
+THE PRODUCT PROMISE
+============================================================
+
+BuhurtOS is intended to become:
+
+THE SHARED DIGITAL INFRASTRUCTURE FOR BUHURT / ARMORED COMBAT.
+
+For now, the platform owner can maintain much of the information centrally.
+
+Later, organizations, teams, fighters and organizers can claim and manage the SAME records.
+
+No duplicate pages.
+No rebuilding entities.
+No changing URLs.
+No replacing the backend.
+No major migration.
+
+The future adoption path should be:
+
+VIEW BUHURTOS
+→ EMBED BUHURTOS
+→ FOLLOW BUHURTOS DATA
+→ CLAIM EXISTING RECORDS
+→ MANAGE THROUGH BUHURTOS
+→ RUN OPERATIONS THROUGH BUHURTOS
+
+============================================================
+NON-NEGOTIABLE NOVEMBER 1 PRINCIPLE
+============================================================
+
+DO NOT add a technology or feature before November 1 unless it does at least one of these:
+
+1. Makes the public platform significantly more impressive.
+2. Makes the real Red Deer Rumble workflow usable.
+3. Makes BuhurtOS significantly more stable.
+4. Makes future organization adoption easier without causing a rewrite.
+5. Makes external websites able to use BuhurtOS data.
+
+If it does not meet one of those criteria, defer it.
+
+============================================================
+P0 — STABILITY FIRST
+============================================================
+
+Before adding more visible features:
+
+- restore completely green frontend CI
+- fix current PublicTeamMap TypeScript failure
+- diagnose/fix Supabase CI startup failure
+- run navigation audit
+- run typecheck
+- run tests
+- run production build
+- confirm deploy succeeds
+
+Required release standard:
+
+- zero known critical bugs
+- zero known high-severity bugs
+- no broken primary navigation
+- no buttons that appear actionable but do nothing
+- no fake/demo records shown as real
+- no fatal errors on supported mobile/desktop layouts
+- no private data exposed publicly
+- no required workflow that depends on editing SQL manually
+
+Absolute mathematical “bug free” cannot be guaranteed in software.
+
+The November 1 acceptance definition is:
+
+ZERO KNOWN RELEASE-BLOCKING BUGS.
+
+============================================================
+1. PUBLIC HOME
+============================================================
+
+Make the public homepage feel like a real global sports platform.
+
+Headline concept:
+
+EVERYTHING BUHURT. ONE PLATFORM.
+
+Show real information only:
+
+- organizations
+- teams
+- fighters
+- events
+- rankings
+- rules
+- world map
+- upcoming events
+
+The public experience must immediately communicate that BuhurtOS connects the sport.
+
+Do not fake:
+
+- live events
+- rankings
+- fighters
+- stats
+- records
+- tournament results
+
+Use proper loading skeletons instead of long blank waits.
+
+============================================================
+2. ORGANIZATIONS
+============================================================
+
+Public organization pages must work.
+
+Examples:
+
+BI
+HACSA
+other imported governing groups
+
+Show:
+
+- organization name
+- type
+- region
+- description
+- website
+- connected teams
+- number of teams
+- represented countries
+- public events where applicable
+
+Hierarchy should support:
+
+platform
+→ federation
+→ regional/national organization
+→ team
+
+Do not incorrectly represent Red Deer Reavers as an organization.
+
+Reavers is a team under HACSA.
+
+============================================================
+3. TEAMS
+============================================================
+
+Team directory must be one of the strongest public features.
+
+Required:
+
+- search
+- organization filter
+- country filter
+- region where data exists
+- directory view
+- map view
+- team page
+- stable public slug
+- logo where available
+- public location
+- organization
+- source-backed ranking/stat data where available
+- public roster where available
+- public links
+- source provenance
+
+Red Deer Reavers permanent public slug:
+
+red-deer-reavers
+
+No team link should depend exclusively on an internal UUID.
+
+UUID lookup may remain as backward compatibility.
+
+============================================================
+4. FIGHTERS
+============================================================
+
+Public fighter profiles should exist only where a real fighter identity exists.
+
+Show:
+
+- public display name
+- nickname
+- avatar
+- public region
+- bio
+- verified state where applicable
+- team association when safely/publicly available
+- source-backed results/statistics only
+
+Do not invent fighter records.
+
+Do not show private:
+
+- email
+- phone
+- DOB
+- legal identity
+- emergency contacts
+- waiver information
+
+Future claim functionality must be possible without recreating fighter identities.
+
+============================================================
+5. GLOBAL EVENT MODEL
+============================================================
+
+Before November 1, generalize Events enough that BuhurtOS is NOT tournament-only.
+
+Minimum event categories:
+
+- tournament
+- exhibition
+- demo
+- training
+- clinic/workshop
+- recruitment
+- fundraiser
+- gathering/social
+- meeting/AGM
+- community appearance
+- custom
+
+An event should have:
+
+- title
+- category
+- organizer
+- date
+- start/end time where known
+- timezone
+- venue/location
+- public description
+- visibility/status
+- links
+- image/poster support
+- registration/signup state
+
+Competition features are optional.
+
+A gathering must NOT show:
+
+- standings
+- brackets
+- fight cards
+- divisions
+
+unless those modules actually exist.
+
+============================================================
+6. PUBLIC EVENT CALENDAR
+============================================================
+
+Build one excellent Events page.
+
+Before November 1 it needs:
+
+- upcoming events
+- past events
+- filters
+- category labels
+- organization filter
+- team filter where possible
+- list/agenda view
+
+A full advanced month/week scheduler can be deferred if it threatens stability.
+
+However, architect event data so FullCalendar can be added after November 1 without schema redesign.
+
+IMPORTANT:
+
+Not every event is a fight.
+
+Examples the system must handle cleanly:
+
+- Red Deer Rumble
+- Reavers practice
+- HACSA AGM
+- public demo
+- Christmas gathering
+- armor workshop
+- fundraiser
+
+============================================================
+7. RED DEER RUMBLE — REAL PROOF EVENT
+============================================================
+
+Red Deer Rumble should be the real-world proof that BuhurtOS is not just a concept.
+
+Real event:
+
+Red Deer Rumble
+November 14–15, 2026
+Horse in Hand Ranch
+Blackfalds, Alberta
+Hosted by Red Deer Reavers
+
+By November 1 the public event page should support:
+
+- event poster/image
+- description
+- dates
+- venue
+- host team
+- external link
+- fighter signup
+- announcements
+- categories/divisions when known
+- schedule when known
+- registration status
+- real fight card/bracket/result modules ready to populate
+
+Do not fill unknown competition details with guesses.
+
+Use:
+
+TBA
+
+where facts have not been confirmed.
+
+============================================================
+8. FIGHTER SIGNUP
+============================================================
+
+Keep the native BuhurtOS signup system.
+
+Do not use Google Forms.
+
+Signup requires an event-specific invitation code.
+
+Example style:
+
+RDR26-ABC123
+
+Authorized code issuers:
+
+- platform super admin
+- event member
+- host-team member
+- event organization member
+- governing parent organization member
+
+The code only unlocks event signup.
+
+It does NOT grant admin privileges.
+
+Store submissions privately in Supabase.
+
+Minimum fighter submission fields:
+
+- display/full name
+- email
+- phone
+- team
+- experience
+- fighting interests/categories
+- armor status
+- attendance/travel notes
+- emergency contact
+- additional notes
+- consent
+
+Organizer workflow:
+
+PENDING
+→ ACCEPT
+or
+→ DENY
+
+Optional intermediate:
+CONTACTED
+
+Only authorized event/team/organization users may see private signup details.
+
+============================================================
+9. ACCESS-CODE HIERARCHY
+============================================================
+
+Keep the delegated platform access-code architecture already created.
+
+Hierarchy:
+
+platform super admin
+→ organization admins
+→ clubs/teams
+→ captains/coaches/fighters/support
+
+No subgroup may issue a role above its authority.
+
+The server, not the UI, enforces this.
+
+This is the bridge between:
+
+“Garrett manages everything”
+
+and
+
+“organizations manage themselves.”
+
+============================================================
+10. FUTURE ACCOUNT SWITCH — BUILD NOW, OPEN LATER
+============================================================
+
+Create centralized platform configuration.
+
+Minimum modes:
+
+account_registration_mode:
+- disabled
+- invite_only
+- open
+
+organization_claims:
+- false/true
+
+team_claims:
+- false/true
+
+fighter_claims:
+- false/true
+
+event_claims:
+- false/true
+
+event_creation_mode:
+- platform_only
+- approved_organizers
+- organization_members
+- open
+
+Before November 1:
+
+- keep public browsing open
+- keep operational account access controlled
+- keep Garrett/platform_super_admin above all organizations
+
+The purpose is NOT to launch open registration yet.
+
+The purpose is to make future activation a configuration change rather than a rewrite.
+
+============================================================
+11. BASIC CLAIM-READY ARCHITECTURE
+============================================================
+
+Do NOT build the entire claim verification ecosystem before November 1.
+
+DO ensure the database and ownership model are claim-ready.
+
+Existing:
+
+organization
+team
+fighter
+event
+
+must be able to later receive:
+
+- authenticated owner/admin membership
+- claim record
+- verification state
+
+without replacing the entity.
+
+If time permits, create simple claim-request tables and platform review.
+
+If it threatens stability, defer the claim UI until after November 1.
+
+============================================================
+12. EMBEDS — NOVEMBER 1 VERSION
+============================================================
+
+This is one of the most important “wow” features.
+
+Build a small but excellent embed platform.
+
+Do NOT build every possible widget before November 1.
+
+Required V1 embeds:
+
+1. UPCOMING EVENTS / CALENDAR AGENDA
+
+Example:
+HACSA website embeds all HACSA events.
+
+2. TEAM CARD / TEAM STATS
+
+Example:
+Red Deer Reavers embeds its current profile/stats.
+
+3. EVENT CARD
+
+Example:
+An organizer embeds Red Deer Rumble on their site.
+
+4. TOURNAMENT STANDINGS / RESULTS
+
+Expand the existing standings widget so it accepts an explicit event.
+
+All V1 embeds use iframe.
+
+Requirements:
+
+- public data only
+- responsive
+- mobile friendly
+- fast
+- stable URL
+- light/dark/auto theme
+- configurable accent where practical
+- subtle Powered by BuhurtOS
+- no main BuhurtOS navigation
+- no authentication requirement
+
+Do NOT build Lit Web Components before November 1.
+
+Design the public data contract so Web Components can be added later.
+
+============================================================
+13. EMBED BUILDER — SIMPLE VERSION
+============================================================
+
+Add a basic Embed Builder.
+
+User chooses:
+
+- widget type
+- organization/team/event
+- theme
+- height
+
+Generate:
+
+iframe code
+
+Provide:
+
+COPY CODE
+
+Do not spend weeks building a visual website builder.
+
+A clean form + preview is enough.
+
+============================================================
+14. ICS CALENDAR FEEDS
+============================================================
+
+If achievable without destabilizing the release, provide stable ICS feeds.
+
+High-value examples:
+
+- HACSA events
+- Red Deer Reavers events
+
+Example future URLs:
+
+/calendar/hacsa.ics
+/calendar/team/red-deer-reavers.ics
+
+This lets users subscribe from:
+
+- Google Calendar
+- Apple Calendar
+- Outlook
+
+If the implementation becomes unexpectedly complex, prioritize the public event embed before ICS.
+
+============================================================
+15. PUBLIC API — MINIMAL FOUNDATION
+============================================================
+
+Do NOT build a massive developer platform before November 1.
+
+Create a small public API contract sufficient for embeds.
+
+Suggested endpoints:
+
+/api/v1/organizations
+/api/v1/teams/{slug}
+/api/v1/teams/{slug}/stats
+/api/v1/events
+/api/v1/events/{slug}
+/api/v1/calendar
+
+Use public DTOs.
+
+Never expose raw private tables as an API contract.
+
+Version it from the beginning:
+
+/api/v1
+
+Add broader API documentation after the proof release.
+
+============================================================
+16. PERFORMANCE
+============================================================
+
+This is release-critical.
+
+Continue removing:
+
+- N+1 queries
+- duplicate directory loads
+- unbounded tables
+- large unnecessary payloads
+- eagerly loaded maps
+- repeated RPCs
+- unnecessary realtime subscriptions
+
+Already-established direction:
+
+- server-side directory filters
+- aggregate organization RPC
+- client caching
+- lightweight map feed
+- lazy map loading
+- image lazy loading
+- incremental team-card rendering
+
+Required performance behavior:
+
+- public home renders useful content before map finishes
+- detail pages do not load entire directories first
+- cached navigation feels immediate
+- no public route should trigger hundreds of requests
+- no huge all-record downloads merely to show a small detail page
+
+============================================================
+17. MOBILE
+============================================================
+
+Mobile quality is release-critical.
+
+Test at:
+
+360px
+390px
+412px
+768px
+1024px
+
+Primary target experiences:
+
+- homepage
+- team directory
+- team page
+- events
+- event page
+- fighter signup
+- rules
+- login
+- owner/admin navigation
+- event signup review
+
+Check:
+
+- hamburger/nav
+- tap targets
+- scrolling
+- horizontal overflow
+- modal height
+- mobile keyboard
+- forms
+- maps
+- tables
+- bottom navigation
+- long team names
+
+No desktop-only feature may be considered complete.
+
+============================================================
+18. DESIGN SYSTEM — LIGHTWEIGHT BEFORE NOVEMBER 1
+============================================================
+
+Do NOT attempt a full package/monorepo design-system rewrite before November 1.
+
+Standardize the existing UI now.
+
+Create shared versions of:
+
+- Button
+- Card/Panel
+- Badge/Status
+- Dialog/Modal
+- Form controls
+- Search/filter bar
+- Empty state
+- Error state
+- Skeleton/loading state
+- Event card
+- Team card
+
+Use consistent:
+
+- radii
+- spacing
+- fonts
+- tap targets
+- colors
+- loading states
+
+Storybook can be added after the release unless implementation is quick and clearly reduces regression risk.
+
+============================================================
+19. FORMS
+============================================================
+
+React Hook Form + Zod are the target architecture.
+
+Before November 1:
+
+use them for NEW or heavily rewritten forms where beneficial.
+
+Do not rewrite every working form simply for consistency.
+
+Priority:
+
+- fighter signup
+- event creation/editing
+- access/signup code creation
+
+Existing stable forms can migrate later.
+
+============================================================
+20. MAP
+============================================================
+
+Do NOT migrate Leaflet to MapLibre before November 1 unless the current map remains a serious blocker.
+
+Current priority:
+
+- functional
+- fast
+- clustered
+- reliable links
+- lazy loaded
+- correct locations
+
+MapLibre remains the post-launch upgrade path for:
+
+- vector tiles
+- richer global map
+- globe rendering
+- large dataset scaling
+
+Avoid a risky map rewrite during stabilization.
+
+============================================================
+21. NATIVE ANDROID / APK
+============================================================
+
+Capacitor is the correct native direction.
+
+However:
+
+DO NOT let APK packaging delay the public November 1 proof release.
+
+Before November 1:
+
+- make the web/PWA mobile experience excellent
+- keep business logic portable
+- avoid browser-only architectural traps
+- create a Capacitor branch/proof if core release becomes stable early
+
+Target shortly after core stabilization:
+
+React/Vite
+→ Capacitor
+→ Android APK/AAB
+
+Same backend.
+Same permissions.
+Same domain logic.
+
+No Kotlin rewrite.
+
+============================================================
+22. OFFLINE / POWERSYNC
+============================================================
+
+PowerSync remains the preferred offline-first candidate.
+
+Do NOT move all operations to PowerSync before November 1.
+
+Before the deadline:
+
+- preserve existing offline queue
+- ensure scoring/critical operations have understandable offline behavior
+- document the future PowerSync integration boundary
+
+After proof release:
+
+pilot PowerSync on one tournament workflow.
+
+============================================================
+23. ANALYTICS / ERROR TRACKING
+============================================================
+
+High value but secondary to core stability.
+
+Ideal:
+
+PostHog:
+- product analytics
+- funnels
+- session replay
+- usage
+
+Sentry:
+- errors
+- traces
+- failed requests
+- release regressions
+
+If setup is straightforward, add before November 1.
+
+If integration starts consuming significant time, defer until immediately after the proof release.
+
+Do not let observability integration block the actual product.
+
+============================================================
+24. RULES
+============================================================
+
+Rules are a major differentiator.
+
+Before November 1:
+
+- BI rules accessible publicly
+- clearly organized by ruleset/version/category
+- search
+- mobile-friendly marshal reference
+- source/citation information
+- category-specific filtering where data supports it
+
+Do NOT build AI rule interpretation before November 1.
+
+Future:
+
+Ask the Rules
+→ retrieves relevant source-backed rules
+→ marshal decides
+
+AI must never invent rulings.
+
+============================================================
+25. STATS
+============================================================
+
+Before November 1, establish ONE canonical server-side statistics layer.
+
+Minimum:
+
+TEAM
+- matches
+- wins
+- losses
+- draws where applicable
+- points/ranking where source-backed
+- event history
+
+FIGHTER
+- real finalized result history where linked
+- no invented stats
+
+EVENT
+- teams
+- fighters
+- matches
+- results
+
+Do not build twenty fancy charts before the underlying stats are trustworthy.
+
+============================================================
+26. CHARTS
+============================================================
+
+Apache ECharts remains the preferred future visualization layer.
+
+Before November 1:
+
+only add charts where they clearly improve the public proof.
+
+Do not add charts merely for visual decoration.
+
+Text/table versions of important stats must remain available.
+
+============================================================
+27. SEARCH
+============================================================
+
+Create global search if schedule permits after stability and core event/embed work.
+
+Search:
+
+- organizations
+- teams
+- fighters
+- events
+- rules
+
+Use PostgreSQL first:
+
+- aliases
+- full-text search
+- pg_trgm
+
+Do not add an external search service before November 1.
+
+============================================================
+28. QR CODES
+============================================================
+
+High-value but not required for November 1 proof.
+
+If time remains after core release is stable:
+
+- event QR
+- fighter signup QR
+- team QR
+
+Defer advanced:
+
+- check-in scanner
+- armor clearance QR
+- marshal QR
+
+until after release unless specifically needed for Rumble.
+
+============================================================
+29. LIVESTREAM / OBS
+============================================================
+
+Excellent post-launch differentiator.
+
+Architecture should allow:
+
+/overlay/event/{id}/scoreboard
+
+But do not implement full OBS overlay infrastructure before November 1 unless every P0–P2 item is already stable.
+
+============================================================
+30. NOTIFICATIONS
+============================================================
+
+Push notifications are post-launch.
+
+Do not integrate FCM before November 1 unless there is excess time after stability.
+
+Architecture must not prevent future:
+
+- follow team
+- follow fighter
+- follow event
+- schedule-change notification
+- registration-open notification
+- match result notification
+
+============================================================
+31. WEBHOOKS
+============================================================
+
+Design for future signed webhooks.
+
+Examples:
+
+EVENT_PUBLISHED
+MATCH_FINALIZED
+FIGHTER_APPROVED
+SCHEDULE_CHANGED
+
+Do not build a full integration marketplace before November 1.
+
+============================================================
+32. SEO / SOCIAL SHARING
+============================================================
+
+Before November 1, public pages should at least have strong:
+
+- page titles
+- descriptions
+- canonical identity
+- share-friendly content
+
+If production hosting and routing migration happens before deadline, add structured data for:
+
+- SportsEvent
+- SportsTeam
+- SportsOrganization where applicable
+
+Full dynamic OpenGraph-image generation can follow after proof release.
+
+============================================================
+33. PRIVACY
+============================================================
+
+Keep explicit layers.
+
+PRIVATE:
+- legal/private identity information
+- phone
+- email unless explicitly public
+- DOB
+- waiver
+- emergency contact
+- private notes
+
+SCOPED:
+- eligibility
+- clearance
+- membership/role
+- event operational details
+
+PUBLIC:
+- public display name
+- public profile
+- team
+- source-backed results
+- public bio
+- public region
+- published events
+
+Privacy must be enforced by database/backend authorization.
+
+============================================================
+34. AUDIT LOG
+============================================================
+
+Important sensitive actions should remain auditable.
+
+Priority:
+
+- results
+- role changes
+- access changes
+- fighter merges
+- organization/team changes
+- event publication
+
+Do not build an elaborate audit-analysis dashboard before November 1.
+
+Ensure the underlying audit trail exists.
+
+============================================================
+35. FEATURES EXPLICITLY DEFERRED UNTIL AFTER NOVEMBER 1
+============================================================
+
+These are good ideas.
+
+They are NOT required for the proof release.
+
+DEFER:
+
+- TanStack Start migration
+- full monorepo reorganization
+- MapLibre rewrite
+- Lit Web Components
+- complete public developer portal
+- full PowerSync conversion
+- iOS build
+- advanced push notifications
+- OBS overlays
+- AI rule search
+- pgvector semantic search
+- dedicated external search engine
+- payments
+- sponsor management system
+- achievement/badge system
+- full historical archive project
+- advanced webhook marketplace
+- advanced claim dispute workflow
+- tournament two-person approval workflows
+- custom mobile native plugins not needed for proof
+- complex multi-calendar scheduler UI
+- premium calendar resource/timeline features
+- fancy charting everywhere
+
+These should be architecturally possible, not implemented prematurely.
+
+============================================================
+36. NOVEMBER 1 PRIORITY ORDER
+============================================================
+
+P0 — MUST HAPPEN FIRST
+
+1. Green CI
+2. successful production deploy
+3. no broken primary links
+4. no fatal public-page errors
+5. no major mobile layout failures
+6. secure/private data boundaries verified
+
+P1 — CORE PROOF
+
+7. excellent public homepage
+8. organizations
+9. teams
+10. fighters
+11. generalized event categories
+12. public event directory
+13. Red Deer Rumble page
+14. fighter signup code flow
+15. accept/deny signup workflow
+16. rules reference
+17. source-backed rankings
+
+P2 — THE “THIS IS THE FUTURE” DIFFERENTIATORS
+
+18. upcoming-events/calendar embed
+19. team stats/card embed
+20. event/tournament embed
+21. simple Embed Builder
+22. canonical stats layer
+23. account/adoption feature flags
+24. claim-ready entity architecture
+
+P3 — ONLY IF CORE IS STABLE EARLY
+
+25. ICS calendar subscriptions
+26. Cloudflare production migration
+27. PostHog
+28. Sentry
+29. basic global search
+30. Capacitor Android proof
+31. event/signup QR codes
+
+============================================================
+37. RELEASE ACCEPTANCE TEST
+============================================================
+
+The proof release is not complete until these scenarios work.
+
+A. RANDOM PUBLIC VISITOR
+
+- opens homepage
+- sees real platform content
+- opens Organizations
+- opens Teams
+- searches/filters teams
+- opens Red Deer Reavers
+- opens Fighters
+- opens Events
+- opens Red Deer Rumble
+- opens Rankings
+- opens Rules
+- no login required
+
+B. RED DEER RUMBLE FIGHTER
+
+- opens Rumble
+- taps Fighter Signup
+- must enter event code
+- invalid code fails clearly
+- valid code unlocks form
+- submits form
+- receives confirmation
+- cannot see other submissions
+
+C. AUTHORIZED REAVERS/HACSA USER
+
+- signs in
+- opens Rumble fighter signups
+- creates branded event code
+- reviews pending fighter
+- accepts or denies
+- sees only data they are authorized to access
+
+D. PLATFORM SUPER ADMIN
+
+- signs in
+- enters Platform Control
+- creates/manages organization
+- creates/manages team
+- creates/manages event
+- creates access codes
+- reaches every major admin tool without requiring an unrelated event
+
+E. NONCOMPETITIVE EVENT
+
+Create/test a gathering or meeting.
+
+It:
+
+- appears in Events
+- has correct category
+- shows relevant information
+- does NOT show fake tournament modules
+
+F. EMBED
+
+- generate an upcoming-events or team embed
+- paste iframe into plain HTML
+- loads correctly
+- works on mobile
+- exposes only public data
+
+G. MOBILE
+
+Run key public flows at:
+
+360
+390
+412 px
+
+No:
+
+- sideways scrolling
+- inaccessible controls
+- broken modal
+- hidden submit button
+- overlapping bottom navigation
+
+H. PERFORMANCE
+
+- homepage does not make hundreds of API calls
+- team detail does not load full team directory unnecessarily
+- public content appears before heavy map code
+- images lazy load
+- map lazy loads
+
+============================================================
+38. DEVELOPMENT RULE FOR THE FINAL MONTH
+============================================================
+
+Every proposed change must be classified:
+
+RELEASE BLOCKER
+CORE PROOF
+WOW FEATURE
+POST-LAUNCH
+
+Do not start a POST-LAUNCH item while any RELEASE BLOCKER exists.
+
+Do not start a new WOW FEATURE while an existing CORE PROOF workflow is unfinished.
+
+Prefer:
+
+4 excellent features
+
+over:
+
+14 half-working features.
+
+============================================================
+39. FINAL PRODUCT POSITIONING
+============================================================
+
+The November 1 release should make this statement believable:
+
+“BuhurtOS connects the sport from federation to fighter.
+
+Discover teams and events.
+Follow the competitive record.
+Read the rules.
+Run events.
+Register fighters.
+Publish results.
+Embed your data anywhere.
+
+Use as much or as little of BuhurtOS as you want.”
+
+The long-term adoption strategy is:
+
+An organization should not need to replace its website to use BuhurtOS.
+
+A team should not need to adopt every feature to benefit.
+
+A fighter should not need to create a duplicate career record.
+
+A federation should not need to surrender platform control.
+
+BuhurtOS provides shared infrastructure while organizations keep their identities.
+
+============================================================
+40. FINAL ARCHITECTURAL DECISION
+============================================================
+
+DO NOT rebuild BuhurtOS before November 1.
+
+HARDEN IT.
+GENERALIZE IT.
+MAKE IT FAST.
+MAKE IT BEAUTIFUL.
+MAKE IT EMBEDDABLE.
+MAKE IT CLAIM-READY.
+PROVE IT WITH RED DEER RUMBLE.
+
+Then expand.
+
+That is the shortest route to demonstrating that BuhurtOS can become the operating system for armored combat without risking the November 1 deadline.
