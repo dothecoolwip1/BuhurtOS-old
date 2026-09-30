@@ -64,6 +64,7 @@ function routeNeedsEventSnapshot(): boolean {
     '/ops/access',
     '/ops/access-admin',
     '/ops/platform',
+    '/ops/codes',
     '/ops/foundation',
     '/ops/governance',
     '/ops/invite',
