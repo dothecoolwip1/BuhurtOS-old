@@ -225,3 +225,26 @@ describe('running behind', () => {
     expect(minutesBehindPlan('junk')).toBe(0);
   });
 });
+
+describe('every field size', () => {
+  it('always yields a sound suggestion, for duels and team melees', () => {
+    for (const family of ['duel', 'melee'] as const) {
+      for (let n = 2; n <= 64; n++) {
+        const list = recommendStructures(n, family);
+        expect(list.length, `${family} ${n}`).toBeGreaterThan(0);
+        expect(list.filter(s => s.recommended).length).toBe(1);
+        for (const s of list) {
+          expect(s.bouts).toBeGreaterThanOrEqual(1);
+          expect(s.minBoutsPerCompetitor).toBeLessThanOrEqual(s.maxBoutsPerCompetitor);
+          if (s.groups.length) expect(s.groups.reduce((a, b) => a + b, 0)).toBe(n);
+          if (s.format === 'pools_to_bracket') expect(Math.min(...s.groups), `${family} ${n} ${s.id}`).toBeGreaterThanOrEqual(3);
+        }
+      }
+    }
+  });
+  it('keeps melee pools a little smaller than duel pools for big fields', () => {
+    const duel = recommendStructures(24, 'duel')[0];
+    const melee = recommendStructures(24, 'melee')[0];
+    expect(Math.max(...melee.groups)).toBeLessThanOrEqual(Math.max(...duel.groups));
+  });
+});
