@@ -44,6 +44,7 @@ const AccessCodePage = lazy(() => import('./pages/AccessCodePage').then(module =
 const AccessAdminPage = lazy(() => import('./pages/AccessAdminPage').then(module => ({ default: module.AccessAdminPage })));
 const PlatformControlPage = lazy(() => import('./pages/PlatformControlPage').then(module => ({ default: module.PlatformControlPage })));
 const DelegatedAccessPage = lazy(() => import('./pages/DelegatedAccessPage').then(module => ({ default: module.DelegatedAccessPage })));
+const FighterSignupAdminPage = lazy(() => import('./pages/FighterSignupAdminPage').then(module => ({ default: module.FighterSignupAdminPage })));
 
 function OperationsProvider() {
   return <AppStateProvider><Outlet /></AppStateProvider>;
@@ -102,6 +103,7 @@ export function App(){
         <Route path="bracket" element={<BracketPage/>}/>
         <Route path="standings" element={<StandingsPage/>}/>
         <Route path="manage" element={<RequirePermission permission="event.manage"><EventManagementPage/></RequirePermission>}/>
+        <Route path="signups" element={<RequirePermission permission="event.manage"><FighterSignupAdminPage/></RequirePermission>}/>
         <Route path="admin" element={<RequirePermission permission="bracket.manage"><AdminPage/></RequirePermission>}/>
         <Route path="discipline" element={<RequirePermission permission="discipline.manage"><DisciplinePage/></RequirePermission>}/>
         <Route path="notes" element={<RequirePermission permission="notes.team"><NotesPage/></RequirePermission>}/>
