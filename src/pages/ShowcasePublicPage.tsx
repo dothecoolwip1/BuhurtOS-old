@@ -1,7 +1,7 @@
-import {useEffect,useMemo,useState} from 'react';
+import {useEffect,useMemo,useRef,useState} from 'react';
 import {Link} from 'react-router-dom';
 import {PublicTeamMap} from '../components/PublicTeamMap';
-import {Pill} from '../components/ShowcaseUI';
+import {Pill,StatePanel} from '../components/ShowcaseUI';
 import {loadPublicOrganizations,loadPublicEvents,type PublicOrganizationSummary,type PublicEventSummary} from '../lib/publicDirectory';
 import {loadPublicTeamMap,type PublicDirectoryTeam} from '../lib/teamDirectory';
 
@@ -110,9 +110,11 @@ export function ShowcasePublicPage(){
   const [orgs,setOrgs]=useState<PublicOrganizationSummary[]>([]);
   const [events,setEvents]=useState<PublicEventSummary[]>([]);
   const [loading,setLoading]=useState(true);
-  const [teamsLoading,setTeamsLoading]=useState(true);
+  const [teamsLoading,setTeamsLoading]=useState(false);
+  const [mapRequested,setMapRequested]=useState(false);
   const [error,setError]=useState('');
   const [teamsError,setTeamsError]=useState('');
+  const mapSectionRef=useRef<HTMLElement|null>(null);
   const [format,setFormat]=useState<FormatKey>('melee');
   const [visitor,setVisitor]=useState<VisitorKey>('curious');
 
@@ -122,17 +124,38 @@ export function ShowcasePublicPage(){
       .then(([o,e])=>{if(active){setOrgs(o);setEvents(e)}})
       .catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load public organizations and events.')})
       .finally(()=>{if(active)setLoading(false)});
+    return()=>{active=false};
+  },[]);
+
+  useEffect(()=>{
+    if(mapRequested)return;
+    const node=mapSectionRef.current;
+    if(!node)return;
+    if(!('IntersectionObserver' in window)){setMapRequested(true);return;}
+    const observer=new IntersectionObserver(entries=>{
+      if(entries.some(entry=>entry.isIntersecting)){setMapRequested(true);observer.disconnect();}
+    },{rootMargin:'700px'});
+    observer.observe(node);
+    return()=>observer.disconnect();
+  },[mapRequested]);
+
+  useEffect(()=>{
+    if(!mapRequested)return;
+    let active=true;
+    setTeamsLoading(true);
+    setTeamsError('');
     loadPublicTeamMap()
       .then(t=>{if(active)setTeams(t)})
       .catch(err=>{if(active)setTeamsError(err instanceof Error?err.message:'Unable to load team locations.')})
       .finally(()=>{if(active)setTeamsLoading(false)});
     return()=>{active=false};
-  },[]);
+  },[mapRequested]);
 
   const mapped=useMemo(()=>teams.filter(t=>t.latitude!=null&&t.longitude!=null),[teams]);
   const countries=useMemo(()=>new Set(teams.map(t=>t.countryCode||t.countryName).filter(Boolean)).size,[teams]);
   const upcoming=useMemo(()=>events.filter(e=>new Date(e.endsAt).getTime()>=Date.now()).slice(0,4),[events]);
   const rosterSourceCount=useMemo(()=>orgs.reduce((sum,o)=>sum+o.rosterCount,0),[orgs]);
+  const publicTeamCount=useMemo(()=>orgs.reduce((sum,o)=>sum+o.teamCount,0),[orgs]);
   const activeFormat=formats[format];
   const activeVisitor=visitorPaths[visitor];
   const spotlightEvent=upcoming[0];
@@ -240,9 +263,9 @@ export function ShowcasePublicPage(){
         <Link className="show-btn secondary" to="/teams">Explore the real directory →</Link>
       </div>
       <div className="bhome-network-stats">
-        <Link to="/teams"><strong>{teamsLoading?'…':teams.length}</strong><span>public teams</span><small>Open the directory</small></Link>
+        <Link to="/teams"><strong>{loading?'…':publicTeamCount}</strong><span>public teams</span><small>Open the directory</small></Link>
         <Link to="/governance"><strong>{loading?'…':orgs.length}</strong><span>organizations</span><small>See the hierarchy</small></Link>
-        <Link to="/teams"><strong>{teamsLoading?'…':countries}</strong><span>countries</span><small>Explore the map</small></Link>
+        <Link to="/teams"><strong>{mapRequested?(teamsLoading?'…':countries):'↘'}</strong><span>countries mapped</span><small>{mapRequested?'From verified team locations':'Loads with the map below'}</small></Link>
         <Link to="/fighters"><strong>{loading?'…':rosterSourceCount}</strong><span>roster records</span><small>Publicly listed</small></Link>
       </div>
     </section>
@@ -260,7 +283,7 @@ export function ShowcasePublicPage(){
         <div><span className="eyebrow">WHAT IS ACTUALLY HAPPENING?</span><h2>Real published events.</h2><p>If an event is not published, BuhurtOS does not pretend it is live. When organizers publish real information, it can appear here.</p></div>
         <Link to="/events">Open full event calendar →</Link>
       </div>
-      {error?<div className="state-card"><strong>Unable to load public directory data</strong><p>{error}</p></div>:null}
+      {error?<StatePanel tone="error" title="Unable to load public directory data" text={error}/>:null}
       {spotlightEvent?<div className="bhome-featured-event">
         <div className="bhome-featured-date"><span>UP NEXT</span><strong>{new Date(spotlightEvent.startsAt).getDate()}</strong><small>{formatEventDate(spotlightEvent.startsAt)}</small></div>
         <div className="bhome-featured-copy"><div><Pill tone={spotlightEvent.status==='live'?'red':'green'}>{spotlightEvent.status}</Pill><span>{spotlightEvent.eventType.replaceAll('_',' ')}</span></div><h3>{spotlightEvent.name}</h3><p>{spotlightEvent.venue||'Venue TBA'}{spotlightEvent.organizerName?' · '+spotlightEvent.organizerName:''}</p><Link className="show-btn primary" to={'/events/'+spotlightEvent.id}>Open event →</Link></div>
@@ -269,17 +292,17 @@ export function ShowcasePublicPage(){
       {upcoming.length>1?<div className="bhome-events-strip">{upcoming.slice(1).map(event=><Link to={'/events/'+event.id} key={event.id}><small>{formatEventDate(event.startsAt)}</small><b>{event.name}</b><span>{event.venue||'Venue TBA'}</span><i>→</i></Link>)}</div>:null}
     </section>
 
-    <section className="bhome-map-stage">
+    <section className="bhome-map-stage" ref={mapSectionRef}>
       <div className="bhome-map-copy">
         <span className="eyebrow">WHERE DOES THIS EVEN EXIST?</span>
         <h2>Closer than you might think.</h2>
         <p>BuhurtOS maps public team locations so somebody discovering the sport for the first time can go from “what is this?” to “who trains near me?” without hunting through disconnected social pages.</p>
-        <div><strong>{teamsLoading?'…':mapped.length}</strong><span>teams currently mapped</span></div>
+        <div><strong>{!mapRequested?'↘':teamsLoading?'…':mapped.length}</strong><span>{!mapRequested?'map loads as you approach':'teams currently mapped'}</span></div>
         <Link className="show-btn primary" to="/teams">Find teams →</Link>
       </div>
       <div className="bhome-map-shell">
         <div className="bhome-map-note"><span>◎</span><div><b>Interactive team map</b><small>Approximate public locations only. Select a marker to open the team profile.</small></div></div>
-        {teamsLoading?<div className="state-card">Loading team locations…</div>:teamsError?<div className="state-card"><strong>Unable to load team locations</strong><p>{teamsError}</p></div>:mapped.length?<PublicTeamMap teams={mapped}/>:<div className="state-card">Team locations are still being normalized.</div>}
+        {!mapRequested?<div className="map-deferred-placeholder"><span>◎</span><strong>Interactive map deferred</strong><p>The rest of the homepage loads first. Team location data and the map library start only when this section approaches the viewport.</p></div>:teamsLoading?<div className="map-deferred-placeholder loading"><span>◎</span><strong>Loading team locations…</strong><p>Public content above remains usable while the map prepares.</p></div>:teamsError?<StatePanel tone="error" title="Unable to load team locations" text={teamsError}/>:mapped.length?<PublicTeamMap teams={mapped}/>:<StatePanel title="Team locations are still being normalized." text="The team directory remains available without the map."/>}
       </div>
     </section>
 
