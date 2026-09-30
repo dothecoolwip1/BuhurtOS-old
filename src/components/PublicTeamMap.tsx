@@ -57,8 +57,18 @@ async function loadMarkerCluster(){
 }
 
 export function PublicTeamMap({teams}:Props){
- const host=useRef<HTMLDivElement|null>(null);const [failed,setFailed]=useState(false);
+ const host=useRef<HTMLDivElement|null>(null);const [failed,setFailed]=useState(false);const [ready,setReady]=useState(false);
  useEffect(()=>{
+   if(!host.current)return;
+   if(!('IntersectionObserver' in window)){setReady(true);return;}
+   const observer=new IntersectionObserver(entries=>{
+     if(entries.some(entry=>entry.isIntersecting)){setReady(true);observer.disconnect();}
+   },{rootMargin:'300px'});
+   observer.observe(host.current);
+   return()=>observer.disconnect();
+ },[]);
+ useEffect(()=>{
+   if(!ready)return;
    let disposed=false;let map:any;
    setFailed(false);
    loadMarkerCluster().then(L=>{
@@ -112,8 +122,8 @@ export function PublicTeamMap({teams}:Props){
      setTimeout(()=>map?.invalidateSize(),0);
    }).catch(()=>{if(!disposed)setFailed(true)});
    return()=>{disposed=true;if(map)map.remove()};
- },[teams]);
+ },[teams,ready]);
 
  if(failed)return <div className="state-card">The interactive map could not load. Team locations are still available in the directory.</div>;
- return <div className="team-leaflet-map" ref={host} aria-label="Interactive world map of public Buhurt teams with clustered markers"/>;
+ return <div className="team-leaflet-map" ref={host} aria-label="Interactive world map of public Buhurt teams with clustered markers">{!ready&&<div className="map-load-placeholder">Map loads when visible</div>}</div>;
 }
