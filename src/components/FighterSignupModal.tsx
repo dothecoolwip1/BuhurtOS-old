@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useState} from 'react';
-import {submitFighterSignup} from '../lib/fighterSignup';
+import {submitFighterSignup,validateFighterSignupCode} from '../lib/fighterSignup';
 
 const categories=['5v5','12v12','30v30','Longsword','Sword & Buckler','Polearm','Pro Fight','Other'];
 
@@ -12,6 +12,9 @@ export function FighterSignupModal({open,onClose,eventId,eventName}:{open:boolea
   const [busy,setBusy]=useState(false);
   const [message,setMessage]=useState('');
   const [submitted,setSubmitted]=useState(false);
+  const [code,setCode]=useState('');
+  const [codeValid,setCodeValid]=useState(false);
+  const [codeLabel,setCodeLabel]=useState('');
 
   useEffect(()=>{
     if(!open)return;
@@ -22,11 +25,25 @@ export function FighterSignupModal({open,onClose,eventId,eventName}:{open:boolea
     return()=>{document.removeEventListener('keydown',onKey);document.body.style.overflow=previous};
   },[open,onClose]);
 
-  const valid=useMemo(()=>form.displayName.trim().length>=2 && /.+@.+\..+/.test(form.email) && form.consent,[form]);
+  const valid=useMemo(()=>codeValid && form.displayName.trim().length>=2 && /.+@.+\..+/.test(form.email) && form.consent,[form,codeValid]);
 
   if(!open)return null;
 
   const toggle=(value:string)=>setSelected(current=>current.includes(value)?current.filter(item=>item!==value):[...current,value]);
+
+  const verifyCode=async()=>{
+    if(!code.trim())return;
+    setBusy(true);setMessage('');
+    try{
+      const result=await validateFighterSignupCode(eventId,code);
+      setCodeValid(Boolean(result.valid));
+      setCodeLabel(result.label??'');
+      setMessage(result.valid?'Code accepted. Fighter signup unlocked.':result.message??'Invalid signup code.');
+    }catch(error){
+      setCodeValid(false);
+      setMessage(error instanceof Error?error.message:'Unable to verify signup code.');
+    }finally{setBusy(false)}
+  };
 
   const submit=async()=>{
     if(!valid)return;
@@ -34,6 +51,7 @@ export function FighterSignupModal({open,onClose,eventId,eventName}:{open:boolea
     try{
       await submitFighterSignup({
         eventId,
+        code,
         displayName:form.displayName,
         email:form.email,
         phone:form.phone,
@@ -70,6 +88,17 @@ export function FighterSignupModal({open,onClose,eventId,eventName}:{open:boolea
         <p>{message}</p>
         <button className="show-btn primary" type="button" onClick={onClose}>Close</button>
       </div> : <>
+        {!codeValid ? <div className="fighter-signup-code-gate">
+          <div className="fighter-signup-trust">
+            <span>🔐</span>
+            <div><b>Invite code required</b><small>Get a Red Deer Rumble signup code from a Red Deer Reavers, HACSA or higher-level BuhurtOS member.</small></div>
+          </div>
+          <div className="fighter-signup-code-entry">
+            <input value={code} onChange={e=>{setCode(e.target.value.toUpperCase());setCodeValid(false)}} placeholder="RDR26-ABC123" autoCapitalize="characters"/>
+            <button className="show-btn primary" type="button" disabled={busy||!code.trim()} onClick={verifyCode}>{busy?'Checking…':'Unlock signup'}</button>
+          </div>
+          {message&&<div className="auth-message">{message}</div>}
+        </div> : <>
         <div className="fighter-signup-trust">
           <span>⚔</span>
           <div><b>Stored securely in BuhurtOS</b><small>Your signup is private to authorized event organizers and platform administrators.</small></div>
@@ -107,6 +136,7 @@ export function FighterSignupModal({open,onClose,eventId,eventName}:{open:boolea
           <span>This is an event signup request, not final competition clearance or registration approval.</span>
           <button className="show-btn primary" type="button" disabled={busy||!valid} onClick={submit}>{busy?'Submitting…':'Submit fighter signup'}</button>
         </footer>
+        </>}
       </>}
     </section>
   </div>;
