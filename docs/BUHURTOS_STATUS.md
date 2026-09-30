@@ -2,6 +2,38 @@
 
 Last updated: 2026-09-30
 
+## Current state (single table, 2026-09-30)
+
+Base: . Tested and deployed code:  (CI on the exact SHA passed: navigation audit, typecheck, vitest, build, clean {"_tag":"Error","error":{"code":"UnknownSubcommand","message":"Unknown subcommand "start\" for "supabase"
+
+  Did you mean this?
+    start"}} + reset + pgTAP, then Pages deploy). The hosted bundle was fetched afterwards and contains the new 404 page. No database migration was needed or applied for this round.
+
+| Area | Implemented | Tested locally | Deployed | Verified on hosted | Deferred / not verified |
+|---|---|---|---|---|---|
+| Scope: organization tools work without an event (explicit, permission-filtered org picker) | yes | unit tests (selectable orgs, resolution, links) | yes | bundle only | no signed-in hosted run |
+| Scope: event chosen once, kept on every event task, event picker, stale-response guard | yes | unit tests + demo-mode browser | yes | bundle only | rapid-switch race not behaviorally tested |
+| Event detail shows poster, host, slug (shared mapper, narrow missing-column fallback) | yes | loader test with stubbed client | yes | not checked against live rows | |
+| Detail pages reset on param change, distinct error vs not-found, retry | yes (event, team, fighter, team manage) | source/markup only | yes | no | no DOM-level transition test |
+| Stats failures distinguished from 'unavailable' | yes | unit | yes | no | |
+| Homepage sections independent with retry | yes | typecheck, build | yes | no | |
+| Event-timezone dates and month grouping | yes | unit incl. far zone and midnight crossing | yes | no | other pages still use device time for admin-only timestamps |
+| Interest form vs registration wording; setup categories | yes | updated tests | yes | no | |
+| Sign-in: real form, Enter, help on codes; platform-config failures shown | yes | source/unit | yes | no | no real sign-in attempted |
+| Registration-mode switch described as not server-enforced | yes (copy) | unit | yes | n/a | enforcement would need an auth hook; not built |
+| Rankings scoped by source, URL state, repaired stale URLs | yes | unit | yes | no | no ranking data in demo build |
+| Rules URL state, button semantics, coverage note | yes | browser (demo build) | yes | no | |
+| Team page source wording, map retry, reset filters | yes | typecheck | yes | no | |
+| Menu sheet focus trap + inert background | yes | browser (demo build, mobile) | yes | no | screen-reader pass not done |
+| Route error boundary, explanatory 404 | yes | markup | yes | bundle only | |
+
+## Honest list of what is unverified
+
+* No signed-in flow was exercised on the hosted site; I cannot create or sign in to real accounts. Signed-in behavior was checked in demo mode and unit tests only.
+* Live-data pages (events, teams, rankings) were not re-inspected against production rows this round.
+* Hosted security advisors were not re-run; do not revoke grants from advisor output without checking the contextual reviews.
+* Deferred from the request: a full audit of every owner-console repeated-copy section, avatar/logo fallbacks everywhere, PWA update-versus-queued-work test, BI snapshot workflow deploy-path check, screenshots at all five widths.
+
 ## Master Execution Plan Pack 1 complete
 
 Pack 1, **Stability, CI, Routing and Release Baseline**, is complete on the current
