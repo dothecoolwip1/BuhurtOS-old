@@ -4,10 +4,7 @@ Last updated: 2026-09-30
 
 ## Current state (single table, 2026-09-30)
 
-Base: . Tested and deployed code:  (CI on the exact SHA passed: navigation audit, typecheck, vitest, build, clean {"_tag":"Error","error":{"code":"UnknownSubcommand","message":"Unknown subcommand "start\" for "supabase"
-
-  Did you mean this?
-    start"}} + reset + pgTAP, then Pages deploy). The hosted bundle was fetched afterwards and contains the new 404 page. No database migration was needed or applied for this round.
+Base: `de6f251`. Tested and deployed code: `54cd7b0` (CI on the exact SHA passed: navigation audit, typecheck, vitest, build, clean `supabase start` + reset + pgTAP, then Pages deploy). The hosted bundle was fetched afterwards and contains the new 404 page. No database migration was needed or applied for this round. This documentation-only commit follows it.
 
 | Area | Implemented | Tested locally | Deployed | Verified on hosted | Deferred / not verified |
 |---|---|---|---|---|---|
