@@ -13,7 +13,7 @@ const eventNav = [
 
 const ownerNav = [
   ['/ops/platform', 'Owner', '★'],
-  ['/ops/access-admin', 'Access', '⌘'],
+  ['/ops/codes', 'Codes', '⌘'],
   ['/ops/setup', 'Events', '⚔'],
   ['/ops/rulesets', 'Rules', '§'],
   ['/public', 'Public', '◎']
@@ -41,6 +41,7 @@ export function Layout() {
           <NavLink to="/ops/marshal-reference">BI Marshal Reference</NavLink>
           {canSetup && <NavLink to="/ops/rulesets">Rulesets</NavLink>}
           <NavLink to="/ops/sync">Sync Queue</NavLink>
+          <NavLink to="/ops/codes">Access Codes</NavLink>
           {isPlatformSuperAdmin && <NavLink to="/ops/platform">Platform Control</NavLink>}
           {isPlatformSuperAdmin && <NavLink to="/ops/access-admin">Accounts & Early Access</NavLink>}
           {canSetup && <NavLink to="/ops/setup">Setup</NavLink>}
