@@ -58,14 +58,14 @@ export function MarketingHome(){
         <span><b>BuhurtOS</b><small>The operating system for Buhurt</small></span>
       </Link>
       <nav>
-        <a href="#why">Why</a>
-        <a href="#how">How it works</a>
-        <a href="#features">Features</a>
-        <a href="#cost">Cost</a>
+        <button type="button" onClick={()=>document.getElementById('why')?.scrollIntoView({behavior:'smooth'})}>Why</button>
+        <button type="button" onClick={()=>document.getElementById('how')?.scrollIntoView({behavior:'smooth'})}>How it works</button>
+        <button type="button" onClick={()=>document.getElementById('features')?.scrollIntoView({behavior:'smooth'})}>Features</button>
+        <button type="button" onClick={()=>document.getElementById('cost')?.scrollIntoView({behavior:'smooth'})}>Cost</button>
       </nav>
       <div className="marketing-nav-actions">
-        <Link className="show-btn secondary" to="/public">Spectator demo</Link>
-        <Link className="show-btn primary" to="/home">Explore prototype</Link>
+        <Link className="show-btn secondary" to="/public">Public directory</Link>
+        <Link className="show-btn primary" to="/public">Explore BuhurtOS</Link>
       </div>
     </header>
 
@@ -76,7 +76,7 @@ export function MarketingHome(){
           <h1>Everything Buhurt.<br/><em>One system.</em></h1>
           <p>BuhurtOS is being built as a complete tournament and competition platform for governing organizations, event organizers, teams, fighters, marshals and spectators.</p>
           <div className="marketing-hero-actions">
-            <Link className="show-btn primary large" to="/home">Explore the working prototype →</Link>
+            <Link className="show-btn primary large" to="/public">Explore BuhurtOS →</Link>
             <Link className="show-btn secondary large" to="/public">See the spectator experience</Link>
           </div>
           <div className="marketing-proof">
@@ -149,7 +149,7 @@ export function MarketingHome(){
             <span className="eyebrow">THE FULL MEAL DEAL</span>
             <h2>Not just a bracket app.</h2>
             <p>The goal is a complete operating system for competition: before the event, during the event, after the event and across the whole season.</p>
-            <Link className="show-btn primary large" to="/home">Walk through the prototype →</Link>
+            <Link className="show-btn primary large" to="/public">Explore the public platform →</Link>
           </div>
           <div className="marketing-capability-grid">{capabilities.map((x,i)=><div key={x}><span>{i+1}</span><b>{x}</b></div>)}</div>
         </div>
@@ -160,7 +160,7 @@ export function MarketingHome(){
           <span className="eyebrow">A REAL SPORTING RECORD</span>
           <h2>A fighter’s history should follow the fighter.</h2>
           <p>Changing teams should not erase a career. BuhurtOS is designed around permanent fighter identities with event history, category records, rankings, podiums and achievements.</p>
-          <Link to="/fighters/bob">See a sample fighter profile →</Link>
+          <Link to="/fighters">Browse fighter profiles →</Link>
         </div>
         <div className="marketing-record-card">
           <div className="marketing-record-person"><span>BM</span><div><small>HACSA FIGHTER • RANK #3</small><h3>Bob “Bear” Mercer</h3><p>Red Deer Reavers • Central Alberta</p></div></div>
@@ -180,7 +180,7 @@ export function MarketingHome(){
             <span><b>Cost recovery only</b><small>If real operating costs appear, pricing is intended to cover those costs.</small></span>
             <span><b>Transparent by design</b><small>The community should understand what it is paying for.</small></span>
           </div>
-          <p className="marketing-cost-note">The prototype is currently a free development project and does not process real registrations, payments or official records.</p>
+          <p className="marketing-cost-note">BuhurtOS is moving from development into real event and team operations. Public records are only shown when they are backed by real source or BuhurtOS data.</p>
         </div>
       </section>
 
@@ -188,10 +188,10 @@ export function MarketingHome(){
         <div>
           <span className="eyebrow">SEE WHERE THIS IS GOING</span>
           <h2>Take BuhurtOS for a walk.</h2>
-          <p>Switch between HACSA admin, team captain, fighter and spectator views to see how the same event can work for everyone.</p>
+          <p>Explore the public sport directory, then sign in for the management tools available to your role.</p>
         </div>
         <div>
-          <Link className="show-btn primary large" to="/home">Explore the prototype</Link>
+          <Link className="show-btn primary large" to="/public">Explore BuhurtOS</Link>
           <Link className="show-btn secondary large" to="/public">Open spectator view</Link>
         </div>
       </section>
@@ -199,7 +199,7 @@ export function MarketingHome(){
 
     <footer className="marketing-footer">
       <div className="show-brand"><span className="show-brand-mark">B</span><span><b>BuhurtOS</b><small>Built for Buhurt</small></span></div>
-      <p>Frontend concept prototype • Demo data • Not yet an official competition system</p>
+      <p>BuhurtOS • Public sport directory and event operations</p>
     </footer>
   </div>;
 }
