@@ -3,7 +3,7 @@ import {Link} from 'react-router-dom';
 import {PublicTeamMap} from '../components/PublicTeamMap';
 import {PageHeader,Pill} from '../components/ShowcaseUI';
 import {loadPublicOrganizations,loadPublicEvents,type PublicOrganizationSummary,type PublicEventSummary} from '../lib/publicDirectory';
-import {loadPublicTeamDirectory,type PublicDirectoryTeam} from '../lib/teamDirectory';
+import {loadPublicTeamMap,type PublicDirectoryTeam} from '../lib/teamDirectory';
 
 const categoryHelp=[
   ['Organizations','Federations, national bodies, regional organizations and local groups that organize or govern parts of the sport.','/governance'],
@@ -25,7 +25,7 @@ export function ShowcasePublicPage(){
    Promise.all([loadPublicOrganizations(),loadPublicEvents()])
      .then(([o,e])=>{if(active){setOrgs(o);setEvents(e)}})
      .finally(()=>{if(active)setLoading(false)});
-   loadPublicTeamDirectory()
+   loadPublicTeamMap()
      .then(t=>{if(active)setTeams(t)})
      .finally(()=>{if(active)setTeamsLoading(false)});
    return()=>{active=false};
