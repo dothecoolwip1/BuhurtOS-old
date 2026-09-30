@@ -27,9 +27,7 @@ grant select (
 ) on public.event_divisions to anon;
 
 revoke select on table public.competition_divisions from anon;
-grant select (
-  id, name
-) on public.competition_divisions to anon;
+grant select on table public.competition_divisions to anon;
 
 revoke select on table public.matches from anon;
 grant select (
