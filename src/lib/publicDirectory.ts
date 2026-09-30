@@ -72,7 +72,7 @@ export async function loadPublicOrganizations():Promise<PublicOrganizationSummar
   if(organizationsCache && isFresh(organizationsCache.at)) return organizationsCache.value;
   const {data,error}=await publicSupabase.rpc('public_organization_directory_summary');
   if(error)throw error;
-  const rows=(data??[]).map((row:any)=>{
+  const rows:PublicOrganizationSummary[]=(data??[]).map((row:any)=>{
     const shortName=row.organization_short_name;
     const info=orgInfo[shortName];
     return {
@@ -97,46 +97,6 @@ export async function loadPublicOrganizations():Promise<PublicOrganizationSummar
   });
   organizationsCache={at:Date.now(),value:rows};
   return rows;
-}
-
-export async function loadPublicOrganizations():Promise<PublicOrganizationSummary[]>{
-  const teams=await loadPublicTeamDirectory();
-  const grouped=new Map<string,PublicDirectoryTeam[]>();
-  for(const team of teams){
-    const key=team.organizationShortName||team.organizationName;
-    grouped.set(key,[...(grouped.get(key)??[]),team]);
-  }
-  const rows:PublicOrganizationSummary[]=[];
-  for(const [shortName,orgTeams] of grouped){
-    const info=orgInfo[shortName];
-    const rosterCounts=await Promise.all(orgTeams.slice(0,80).map(async team=>{
-      try{
-        if(!publicSupabase)return 0;
-        const {data,error}=await publicSupabase.rpc('public_team_roster',{p_team_id:team.id});
-        if(error)return 0;
-        return (data??[]).length;
-      }catch{return 0}
-    }));
-    rows.push({
-      key:slug(shortName),
-      id:orgTeams[0]?.organizationId,
-      shortName,
-      name:info?.name??orgTeams[0]?.organizationName??shortName,
-      region:orgTeams[0]?.organizationShortName==='BI'?'International':(orgTeams[0]?.countryName??'Global'),
-      kind:info?.kind??'Buhurt organization',
-      description:info?.description??'A Buhurt organization represented in the public team directory.',
-      websiteUrl:info?.websiteUrl,
-      teamCount:orgTeams.length,
-      rosterCount:rosterCounts.reduce((a,b)=>a+b,0),
-      countries:new Set(orgTeams.map(t=>t.countryCode).filter(Boolean)).size
-    });
-  }
-  return rows.sort((a,b)=>{
-    const order=['BI','HACSA'];
-    const ai=order.indexOf(a.shortName),bi=order.indexOf(b.shortName);
-    if(ai>=0||bi>=0)return (ai<0?99:ai)-(bi<0?99:bi);
-    return a.name.localeCompare(b.name);
-  });
 }
 
 export async function loadPublicOrganization(key:string):Promise<{organization:PublicOrganizationSummary;teams:PublicDirectoryTeam[]}|undefined>{
