@@ -32,7 +32,7 @@ export function Layout() {
         <nav>{nav.map(([to, label, icon]) => <NavLink key={to} to={to} end={to === '/ops'}><span>{icon}</span>{label}</NavLink>)}</nav>
         <div className="utility-nav">
           {can('event.manage') && <NavLink to={event ? '/ops/manage?event=' + event.id : '/ops/manage'}>Event Command Centre</NavLink>}
-          {can('event.manage') && <NavLink to={event ? '/ops/signups?event=' + event.id : '/ops/signups'}>Fighter Signups</NavLink>}
+          {event && <NavLink to={'/ops/signups?event=' + event.id}>Fighter Signups</NavLink>}
           {can('bracket.manage') && <NavLink to="/ops/admin">Bracket & Access Tools</NavLink>}
           {can('discipline.manage') && <NavLink to="/ops/discipline">Discipline</NavLink>}
           {can('notes.team') && <NavLink to="/ops/notes">Fight Notes</NavLink>}
