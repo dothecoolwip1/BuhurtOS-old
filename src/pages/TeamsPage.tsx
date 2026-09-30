@@ -8,8 +8,8 @@ const initials=(n:string)=>n.replace(/^The\s+/i,'').split(/\s+/).filter(Boolean)
 
 export function TeamsPage(){
  const [query,setQuery]=useState(''); const [org,setOrg]=useState('all'); const [country,setCountry]=useState('all');
- const [directory,setDirectory]=useState<PublicDirectoryTeam[]>([]); const [loading,setLoading]=useState(true); const [view,setView]=useState<'directory'|'map'>('directory'); const [visibleCount,setVisibleCount]=useState(60);
- useEffect(()=>{let active=true;loadPublicTeamDirectory().then(x=>{if(active)setDirectory(x)}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[]);
+ const [directory,setDirectory]=useState<PublicDirectoryTeam[]>([]); const [loading,setLoading]=useState(true); const [error,setError]=useState(''); const [view,setView]=useState<'directory'|'map'>('directory'); const [visibleCount,setVisibleCount]=useState(60);
+ useEffect(()=>{let active=true;loadPublicTeamDirectory().then(x=>{if(active)setDirectory(x)}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load the team directory.')}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[]);
  const orgs=useMemo(()=>[...new Set(directory.map(x=>x.organizationShortName).filter(Boolean))].sort(),[directory]);
  const countries=useMemo(()=>[...new Set(directory.map(x=>x.countryName).filter(x=>x&&x!=='Country pending'))].sort(),[directory]);
  const teams=useMemo(()=>{const n=query.trim().toLowerCase();return directory.filter(t=>(org==='all'||t.organizationShortName===org)&&(country==='all'||t.countryName===country)&&(!n||[t.name,t.location,t.adminAreaName,t.countryName,t.organizationShortName,t.captain??''].some(v=>v.toLowerCase().includes(n))))},[directory,query,org,country]);
@@ -24,7 +24,7 @@ export function TeamsPage(){
    <div className="directory-view-switch"><button className={view==='directory'?'selected':''} onClick={()=>setView('directory')}>☷ Directory</button><button className={view==='map'?'selected':''} onClick={()=>setView('map')}>⌖ Map</button></div>
   </div>
   <div className="public-directory-summary"><Pill tone="green">Public · read only</Pill><strong>{teams.length}</strong><span>teams shown</span><b>{mapped.length}</b><span>verified map pins</span></div>
-  {loading?<div className="state-card">Loading global team directory…</div>:view==='map'?(mapped.length?<PublicTeamMap teams={mapped}/>:<div className="state-card">No verified map pins match these filters yet.</div>):teams.length===0?<div className="state-card">No teams match those filters.</div>:<div className="show-team-grid public-global-grid">{visibleTeams.map(team=><Link to={'/teams/'+team.slug} className="show-team-card" key={team.id}>
+  {loading?<div className="state-card">Loading global team directory…</div>:error?<div className="state-card"><strong>Unable to load teams</strong><p>{error}</p></div>:view==='map'?(mapped.length?<PublicTeamMap teams={mapped}/>:<div className="state-card">No verified map pins match these filters yet.</div>):teams.length===0?<div className="state-card">No teams match those filters.</div>:<div className="show-team-grid public-global-grid">{visibleTeams.map(team=><Link to={'/teams/'+team.slug} className="show-team-card" key={team.id}>
     <div className="show-team-banner official">{team.logoPath?<img className="team-card-logo" src={team.logoPath} alt={team.name+' logo'} loading="lazy" decoding="async"/>:<span>{initials(team.name)}</span>}<Pill tone="green">{team.organizationShortName}</Pill></div>
     <div className="show-team-body"><small>{[team.location,team.adminAreaName,team.countryName].filter(x=>x&&!x.includes('pending')).join(' · ')||'Location being normalized'}</small><h2>{team.name}</h2>
     <p>{team.captain?'Captain: '+team.captain:(team.description||'Public source-backed team record.')}</p>

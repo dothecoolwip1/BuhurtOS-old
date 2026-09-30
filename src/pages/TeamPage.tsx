@@ -4,9 +4,10 @@ import {Panel,Pill} from '../components/ShowcaseUI';
 const initials=(n:string)=>n.replace(/^The\s+/i,'').split(/\s+/).filter(Boolean).slice(0,3).map(x=>x[0]?.toUpperCase()).join('');
 const val=(v:number|undefined)=>v==null?'—':String(v);
 export function TeamPage(){
- const {teamId=''}=useParams();const [team,setTeam]=useState<PublicDirectoryTeam>();const [detail,setDetail]=useState<PublicTeamDetail>();const [roster,setRoster]=useState<PublicRosterMember[]>([]);const [loading,setLoading]=useState(true);
- useEffect(()=>{let active=true;(async()=>{try{const rows=await loadPublicTeamDirectory({teamSlug:teamId});if(!active)return;setTeam(rows[0]);if(rows[0]){const [r,d]=await Promise.all([loadPublicTeamRoster(rows[0].id),loadPublicTeamDetail(rows[0].id)]);if(active){setRoster(r);setDetail(d)}}}finally{if(active)setLoading(false)}})();return()=>{active=false}},[teamId]);
+ const {teamId=''}=useParams();const [team,setTeam]=useState<PublicDirectoryTeam>();const [detail,setDetail]=useState<PublicTeamDetail>();const [roster,setRoster]=useState<PublicRosterMember[]>([]);const [loading,setLoading]=useState(true);const [error,setError]=useState('');
+ useEffect(()=>{let active=true;(async()=>{try{const rows=await loadPublicTeamDirectory({teamSlug:teamId});if(!active)return;setTeam(rows[0]);if(rows[0]){const [r,d]=await Promise.all([loadPublicTeamRoster(rows[0].id),loadPublicTeamDetail(rows[0].id)]);if(active){setRoster(r);setDetail(d)}}}catch(err){if(active)setError(err instanceof Error?err.message:'Unable to load this team.')}finally{if(active)setLoading(false)}})();return()=>{active=false}},[teamId]);
  if(loading)return <div className="state-card">Loading public team profile…</div>;
+ if(error)return <div className="state-card"><strong>Unable to load team</strong><p>{error}</p><Link className="show-btn secondary" to="/teams">Back to teams</Link></div>;
  if(!team)return <div className="state-card"><h2>Team not found</h2><Link className="show-btn secondary" to="/teams">Back to teams</Link></div>;
  const recent=[...(detail?.tournamentsJoined??[])].sort((a,b)=>String(b.date??'').localeCompare(String(a.date??''))).slice(0,8);
  return <>

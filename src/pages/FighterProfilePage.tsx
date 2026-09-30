@@ -9,8 +9,10 @@ export function FighterProfilePage(){
  const {fighterId=''}=useParams();
  const [fighter,setFighter]=useState<PublicFighterSummary>();
  const [loading,setLoading]=useState(true);
- useEffect(()=>{let active=true;loadPublicFighter(fighterId).then(row=>{if(active)setFighter(row)}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[fighterId]);
+ const [error,setError]=useState('');
+ useEffect(()=>{let active=true;loadPublicFighter(fighterId).then(row=>{if(active)setFighter(row)}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load this fighter profile.')}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[fighterId]);
  if(loading)return <div className="state-card">Loading fighter profile…</div>;
+ if(error)return <div className="state-card"><strong>Unable to load fighter</strong><p>{error}</p><Link className="show-btn secondary" to="/fighters">Back to fighters</Link></div>;
  if(!fighter)return <div className="state-card"><h2>Fighter profile not found</h2><p>This may be a source-only roster name that has not yet been linked to a public BuhurtOS identity.</p><Link className="show-btn secondary" to="/fighters">Back to fighters</Link></div>;
  return <>
   <div className="show-profile-hero fighter steel">
