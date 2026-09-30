@@ -1,4 +1,14 @@
 do $$ begin
+  create type public.club_role as enum ('club_admin','coach','member');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create type public.team_role as enum ('team_admin','captain','coach','fighter','support');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
   create type public.delegated_access_scope as enum ('organization','club','team');
 exception when duplicate_object then null;
 end $$;
