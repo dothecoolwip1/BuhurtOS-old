@@ -43,7 +43,7 @@ function cacheKey(filters:TeamDirectoryFilters){
 }
 
 export function hacsaFallbackDirectory():PublicDirectoryTeam[]{return hacsaTeams.map(team=>({
- id:team.id,slug:team.id,organizationName:'Historical Armored Combat Sports Association',organizationShortName:'HACSA',name:team.name,location:team.location,
+ id:team.id,slug:team.id==='reavers'?'red-deer-reavers':team.id,organizationName:'Historical Armored Combat Sports Association',organizationShortName:'HACSA',name:team.name,location:team.location,
  continentCode:team.continentCode,continentName:team.continentName,countryCode:team.countryCode,countryName:team.countryName,adminAreaCode:team.adminAreaCode,
  adminAreaName:team.adminAreaName,email:team.email,websiteUrl:team.websiteUrl,contactUrl:team.contactUrl,sourceKind:'hacsa',sourceUrl:team.sourceUrl,verifiedAt:team.verifiedAt
 }))}
@@ -69,7 +69,7 @@ export async function loadPublicTeamDirectory(filters:TeamDirectoryFilters={}):P
      (!filters.continentCode||team.continentCode===filters.continentCode)&&
      (!filters.countryCode||team.countryCode===filters.countryCode)&&
      (!filters.adminAreaCode||team.adminAreaCode===filters.adminAreaCode)&&
-     (!filters.teamSlug||team.slug===filters.teamSlug)
+     (!filters.teamSlug||team.slug===filters.teamSlug||team.id===filters.teamSlug)
    );
  }
  const key=cacheKey(filters);

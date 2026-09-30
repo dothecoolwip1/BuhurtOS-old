@@ -1358,3 +1358,5 @@ button.ghost:hover{color:var(--text);border-color:#3d4c59;background:#111920}
  .bhome-cinema-photo,.bhome-scroll-cue i{animation:none!important}
  .bhome-explore-card,.bhome-org-card{transition:none}
 }
+
+.show-fineprint{margin:12px 0;color:var(--muted,#9aa3b2);font-size:.82rem;line-height:1.45}

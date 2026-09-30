@@ -252,3 +252,47 @@ export function clearPublicDirectoryCaches(){
   fightersCache=null;
   eventDetailCache.clear();
 }
+
+export type PublicOrganizationLink = {
+  id:string;
+  direction:'parent'|'child';
+  kind:string;
+  otherOrganizationId:string;
+  otherName:string;
+  otherShortName?:string;
+  startsOn?:string;
+};
+
+const relationshipLabels:Record<string,string> = {governs:'Governs',recognizes:'Recognizes',affiliate:'Affiliated with',sanctioned:'Sanctions',predecessor:'Predecessor of'};
+export function relationshipLabel(link:Pick<PublicOrganizationLink,'kind'|'direction'>){
+  const base=relationshipLabels[link.kind]??link.kind;
+  return link.direction==='child'?(link.kind==='governs'?'Governed by':link.kind==='recognizes'?'Recognized by':link.kind==='sanctioned'?'Sanctioned by':link.kind==='predecessor'?'Successor of':base):base;
+}
+
+/** Active governing links for one organization; returns [] when none are published. */
+export async function loadPublicOrganizationLinks(organizationId:string):Promise<PublicOrganizationLink[]>{
+  if(!publicSupabase||!organizationId)return [];
+  const {data,error}=await publicSupabase.from('organization_relationships')
+    .select('id,parent_organization_id,child_organization_id,relationship_kind,starts_on,ends_on')
+    .or(`parent_organization_id.eq.${organizationId},child_organization_id.eq.${organizationId}`)
+    .is('ends_on',null);
+  if(error)throw error;
+  const rows=data??[];
+  const otherIds=[...new Set(rows.map((r:any)=>r.parent_organization_id===organizationId?r.child_organization_id:r.parent_organization_id))];
+  if(!otherIds.length)return [];
+  const {data:orgs,error:orgError}=await publicSupabase.from('organizations').select('id,name,short_name').in('id',otherIds);
+  if(orgError)throw orgError;
+  const names=new Map((orgs??[]).map((o:any)=>[o.id,o]));
+  return rows.map((r:any)=>{
+    const direction=r.parent_organization_id===organizationId?'parent':'child';
+    const otherId=direction==='parent'?r.child_organization_id:r.parent_organization_id;
+    const other=names.get(otherId) as any;
+    return {id:r.id,direction,kind:r.relationship_kind,otherOrganizationId:otherId,otherName:other?.name??'Organization',otherShortName:other?.short_name??undefined,startsOn:r.starts_on??undefined} satisfies PublicOrganizationLink;
+  });
+}
+
+export async function loadPublicOrganizationEvents(organizationId:string|undefined):Promise<PublicEventSummary[]>{
+  if(!organizationId)return [];
+  const events=await loadPublicEvents();
+  return events.filter(event=>event.organizationId===organizationId);
+}

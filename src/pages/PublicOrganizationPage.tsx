@@ -1,7 +1,7 @@
 import {useEffect,useState} from 'react';
 import {Link,useParams} from 'react-router-dom';
 import {PageHeader,Pill,Panel} from '../components/ShowcaseUI';
-import {loadPublicOrganization,type PublicOrganizationSummary} from '../lib/publicDirectory';
+import {loadPublicOrganization,loadPublicOrganizationEvents,loadPublicOrganizationLinks,relationshipLabel,type PublicEventSummary,type PublicOrganizationLink,type PublicOrganizationSummary} from '../lib/publicDirectory';
 import type {PublicDirectoryTeam} from '../lib/teamDirectory';
 
 const initials=(n:string)=>n.replace(/^The\s+/i,'').split(/\s+/).filter(Boolean).slice(0,3).map(x=>x[0]?.toUpperCase()).join('');
@@ -10,10 +10,12 @@ export function PublicOrganizationPage(){
   const {organizationKey=''}=useParams();
   const [organization,setOrganization]=useState<PublicOrganizationSummary>();
   const [teams,setTeams]=useState<PublicDirectoryTeam[]>([]);
+  const [links,setLinks]=useState<PublicOrganizationLink[]>([]);
+  const [events,setEvents]=useState<PublicEventSummary[]>([]);
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState('');
 
-  useEffect(()=>{let active=true;loadPublicOrganization(organizationKey).then(result=>{if(active&&result){setOrganization(result.organization);setTeams(result.teams)}}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load this organization.')} ).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[organizationKey]);
+  useEffect(()=>{let active=true;loadPublicOrganization(organizationKey).then(result=>{if(active&&result){setOrganization(result.organization);setTeams(result.teams);Promise.all([loadPublicOrganizationLinks(result.organization.id??''),loadPublicOrganizationEvents(result.organization.id)]).then(([l,e])=>{if(active){setLinks(l);setEvents(e)}}).catch(()=>{})}}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load this organization.')} ).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[organizationKey]);
 
   if(loading)return <div className="state-card">Loading organization profile…</div>;
   if(error)return <div className="state-card"><strong>Unable to load organization</strong><p>{error}</p><Link className="show-btn secondary" to="/governance">Back to organizations</Link></div>;
@@ -41,6 +43,7 @@ export function PublicOrganizationPage(){
         </div>
       </Panel>
     </div>
+    {events.length?<section className="show-public-section"><div className="show-public-section-head"><div><span className="eyebrow">EVENTS</span><h2>Published {organization.shortName} events</h2></div><Link to="/events">All events →</Link></div><div className="team-tournament-list">{events.map(ev=><Link key={ev.id} to={'/events/'+ev.id}><b>{ev.name}</b><small>{[ev.startsAt?.slice(0,10),ev.venue].filter(Boolean).join(' · ')}</small></Link>)}</div></section>:null}
     <section className="show-public-section">
       <div className="show-public-section-head"><div><span className="eyebrow">TEAMS</span><h2>Teams connected to {organization.shortName}</h2></div><Link to="/teams">Full team directory →</Link></div>
       {teams.length?<div className="show-team-grid public-global-grid">{teams.map(team=><Link to={'/teams/'+team.slug} className="show-team-card" key={team.id}><div className="show-team-banner official">{team.logoPath?<img className="team-card-logo" src={team.logoPath} alt={team.name+' logo'} loading="lazy" decoding="async"/>:<span>{initials(team.name)}</span>}<Pill tone="green">{team.countryName}</Pill></div><div className="show-team-body"><small>{team.location}</small><h2>{team.name}</h2><p>{team.description||'Open the team profile for roster, ranking and source-backed information.'}</p><div className="team-card-stats">{team.rank5v5!=null?<span><b>#{team.rank5v5}</b><small>5v5 rank</small></span>:null}{team.points5v5!=null?<span><b>{team.points5v5}</b><small>5v5 points</small></span>:null}</div><div className="team-public-actions"><span>Open team</span><b>→</b></div></div></Link>)}</div>:<div className="state-card">No public team records are connected to this organization yet.</div>}

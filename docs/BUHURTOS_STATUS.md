@@ -422,3 +422,9 @@ Implementation branch `feature/hacsa-bi-marshal-reference` replaces fabricated s
 The public and operations rule views now use a source-backed BI marshal reference covering the current core fight corpus: Buhurt Rules 26.4.1, Buhurt Regulations 26.4, Duels Rules 26.4, Duels Regulations 26.4, Outrance Rules and Regulations 26.4, and Weapons / Shield Chart 26.2.1. Indexed entries retain document/version/section provenance and can be filtered by fight format or searched by situation. The Marshal Console passes the active match category directly to the reference through the “Rules for this fight” link.
 
 `tests/marshalReference.test.ts` verifies HACSA source provenance, match-category mapping, family isolation and BI source integrity. The first PR run passed TypeScript, Vitest and production build before the explicit numbered-subrule expansion; the current PR head must remain green before merge.
+
+## November 1 Master Plan progress
+
+* **Pack 1** complete (stability, CI, routing, release baseline).
+* **Pack 2** complete (public experience, shared states, lazy map, mobile) — merged `63eb038`, CI green.
+* **Pack 3** complete: teams gain a region filter and a stable `red-deer-reavers` slug in the offline fallback (UUID/legacy id lookup preserved); rankings page is now source-backed with 5v5/12v12 categories, organization/country filters and per-row provenance (`src/lib/rankings.ts`); organization pages show active governing relationships, published events and a source/independence note. Regression tests in `tests/pack3Directory.test.ts` (rankings never invent ranks, Reavers slug, fighter privacy select lists). No database migration was needed.

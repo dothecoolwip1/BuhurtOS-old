@@ -7,20 +7,22 @@ import {PublicTeamMap} from '../components/PublicTeamMap';
 const initials=(n:string)=>n.replace(/^The\s+/i,'').split(/\s+/).filter(Boolean).slice(0,3).map(x=>x[0]?.toUpperCase()).join('');
 
 export function TeamsPage(){
- const [query,setQuery]=useState(''); const [org,setOrg]=useState('all'); const [country,setCountry]=useState('all');
+ const [query,setQuery]=useState(''); const [org,setOrg]=useState('all'); const [country,setCountry]=useState('all'); const [region,setRegion]=useState('all');
  const [directory,setDirectory]=useState<PublicDirectoryTeam[]>([]); const [loading,setLoading]=useState(true); const [error,setError]=useState(''); const [view,setView]=useState<'directory'|'map'>('directory'); const [visibleCount,setVisibleCount]=useState(60);
  useEffect(()=>{let active=true;loadPublicTeamDirectory().then(x=>{if(active)setDirectory(x)}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load the team directory.')}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[]);
  const orgs=useMemo(()=>[...new Set(directory.map(x=>x.organizationShortName).filter(Boolean))].sort(),[directory]);
  const countries=useMemo(()=>[...new Set(directory.map(x=>x.countryName).filter(x=>x&&x!=='Country pending'))].sort(),[directory]);
- const teams=useMemo(()=>{const n=query.trim().toLowerCase();return directory.filter(t=>(org==='all'||t.organizationShortName===org)&&(country==='all'||t.countryName===country)&&(!n||[t.name,t.location,t.adminAreaName,t.countryName,t.organizationShortName,t.captain??''].some(v=>v.toLowerCase().includes(n))))},[directory,query,org,country]);
+ const regions=useMemo(()=>[...new Set(directory.filter(t=>country==='all'||t.countryName===country).map(t=>t.adminAreaName).filter(x=>x&&!x.includes('pending')))].sort(),[directory,country]);
+ const teams=useMemo(()=>{const n=query.trim().toLowerCase();return directory.filter(t=>(org==='all'||t.organizationShortName===org)&&(country==='all'||t.countryName===country)&&(region==='all'||t.adminAreaName===region)&&(!n||[t.name,t.location,t.adminAreaName,t.countryName,t.organizationShortName,t.captain??''].some(v=>v.toLowerCase().includes(n))))},[directory,query,org,country,region]);
  const mapped=teams.filter(t=>t.latitude!=null&&t.longitude!=null); const visibleTeams=teams.slice(0,visibleCount); const hasMore=view==='directory'&&visibleCount<teams.length;
- useEffect(()=>{setVisibleCount(60)},[query,org,country]);
+ useEffect(()=>{setVisibleCount(60)},[query,org,country,region]);
  return <>
   <PageHeader eyebrow="Global Team Directory" title="Every team. One public directory." description="Browse source-backed Buhurt teams worldwide, including logos, public rosters, BI rankings, captains and general locations. Public access is read-only."
    actions={<label className="show-search"><span>⌕</span><input aria-label="Search teams" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search team, captain, city, region or country"/></label>}/>
   <div className="public-directory-toolbar">
-   <div className="show-filter-row"><select value={org} onChange={e=>setOrg(e.target.value)}><option value="all">All organizations</option>{orgs.map(x=><option key={x}>{x}</option>)}</select>
-   <select value={country} onChange={e=>setCountry(e.target.value)}><option value="all">All countries</option>{countries.map(x=><option key={x}>{x}</option>)}</select></div>
+   <div className="show-filter-row"><select aria-label='Filter by organization' value={org} onChange={e=>setOrg(e.target.value)}><option value="all">All organizations</option>{orgs.map(x=><option key={x}>{x}</option>)}</select>
+   <select aria-label='Filter by country' value={country} onChange={e=>{setCountry(e.target.value);setRegion('all')}}><option value="all">All countries</option>{countries.map(x=><option key={x}>{x}</option>)}</select>
+   {regions.length>1?<select aria-label='Filter by region' value={region} onChange={e=>setRegion(e.target.value)}><option value='all'>All regions</option>{regions.map(x=><option key={x}>{x}</option>)}</select>:null}</div>
    <div className="directory-view-switch"><button className={view==='directory'?'selected':''} onClick={()=>setView('directory')}>☷ Directory</button><button className={view==='map'?'selected':''} onClick={()=>setView('map')}>⌖ Map</button></div>
   </div>
   <div className="public-directory-summary"><Pill tone="green">Public · read only</Pill><strong>{teams.length}</strong><span>teams shown</span><b>{mapped.length}</b><span>verified map pins</span></div>
