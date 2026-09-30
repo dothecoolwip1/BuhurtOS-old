@@ -3,6 +3,7 @@ import { useQueryStates } from '../lib/urlState';
 import { biRuleEntries, biRuleReferenceVerifiedAt, biRuleSources, biRulesLandingPage } from '../data/biMarshalRules';
 import { filterBiRules, formatFromMatchCategory, ruleFilterLabels, type RuleFilter } from '../lib/ruleReference';
 import { PageHeader, Pill } from '../components/ShowcaseUI';
+import { OfficialBiDocuments } from '../components/OfficialBiDocuments';
 
 const filters: RuleFilter[] = ['all','buhurt','3v3','5v5','12v12','30v30','champions_fight','duels','longsword','sword_shield','sword_buckler','polearm','triathlon','outrance'];
 const quickSearches = ['grounded','prohibited strike zone','weapon loss','armor failure','yellow card','appeal'];
@@ -93,5 +94,7 @@ export function ShowcaseRulesPage(){
         <a className="show-btn secondary full" href={source.url} target="_blank" rel="noopener noreferrer">Open official document ↗</a>
       </article>)}</div>
     </section>
+
+    <OfficialBiDocuments/>
   </>;
 }
