@@ -90,3 +90,12 @@ creating real accounts on the hosted project is not something automation should 
 * Screenshots of signed-in pages (`docs/screenshots/*-demo.jpg`) show sample data.
 * Fighter detail pages: the hosted project currently has no public BuhurtOS fighter identities, so the "open a fighter" step of that journey was
   covered only by the empty-state and code path.
+
+## Update: owner tools (2026-09-30, after first real use)
+
+* **Teams & rosters** (`/admin/teams`) lists every team you can see, with search and an organization filter; **Manage roster** (`/admin/teams/:id`) shows members, lets you invite (creates a link to send), change roles, remove people (history is kept), answer applications, and lists the public BI/HACSA roster for reference (those names are not accounts). Permissions are still enforced by the database functions.
+* **Organizations** now lists all organizations at the top. **Create teams & clubs** moved to `/admin/teams/new` under More tools.
+* Invitation links now open in My workspace (`/me/invite?token=…`); the page no longer needs a current event. Old links redirect.
+* Role codes vs early access codes are explained on their pages; only a code's first characters are stored, so a lost code is disabled and re-created.
+* Roles refresh immediately after redeeming a code, accepting an invitation or changing a roster (previously the workspace kept showing stale roles).
+* Fighter photos: public pages request a short-lived signed URL from the `fighter-avatar` function, which no longer requires a gateway JWT for anonymous reads (uploads/removals still require the identity's owner).
