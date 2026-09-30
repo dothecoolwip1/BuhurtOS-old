@@ -31,6 +31,9 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
+      - name: Navigation audit
+        run: npm run audit:navigation
+
       - name: Typecheck
         run: npm run typecheck
 
