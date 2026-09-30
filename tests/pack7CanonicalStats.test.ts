@@ -151,3 +151,21 @@ describe('source reconciliation', () => {
     expect(provenanceToCard([])).toBeUndefined();
   });
 });
+
+import { reconcileTeamRecords as reconcileForNames, sameTeamName } from '../src/lib/canonicalStats';
+describe('team name agreement', () => {
+  it('treats a short form of a name as the same name', () => {
+    expect(sameTeamName('Reavers', 'Red Deer Reavers')).toBe(true);
+    expect(sameTeamName('The Horde', 'horde')).toBe(true);
+    expect(sameTeamName('Red Deer Reavers', 'Calgary Reavers')).toBe(false);
+    expect(sameTeamName('Ox', 'Red Ox')).toBe(false);
+  });
+  it('does not report a conflict for a short form, but still reports a real one', () => {
+    const rec = (id: string, name: string, kind: any, priority: number) => ({ recordId: id, name, provenance: { sourceKind: kind, sourceUrl: 'u', externalId: id, sourcePriority: priority } });
+    const links = { b: 'a' };
+    const same = reconcileForNames([rec('a', 'Reavers', 'hacsa', 10), rec('b', 'Red Deer Reavers', 'bi_teams', 20)], links)[0];
+    expect(same.conflicts.filter(c => c.field === 'name')).toEqual([]);
+    const different = reconcileForNames([rec('a', 'Reavers', 'hacsa', 10), rec('b', 'Mountain Wolves', 'bi_teams', 20)], links)[0];
+    expect(different.conflicts.some(c => c.field === 'name')).toBe(true);
+  });
+});

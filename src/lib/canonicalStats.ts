@@ -179,6 +179,15 @@ export type CanonicalTeamCard = {
 export const normalizeTeamKey = (name: string, countryCode = '') =>
   name.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/^the\s+/, '').replace(/[^a-z0-9]+/g, '') + '|' + countryCode.toUpperCase();
 
+/** Two team names that only differ by a leading place or word ("Reavers" and "Red Deer Reavers") are the same name, not a conflict. */
+export function sameTeamName(a: string, b: string): boolean {
+  const x = normalizeTeamKey(a).split('|')[0];
+  const y = normalizeTeamKey(b).split('|')[0];
+  if (x === y) return true;
+  const [short, long] = x.length <= y.length ? [x, y] : [y, x];
+  return short.length >= 5 && long.endsWith(short);
+}
+
 /**
  * Groups records describing the same team into one public card.
  * Explicit links (alias record id -> canonical record id) win; otherwise records sharing a
@@ -207,7 +216,8 @@ export function reconcileTeamRecords(records: SourcedTeamRecord[], links: Record
         const value = record[field]?.trim();
         if (!value) continue;
         const key = field === 'name' ? normalizeTeamKey(value) : value.toLowerCase();
-        if (!distinct.has(key)) distinct.set(key, { value, sourceKind: record.provenance.sourceKind, sourceUrl: record.provenance.sourceUrl });
+        const alreadySeen = field === 'name' && [...distinct.values()].some(existing => sameTeamName(existing.value, value));
+        if (!distinct.has(key) && !alreadySeen) distinct.set(key, { value, sourceKind: record.provenance.sourceKind, sourceUrl: record.provenance.sourceUrl });
       }
       if (distinct.size > 1) conflicts.push({ field, values: [...distinct.values()] });
     }
