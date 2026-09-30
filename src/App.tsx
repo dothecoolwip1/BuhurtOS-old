@@ -103,7 +103,7 @@ export function App(){
         <Route path="bracket" element={<BracketPage/>}/>
         <Route path="standings" element={<StandingsPage/>}/>
         <Route path="manage" element={<RequirePermission permission="event.manage"><EventManagementPage/></RequirePermission>}/>
-        <Route path="signups" element={<RequirePermission permission="event.manage"><FighterSignupAdminPage/></RequirePermission>}/>
+        <Route path="signups" element={<FighterSignupAdminPage/>}/>
         <Route path="admin" element={<RequirePermission permission="bracket.manage"><AdminPage/></RequirePermission>}/>
         <Route path="discipline" element={<RequirePermission permission="discipline.manage"><DisciplinePage/></RequirePermission>}/>
         <Route path="notes" element={<RequirePermission permission="notes.team"><NotesPage/></RequirePermission>}/>
