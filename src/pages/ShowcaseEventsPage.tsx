@@ -2,6 +2,9 @@ import {useEffect,useMemo,useState} from 'react';
 import {Link} from 'react-router-dom';
 import {LoadingGrid,PageHeader,Pill,StatePanel} from '../components/ShowcaseUI';
 import {loadPublicEvents,loadPublicOrganizations,type PublicEventSummary,type PublicOrganizationSummary} from '../lib/publicDirectory';
+import {downloadText} from '../lib/export';
+import {buildIcs} from '../lib/ics';
+import {toEventDTO} from '../lib/publicApiV1';
 import {eventCategoryLabel,eventCategoryLabels,eventCategoryOrder,eventCategoryTone,eventCta,filterEvents,groupByMonth,normalizeEventCategory,splitUpcomingPast} from '../lib/eventCategories';
 
 const label=(v:string)=>v.replaceAll('_',' ').replace(/\b\w/g,l=>l.toUpperCase());
@@ -33,6 +36,7 @@ export function ShowcaseEventsPage(){
  const shown=when==='upcoming'?upcoming:past;
  const months=useMemo(()=>groupByMonth(shown),[shown]);
  const filtered=category!=='all'||organizationId!=='all'||teamId!=='all';
+ const exportIcs=()=>downloadText('buhurtos-events.ics',buildIcs(shown.map(event=>toEventDTO(event,orgName)),'BuhurtOS events'),'text/calendar;charset=utf-8');
  return <>
   <PageHeader eyebrow="PUBLIC CALENDAR" title="Events" description="Tournaments, demos, training, meetings and community gatherings. Only events actually published in BuhurtOS appear here. Draft and private events stay hidden."/>
   {loading?<LoadingGrid count={4}/>:error?<StatePanel tone="error" title="Unable to load events" text={error}/>:<>
@@ -47,6 +51,7 @@ export function ShowcaseEventsPage(){
      {hostTeams.length>0?<select aria-label="Filter by host team" value={teamId} onChange={e=>setTeamId(e.target.value)}><option value="all">All host teams</option>{hostTeams.map(([id,name])=><option key={id} value={id}>{name}</option>)}</select>:null}
     </div>
    </div>
+   {shown.length>0?<div className="directory-load-more"><span>{shown.length} event{shown.length===1?'':'s'} shown</span><button className="show-btn secondary" type="button" onClick={exportIcs}>Add to calendar (.ics)</button></div>:null}
    {shown.length===0?<StatePanel title={filtered?'No events match those filters.':when==='upcoming'?'No published upcoming events yet.':'No past events yet.'} text={filtered?'Clear a filter to see more events.':'When an organizer publishes a real event, it will show here automatically.'}/>:months.map(month=><section className="show-public-section event-month" key={month.key}>
     <div className="show-public-section-head"><div><span className="eyebrow">{when==='upcoming'?'AGENDA':'HISTORY'}</span><h2>{month.label}</h2></div></div>
     <div className="show-event-cards">{month.events.map(event=>{

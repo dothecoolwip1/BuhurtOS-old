@@ -8,7 +8,8 @@ const nav=[
   ['/fighters','Fighters','♟'],
   ['/events','Events','⚔'],
   ['/rankings','Rankings','↗'],
-  ['/rules','Rules','§']
+  ['/rules','Rules','§'],
+  ['/embed-builder','Widgets','⧉']
 ] as const;
 
 export function ShowcaseShell(){

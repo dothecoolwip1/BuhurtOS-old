@@ -13,6 +13,11 @@ const TeamHQPage = lazy(() => import('./pages/TeamHQPage').then(module => ({ def
 const FightersPage = lazy(() => import('./pages/FightersPage').then(module => ({ default: module.FightersPage })));
 const FighterProfilePage = lazy(() => import('./pages/FighterProfilePage').then(module => ({ default: module.FighterProfilePage })));
 const MyProfilePage = lazy(() => import('./pages/MyProfilePage').then(module => ({ default: module.MyProfilePage })));
+const EmbedEventsPage = lazy(() => import('./pages/EmbedPages').then(module => ({ default: module.EmbedEventsPage })));
+const EmbedEventPage = lazy(() => import('./pages/EmbedPages').then(module => ({ default: module.EmbedEventPage })));
+const EmbedTeamPage = lazy(() => import('./pages/EmbedPages').then(module => ({ default: module.EmbedTeamPage })));
+const EmbedStandingsPage = lazy(() => import('./pages/EmbedPages').then(module => ({ default: module.EmbedStandingsPage })));
+const EmbedBuilderPage = lazy(() => import('./pages/EmbedBuilderPage').then(module => ({ default: module.EmbedBuilderPage })));
 const ShowcaseEventsPage = lazy(() => import('./pages/ShowcaseEventsPage').then(module => ({ default: module.ShowcaseEventsPage })));
 const ShowcaseEventPage = lazy(() => import('./pages/ShowcaseEventPage').then(module => ({ default: module.ShowcaseEventPage })));
 const ShowcaseRankingsPage = lazy(() => import('./pages/ShowcaseRankingsPage').then(module => ({ default: module.ShowcaseRankingsPage })));
@@ -74,6 +79,10 @@ export function App(){
   return <HashRouter><Suspense fallback={<RouteFallback/>}><Routes>
     <Route path="/" element={<Navigate to="/public" replace/>}/>
     <Route path="/about" element={<MarketingHome/>}/>
+    <Route path="/embed/events" element={<EmbedEventsPage/>}/>
+    <Route path="/embed/event/:eventId" element={<EmbedEventPage/>}/>
+    <Route path="/embed/team/:slug" element={<EmbedTeamPage/>}/>
+    <Route path="/embed/standings/:eventId" element={<EmbedStandingsPage/>}/>
     <Route element={<ShowcaseShell/>}>
       <Route path="/public" element={<ShowcasePublicPage/>}/>
       <Route path="/home" element={<Navigate to="/public" replace/>}/>
@@ -89,6 +98,7 @@ export function App(){
       <Route path="/events/:eventId" element={<ShowcaseEventPage/>}/>
       <Route path="/rankings" element={<ShowcaseRankingsPage/>}/>
       <Route path="/rules" element={<ShowcaseRulesPage/>}/>
+      <Route path="/embed-builder" element={<EmbedBuilderPage/>}/>
     </Route>
 
     <Route element={<OperationsProvider/>}>

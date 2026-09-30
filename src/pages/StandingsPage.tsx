@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAppState } from '../features/AppState';
 import { computeEventStandings, computeTeamStandings } from '../lib/standings';
 import { downloadText, openPrintableReport, standingsCsv, teamStandingsCsv } from '../lib/export';
-import { widgetEmbedCode, widgetStandingsUrl } from '../lib/embed';
+import { buildEmbedUrl, buildIframeCode } from '../lib/embedBuilder';
 
 type StandingsView = 'fighters' | 'teams';
 
@@ -16,7 +16,8 @@ export function StandingsPage() {
   const hasTeams = teams.length > 0;
   const activeView: StandingsView = view === 'teams' && !hasTeams ? 'fighters' : view;
   const shownRows = activeView === 'teams' ? teamRows : fighterRows;
-  const embedCode = widgetEmbedCode(widgetStandingsUrl(), { title: `${event.name} standings` });
+  const embedUrl = buildEmbedUrl(typeof window === 'undefined' ? '' : window.location.origin + window.location.pathname, { type: 'standings', entity: event.id });
+  const embedCode = buildIframeCode(embedUrl, { type: 'standings' }, `${event.name} standings`);
   const print = () => openPrintableReport(`${event.name} ${activeView === 'teams' ? 'Team' : ''} Standings`, `<table><thead><tr><th>Rank</th><th>${activeView === 'teams' ? 'Team' : 'Competitor'}</th><th>W</th><th>L</th><th>D</th><th>Pts</th></tr></thead><tbody>${shownRows.map((r: any, i) => `<tr><td>${i+1}</td><td>${r.name}</td><td>${r.wins}</td><td>${r.losses}</td><td>${r.draws}</td><td>${r.standingPoints}</td></tr>`).join('')}</tbody></table>`);
   const exportCsv = () => downloadText(
     activeView === 'teams' ? 'buhurtos-team-standings.csv' : 'buhurtos-standings.csv',
@@ -37,9 +38,9 @@ export function StandingsPage() {
     {embedMessage ? <div className="auth-message">{embedMessage}</div> : null}
     <details className="embed-block">
       <summary>Embed this standings board as a widget</summary>
-      <p className="field-hint">Paste the snippet into any page that allows iframes (WordPress via a Custom HTML block, Notion, GitHub Pages, etc.). The widget renders live from the event board and labels itself DEMO DATA when it is showing sample content.</p>
+      <p className="field-hint">Paste the snippet into any page that allows iframes (WordPress via a Custom HTML block, Notion, GitHub Pages, etc.). The widget is tied to this event by ID, shows public data only, and labels itself DEMO DATA when it is showing sample content.</p>
       <pre className="embed-code"><code>{embedCode}</code></pre>
-      <a className="show-btn secondary" href={widgetStandingsUrl()} target="_blank" rel="noopener noreferrer">Preview widget ↗</a>
+      <a className="show-btn secondary" href={embedUrl} target="_blank" rel="noopener noreferrer">Preview widget ↗</a>
     </details>
   </>;
 }
