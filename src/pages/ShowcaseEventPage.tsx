@@ -1,6 +1,7 @@
 import {useEffect,useMemo,useState} from 'react';
 import {Link,useParams} from 'react-router-dom';
 import {PageHeader,Panel,Pill} from '../components/ShowcaseUI';
+import {FighterSignupModal} from '../components/FighterSignupModal';
 import {loadPublicEventDetails,type PublicEventDetails} from '../lib/publicDirectory';
 
 const pretty=(value:string)=>value.replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
@@ -19,6 +20,7 @@ export function ShowcaseEventPage(){
   const [details,setDetails]=useState<PublicEventDetails>();
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState('');
+  const [fighterSignupOpen,setFighterSignupOpen]=useState(false);
 
   useEffect(()=>{
     let active=true;
@@ -40,13 +42,15 @@ export function ShowcaseEventPage(){
   if(!details||!event)return <div className="state-card"><h2>Event not found</h2><p>This event is not published or is no longer publicly available.</p><Link className="show-btn secondary" to="/events">Back to events</Link></div>;
 
   return <>
+    <FighterSignupModal open={fighterSignupOpen} onClose={()=>setFighterSignupOpen(false)} eventName={event.name}/>
     <PageHeader
       eyebrow={event.status==='live'?'LIVE EVENT':'PUBLISHED EVENT'}
       title={event.name}
       description={dateRange(event.startsAt,event.endsAt)+' • '+event.venue}
       actions={<>
+        <button className="show-btn primary" type="button" onClick={()=>setFighterSignupOpen(true)}>Fighter signup</button>
         {facebook?<a className="show-btn secondary" href={facebook} target="_blank" rel="noopener noreferrer">Facebook event ↗</a>:null}
-        <Link className="show-btn primary" to={'/ops/manage?event='+event.id}>Organizer tools</Link>
+        <Link className="show-btn secondary" to={'/ops/manage?event='+event.id}>Organizer tools</Link>
       </>}
     />
 
