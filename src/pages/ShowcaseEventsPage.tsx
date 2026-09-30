@@ -1,4 +1,5 @@
 import {useEffect,useMemo,useState} from 'react';
+import {eventImageThumbUrl,fallbackToOriginalImage} from '../lib/eventMedia';
 import {Link,useLocation} from 'react-router-dom';
 import {rememberListSearch,useQueryState} from '../lib/urlState';
 import {LoadingGrid,PageHeader,Pill,StatePanel} from '../components/ShowcaseUI';
@@ -60,6 +61,7 @@ export function ShowcaseEventsPage(){
     <div className="show-event-cards">{month.events.map(event=>{
      const cta=eventCta(event.eventType,{registrationOpen:Boolean(event.registrationOpen),hasLink:true,status:event.status});
      return <Link to={eventPath(event)} key={event.id} className="show-event-card">
+      {event.imagePath?<img className="show-event-card-poster" src={eventImageThumbUrl(event.imagePath,480)} alt={event.name+' poster'} loading="lazy" decoding="async" onError={fallbackToOriginalImage(event.imagePath)}/>:null}
       <div className="show-event-card-top"><div><span className="eyebrow">{orgName.get(event.organizationId)||event.organizerName||'BUHURTOS'}</span><h2>{event.name}</h2><p>{dateText(event)} · {event.venue}</p></div>
        <div className="show-inline-pills"><Pill tone={eventCategoryTone(event.eventType)}>{eventCategoryLabel(event.eventType)}</Pill>{when==='upcoming'&&event.status!=='cancelled'?<Pill tone={event.registrationOpen?'green':'neutral'}>{event.registrationOpen?'Registration open':'Registration not open yet'}</Pill>:null}{event.status!=='published'?<Pill tone={event.status==='live'?'red':event.status==='cancelled'?'amber':'neutral'}>{label(event.status)}</Pill>:null}</div></div>
       <div className="show-event-footer"><span><small>HOST</small><b>{event.organizerName||orgName.get(event.organizationId)||'TBA'}</b></span><span><small>DATES</small><b>{dateText(event)}</b></span><i>{cta.label} →</i></div>

@@ -17,6 +17,10 @@ describe('event media helpers', () => {
     expect(scaleToFit(900, 1800)).toEqual({ width: 800, height: 1600 });
     expect(scaleToFit(800, 600)).toEqual({ width: 800, height: 600 });
   });
+  it('does not use the render endpoint unless transformations are enabled', () => {
+    const url = eventImageThumbUrl('evt/poster.webp', 640);
+    if (url) expect(url).not.toContain('/render/image/');
+  });
   it('returns no URL when there is no stored path', () => {
     expect(eventImageUrl(undefined)).toBeUndefined();
     expect(eventImageThumbUrl(null)).toBeUndefined();

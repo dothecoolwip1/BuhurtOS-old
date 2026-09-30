@@ -14,12 +14,22 @@ export function eventImageUrl(path: string | undefined | null): string | undefin
 }
 
 /**
- * Smaller renditions for mobile thumbnails via Supabase image transformation.
- * Falls back to the original object URL on projects without transformations.
+ * Smaller renditions via Supabase image transformation. The hosted project does not have transformations
+ * enabled (the render endpoint answers 403 FeatureNotEnabled), so this returns the original object URL
+ * unless VITE_SUPABASE_IMAGE_TRANSFORMS is "true".
  */
 export function eventImageThumbUrl(path: string | undefined | null, width = 480): string | undefined {
   if (!path || !baseUrl) return undefined;
+  if (import.meta.env.VITE_SUPABASE_IMAGE_TRANSFORMS !== 'true') return eventImageUrl(path);
   return `${baseUrl}/storage/v1/render/image/public/${EVENT_MEDIA_BUCKET}/${path.split('/').map(encodeURIComponent).join('/')}?width=${width}&quality=75&resize=contain`;
+}
+
+/** onError handler: fall back to the original object when a rendition fails to load. */
+export function fallbackToOriginalImage(path: string | undefined | null) {
+  return (e: { currentTarget: HTMLImageElement }) => {
+    const url = eventImageUrl(path);
+    if (url && e.currentTarget.src !== url) e.currentTarget.src = url;
+  };
 }
 
 export function validateEventMediaFile(file: { type: string; size: number }): string | undefined {

@@ -5,7 +5,7 @@ import {FighterSignupModal} from '../components/FighterSignupModal';
 import {loadPublicEventDetails,type PublicEventDetails} from '../lib/publicDirectory';
 import {ListCrumbs} from '../components/chrome';
 import {eventCategoryLabel,eventCategoryTone,eventModules,isCompetitionCapable} from '../lib/eventCategories';
-import {eventImageThumbUrl,eventImageUrl} from '../lib/eventMedia';
+import {eventImageThumbUrl,eventImageUrl,fallbackToOriginalImage} from '../lib/eventMedia';
 import {useDocumentTitle} from '../lib/pageTitle';
 import {buildIcs} from '../lib/ics';
 import {toEventDTO} from '../lib/publicApiV1';
@@ -59,7 +59,7 @@ export function EventDetailView({details,onFighterSignup,stats,statsError,organi
   const upcomingMatches=details.matches.filter(match=>!['completed','finalized','cancelled'].includes(match.status));
   return <>
     <ListCrumbs list="/events" label="Events" current={event.name}/>
-    {event.imagePath?<figure className="event-hero-media"><picture><source media="(max-width: 640px)" srcSet={eventImageThumbUrl(event.imagePath,640)}/><img src={eventImageUrl(event.imagePath)} alt={event.name+' poster'} decoding="async" fetchPriority="high"/></picture></figure>:null}
+    {event.imagePath?<figure className="event-hero-media"><picture><source media="(max-width: 640px)" srcSet={eventImageThumbUrl(event.imagePath,640)}/><img src={eventImageUrl(event.imagePath)} alt={event.name+' poster'} decoding="async" fetchPriority="high" onError={fallbackToOriginalImage(event.imagePath)}/></picture></figure>:null}
     <PageHeader
       eyebrow={event.status==='live'?'LIVE EVENT':'PUBLISHED EVENT'}
       title={event.name}
