@@ -54,7 +54,8 @@ export function OpsPage() {
   };
 
   if (loading) return <div className="state-card">Loading tournament operations…</div>;
-  if (isPlatformSuperAdmin) return <Navigate to="/ops/platform" replace/>;
+  const requestedEvent = typeof window !== 'undefined' ? new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('event') : null;
+  if (isPlatformSuperAdmin && !requestedEvent) return <Navigate to="/ops/platform" replace/>;
   if (error) return <div className="state-card error">{error}</div>;
 
   return <>
