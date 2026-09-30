@@ -1,6 +1,6 @@
 import type { MatchRecord, MatchStatus, RosterEntry } from '../types';
 
-export function MatchCard({ match, roster, onScore, onMove, onStatus }: { match: MatchRecord; roster: RosterEntry[]; onScore?: () => void; onMove?: (direction: -1 | 1) => void; onStatus?: (status: MatchStatus) => void }) {
+export function MatchCard({ match, roster, onScore, onMove, onStatus, plannedTime }: { match: MatchRecord; roster: RosterEntry[]; plannedTime?: string; onScore?: () => void; onMove?: (direction: -1 | 1) => void; onStatus?: (status: MatchStatus) => void }) {
   const name = (side: 1 | 2) => {
     const p = match.participants.find(x => x.sideIndex === side);
     if (!p) return 'TBD';
@@ -9,7 +9,7 @@ export function MatchCard({ match, roster, onScore, onMove, onStatus }: { match:
   };
   return (
     <article className={`match-card status-${match.status}`}>
-      <div className="match-top"><div><span className="eyebrow">{match.category}</span><h3>{match.label}</h3></div><span className="match-status">{match.status.replaceAll('_', ' ')}</span></div>
+      <div className="match-top"><div><span className="eyebrow">{match.category}{plannedTime ? ` · planned ${plannedTime}` : ''}</span><h3>{match.label}</h3></div><span className="match-status">{match.status.replaceAll('_', ' ')}</span></div>
       <div className="versus"><strong>{name(1)}</strong><span>VS</span><strong>{name(2)}</strong></div>
       {match.resultSummary && <div className="result-line">Final {match.resultSummary.side1Total} : {match.resultSummary.side2Total}</div>}
       {(onScore || onMove || onStatus) && <div className="match-actions">
