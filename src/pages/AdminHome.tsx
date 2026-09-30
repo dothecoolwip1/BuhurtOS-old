@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppState } from '../features/AppState';
-import { useAdminAccess } from '../components/AdminShell';
+import { scopedSections, useAdminAccess } from '../components/AdminShell';
+import { isEventScopedPath, withEventParam } from '../lib/eventScope';
 import { supabase } from '../lib/supabase';
 import { canSee, type NavGate } from '../lib/navigation';
 import { Card, LinkCard, PageTitle, StateBlock } from '../components/page';
@@ -52,14 +53,14 @@ export function AdminHome() {
     ? () => supabase!.from('claim_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending')
     : undefined, [access.superAdmin]);
 
-  const tools = sections.filter(section => section.id !== 'overview');
+  const tools = scopedSections(sections, event?.id).filter(section => section.id !== 'overview');
   const showSignups = Boolean(supabase && event && access.event);
 
   return <>
     <PageTitle title="Administration" lead={event ? `Current event: ${event.name}.` : 'Manage the events, teams and people you are responsible for.'} />
 
     <Card title="What do you want to do?" lead="The most common jobs, one click away.">
-      <div className="nx-grid">{commonTasks.filter(task => canSee(task.gate, access)).map(task => <LinkCard key={task.to} to={task.to} title={task.title} text={task.text} />)}</div>
+      <div className="nx-grid">{commonTasks.filter(task => canSee(task.gate, access)).map(task => <LinkCard key={task.to} to={isEventScopedPath(task.to) ? withEventParam(task.to, event?.id) : task.to} title={task.title} text={task.text} />)}</div>
     </Card>
 
     <Card title="Needs your attention" lead="Checked live each time you open this page.">

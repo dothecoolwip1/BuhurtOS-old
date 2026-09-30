@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAppState } from '../features/AppState';
+import { OrganizationGate, useOrganizationScope } from '../features/OrganizationScope';
 import {
   listIdentityClaimsForReview,
   listIdentityMergeReviews,
@@ -16,8 +17,8 @@ import type {
   FoundationFighter
 } from '../types';
 
-export function IdentityReviewPage() {
-  const { event, roster, user } = useAppState();
+function IdentityReviewInner({ organizationId }: { organizationId: string }) {
+  const { user } = useAppState();
   const [fighters, setFighters] = useState<FoundationFighter[]>([]);
   const [claims, setClaims] = useState<FighterIdentityClaim[]>([]);
   const [merges, setMerges] = useState<FighterIdentityMergeReview[]>([]);
@@ -31,7 +32,7 @@ export function IdentityReviewPage() {
 
   const canManage = Boolean(
     user?.platformRoles.includes('platform_super_admin')
-    || (event && user?.organizationRoles.some(role => role.organizationId === event.organizationId && role.role === 'organization_admin'))
+    || user?.organizationRoles.some(role => role.organizationId === organizationId && role.role === 'organization_admin')
   );
   const isPlatformAdmin = Boolean(user?.platformRoles.includes('platform_super_admin'));
 
@@ -44,9 +45,8 @@ export function IdentityReviewPage() {
   const identityName = (identityId: string) => identities.find(row => row.identityId === identityId)?.name || identityId.slice(0, 8);
 
   const refresh = async () => {
-    if (!event) return;
     const [fighterRows, claimRows, mergeRows] = await Promise.all([
-      listFoundationFighters(event, roster),
+      listFoundationFighters({ organizationId }, []),
       listIdentityClaimsForReview(),
       listIdentityMergeReviews()
     ]);
@@ -58,9 +58,8 @@ export function IdentityReviewPage() {
   useEffect(() => {
     if (!canManage) return;
     refresh().catch(error => setMessage(error instanceof Error ? error.message : 'Unable to load identity review queue.'));
-  }, [event?.id, canManage, roster.length]);
+  }, [organizationId, canManage]);
 
-  if (!event) return <div className="state-card">Choose an event before opening identity review.</div>;
   if (!canManage) return <div className="state-card">Organization administrator access is required for identity review.</div>;
 
   const run = async (work: () => Promise<void>, success: string) => {
@@ -193,4 +192,12 @@ export function IdentityReviewPage() {
 
     {message && <div className="auth-message">{message}</div>}
   </>;
+}
+
+/** Fighter claims and duplicate review for one organization, chosen explicitly (no event required). */
+export function IdentityReviewPage() {
+  const scope = useOrganizationScope();
+  return <OrganizationGate scope={scope} toolName="Fighter identity review">
+    {organizationId => <IdentityReviewInner key={organizationId} organizationId={organizationId} />}
+  </OrganizationGate>;
 }

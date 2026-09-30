@@ -9,9 +9,12 @@ import { validateScore } from '../lib/scoring';
 import { advanceOutcome } from '../lib/bracket';
 import { enqueueMutation, flushMutationQueue, listMutations } from '../lib/offlineQueue';
 import { loadUserContext } from '../lib/userContext';
+import { eventParamFromHash, recallEvent, rememberEvent } from '../lib/eventScope';
 
 interface AppStateValue {
   loading: boolean;
+  /** True while a different event is being loaded; writable event UI must not act on the previous event. */
+  scopeLoading: boolean;
   authReady: boolean;
   authNotice: AuthNotice;
   error: string | null;
@@ -43,13 +46,20 @@ function isProtectedOperationsRoute(): boolean {
   return route === '/admin' || route.startsWith('/admin/') || route === '/me' || route.startsWith('/me/');
 }
 
-function requestedEventIdFromLocation(): string | undefined {
+function explicitEventIdFromLocation(): string | undefined {
   if (typeof window === 'undefined') return undefined;
   const direct = new URLSearchParams(window.location.search).get('event');
   if (direct) return direct;
-  const queryIndex = window.location.hash.indexOf('?');
-  if (queryIndex < 0) return undefined;
-  return new URLSearchParams(window.location.hash.slice(queryIndex + 1)).get('event') ?? undefined;
+  return eventParamFromHash(window.location.hash) || undefined;
+}
+
+/** The URL wins; on admin pages a previously chosen event is the fallback so links without it keep the scope. */
+function requestedEventIdFromLocation(): string | undefined {
+  const explicit = explicitEventIdFromLocation();
+  if (explicit) return explicit;
+  if (typeof window === 'undefined') return undefined;
+  const route = window.location.hash.replace(/^#/, '').split('?')[0];
+  return route.startsWith('/admin') ? (recallEvent() || undefined) : undefined;
 }
 
 function currentHashRoute(): string {
@@ -68,22 +78,27 @@ const eventIndependentRoutes = new Set([
   '/admin/settings',
   '/admin/people/accounts',
   '/admin/people/codes',
-  '/admin/people/identity-review',
-  '/admin/rules/divisions',
-  '/admin/rules/rulesets',
   '/admin/rules/reference',
   '/admin/system/sync'
 ]);
 
+/** Organization tools work without an event; they only load one when the person explicitly chose one. */
+const optionalEventRoutes = new Set(['/admin/rules/rulesets', '/admin/rules/divisions', '/admin/people/identity-review']);
+
 function routeNeedsEventSnapshot(): boolean {
   const route = currentHashRoute();
   if (route === '/me' || route.startsWith('/me/')) return false;
+  if (route.startsWith('/admin/teams')) return false;
+  if (optionalEventRoutes.has(route)) return Boolean(requestedEventIdFromLocation());
   return !eventIndependentRoutes.has(route);
 }
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const sessionGeneration = useRef(0);
+  const loadSeq = useRef(0);
+  const currentEventId = useRef<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
+  const [scopeLoading, setScopeLoading] = useState(false);
   const [authReady, setAuthReady] = useState(!isSupabaseConfigured);
   const [authNotice, setAuthNotice] = useState<AuthNotice>(null);
   const [error, setError] = useState<string | null>(null);
@@ -101,23 +116,34 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const reload = useCallback(async () => {
     const generation = sessionGeneration.current;
+    const seq = ++loadSeq.current;
+    const stale = () => generation !== sessionGeneration.current || seq !== loadSeq.current;
     try {
       setError(null);
       const requestedEventId = requestedEventIdFromLocation();
+      const explicitEventId = explicitEventIdFromLocation();
+      if (explicitEventId) rememberEvent(explicitEventId);
+      // Switching events: drop the previous event's rows immediately so nothing writable points at the wrong event.
+      if (requestedEventId && currentEventId.current && requestedEventId !== currentEventId.current) {
+        currentEventId.current = undefined;
+        setScopeLoading(true);
+        setEvent(null); setMatches([]); setRoster([]); setFightCards([]); setTeams([]); setAnnouncements([]);
+      }
       let accessMode: 'public' | 'private' = 'public';
       if (supabase) {
         const { data: authData, error: authError } = await supabase.auth.getUser();
-        if (generation !== sessionGeneration.current) return;
+        if (stale()) return;
         if (authError || !authData.user) {
           setUser(null);
         } else {
           const context = await loadUserContext(authData.user.id, authData.user.email ?? 'Signed in user');
-          if (generation !== sessionGeneration.current) return;
+          if (stale()) return;
           setUser(context);
           if (isProtectedOperationsRoute()) accessMode = 'private';
         }
       }
       if (!routeNeedsEventSnapshot()) {
+        currentEventId.current = undefined;
         setEvent(null);
         setMatches([]);
         setRoster([]);
@@ -128,7 +154,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       }
 
       const snap = await loadEventSnapshot(requestedEventId, accessMode);
-      if (generation !== sessionGeneration.current) return;
+      if (stale()) return;
+      currentEventId.current = snap.event.id;
       setEvent(snap.event);
       setMatches(snap.matches);
       setRoster(snap.roster);
@@ -136,9 +163,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setTeams(snap.teams);
       setAnnouncements(snap.announcements);
     } catch (err) {
+      if (seq !== loadSeq.current) return;
       setError(err instanceof Error ? err.message : 'Unable to load event data.');
     } finally {
-      setLoading(false);
+      if (seq === loadSeq.current) { setLoading(false); setScopeLoading(false); }
     }
   }, []);
 
@@ -486,7 +514,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return () => navigator.serviceWorker.removeEventListener('message', handler);
   }, [syncNow]);
 
-  const value = useMemo<AppStateValue>(() => ({ loading, authReady, authNotice, error, event, matches, roster, fightCards, teams, announcements, user, online, pendingCount, dataMode: isSupabaseConfigured ? 'supabase' : 'demo', reload, updateCompliance, setCompetitionClearance, finalizeResult, reorderMatch, setMatchStatus, syncNow, refreshQueue: refreshPending }), [loading, authReady, authNotice, error, event, matches, roster, fightCards, teams, announcements, user, online, pendingCount, reload, updateCompliance, setCompetitionClearance, finalizeResult, reorderMatch, setMatchStatus, syncNow, refreshPending]);
+  const value = useMemo<AppStateValue>(() => ({ loading, scopeLoading, authReady, authNotice, error, event, matches, roster, fightCards, teams, announcements, user, online, pendingCount, dataMode: isSupabaseConfigured ? 'supabase' : 'demo', reload, updateCompliance, setCompetitionClearance, finalizeResult, reorderMatch, setMatchStatus, syncNow, refreshQueue: refreshPending }), [loading, authReady, authNotice, error, event, matches, roster, fightCards, teams, announcements, user, online, pendingCount, reload, updateCompliance, setCompetitionClearance, finalizeResult, reorderMatch, setMatchStatus, syncNow, refreshPending]);
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;
 }
 

@@ -139,7 +139,7 @@ export function applyRulesetToFormat(preset:CompetitionFormatPreset,settings:Rul
 }
 
 export async function createRuleset(
-  event:EventRecord,
+  event:Pick<EventRecord,'organizationId'>,
   input:Omit<RulesetRecord,'id'|'organizationId'|'createdAt'|'updatedAt'|'revision'|'publishedAt'|'retiredAt'>
 ):Promise<string>{
   if(!input.name.trim()||!input.shortName.trim()||!input.version.trim())throw new Error('Name, short name, and version are required.');
@@ -167,7 +167,7 @@ export async function createRuleset(
   return data.id;
 }
 
-export async function updateDraftRuleset(event:EventRecord,record:RulesetRecord):Promise<void>{
+export async function updateDraftRuleset(event:Pick<EventRecord,'organizationId'>,record:RulesetRecord):Promise<void>{
   if(record.status!=='draft')throw new Error('Only draft rulesets can be edited.');
   if(!record.updatedAt&&supabase)throw new Error('Ruleset version is missing. Reload before saving.');
   if(!supabase){
@@ -188,7 +188,7 @@ export async function updateDraftRuleset(event:EventRecord,record:RulesetRecord)
   if(error)throw error;
 }
 
-export async function setRulesetStatus(event:EventRecord,record:RulesetRecord,status:RulesetStatus):Promise<void>{
+export async function setRulesetStatus(event:Pick<EventRecord,'organizationId'>,record:RulesetRecord,status:RulesetStatus):Promise<void>{
   if(!record.updatedAt&&supabase)throw new Error('Ruleset version is missing. Reload before changing status.');
   if(!supabase){
     const current=await listRulesets(event.organizationId);

@@ -118,7 +118,9 @@ function rowToAffiliation(row: any): FighterAffiliation {
   };
 }
 
-export async function listFoundationFighters(event: EventRecord, roster: RosterEntry[]): Promise<FoundationFighter[]> {
+type OrganizationRef = Pick<EventRecord, 'organizationId'>;
+
+export async function listFoundationFighters(event: OrganizationRef, roster: RosterEntry[]): Promise<FoundationFighter[]> {
   if (!supabase) {
     const base = new Map<string, FoundationFighter>();
     for (const entry of roster) {
@@ -374,7 +376,7 @@ export async function endAffiliation(organizationId: string, affiliationId: stri
   if (error) throw error;
 }
 
-export async function archiveFoundationFighter(event: EventRecord, roster: RosterEntry[], fighterId: string): Promise<void> {
+export async function archiveFoundationFighter(event: OrganizationRef, roster: RosterEntry[], fighterId: string): Promise<void> {
   const deletedAt = new Date().toISOString();
   if (!supabase) {
     const key = demoKey('fighters', event.organizationId);
@@ -386,7 +388,7 @@ export async function archiveFoundationFighter(event: EventRecord, roster: Roste
   if (error) throw error;
 }
 
-export async function claimTemporaryFighter(event: EventRecord, rosterEntryId: string, existingFighterId?: string, displayName?: string): Promise<string> {
+export async function claimTemporaryFighter(event: OrganizationRef, rosterEntryId: string, existingFighterId?: string, displayName?: string): Promise<string> {
   if (!supabase) {
     let fighterId = existingFighterId;
     if (!fighterId) {

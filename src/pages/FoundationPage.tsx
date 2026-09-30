@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAppState } from '../features/AppState';
+import { OrganizationGate, useOrganizationScope } from '../features/OrganizationScope';
 import { competitionFormats } from '../lib/competitionFormats';
 import {
   archiveClub,
@@ -24,12 +25,13 @@ import {
 import { assignEventDivision, evaluateDivisionEligibility, listEventDivisions, parseEligibilityRulesJson, removeEventDivision } from '../lib/governance';
 import { listRulesets } from '../lib/rulesetAdmin';
 import { requestFighterIdentityMerge } from '../lib/fighterIdentity';
-import type { AffiliationType, Club, CompetitionDivision, EventDivision, FighterAffiliation, FoundationFighter, RulesetRecord, Team } from '../types';
+import type { EventRecord, AffiliationType, Club, CompetitionDivision, EventDivision, FighterAffiliation, FoundationFighter, RulesetRecord, Team } from '../types';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export function FoundationPage() {
-  const { event, roster, user, dataMode, reload } = useAppState();
+function FoundationInner({ organizationId, event }: { organizationId: string; event: EventRecord | null }) {
+  const { roster: eventRoster, user, dataMode, reload } = useAppState();
+  const roster = event ? eventRoster : [];
   const [fighters, setFighters] = useState<FoundationFighter[]>([]);
   const [clubs, setClubs] = useState<Club[]>([]);
   const [divisions, setDivisions] = useState<CompetitionDivision[]>([]);
@@ -57,7 +59,7 @@ export function FoundationPage() {
   const canManage = Boolean(
     dataMode === 'demo'
     || user?.platformRoles.includes('platform_super_admin')
-    || (event && user?.organizationRoles.some(role => role.organizationId === event.organizationId && role.role === 'organization_admin'))
+    || user?.organizationRoles.some(role => role.organizationId === organizationId && role.role === 'organization_admin')
   );
 
   const temporaryEntries = useMemo(() => roster.filter(entry => entry.entryType === 'ghost_fighter' || entry.entryType === 'guest_fighter'), [roster]);
@@ -76,15 +78,14 @@ export function FoundationPage() {
   },[previewDivision,eligibilityPreview,event?.startsAt]);
 
   const refresh = async () => {
-    if (!event) return;
     const [fighterRows, clubRows, divisionRows, eventDivisionRows, rulesetRows, teamRows, affiliationRows] = await Promise.all([
-      listFoundationFighters(event, roster),
-      listClubs(event.organizationId),
-      listDivisions(event.organizationId),
-      listEventDivisions(event.id),
-      listRulesets(event.organizationId),
-      listTeams(event.organizationId),
-      listAffiliations(event.organizationId)
+      listFoundationFighters({ organizationId }, roster),
+      listClubs(organizationId),
+      listDivisions(organizationId),
+      event ? listEventDivisions(event.id) : Promise.resolve([] as EventDivision[]),
+      listRulesets(organizationId),
+      listTeams(organizationId),
+      listAffiliations(organizationId)
     ]);
     setFighters(fighterRows);
     setClubs(clubRows);
@@ -97,9 +98,8 @@ export function FoundationPage() {
 
   useEffect(() => {
     refresh().catch(error => setMessage(error instanceof Error ? error.message : 'Unable to load foundation data.'));
-  }, [event?.id, roster.length]);
+  }, [organizationId, event?.id, roster.length]);
 
-  if (!event) return <div className="state-card">Choose an event before opening the identity foundation.</div>;
   if (!canManage) return <div className="state-card">Organization administrator access is required for permanent identity and affiliation management.</div>;
 
   const run = async (work: () => Promise<void>, success: string) => {
@@ -119,9 +119,9 @@ export function FoundationPage() {
 
   const saveClub = () => run(async () => {
     if (editingClubId) {
-      await updateClub(event.organizationId, editingClubId, clubForm);
+      await updateClub(organizationId, editingClubId, clubForm);
     } else {
-      await createClub(event.organizationId, clubForm);
+      await createClub(organizationId, clubForm);
     }
     setClubForm({ name: '', shortName: '', region: '', websiteUrl: '' });
     setEditingClubId('');
@@ -134,7 +134,7 @@ export function FoundationPage() {
 
   const removeClub = (club: Club) => {
     if (!window.confirm('Archive ' + club.name + '? Existing team and history references will be preserved.')) return;
-    return run(() => archiveClub(event.organizationId, club.id), 'Club archived without deleting history.');
+    return run(() => archiveClub(organizationId, club.id), 'Club archived without deleting history.');
   };
 
   const saveDivision = () => run(async () => {
@@ -155,8 +155,8 @@ export function FoundationPage() {
       eligibilityExplanation: divisionForm.eligibilityExplanation || undefined,
       expectedUpdatedAt: editingDivisionId ? divisions.find(row=>row.id===editingDivisionId)?.updatedAt : undefined
     };
-    if (editingDivisionId) await updateDivision(event.organizationId, editingDivisionId, input);
-    else await createDivision(event.organizationId, input);
+    if (editingDivisionId) await updateDivision(organizationId, editingDivisionId, input);
+    else await createDivision(organizationId, input);
     setDivisionForm(emptyDivisionForm());
     setEditingDivisionId('');
   }, editingDivisionId ? 'Division draft updated.' : 'Division created as a draft.');
@@ -182,21 +182,21 @@ export function FoundationPage() {
   };
 
   const publishDivision = (division: CompetitionDivision) => run(
-    () => setDivisionStatus(event.organizationId, division.id, 'published', division.updatedAt),
+    () => setDivisionStatus(organizationId, division.id, 'published', division.updatedAt),
     'Division version published and locked.'
   );
 
   const removeDivision = (division: CompetitionDivision) => {
     if (!window.confirm('Retire ' + division.name + ' v' + (division.version??1) + '? Existing event snapshots and historical references remain intact.')) return;
     return run(
-      () => archiveDivision(event.organizationId, division.id, division.updatedAt),
+      () => archiveDivision(organizationId, division.id, division.updatedAt),
       'Division version retired without changing event history.'
     );
   };
 
   const newDivisionVersion = (division: CompetitionDivision) => run(async()=>{
-    const id=await createNewDivisionVersion(event.organizationId,division.id);
-    const rows=await listDivisions(event.organizationId);
+    const id=await createNewDivisionVersion(organizationId,division.id);
+    const rows=await listDivisions(organizationId);
     setDivisions(rows);
     const next=rows.find(row=>row.id===id);
     if(next)editDivision(next);
@@ -204,6 +204,7 @@ export function FoundationPage() {
 
   const addEventDivision = () => run(async()=>{
     if(!eventDivisionForm.divisionId)throw new Error('Choose a published division.');
+    if(!event)throw new Error('Open an event to assign a division to it.');
     await assignEventDivision(
       event,eventDivisionForm.divisionId,
       eventDivisionForm.registrationLimit?Number(eventDivisionForm.registrationLimit):undefined,
@@ -213,7 +214,7 @@ export function FoundationPage() {
   },'Division assigned to this event with an immutable version snapshot.');
 
   const deleteEventDivision = (row:EventDivision) => run(
-    ()=>removeEventDivision(event,row),
+    async()=>{if(!event)throw new Error('Open an event first.');await removeEventDivision(event,row);},
     'Event division removed before competition began.'
   );
 
@@ -221,7 +222,7 @@ export function FoundationPage() {
     const entry = temporaryEntries.find(row => row.id === claimForm.rosterEntryId);
     if (!entry) return setMessage('Choose a temporary fighter first.');
     return run(async () => {
-      await claimTemporaryFighter(event, entry.id, claimForm.fighterId || undefined, entry.displayName);
+      await claimTemporaryFighter({ organizationId }, entry.id, claimForm.fighterId || undefined, entry.displayName);
       setClaimForm({ rosterEntryId: '', fighterId: '' });
     }, 'Temporary fighter is now linked to a permanent identity. Historical roster references were preserved.');
   };
@@ -244,26 +245,26 @@ export function FoundationPage() {
     return run(async () => {
       await createAffiliation({
         identityId: fighter.identityId,
-        organizationId: event.organizationId,
+        organizationId: organizationId,
         clubId: affiliationForm.clubId || undefined,
         teamId: affiliationForm.teamId || undefined,
         affiliationType: affiliationForm.affiliationType,
         startsOn: affiliationForm.startsOn,
         endsOn: affiliationForm.endsOn || undefined,
         isPrimary: affiliationForm.isPrimary,
-        sourceEventId: event.id
+        sourceEventId: event?.id
       });
     }, 'Affiliation history updated.');
   };
 
   const closeAffiliation = (row: FighterAffiliation) => run(
-    () => endAffiliation(event.organizationId, row.id),
+    () => endAffiliation(organizationId, row.id),
     'Affiliation ended and retained in fighter history.'
   );
 
   const archiveFighter = (fighter: FoundationFighter) => {
     if (!window.confirm('Archive ' + fighter.name + '? Historical roster, match, and discipline records will be preserved.')) return;
-    return run(() => archiveFoundationFighter(event, roster, fighter.id), 'Fighter archived without deleting historical records.');
+    return run(() => archiveFoundationFighter({ organizationId }, roster, fighter.id), 'Fighter archived without deleting historical records.');
   };
 
   return <>
@@ -358,6 +359,7 @@ export function FoundationPage() {
           {divisions.length===0?<div className="state-card">No formal divisions created yet.</div>:divisions.map(division=><article key={division.id}><div className="grow"><strong>{division.name} · v{division.version??1}</strong><small>{division.competitionFormatId.replaceAll('_',' ')} · {division.status}{division.eligibilityLabel?' · '+division.eligibilityLabel:''}</small></div><div className="header-actions">{division.status==='draft'&&<><button disabled={busy} onClick={()=>editDivision(division)}>Edit</button><button disabled={busy} onClick={()=>publishDivision(division)}>Publish</button></>}{division.status==='published'&&<><button disabled={busy} onClick={()=>newDivisionVersion(division)}>New Version</button><button disabled={busy} onClick={()=>removeDivision(division)}>Retire</button></>}{division.status==='retired'&&<button disabled={busy} onClick={()=>newDivisionVersion(division)}>New Version</button>}</div></article>)}
         </div>
 
+        {event ? <>
         <h3>Divisions on this event</h3>
         <div className="form-stack setup-subform">
           <label>Published division<select value={eventDivisionForm.divisionId} onChange={e=>setEventDivisionForm(form=>({...form,divisionId:e.target.value}))}><option value="">Choose division</option>{divisions.filter(row=>row.status==='published'&&!eventDivisions.some(ed=>ed.divisionId===row.id)).map(row=><option key={row.id} value={row.id}>{row.name} · v{row.version??1}</option>)}</select></label>
@@ -367,6 +369,7 @@ export function FoundationPage() {
           {!event.rulesetSnapshotId&&eventDivisionForm.divisionId&&!divisions.find(row=>row.id===eventDivisionForm.divisionId)?.rulesetId&&<small>Lock an event ruleset first, or choose a division with its own published ruleset.</small>}
         </div>
         <div className="membership-list">{eventDivisions.length===0?<div className="state-card">No divisions assigned to this event.</div>:eventDivisions.map(row=>{const division=divisions.find(item=>item.id===row.divisionId);const snap=row.divisionSnapshot;return <article key={row.id}><div className="grow"><strong>{String(snap?.name??division?.name??'Division')} · v{String(snap?.version??division?.version??1)}</strong><small>Registration {row.isRegistrationOpen?'open':'closed'}{row.registrationLimit?' · limit '+row.registrationLimit:''} · snapshot preserved</small></div>{['draft','published'].includes(event.status)&&<button disabled={busy} onClick={()=>deleteEventDivision(row)}>Remove</button>}</article>;})}</div>
+        </> : <><h3>Divisions on an event</h3><div className="state-card">Divisions belong to the organization and are defined above. To assign one to an event, open that event from Event settings and return here.</div></>}
       </section>
 
       <section className="panel-card">
@@ -430,4 +433,13 @@ export function FoundationPage() {
 
     {message && <div className="auth-message">{message}</div>}
   </>;
+}
+
+/** Fighters, clubs and divisions for one organization, chosen explicitly. An event is optional and only adds event-specific tools. */
+export function FoundationPage() {
+  const scope = useOrganizationScope();
+  const { event } = useAppState();
+  return <OrganizationGate scope={scope} toolName="Fighter, club and division management">
+    {organizationId => <FoundationInner key={organizationId} organizationId={organizationId} event={event && event.organizationId === organizationId ? event : null} />}
+  </OrganizationGate>;
 }

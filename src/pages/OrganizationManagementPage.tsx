@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAppState } from '../features/AppState';
+import { OrganizationGate, useOrganizationScope } from '../features/OrganizationScope';
 import {
   allowedInviteRoles,
   archiveGovernanceClub,
@@ -58,8 +59,8 @@ const teamStatuses: Exclude<TeamStatus, 'archived'>[] = ['forming', 'pending', '
 
 const label = (value: string) => value.replaceAll('_', ' ').replace(/\b\w/g, letter => letter.toUpperCase());
 
-export function OrganizationManagementPage() {
-  const { event, user, reload, dataMode } = useAppState();
+function OrganizationManagementInner({ organizationId }: { organizationId: string }) {
+  const { user, reload, dataMode } = useAppState();
   const [snapshot, setSnapshot] = useState<GovernanceSnapshot>(emptySnapshot);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
@@ -109,7 +110,6 @@ export function OrganizationManagementPage() {
     message: ''
   });
 
-  const organizationId = event?.organizationId || '';
   const platformAdmin = Boolean(user?.platformRoles.includes('platform_super_admin'));
   const organizationAdmin = Boolean(
     platformAdmin
@@ -147,7 +147,6 @@ export function OrganizationManagementPage() {
     setApplicationForm(form => ({ ...form, targetId: first }));
   }, [applicationForm.scope, snapshot.clubs, snapshot.teams]);
 
-  if (!event) return <div className="state-card">Choose an event before opening organization management.</div>;
   if (!user) return <div className="state-card">Sign in to manage organizations, clubs, teams, or memberships.</div>;
   const clubRoles = user.clubRoles ?? [];
   const teamRoles = user.teamRoles ?? [];
@@ -630,4 +629,12 @@ export function OrganizationManagementPage() {
       </section>
     </div>
   </>;
+}
+
+/** Teams, clubs and members for one organization, chosen explicitly (no event required). */
+export function OrganizationManagementPage() {
+  const scope = useOrganizationScope();
+  return <OrganizationGate scope={scope} toolName="Team and club management">
+    {organizationId => <OrganizationManagementInner key={organizationId} organizationId={organizationId} />}
+  </OrganizationGate>;
 }

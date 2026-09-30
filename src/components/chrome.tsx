@@ -95,6 +95,8 @@ interface ShellProps {
   status?: ReactNode;
   /** Explicit scope line and workflow steps rendered above the page. */
   header?: ReactNode;
+  /** When set, shown instead of the page (for example while the chosen event is unavailable). */
+  blocked?: ReactNode;
 }
 
 function ItemLink({ to, label, end, onClick, description }: { to: string; label: string; end?: boolean; onClick?: () => void; description?: string }) {
@@ -102,7 +104,7 @@ function ItemLink({ to, label, end, onClick, description }: { to: string; label:
 }
 
 /** Sidebar on desktop; a menu sheet plus a short bottom bar on phones. One structure for Workspace and Administration. */
-export function AppShell({ area, brandSub, sections, bottom, status, header }: ShellProps) {
+export function AppShell({ area, brandSub, sections, bottom, status, header, blocked }: ShellProps) {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const toggle = useRef<HTMLButtonElement>(null);
@@ -149,7 +151,7 @@ export function AppShell({ area, brandSub, sections, bottom, status, header }: S
       <main className="nx-main" id="main-content">
         <Breadcrumbs crumbs={crumbs} />
         {header}
-        <Outlet />
+        {blocked ?? <Outlet />}
       </main>
     </div>
 

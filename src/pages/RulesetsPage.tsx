@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { EventRecord } from '../types';
 import { useAppState } from '../features/AppState';
+import { OrganizationGate, useOrganizationScope } from '../features/OrganizationScope';
 import { competitionFormats } from '../lib/competitionFormats';
 import {
   addRulesetSource,
@@ -35,8 +37,8 @@ const cloneSettings=(settings:RulesetSettings):RulesetSettings=>structuredClone(
 const json=(value:Record<string,unknown>|undefined)=>JSON.stringify(value??{},null,2);
 const today=()=>new Date().toISOString().slice(0,10);
 
-export function RulesetsPage(){
-  const {event,user,dataMode,reload}=useAppState();
+function RulesetsInner({organizationId,event}:{organizationId:string;event:EventRecord|null}){
+  const {user,dataMode,reload}=useAppState();
   const [rulesets,setRulesets]=useState<RulesetRecord[]>([]);
   const [selectedId,setSelectedId]=useState('');
   const [draft,setDraft]=useState<RulesetRecord|null>(null);
@@ -59,7 +61,7 @@ export function RulesetsPage(){
   const canManage=Boolean(
     dataMode==='demo'
     ||user?.platformRoles.includes('platform_super_admin')
-    ||(event&&user?.organizationRoles.some(role=>role.organizationId===event.organizationId&&role.role==='organization_admin'))
+    ||user?.organizationRoles.some(role=>role.organizationId===organizationId&&role.role==='organization_admin')
   );
   const eventRulesLocked=Boolean(event&&['live','completed','archived'].includes(event.status));
   const currentSnapshot=useMemo(
@@ -68,15 +70,14 @@ export function RulesetsPage(){
   );
 
   const refresh=async()=>{
-    if(!event)return;
     const [rows,snapshotRows,exceptionRows]=await Promise.all([
-      listRulesets(event.organizationId),listEventRulesetSnapshots(event.id),listEventPolicyExceptions(event.id)
+      listRulesets(organizationId),event?listEventRulesetSnapshots(event.id):Promise.resolve([] as EventRulesetSnapshot[]),event?listEventPolicyExceptions(event.id):Promise.resolve([] as EventPolicyException[])
     ]);
     setRulesets(rows);setSnapshots(snapshotRows);setExceptions(exceptionRows);
     setSelectedId(current=>current&&rows.some(row=>row.id===current)?current:(rows[0]?.id||''));
   };
 
-  useEffect(()=>{refresh().catch(error=>setMessage(error instanceof Error?error.message:'Unable to load rulesets.'));},[event?.id]);
+  useEffect(()=>{refresh().catch(error=>setMessage(error instanceof Error?error.message:'Unable to load rulesets.'));},[organizationId,event?.id]);
 
   useEffect(()=>{
     const selected=rulesets.find(row=>row.id===selectedId);
@@ -93,7 +94,6 @@ export function RulesetsPage(){
     rulesets.map(row=>row.id===draft.id?{...draft,overrides:draft.settings}:row),draft.id
   ):null,[draft,rulesets]);
 
-  if(!event)return <div className="state-card">Choose an event before managing rulesets.</div>;
   if(!canManage)return <div className="state-card">Organization administrator access is required to manage rulesets.</div>;
 
   const run=async(work:()=>Promise<unknown>,success:string)=>{
@@ -105,7 +105,7 @@ export function RulesetsPage(){
 
   const create=()=>run(async()=>{
     if(!createForm.name.trim()||!createForm.shortName.trim()||!createForm.version.trim())throw new Error('Name, short name, and version are required.');
-    const id=await createRuleset(event,{
+    const id=await createRuleset({organizationId},{
       name:createForm.name.trim(),shortName:createForm.shortName.trim(),version:createForm.version.trim(),
       description:createForm.description.trim()||undefined,status:'draft',
       parentRulesetId:createForm.parentRulesetId||undefined,
@@ -140,18 +140,18 @@ export function RulesetsPage(){
     const overrides=draft.parentRulesetId
       ? deriveRulesetSettingsPatch(parentSettings,draft.settings)
       : draft.settings;
-    return run(()=>updateDraftRuleset(event,{...draft,...parsedPolicies(),overrides}),'Draft ruleset saved.');
+    return run(()=>updateDraftRuleset({organizationId},{...draft,...parsedPolicies(),overrides}),'Draft ruleset saved.');
   };
 
   const transition=(record:RulesetRecord,status:RulesetStatus)=>run(
-    ()=>setRulesetStatus(event,record,status),
+    ()=>setRulesetStatus({organizationId},record,status),
     status==='review'?'Ruleset entered review and is now read-only until returned to draft.':
     status==='published'?'Ruleset published and immutable for historical stability.':
     status==='draft'?'Ruleset returned to draft for edits.':'Ruleset retired without changing event history.'
   );
 
   const activate=(record:RulesetRecord|null)=>run(
-    async()=>{await activateEventRuleset(event,record?.id||null,eventExceptionReason||undefined);},
+    async()=>{if(!event)throw new Error('Open an event to put a ruleset on it.');await activateEventRuleset(event,record?.id||null,eventExceptionReason||undefined);},
     record?`${record.name} ${record.version} was snapshotted onto this event.`:'Event ruleset cleared.'
   );
 
@@ -183,6 +183,7 @@ export function RulesetsPage(){
 
   const addException=()=>run(async()=>{
     if(!exceptionForm.ruleKey.trim())throw new Error('Rule key is required.');
+    if(!event)throw new Error('Open an event to record an exception.');
     await recordEventPolicyException(event.id,{
       policyDomain:exceptionForm.policyDomain,
       ruleKey:exceptionForm.ruleKey,
@@ -212,10 +213,10 @@ export function RulesetsPage(){
       </div></section>
 
       <section className="panel-card"><h2>Ruleset library</h2><div className="membership-list">
-        {rulesets.length===0?<div className="state-card">No rulesets yet.</div>:rulesets.map(record=><article key={record.id}><div><strong>{record.name} · {record.version}</strong><small>{record.status}{record.parentRulesetId?' · inherited':''}{event.rulesetId===record.id?' · selected on event':''}</small></div><button className={selectedId===record.id?'primary':''} onClick={()=>setSelectedId(record.id)}>Open</button></article>)}
+        {rulesets.length===0?<div className="state-card">No rulesets yet.</div>:rulesets.map(record=><article key={record.id}><div><strong>{record.name} · {record.version}</strong><small>{record.status}{record.parentRulesetId?' · inherited':''}{event?.rulesetId===record.id?' · selected on event':''}</small></div><button className={selectedId===record.id?'primary':''} onClick={()=>setSelectedId(record.id)}>Open</button></article>)}
       </div>
-      {!eventRulesLocked&&<button disabled={busy||!event.rulesetId} onClick={()=>activate(null)}>Clear Event Ruleset</button>}
-      {eventRulesLocked&&<div className="state-card">Event rules are locked because this event is {event.status}.</div>}
+      {event&&!eventRulesLocked&&<button disabled={busy||!event.rulesetId} onClick={()=>activate(null)}>Clear Event Ruleset</button>}
+      {event&&eventRulesLocked&&<div className="state-card">Event rules are locked because this event is {event.status}.</div>}
       </section>
 
       {draft&&<section className="panel-card"><h2>{draft.name} {draft.version}</h2>
@@ -273,13 +274,14 @@ export function RulesetsPage(){
       <div className="header-actions">
         {draft.status==='draft'&&<><button className="primary" disabled={busy} onClick={saveDraft}>Save Draft</button><button disabled={busy} onClick={()=>transition(draft,'review')}>Send to Review</button></>}
         {draft.status==='review'&&<><button disabled={busy} onClick={()=>transition(draft,'draft')}>Return to Draft</button><button className="primary" disabled={busy||!hasPublicSource} onClick={()=>transition(draft,'published')}>Publish Exact Version</button></>}
-        {draft.status==='published'&&!eventRulesLocked&&<button className={event.rulesetId===draft.id?'primary':''} disabled={busy||Boolean(event.rulesetId===draft.id&&event.rulesetSnapshotId)} onClick={()=>activate(draft)}>{event.rulesetId===draft.id?(event.rulesetSnapshotId?'Active on Event':'Lock Event Snapshot'):'Use for Event'}</button>}
-        {draft.status==='published'&&<button disabled={busy||event.rulesetId===draft.id} onClick={()=>transition(draft,'retired')}>Retire Version</button>}
+        {event&&draft.status==='published'&&!eventRulesLocked&&<button className={event.rulesetId===draft.id?'primary':''} disabled={busy||Boolean(event.rulesetId===draft.id&&event.rulesetSnapshotId)} onClick={()=>activate(draft)}>{event.rulesetId===draft.id?(event.rulesetSnapshotId?'Active on Event':'Lock Event Snapshot'):'Use for Event'}</button>}
+        {draft.status==='published'&&<button disabled={busy||event?.rulesetId===draft.id} onClick={()=>transition(draft,'retired')}>Retire Version</button>}
       </div>
       {effective&&<div className="state-card">Effective configuration: {effective.enabledFormats.length} formats · armor {effective.compliance.requireArmorClearance?'required':'optional'} · medical {effective.compliance.requireMedicalClearance?'required':'optional'} · anti-fratricide {effective.bracket.antiFratricide?'on':'off'}.</div>}
       </section>}
 
-      <section className="panel-card"><h2>Event rules snapshot</h2>
+      {!event&&<section className="panel-card"><h2>Event rules snapshot</h2><div className="state-card">Rulesets belong to the organization. To put one on an event, open that event from Event settings, then return here. The exact version is then locked onto the event.</div></section>}
+      {event&&<section className="panel-card"><h2>Event rules snapshot</h2>
         {currentSnapshot?<><div className="state-card"><strong>{currentSnapshot.rulesetName} · {currentSnapshot.rulesetVersion}</strong><br/>Locked {new Date(currentSnapshot.lockedAt).toLocaleString()} · {currentSnapshot.sourceSnapshot.length} public source record{currentSnapshot.sourceSnapshot.length===1?'':'s'} · inheritance depth {currentSnapshot.rulesetChain.length}.</div><details><summary>Resolved policy snapshot</summary><pre>{JSON.stringify({eligibility:currentSnapshot.eligibilityPolicy,scoring:currentSnapshot.scoringPolicy,tournament:currentSnapshot.tournamentPolicy,ranking:currentSnapshot.rankingPolicy},null,2)}</pre></details></>:<div className="state-card">No immutable rules snapshot has been locked to this event yet.</div>}
         {!eventRulesLocked&&<label className="form-stack">Exception reason for out-of-window rules, only when needed<textarea value={eventExceptionReason} onChange={e=>setEventExceptionReason(e.target.value)} placeholder="Explain why this event is authorized to use a ruleset outside its effective window."/></label>}
         <h3>Approved exceptions</h3><div className="membership-list">{exceptions.length===0?<div className="state-card">No event policy exceptions recorded.</div>:exceptions.map(row=><article key={row.id}><div className="grow"><strong>{row.policyDomain} · {row.ruleKey}</strong><small>{row.reason} · {row.status}</small></div>{row.status==='approved'&&<button disabled={busy} onClick={()=>revokeException(row.id)}>Revoke</button>}</article>)}</div>
@@ -290,9 +292,18 @@ export function RulesetsPage(){
           <textarea placeholder="Required reason for this one-event exception" value={exceptionForm.reason} onChange={e=>setExceptionForm(form=>({...form,reason:e.target.value}))}/>
           <button disabled={busy||!exceptionForm.ruleKey.trim()||exceptionForm.reason.trim().length<8} onClick={addException}>Record Exception</button>
         </div>}
-      </section>
+      </section>}
     </div>
 
     {message&&<div className="auth-message" role="status">{message}</div>}
   </>;
+}
+
+/** Rulesets for one organization, chosen explicitly. An event is optional and only used to apply a ruleset to it. */
+export function RulesetsPage(){
+  const scope=useOrganizationScope();
+  const {event}=useAppState();
+  return <OrganizationGate scope={scope} toolName="Ruleset management">
+    {organizationId=><RulesetsInner key={organizationId} organizationId={organizationId} event={event&&event.organizationId===organizationId?event:null}/>}
+  </OrganizationGate>;
 }
