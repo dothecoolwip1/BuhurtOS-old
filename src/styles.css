@@ -970,3 +970,35 @@ button.ghost:hover{color:var(--text);border-color:#3d4c59;background:#111920}
   .fighter-signup-form{padding:12px}
   .fighter-signup-modal.native{grid-template-rows:auto auto 1fr auto}
 }
+
+
+.fighter-signup-code-gate{
+  display:grid;
+  align-content:center;
+  gap:18px;
+  padding:22px 18px 28px;
+  min-height:360px;
+}
+.fighter-signup-code-entry{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  max-width:620px;
+  width:100%;
+  margin:0 auto;
+}
+.fighter-signup-code-entry input{
+  min-height:54px;
+  border:1px solid var(--line-strong);
+  border-radius:14px;
+  background:#0d151c;
+  color:#fff;
+  padding:0 16px;
+  font:900 1rem/1 monospace;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+@media(max-width:620px){
+  .fighter-signup-code-entry{grid-template-columns:1fr}
+  .fighter-signup-code-entry .show-btn{width:100%}
+}
