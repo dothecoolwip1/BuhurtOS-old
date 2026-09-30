@@ -72,8 +72,8 @@ export function DelegatedAccessPage(){
     <section className="section-head">
       <div>
         <span className="eyebrow">People & access</span>
-        <h1>Access Codes</h1>
-        <p>Create codes only for groups and roles below your authority. The server enforces the hierarchy, so a subgroup cannot promote itself above its parent.</p>
+        <h1>Role codes</h1>
+        <p>A role code gives one person a role, for example captain of a team or administrator of an organization. Give them the code; after they sign in they enter it under My workspace, Join with a code. You keep your own access. The server enforces the hierarchy, so nobody can give themselves more than they were given.</p>
       </div>
     </section>
 
@@ -116,6 +116,7 @@ export function DelegatedAccessPage(){
 
     <section className="panel-card">
       <h2>Codes you can manage</h2>
+      <p className="hint">For security only the first characters of a code are kept, so a code cannot be shown again after you close the dialog. If one is lost, disable it and create a new one.</p>
       {codes.length===0 ? <div className="state-card">No delegated codes have been created yet.</div> :
       <div className="membership-list">{codes.map(code=><article key={code.id}>
         <div className="grow">

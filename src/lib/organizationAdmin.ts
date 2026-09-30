@@ -186,7 +186,7 @@ export function allowedInviteRoles(scope: MembershipScope, authority: Governance
 }
 
 export function membershipInvitePath(token: string): string {
-  return '/admin/people/invite?token=' + encodeURIComponent(token);
+  return '/me/invite?token=' + encodeURIComponent(token);
 }
 
 export async function loadGovernanceSnapshot(organizationId: string): Promise<GovernanceSnapshot> {

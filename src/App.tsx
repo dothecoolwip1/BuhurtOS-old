@@ -27,6 +27,8 @@ const ShowcasePublicPage = lazy(() => import('./pages/ShowcasePublicPage').then(
 const WorkspaceHome = lazy(() => import('./pages/WorkspaceHome').then(module => ({ default: module.WorkspaceHome })));
 const WorkspaceTeams = lazy(() => import('./pages/WorkspaceTeams').then(module => ({ default: module.WorkspaceTeams })));
 const AdminHome = lazy(() => import('./pages/AdminHome').then(module => ({ default: module.AdminHome })));
+const TeamsBrowserPage = lazy(() => import('./pages/TeamsBrowserPage').then(module => ({ default: module.TeamsBrowserPage })));
+const TeamManagePage = lazy(() => import('./pages/TeamManagePage').then(module => ({ default: module.TeamManagePage })));
 const SettingsPage = lazy(() => import('./pages/SettingsPage').then(module => ({ default: module.SettingsPage })));
 const LoginPage = lazy(() => import('./pages/LoginPage').then(module => ({ default: module.LoginPage })));
 const OpsPage = lazy(() => import('./pages/OpsPage').then(module => ({ default: module.OpsPage })));
@@ -78,10 +80,16 @@ function AdminGate() {
   const location = useLocation();
   if (dataMode === 'supabase' && !authReady) return <div className="state-card" role="status">Checking account access…</div>;
   if (dataMode === 'supabase' && !user) return <Navigate to={signInRedirect(location, authNotice)} replace />;
-  const reachableWithoutAccess = location.pathname === '/admin/events/setup' || location.pathname === '/admin/people/invite';
+  const reachableWithoutAccess = location.pathname === '/admin/events/setup';
   if (dataMode === 'supabase' && user && !user.hasPlatformAccess && !reachableWithoutAccess) return <Navigate to="/me/join" replace />;
   if (loading) return <div className="state-card" role="status">Loading…</div>;
   return <AdminShell />;
+}
+
+/** Invitation links now live in My workspace; older links keep working. */
+function InviteRedirect() {
+  const location = useLocation();
+  return <Navigate to={'/me/invite' + location.search} replace />;
 }
 
 /** Old /ops links (emails, bookmarks, chats) keep working. */
@@ -133,6 +141,7 @@ export function App(){
         <Route path="profile" element={<IdentityPage/>}/>
         <Route path="teams" element={<WorkspaceTeams/>}/>
         <Route path="join" element={<AccessCodePage/>}/>
+        <Route path="invite" element={<MembershipInvitePage/>}/>
       </Route>
 
       {/* ADMINISTRATION */}
@@ -151,10 +160,12 @@ export function App(){
         <Route path="events/all" element={<PlatformControlPage section="events"/>}/>
         <Route path="organizations" element={<PlatformControlPage section="organizations"/>}/>
         <Route path="organizations/manage" element={<OrganizationManagementPage/>}/>
-        <Route path="teams" element={<PlatformControlPage section="people"/>}/>
+        <Route path="teams" element={<TeamsBrowserPage/>}/>
+        <Route path="teams/new" element={<PlatformControlPage section="people"/>}/>
+        <Route path="teams/:teamId" element={<TeamManagePage/>}/>
         <Route path="people/accounts" element={<AccessAdminPage/>}/>
         <Route path="people/codes" element={<DelegatedAccessPage/>}/>
-        <Route path="people/invite" element={<MembershipInvitePage/>}/>
+        <Route path="people/invite" element={<InviteRedirect/>}/>
         <Route path="people/identity-review" element={<IdentityReviewPage/>}/>
         <Route path="rules/reference" element={<ShowcaseRulesPage/>}/>
         <Route path="rules/rulesets" element={<RulesetsPage/>}/>

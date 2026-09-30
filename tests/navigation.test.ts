@@ -48,13 +48,13 @@ describe('navigation model', () => {
 
 describe('legacy URLs', () => {
   it('maps every old /ops URL to a real destination', () => {
-    const valid = new Set([...adminRoutes, ...workspaceItems.map(i => i.to), '/sign-in']);
+    const valid = new Set([...adminRoutes, ...workspaceItems.map(i => i.to), '/sign-in', '/me/invite']);
     for (const entry of legacyRedirects) expect(valid.has(entry.to), `${entry.from} -> ${entry.to}`).toBe(true);
   });
 
   it('keeps query strings and tolerates trailing slashes', () => {
     expect(resolveLegacyPath('/ops/manage', '?event=abc')).toBe('/admin/events/manage?event=abc');
-    expect(resolveLegacyPath('/ops/invite', '?token=t0k')).toBe('/admin/people/invite?token=t0k');
+    expect(resolveLegacyPath('/ops/invite', '?token=t0k')).toBe('/me/invite?token=t0k');
     expect(resolveLegacyPath('/ops/login/')).toBe('/sign-in');
     expect(resolveLegacyPath('/ops')).toBe('/admin/events/run');
     expect(resolveLegacyPath('/team-hq')).toBe('/me/teams');
@@ -83,9 +83,10 @@ describe('who sees what', () => {
 
   it('gives a captain team tools but not organization or platform settings', () => {
     const ids = labelsFor(user({ teamRoles: [{ teamId: 't1', role: 'captain' }] }));
+    expect(ids).toContain('teams');
     expect(ids).toContain('org-members');
     expect(ids).toContain('overview');
-    for (const hidden of ['settings', 'accounts', 'organizations', 'teams', 'rulesets', 'event-setup', 'event-settings']) expect(ids).not.toContain(hidden);
+    for (const hidden of ['settings', 'accounts', 'organizations', 'create-teams', 'rulesets', 'event-setup', 'event-settings']) expect(ids).not.toContain(hidden);
   });
 
   it('gives an event organizer the event workflow only for the event they work on', () => {
@@ -172,5 +173,12 @@ describe('remembered browsing context', () => {
     expect(recallListPath('/teams', store)).toBe('/teams?country=Canada&region=Alberta');
     rememberListSearch('/teams', '', store);
     expect(recallListPath('/teams', store)).toBe('/teams');
+  });
+});
+
+describe('team roster tools', () => {
+  it('routes the roster pages and the invitation landing page', () => {
+    for (const path of ['path="teams"', 'path="teams/:teamId"', 'path="teams/new"', 'path="invite"']) expect(appSource).toContain(path);
+    expect(appSource).toContain('<Navigate to={\'/me/invite\' + location.search} replace />');
   });
 });

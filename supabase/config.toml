@@ -18,8 +18,9 @@ verify_jwt = false
 [functions.create-registration-checkout]
 verify_jwt = false
 
+# The function authenticates every write itself; anonymous visitors may only request photos of identities marked public.
 [functions.fighter-avatar]
-verify_jwt = true
+verify_jwt = false
 
 [functions.invite-event-member]
 verify_jwt = true

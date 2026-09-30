@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAppState } from '../features/AppState';
 import { useAdminAccess } from '../components/AdminShell';
 import { supabase } from '../lib/supabase';
+import { canSee, type NavGate } from '../lib/navigation';
 import { Card, LinkCard, PageTitle, StateBlock } from '../components/page';
 
 type Count = { state: 'loading' } | { state: 'error'; message: string } | { state: 'ready'; value: number };
@@ -30,6 +31,15 @@ function Attention({ to, label, count, doneText }: { to: string; label: string; 
   return <li className="nx-attn due"><span>{label}</span><Link to={to}>{count.value} to review →</Link></li>;
 }
 
+const commonTasks: Array<{ to: string; title: string; text: string; gate: NavGate }> = [
+  { to: '/admin/teams', title: 'Add or remove people on a team', text: 'Open a team to see its roster and invite or remove members.', gate: 'teamManager' },
+  { to: '/admin/people/codes', title: 'Give someone a role', text: 'Make a one-time code for a captain, team admin, organization admin and more.', gate: 'orgAdmin' },
+  { to: '/admin/people/accounts', title: 'Let someone sign in', text: 'Create an early-access code for a new person.', gate: 'superAdmin' },
+  { to: '/admin/organizations', title: 'See and edit organizations', text: 'Every organization, its details and its relationships.', gate: 'superAdmin' },
+  { to: '/admin/events/setup', title: 'Create an event', text: 'Set up a season and a new event.', gate: 'orgAdmin' },
+  { to: '/admin/events/signups', title: 'Review fighter signups', text: 'Accept or decline fighters who applied to the current event.', gate: 'event' }
+];
+
 /** Administration overview: what needs attention, then every tool this person may use, grouped by task. */
 export function AdminHome() {
   const { event, pendingCount, dataMode } = useAppState();
@@ -47,6 +57,10 @@ export function AdminHome() {
 
   return <>
     <PageTitle title="Administration" lead={event ? `Current event: ${event.name}.` : 'Manage the events, teams and people you are responsible for.'} />
+
+    <Card title="What do you want to do?" lead="The most common jobs, one click away.">
+      <div className="nx-grid">{commonTasks.filter(task => canSee(task.gate, access)).map(task => <LinkCard key={task.to} to={task.to} title={task.title} text={task.text} />)}</div>
+    </Card>
 
     <Card title="Needs your attention" lead="Checked live each time you open this page.">
       <ul className="nx-attn-list">

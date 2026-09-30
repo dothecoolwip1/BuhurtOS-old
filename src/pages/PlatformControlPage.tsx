@@ -254,6 +254,20 @@ export function PlatformControlPage({ section: fixedSection }: { section?: Platf
     <div className="admin-grid">
       {section === 'settings' && <PlatformSettingsPanel isSuperAdmin={isSuperAdmin} />}
       <section className="panel-card" hidden={section !== 'organizations'}>
+        <h2>All organizations</h2>
+        <p>{organizations.length} organizations are registered. Choose Manage to edit one below; the teams, seasons and events on the other pages follow the organization you pick.</p>
+        <div className="membership-list">
+          {organizations.map(org => <article key={org.id}>
+            <div className="grow">
+              <strong>{org.name}</strong>
+              <small>{org.shortName} · {label(org.kind || 'independent_organization')} · {org.region} · {label(org.status)}</small>
+            </div>
+            <button disabled={busy} onClick={() => { setSelectedOrganizationId(org.id); setSection('organizations'); window.scrollTo({ top: document.body.scrollHeight * 0.25, behavior: 'smooth' }); }}>Manage</button>
+          </article>)}
+        </div>
+      </section>
+
+      <section className="panel-card" hidden={section !== 'organizations'}>
         <h2>Create top-level organization</h2>
         <p>Create another organization at the same platform level as BI or HACSA.</p>
         <div className="form-stack">
@@ -525,19 +539,6 @@ export function PlatformControlPage({ section: fixedSection }: { section?: Platf
         </div>
       </section>
 
-      <section className="panel-card" hidden={section !== 'overview'}>
-        <h2>Platform inventory</h2>
-        <p>{organizations.length} organizations are currently registered in BuhurtOS.</p>
-        <div className="membership-list">
-          {organizations.map(org => <article key={org.id}>
-            <div className="grow">
-              <strong>{org.name}</strong>
-              <small>{org.shortName} · {label(org.kind || 'independent_organization')} · {org.region} · {label(org.status)}</small>
-            </div>
-            <button disabled={busy} onClick={() => { setSelectedOrganizationId(org.id); setSection('organizations'); }}>Manage</button>
-          </article>)}
-        </div>
-      </section>
     </div>
   </div>;
 }

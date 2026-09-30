@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAccount } from '../features/Account';
 import { useAppState } from '../features/AppState';
 import { redeemAccessCode } from '../lib/accessControl';
 import { redeemDelegatedAccessCode } from '../lib/delegatedAccess';
 
 export function AccessCodePage() {
   const { user, reload } = useAppState();
+  const account = useAccount();
   const [code, setCode] = useState('');
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
@@ -20,7 +22,7 @@ export function AccessCodePage() {
       try {
         const delegated = await redeemDelegatedAccessCode(code);
         destination = '/me';
-        setMessage('Access granted: ' + delegated.targetName + ' · ' + delegated.role.replaceAll('_',' ') + '.');
+        setMessage('Done. You are now ' + delegated.role.replaceAll('_',' ') + ' of ' + delegated.targetName + '. Opening your workspace to show what changed…');
       } catch (delegatedError) {
         const text = delegatedError instanceof Error ? delegatedError.message : '';
         if (!/not recognized/i.test(text)) throw delegatedError;
@@ -28,6 +30,7 @@ export function AccessCodePage() {
         setMessage(result.alreadyRedeemed ? 'This code was already active on your account.' : 'BuhurtOS access granted.');
       }
       await reload();
+      account.refresh();
       window.setTimeout(() => { window.location.hash = '#' + destination; }, 350);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'The access code could not be redeemed.');

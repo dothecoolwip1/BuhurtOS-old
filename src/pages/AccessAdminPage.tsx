@@ -120,6 +120,7 @@ export function AccessAdminPage() {
 
       <section className="panel-card">
         <h2>Issued codes</h2>
+        <p className="hint">These let someone sign in to BuhurtOS for the first time. For security only the first characters are kept, so a code cannot be shown again. If one is lost, disable it and create a new one. To give someone a role, use Role codes instead.</p>
         <div className="membership-list">
           {codes.length === 0 ? <div className="state-card">No access codes have been issued yet.</div> : codes.map(code => <article key={code.id}>
             <div>

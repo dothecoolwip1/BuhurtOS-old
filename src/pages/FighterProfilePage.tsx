@@ -2,6 +2,7 @@ import {useEffect,useState} from 'react';
 import {Link,useParams} from 'react-router-dom';
 import {Avatar,Panel,Pill} from '../components/ShowcaseUI';
 import {ListCrumbs} from '../components/chrome';
+import {FighterAvatar} from '../components/FighterAvatar';
 import {loadPublicFighter,type PublicFighterSummary} from '../lib/publicDirectory';
 
 const initials=(n:string)=>n.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]?.toUpperCase()).join('');
@@ -18,7 +19,7 @@ export function FighterProfilePage(){
  return <>
   <ListCrumbs list="/fighters" label="Fighters" current={fighter.displayName}/>
   <div className="show-profile-hero fighter steel">
-   {fighter.avatarPath?<img className="show-fighter-avatar-image profile" src={fighter.avatarPath} alt={fighter.displayName}/>:<Avatar initials={initials(fighter.displayName)} tone="steel" size="xl"/>}
+   <FighterAvatar identityId={fighter.id} hasPhoto={Boolean(fighter.avatarPath)} alt={fighter.displayName} className="show-fighter-avatar-image profile" fallback={<Avatar initials={initials(fighter.displayName)} tone="steel" size="xl"/>}/>
    <div className="grow"><span className="eyebrow">PUBLIC FIGHTER PROFILE</span><h1>{fighter.nickname?fighter.displayName+' “'+fighter.nickname+'”':fighter.displayName}</h1><p>{fighter.publicRegion||'Region not published'}</p><div className="show-inline-pills">{fighter.verified?<Pill tone="green">Verified identity</Pill>:<Pill>Public profile</Pill>}</div></div>
   </div>
   <div className="show-two-col wide-left">

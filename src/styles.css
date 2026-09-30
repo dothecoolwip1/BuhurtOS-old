@@ -1692,3 +1692,22 @@ html.nx-locked{overflow:hidden}
 .nx-main .header-actions button,.nx-main .header-actions a{min-height:44px}
 .show-mobile-brand{min-height:44px}
 @media(max-width:900px){.landing-nav{grid-template-columns:1fr auto}}
+
+/* Teams browser, team roster manager, forms and notices */
+.nx-filters{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:12px;align-items:end;margin-bottom:14px}
+.nx-filters label,.nx-form label,.nx-linkbox label{display:flex;flex-direction:column;gap:5px;font-size:.78rem;font-weight:700;color:var(--soft)}
+.nx-filters input,.nx-filters select,.nx-form input,.nx-form select,.nx-linkbox input,.nx-row-actions select{min-height:44px;width:100%;border:1px solid var(--line-strong);background:#111a23;color:var(--text);border-radius:9px;padding:8px 11px;font-size:16px}
+.nx-row-actions select{width:auto;min-width:150px}
+.nx-filters .nx-check{flex-direction:row;align-items:center;gap:8px;grid-column:1/-1;font-weight:600}
+.nx-filters .nx-check input{width:20px;min-height:20px}
+.nx-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:end}
+.nx-note{margin:0 0 14px;padding:12px 14px;border-radius:10px;border:1px solid var(--line-strong);background:#111a23}
+.nx-note.ok{border-color:#1d5c3a;background:#0f2118;color:#b7f0d1}
+.nx-note.bad{border-color:#7a2a30;background:#1d1012;color:#ffb3b7}
+.nx-linkbox{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:14px}
+.nx-linkbox label{flex:1;min-width:240px}
+.nx-chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.nx-chips li{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:#0f1720;font-size:.84rem}
+.nx-chips small{color:var(--muted)}
+.hint{color:var(--muted);font-size:.8rem;margin:4px 0 12px}
+@media(max-width:700px){.nx-filters{grid-template-columns:1fr}}

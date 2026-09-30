@@ -106,16 +106,16 @@ export const adminSections: NavSection[] = [
     id: 'organizations', label: 'Organizations & teams', blurb: 'The groups that make up the sport.',
     items: [
       { id: 'organizations', label: 'Organizations', to: '/admin/organizations', description: 'Create and edit organizations and their relationships.', gate: 'superAdmin' },
-      { id: 'teams', label: 'Add teams & clubs', to: '/admin/teams', description: 'Create teams and clubs inside an organization and invite their first members.', gate: 'superAdmin' },
-      { id: 'org-members', label: 'Teams, clubs & members', to: '/admin/organizations/manage', description: 'Invite people, approve applications and manage the roster of the teams you look after.', gate: 'teamManager' }
+      { id: 'teams', label: 'Teams & rosters', to: '/admin/teams', description: 'Find a team, see who is on it, add or remove people.', gate: 'teamManager' },
+      { id: 'org-members', label: 'Clubs & applications', to: '/admin/organizations/manage', description: 'Clubs, applications and relationships for the organization of the current event.', gate: 'teamManager', advanced: true },
+      { id: 'create-teams', label: 'Create teams & clubs', to: '/admin/teams/new', description: 'Add a new team or club inside an organization.', gate: 'superAdmin', advanced: true }
     ]
   },
   {
     id: 'people', label: 'People & access', blurb: 'Who can sign in and what each person may do.',
     items: [
-      { id: 'accounts', label: 'Accounts & early access', to: '/admin/people/accounts', description: 'Accounts, early-access codes and platform roles.', gate: 'superAdmin' },
-      { id: 'codes', label: 'Access codes', to: '/admin/people/codes', description: 'Invitation codes for delegated access.', gate: 'orgAdmin' },
-      { id: 'invite', label: 'Invitations', to: '/admin/people/invite', description: 'Accept and track membership invitations.', gate: 'orgAdmin' },
+      { id: 'accounts', label: 'Early access codes', to: '/admin/people/accounts', description: 'Let someone sign in to BuhurtOS for the first time.', gate: 'superAdmin' },
+      { id: 'codes', label: 'Role codes', to: '/admin/people/codes', description: 'Give someone a role in an organization, club or team with a one-time code.', gate: 'orgAdmin' },
       { id: 'identity-review', label: 'Fighter identity review', to: '/admin/people/identity-review', description: 'Resolve fighter claims, duplicates and merges.', gate: 'orgAdmin' }
     ]
   },
@@ -219,7 +219,7 @@ export type Scope = 'event' | 'organization' | 'platform' | 'personal' | 'none';
 export function scopeForPath(pathname: string): Scope {
   if (pathname === '/me' || pathname.startsWith('/me/')) return 'personal';
   if (pathname.startsWith('/admin/events/all')) return 'platform';
-  if (pathname.startsWith('/admin/events/setup') || pathname.startsWith('/admin/organizations') || pathname.startsWith('/admin/teams') || pathname.startsWith('/admin/rules/rulesets') || pathname.startsWith('/admin/rules/divisions') || pathname.startsWith('/admin/people/codes') || pathname.startsWith('/admin/people/invite') || pathname.startsWith('/admin/people/identity-review')) return 'organization';
+  if (pathname.startsWith('/admin/events/setup') || pathname.startsWith('/admin/organizations') || pathname.startsWith('/admin/teams') || pathname.startsWith('/admin/rules/rulesets') || pathname.startsWith('/admin/rules/divisions') || pathname.startsWith('/admin/people/codes') || pathname.startsWith('/admin/people/identity-review')) return 'organization';
   if (pathname.startsWith('/admin/events/')) return 'event';
   if (pathname.startsWith('/admin/settings') || pathname.startsWith('/admin/people/accounts')) return 'platform';
   return 'none';
@@ -268,7 +268,7 @@ export const legacyRedirects: Array<{ from: string; to: string }> = [
   { from: '/ops/identity-review', to: '/admin/people/identity-review' },
   { from: '/ops/identity', to: '/me/profile' },
   { from: '/ops/governance', to: '/admin/organizations/manage' },
-  { from: '/ops/invite', to: '/admin/people/invite' },
+  { from: '/ops/invite', to: '/me/invite' },
   { from: '/ops/access-admin', to: '/admin/people/accounts' },
   { from: '/ops/access', to: '/me/join' },
   { from: '/ops/codes', to: '/admin/people/codes' },

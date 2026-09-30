@@ -68,7 +68,6 @@ const eventIndependentRoutes = new Set([
   '/admin/settings',
   '/admin/people/accounts',
   '/admin/people/codes',
-  '/admin/people/invite',
   '/admin/people/identity-review',
   '/admin/rules/divisions',
   '/admin/rules/rulesets',
