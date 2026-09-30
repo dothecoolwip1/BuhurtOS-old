@@ -6,6 +6,7 @@ import { computePoolQualificationState } from '../lib/bracket';
 import { groupBracketRounds } from '../lib/bracketView';
 import { eventClock } from '../lib/eventTime';
 import { downloadText, htmlTable, matchesCsv, openPrintableReport } from '../lib/export';
+import { groupRowsByArea, scheduleAsText, type ScheduleRow } from '../lib/scheduleText';
 import { useQueryStates } from '../lib/urlState';
 import type { MatchRecord } from '../types';
 
@@ -17,9 +18,9 @@ const statusLabel: Record<string, string> = {
 
 /** Order of play, pool tables and the knockout bracket for the event, one tournament at a time. */
 export function BracketPage() {
-  const { matches, roster, event, fightCards } = useAppState();
+  const { matches, roster, event, fightCards, teams } = useAppState();
   const [brackets, setBrackets] = useState<TournamentBracketSummary[]>([]);
-  const [filters, setFilters] = useQueryStates({ view: '', bracket: 'all', area: 'all' });
+  const [filters, setFilters] = useQueryStates({ view: '', bracket: 'all', area: 'all', q: '' });
 
   useEffect(() => {
     if (!event) return;
@@ -53,6 +54,14 @@ export function BracketPage() {
     .filter(m => (m.resultSummary as { resultType?: string } | undefined)?.resultType !== 'bye')
     .sort((a, b) => (slotByMatch.get(a.id)?.order ?? a.scheduledOrder) - (slotByMatch.get(b.id)?.order ?? b.scheduledOrder)), [scoped, slotByMatch]);
 
+  const needle = filters.q.trim().toLowerCase();
+  const involves = (match: MatchRecord) => !needle || match.participants.some(p => {
+    const entry = roster.find(r => r.id === p.rosterEntryId);
+    const team = teams.find(t => t.id === entry?.teamId)?.name ?? '';
+    return [entry?.displayName ?? '', team, p.placeholderLabel ?? ''].some(text => text.toLowerCase().includes(needle));
+  });
+  const shown = useMemo(() => ordered.filter(involves), [ordered, needle, roster, teams]); // eslint-disable-line react-hooks/exhaustive-deps
+  const nextUpId = ordered.find(m => m.status !== 'finalized' && m.status !== 'forfeit' && m.status !== 'completed')?.id;
   const poolBracketIds = useMemo(() => [...new Set(scoped.filter(m => m.stage === 'pool' && m.bracketId).map(m => m.bracketId!))], [scoped]);
   const rounds = groupBracketRounds(scoped.filter(m => m.stage !== 'pool'));
   const hasPools = poolBracketIds.length > 0;
@@ -60,16 +69,23 @@ export function BracketPage() {
   const requested = (filters.view || '') as View;
   const view: View = requested === 'pools' && hasPools ? 'pools' : requested === 'bracket' && hasBracket ? 'bracket' : 'play';
 
+  const rows: ScheduleRow[] = ordered.filter(involves).map(m => ({ time: clock(m), area: areaName(m.fightCardId), label: m.label, side1: side(m, 1), side2: side(m, 2), status: statusLabel[m.status] ?? m.status }));
+  const [copied, setCopied] = useState('');
   const printOrder = () => {
     try {
-      openPrintableReport(`${event?.name ?? 'Event'} Order of Play`, htmlTable(
-        ['Order', 'Time', 'Area', 'Match', 'Category', 'Side 1', 'Side 2', 'Status', 'Winner'],
-        ordered.map(m => [
-          slotByMatch.get(m.id)?.order ?? m.scheduledOrder, clock(m) || '', areaName(m.fightCardId), m.label, m.category, side(m, 1), side(m, 2),
-          statusLabel[m.status] ?? m.status, m.resultSummary?.winnerSide === 1 ? side(m, 1) : m.resultSummary?.winnerSide === 2 ? side(m, 2) : ''
-        ])
-      ));
+      const body = groupRowsByArea(rows).map(group => '<h2>' + group.area.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</h2>' + htmlTable(
+        ['Time', 'Match', 'Side 1', 'Side 2', 'Status'],
+        group.rows.map(r => [r.time || '', r.label, r.side1, r.side2, r.status ?? ''])
+      )).join('');
+      openPrintableReport(`${event?.name ?? 'Event'} Order of Play`, body);
     } catch (error) { window.alert(error instanceof Error ? error.message : 'Unable to open the printable report.'); }
+  };
+  const copySchedule = async () => {
+    try {
+      await navigator.clipboard.writeText(scheduleAsText(`${event?.name ?? 'Event'} order of play`, rows));
+      setCopied('Copied. Paste it into your group chat or post.');
+    } catch { setCopied('Could not copy. Use Print / PDF instead.'); }
+    setTimeout(() => setCopied(''), 4000);
   };
 
   const empty = matches.length === 0;
@@ -78,9 +94,10 @@ export function BracketPage() {
   return <>
     <section className="section-head"><div><span className="eyebrow">Schedule</span><h1>Bracket &amp; schedule</h1>
       <p>{empty ? 'Nothing has been generated yet.' : `${played.length} of ${ordered.length} bouts finished.${withTimes ? ' Times are the plan; the order of play adjusts as bouts finish.' : ''}`}</p></div>
-      <div className="header-actions"><button type="button" onClick={() => downloadText('buhurtos-order-of-play.csv', matchesCsv(ordered))}>Export CSV</button><button type="button" onClick={printOrder}>Print / PDF</button></div></section>
+      <div className="header-actions"><button type="button" onClick={() => downloadText('buhurtos-order-of-play.csv', matchesCsv(ordered))}>Export CSV</button><button type="button" onClick={copySchedule}>Copy as text</button><button type="button" onClick={printOrder}>Print / PDF</button></div></section>
 
     {empty ? <div className="state-card"><strong>No tournament yet</strong><p>Build one in a few steps: choose the competitors, pick a format (BuhurtOS suggests one for your field size), and plan times and fighting areas.</p><Link className="primary big" to={'/admin/events/tools?event=' + (event?.id ?? '')} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',textDecoration:'none',padding:'0 18px'}}>Build tournament</Link></div> : <>
+      {copied ? <p className="auth-message" role="status">{copied}</p> : null}
       <div className="bp-controls">
         <div className="directory-view-switch" role="group" aria-label="Schedule view">
           <button type="button" className={view === 'play' ? 'selected' : ''} aria-pressed={view === 'play'} onClick={() => setFilters({ view: 'play' })}>Order of play</button>
@@ -88,21 +105,22 @@ export function BracketPage() {
           {hasBracket ? <button type="button" className={view === 'bracket' ? 'selected' : ''} aria-pressed={view === 'bracket'} onClick={() => setFilters({ view: 'bracket' })}>Bracket</button> : null}
         </div>
         <div className="show-filter-row">
+          <label className="show-search grow"><span>⌕</span><input type="search" aria-label="Find a fighter or team" value={filters.q} onChange={e => setFilters({ q: e.target.value })} placeholder="Find a fighter or team" /></label>
           {live.length > 1 ? <select aria-label="Tournament" value={bracketId} onChange={e => setFilters({ bracket: e.target.value })}><option value="all">All tournaments</option>{live.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select> : null}
           {fightCards.length > 1 ? <select aria-label="Fighting area" value={areaId} onChange={e => setFilters({ area: e.target.value })}><option value="all">All areas</option>{fightCards.filter(c => c.status !== 'archived').map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select> : null}
         </div>
       </div>
 
-      {view === 'play' ? <ol className="bp-play">{ordered.map(match => {
+      {view === 'play' ? <ol className="bp-play">{shown.length === 0 ? <li className="state-card">No bouts match that search. Try part of a fighter’s name or a team name.</li> : null}{shown.map(match => {
         const when = clock(match);
         const won = match.resultSummary?.winnerSide;
-        return <li key={match.id} className={'bp-row status-' + match.status}>
+        return <li key={match.id} className={'bp-row status-' + match.status + (match.id === nextUpId ? ' next-up' : '')}>
           <div className="bp-when"><b>{when || `#${match.scheduledOrder}`}</b><small>{areaName(match.fightCardId) || 'Unassigned'}</small></div>
           <div className="bp-what"><small>{match.label} · {match.category}</small>
             <div className={won === 1 ? 'winner' : ''}>{side(match, 1)}{match.resultSummary && won !== undefined ? <strong>{match.resultSummary.side1Total}</strong> : null}</div>
             <div className={won === 2 ? 'winner' : ''}>{side(match, 2)}{match.resultSummary && won !== undefined ? <strong>{match.resultSummary.side2Total}</strong> : null}</div>
           </div>
-          <span className={'bp-status ' + match.status}>{statusLabel[match.status] ?? match.status}</span>
+          <span className={'bp-status ' + match.status}>{match.id === nextUpId && match.status === 'scheduled' ? 'Next up' : statusLabel[match.status] ?? match.status}</span>
         </li>;
       })}</ol> : null}
 
