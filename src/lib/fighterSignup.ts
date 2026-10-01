@@ -17,6 +17,8 @@ export interface FighterEventSignup {
   additionalNotes?:string;
   consentAcknowledged:boolean;
   status:FighterSignupStatus;
+  /** Set once an event leader has added this signup to the roster. */
+  rosterEntryId?:string;
   organizerNotes?:string;
   createdAt:string;
   updatedAt:string;
@@ -99,7 +101,7 @@ export async function listFighterSignups(eventId:string):Promise<FighterEventSig
     fightingCategories:row.fighting_categories??[],armorStatus:row.armor_status??undefined,
     attendanceNotes:row.attendance_notes??undefined,emergencyContact:row.emergency_contact??undefined,
     additionalNotes:row.additional_notes??undefined,consentAcknowledged:Boolean(row.consent_acknowledged),
-    status:row.status,organizerNotes:row.organizer_notes??undefined,
+    status:row.status,rosterEntryId:row.roster_entry_id??undefined,organizerNotes:row.organizer_notes??undefined,
     createdAt:row.created_at,updatedAt:row.updated_at
   }));
 }
@@ -110,6 +112,14 @@ export async function updateFighterSignup(id:string,status:FighterSignupStatus,o
     status,organizer_notes:organizerNotes.trim()||null,reviewed_at:new Date().toISOString()
   }).eq('id',id);
   if(error) throw error;
+}
+
+/** Adds an accepted signup to the event roster (server-side, leader-only). Returns the roster entry id. */
+export async function addSignupToRoster(signupId:string):Promise<string>{
+  if(!supabase) throw new Error('BuhurtOS is not connected.');
+  const {data,error}=await supabase.rpc('add_signup_to_roster',{p_signup:signupId});
+  if(error) throw error;
+  return String(data);
 }
 
 export async function createEventSignupCode(input:{eventId:string;label?:string;maxUses?:number;expiresAt?:string}):Promise<string>{

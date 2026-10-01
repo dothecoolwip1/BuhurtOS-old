@@ -1,7 +1,7 @@
 import {useEffect,useMemo,useState} from 'react';
 import {useAppState} from '../features/AppState';
 import {RegistrationAccessPanel} from '../components/RegistrationAccessPanel';
-import {createEventSignupCode,disableEventSignupCode,listEventSignupCodes,listFighterSignups,updateFighterSignup,type EventSignupCode,type FighterEventSignup,type FighterSignupStatus} from '../lib/fighterSignup';
+import {addSignupToRoster,createEventSignupCode,disableEventSignupCode,listEventSignupCodes,listFighterSignups,updateFighterSignup,type EventSignupCode,type FighterEventSignup,type FighterSignupStatus} from '../lib/fighterSignup';
 import { friendlyError } from '../lib/friendlyError';
 
 const statuses:FighterSignupStatus[]=['new','confirmed','declined','contacted','archived'];
@@ -40,6 +40,16 @@ export function FighterSignupAdminPage(){
       setNewCode(code);
       await refresh();
       setMessage('Signup code created. Copy the full code now; it is only shown once.');
+    }catch(error){setMessage(friendlyError(error).message)}
+    finally{setBusy(false)}
+  };
+
+  const addToRoster=async(row:FighterEventSignup)=>{
+    setBusy(true);setMessage('');
+    try{
+      await addSignupToRoster(row.id);
+      await refresh();
+      setMessage(row.displayName+' is on the roster. Check them in and record their clearances under Roster & check-in.');
     }catch(error){setMessage(friendlyError(error).message)}
     finally{setBusy(false)}
   };
@@ -94,6 +104,7 @@ export function FighterSignupAdminPage(){
           {row.additionalNotes&&<div><small>Additional notes</small><p>{row.additionalNotes}</p></div>}
         </div>
         <div className="form-stack"><label>Organizer notes<textarea value={notes[row.id]??''} onChange={e=>setNotes(current=>({...current,[row.id]:e.target.value}))}/></label></div>
+        {row.rosterEntryId?<p className="hint" role="status">✓ On the roster. <a href={'#/admin/events/roster?event='+event.id}>Open Roster &amp; check-in</a></p>:row.status==='confirmed'?<div className="header-actions"><button className="primary" disabled={busy} onClick={()=>addToRoster(row)}>Add to roster</button><small>Accepted. Adding them puts them on the roster so you can check them in and clear them to compete.</small></div>:null}
         <div className="header-actions">{statuses.filter(status=>status!=='new').map(status=><button key={status} className={status==='confirmed'?'primary':''} disabled={busy||row.status===status} onClick={()=>save(row,status)}>{status==='confirmed'?'Accept':status==='declined'?'Deny':status.replace(/^./,c=>c.toUpperCase())}</button>)}</div>
       </article>)}</div>}
   </>;
