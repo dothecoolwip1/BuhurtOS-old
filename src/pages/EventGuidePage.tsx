@@ -2,12 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, PageTitle, StateBlock } from '../components/page';
 import { useAppState } from '../features/AppState';
-import { buildEventChecklist, loadEventSetupFacts, type ChecklistItem, type ChecklistResult, type ChecklistStatus } from '../lib/eventChecklist';
+import { buildEventChecklist, loadEventSetupFacts, ownerDecisions, type DecisionKind, type OwnerDecision, type ChecklistItem, type ChecklistResult, type ChecklistStatus } from '../lib/eventChecklist';
 import { isCompetitionCapable } from '../lib/eventCategories';
 import { friendlyError } from '../lib/friendlyError';
 import { isSupabaseConfigured } from '../lib/supabase';
 
 const statusText: Record<ChecklistStatus, string> = { complete: 'Done', missing: 'To do', warning: 'Check this', unknown: 'Could not check' };
+const decisionText: Record<DecisionKind, string> = { owner_decision: 'Owner decision', optional: 'Optional', external_approval: 'Outside approval' };
 const statusMark: Record<ChecklistStatus, string> = { complete: '✓', missing: '○', warning: '!', unknown: '?' };
 
 /**
@@ -17,13 +18,14 @@ const statusMark: Record<ChecklistStatus, string> = { complete: '✓', missing: 
 export function EventGuidePage() {
   const { event } = useAppState();
   const [result, setResult] = useState<ChecklistResult>();
+  const [decisions, setDecisions] = useState<OwnerDecision[]>([]);
   const [error, setError] = useState('');
   const eventId = event?.id;
 
   const load = useCallback(() => {
     if (!eventId) return;
-    setError(''); setResult(undefined);
-    loadEventSetupFacts(eventId).then(facts => setResult(buildEventChecklist(facts))).catch(err => setError(friendlyError(err).message));
+    setError(''); setResult(undefined); setDecisions([]);
+    loadEventSetupFacts(eventId).then(facts => { setResult(buildEventChecklist(facts)); setDecisions(ownerDecisions(facts)); }).catch(err => setError(friendlyError(err).message));
   }, [eventId]);
   useEffect(load, [load]);
 
@@ -53,6 +55,19 @@ export function EventGuidePage() {
         <Card>
           <ol className="nx-steps">{result.items.map((item, index) => <Step key={item.id} item={item} index={index + 1} />)}</ol>
         </Card>
+        {decisions.length ? <Card>
+          <h2>Decisions for the owner</h2>
+          <p className="hint">These are not forgotten tasks. They are choices only you can make, or approvals from outside BuhurtOS. Nothing here is changed for you.</p>
+          <ul className="nx-steps">{decisions.map(d => <li key={d.id} className="nx-step warning">
+            <span className="nx-step-mark" aria-hidden="true">{d.kind === 'external_approval' ? '↗' : d.kind === 'optional' ? '+' : '?'}</span>
+            <div className="nx-step-body">
+              <strong>{d.title} <small>({decisionText[d.kind]})</small></strong>
+              <p>{d.now}</p>
+              <p><em>If you leave it:</em> {d.consequence}</p>
+            </div>
+            <Link className="nx-btn" to={d.action.to}>{d.action.label}</Link>
+          </li>)}</ul>
+        </Card> : null}
         <p className="hint">Publishing and approval: BuhurtOS does not sanction events. If a federation or national organization approves a tournament, record that on the competition; it is a record, not a grant.</p>
       </>}
   </>;

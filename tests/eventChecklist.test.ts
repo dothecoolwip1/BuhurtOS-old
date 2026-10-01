@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildEventChecklist, type EventSetupFacts } from '../src/lib/eventChecklist';
+import { buildEventChecklist, ownerDecisions, type EventSetupFacts } from '../src/lib/eventChecklist';
 
 // Red Deer Rumble as it stands on the hosted project: basics, venue and poster done; nothing competition-related yet.
 const rumble: EventSetupFacts = {
@@ -76,5 +76,26 @@ describe('events that are not tournaments', () => {
   });
   it('a meeting and a clinic also skip tournament setup', () => {
     for (const eventType of ['meeting_agm', 'clinic_workshop', 'training']) expect(buildEventChecklist({ ...rumble, eventType }).items.some(i => i.id === 'divisions')).toBe(false);
+  });
+});
+
+describe('owner decisions are separate from forgotten work', () => {
+  const ids = (facts: EventSetupFacts) => ownerDecisions(facts).map(d => d.id);
+  it('surfaces the Rumble choices without changing anything', () => {
+    expect(ids(rumble)).toEqual(['registration_access', 'registration_window', 'event_category', 'ruleset', 'external_approval', 'poster_alt']);
+    const kinds = Object.fromEntries(ownerDecisions(rumble).map(d => [d.id, d.kind]));
+    expect(kinds.registration_access).toBe('owner_decision');
+    expect(kinds.external_approval).toBe('external_approval');
+    expect(kinds.poster_alt).toBe('optional');
+  });
+  it('explains consequences in plain words', () => {
+    for (const d of ownerDecisions(rumble)) expect(d.consequence.length).toBeGreaterThan(30);
+  });
+  it('drops decisions that are already made', () => {
+    const made = { ...rumble, registrationAccessScope: 'organization_tree', registrationOpensAt: '2026-09-01T00:00:00Z', registrationClosesAt: '2026-10-25T00:00:00Z', eventType: 'tournament', rulesetId: 'r', imageAlt: 'Poster with dates' };
+    expect(ids(made)).toEqual(['registration_access', 'external_approval']);
+  });
+  it('skips tournament decisions for events that never compete', () => {
+    expect(ids({ ...rumble, eventType: 'training', imageAlt: 'x' })).toEqual([]);
   });
 });

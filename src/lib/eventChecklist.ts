@@ -17,6 +17,7 @@ export interface EventSetupFacts {
   venue?: string;
   publicDescription?: string;
   imagePath?: string;
+  imageAlt?: string;
   status: string;
   eventType: string;
   registrationOpen?: boolean;
@@ -134,11 +135,87 @@ export function buildEventChecklist(f: EventSetupFacts): ChecklistResult {
   return { items, completed, total: items.length, next: items.find(item => item.status !== 'complete') };
 }
 
+/**
+ * Things that are not "missing" in the sense of forgotten work: they are choices only the event owner can make, or
+ * approvals that come from outside BuhurtOS. Each says in plain words what happens if nothing is decided. BuhurtOS
+ * never makes these choices for an owner.
+ */
+export type DecisionKind = 'owner_decision' | 'optional' | 'external_approval';
+
+export interface OwnerDecision {
+  id: string;
+  kind: DecisionKind;
+  title: string;
+  /** What is true now. */
+  now: string;
+  /** What this means for fighters, visitors or marshals if left as is. */
+  consequence: string;
+  action: { label: string; to: string };
+}
+
+export function ownerDecisions(f: EventSetupFacts): OwnerDecision[] {
+  const out: OwnerDecision[] = [];
+  const competition = isCompetitionCapable(f.eventType);
+  const published = f.status === 'published';
+
+  if (competition) {
+    const scope = f.registrationAccessScope ?? 'invite_only';
+    out.push({
+      id: 'registration_access', kind: 'owner_decision', title: 'Who may register without a signup code',
+      now: scope === 'invite_only' ? 'Everyone needs a signup code, including members of the host organization.'
+        : scope === 'open' ? 'Any signed-in fighter may register.' : 'Eligible members of the chosen organization register without a code.',
+      consequence: scope === 'invite_only'
+        ? 'Fighters on your own teams still have to be handed a code, or they can ask you for permission. If you want members to sign up on their own, choose a wider group.'
+        : 'Anyone in that group can sign up straight away. Others still need a code or your permission.',
+      action: { label: 'Choose who can register', to: manage(f.eventId) }
+    });
+    if (!(f.registrationOpensAt && f.registrationClosesAt)) {
+      out.push({
+        id: 'registration_window', kind: 'owner_decision', title: 'When registration opens and closes',
+        now: 'No registration window is set.',
+        consequence: 'Without dates, nobody can tell when signing up is possible, and closing cannot be checked against the 15-day advice for tournaments.',
+        action: { label: 'Set registration dates', to: manage(f.eventId) }
+      });
+    }
+    if (f.eventType === 'custom') {
+      out.push({
+        id: 'event_category', kind: 'owner_decision', title: 'What kind of event this is',
+        now: 'The event type is "custom".',
+        consequence: 'A custom event is treated as a general gathering. The tournament planner, competitions and standings stay unavailable until you say it is a tournament or another competition type.',
+        action: { label: 'Choose the event type', to: manage(f.eventId) }
+      });
+    }
+    if (!f.rulesetId) {
+      out.push({
+        id: 'ruleset', kind: 'owner_decision', title: 'Which ruleset the event runs under',
+        now: 'No ruleset is chosen.',
+        consequence: 'Marshals and fighters will not see one agreed set of rules, and scoring defaults cannot be taken from a ruleset.',
+        action: { label: 'Choose ruleset', to: `/admin/rules/rulesets?event=${f.eventId}` }
+      });
+    }
+    out.push({
+      id: 'external_approval', kind: 'external_approval', title: 'Approval from a federation or national body',
+      now: 'BuhurtOS does not know whether an outside body must approve this event.',
+      consequence: 'If your federation requires approval (for example a BI tier with a lead time), that approval happens with them, not here. Record it on the competition once you have it.',
+      action: { label: 'Open competitions', to: manage(f.eventId, '&tab=competitions') }
+    });
+  }
+  if (f.imagePath && !f.imageAlt?.trim()) {
+    out.push({
+      id: 'poster_alt', kind: 'optional', title: 'Describe the poster for screen readers',
+      now: 'The poster has no description.',
+      consequence: published ? 'The public page falls back to "' + f.name + ' poster". People who cannot see the image get no detail such as dates or prizes.' : 'It will fall back to the event name until you add one.',
+      action: { label: 'Add description', to: manage(f.eventId) }
+    });
+  }
+  return out;
+}
+
 /** Reads what the checklist needs. A failed lookup becomes "unknown", never a false "none". */
 export async function loadEventSetupFacts(eventId: string): Promise<EventSetupFacts> {
   if (!supabase) throw new Error('BuhurtOS is not connected.');
   const { data: event, error } = await supabase.from('events')
-    .select('id,name,starts_at,ends_at,timezone,venue,public_description,image_path,status,event_type,registration_open,registration_opens_at,registration_closes_at,registration_access_scope,ruleset_id')
+    .select('id,name,starts_at,ends_at,timezone,venue,public_description,image_path,image_alt,status,event_type,registration_open,registration_opens_at,registration_closes_at,registration_access_scope,ruleset_id')
     .eq('id', eventId).maybeSingle();
   if (error) throw error;
   if (!event) throw new Error('Event not found.');
@@ -169,7 +246,7 @@ export async function loadEventSetupFacts(eventId: string): Promise<EventSetupFa
 
   return {
     eventId, name: event.name, startsAt: event.starts_at ?? undefined, endsAt: event.ends_at ?? undefined, timezone: event.timezone ?? undefined,
-    venue: event.venue ?? undefined, publicDescription: event.public_description ?? undefined, imagePath: event.image_path ?? undefined,
+    venue: event.venue ?? undefined, publicDescription: event.public_description ?? undefined, imagePath: event.image_path ?? undefined, imageAlt: event.image_alt ?? undefined,
     status: event.status, eventType: event.event_type, registrationOpen: Boolean(event.registration_open),
     registrationOpensAt: event.registration_opens_at ?? undefined, registrationClosesAt: event.registration_closes_at ?? undefined,
     registrationAccessScope: event.registration_access_scope ?? undefined, rulesetId: event.ruleset_id ?? undefined,
