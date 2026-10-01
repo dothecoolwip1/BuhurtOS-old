@@ -5,6 +5,7 @@ import { useAppState } from '../features/AppState';
 import { buildEventChecklist, loadEventSetupFacts, type ChecklistItem, type ChecklistResult, type ChecklistStatus } from '../lib/eventChecklist';
 import { isCompetitionCapable } from '../lib/eventCategories';
 import { friendlyError } from '../lib/friendlyError';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 const statusText: Record<ChecklistStatus, string> = { complete: 'Done', missing: 'To do', warning: 'Check this', unknown: 'Could not check' };
 const statusMark: Record<ChecklistStatus, string> = { complete: '✓', missing: '○', warning: '!', unknown: '?' };
@@ -28,6 +29,10 @@ export function EventGuidePage() {
 
   if (!event) return <StateBlock kind="empty" title="Choose an event first">Pick an event from the event picker above, or <Link to="/admin/events/setup">create one</Link>.</StateBlock>;
 
+  if (!isSupabaseConfigured) return <>
+    <PageTitle title={`Set up ${event.name}`} lead="Everything an event needs, in order." />
+    <StateBlock kind="empty" title="The setup guide needs a connected backend">Demo mode only has sample data, so there is no saved setup to read. Connect a BuhurtOS project to see real progress.</StateBlock>
+  </>;
   const competition = isCompetitionCapable(event.eventType);
   const percent = result ? Math.round((result.completed / Math.max(result.total, 1)) * 100) : 0;
 

@@ -1838,3 +1838,7 @@ main[tabindex="-1"]:focus{outline:none}
 
 /* Breadcrumb links keep their look but get a comfortable touch area. */
 .nx-crumbs a{display:inline-block;padding:10px 4px;margin:-10px -4px}
+
+/* Touch targets: form selects and the links inside guidance text are comfortable to tap. */
+.panel-card select,.nx-card select{min-height:44px}
+.nx-state a{display:inline-block;padding:10px 4px;margin:-10px -4px}

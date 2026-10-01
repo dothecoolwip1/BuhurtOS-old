@@ -86,7 +86,12 @@ export function AdminShell() {
   const { user: adminUser } = useAcct();
   const startTasks = primaryTasks(adminUser).filter(task => task.to.startsWith('/admin') && task.to !== '/admin');
   const startHere: NavSection[] = startTasks.length ? [{ id: 'start-here', label: 'Start here', blurb: 'The jobs you do most, first.', items: startTasks.map(task => ({ id: 'start-' + task.id, label: task.label, to: task.to, description: task.text, gate: 'member' as const })) }] : [];
-  const scoped = [...startHere, ...scopedSections(sections, eventId)];
+  // A destination listed under "Start here" is not listed a second time below it, so one page never has two highlighted entries.
+  const startPaths = new Set(startTasks.map(task => task.to.split('?')[0]));
+  const rest = scopedSections(sections, eventId)
+    .map(section => ({ ...section, items: section.items.filter(item => !startPaths.has(item.to.split('?')[0])) }))
+    .filter(section => section.items.length > 0);
+  const scoped = [...startHere, ...rest];
   const visibleItems = scoped.flatMap(section => section.items);
   const stepsRef = useRef<HTMLElement>(null);
   useEffect(() => { stepsRef.current?.querySelector<HTMLElement>('.active')?.scrollIntoView({ inline: 'center', block: 'nearest' }); }, [location.pathname]);
