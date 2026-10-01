@@ -79,7 +79,7 @@ export function FighterSignupAdminPage(){
       <button className={filter==='all'?'selected':''} onClick={()=>setFilter('all')}><b>{rows.length}</b><span>all</span></button>
     </div>
     {message&&<div className="auth-message">{message}</div>}
-    {filtered.length===0?<div className="state-card"><strong>{rows.length===0?'No fighters have signed up yet.':'No signups match this filter.'}</strong>{rows.length===0?<p>Create a signup code above and share it, or share the event page so eligible fighters can register without one.</p>:null}</div>:
+    {filtered.length===0?<div className="state-card"><strong>{rows.length===0?'No fighters have signed up yet.':'No signups match this filter.'}</strong>{rows.length===0?<p>Create a signup code above and share it, or share the event page so eligible fighters can register without one. Signups contain personal details, so only organizers, organization admins and host-team captains can review them; if you expected to see some, ask one of them.</p>:null}</div>:
       <div className="registration-review-list">{filtered.map(row=><article className="panel-card" key={row.id}>
         <div className="registration-review-head"><div><span className="eyebrow">{row.teamName||'Independent / no team listed'}</span><h3>{row.displayName}</h3><p>{row.email}{row.phone?' · '+row.phone:''}</p></div><span className="status-pill">{row.status}</span></div>
         <div className="registration-review-meta">
