@@ -1,4 +1,29 @@
 import type { EventRecord, EventTeam, MatchRecord, RosterEntry } from '../types';
+import { describeTiebreakBasis, rankWithPolicy, type Bout, type TieResolution, type TiebreakPolicy } from './tiebreak';
+
+export interface StandingsOptions {
+  /** A stored tiebreak policy. Without one the legacy order applies (differential, points scored, name). */
+  policy?: TiebreakPolicy;
+  /** Penalties received per roster entry (or team), when known. Without it the penalties step is reported as skipped. */
+  penalties?: ReadonlyMap<string, number>;
+}
+
+export interface StandingsResult<T> {
+  rows: T[];
+  /** The policy that ordered ties, or undefined when the legacy fallback did. */
+  policy?: TiebreakPolicy;
+  resolutions: TieResolution[];
+  skippedSteps: Array<{ key: string; reason: string }>;
+  /** Plain-language statement of how ties were ordered. */
+  basis: string;
+}
+
+const compareFor = (match: MatchRecord): Bout['compare'] => (match.scoringConfig.kind === 'duel' ? 'hit_ratio' : 'round_difference');
+
+function toBout(match: MatchRecord, a: string, b: string): Bout {
+  const r = match.resultSummary!;
+  return { a, b, winner: r.winnerSide === 1 ? 'a' : r.winnerSide === 2 ? 'b' : null, roundsA: r.roundsWonSide1, roundsB: r.roundsWonSide2, hitsA: r.side1Total, hitsB: r.side2Total, compare: compareFor(match) };
+}
 
 export interface StandingRow {
   rosterEntryId: string;
@@ -14,7 +39,12 @@ export interface StandingRow {
 }
 
 export function computeEventStandings(event: EventRecord, matches: MatchRecord[], roster: RosterEntry[]): StandingRow[] {
-  if (event.standingsMode === 'no_standings') return [];
+  return computeEventStandingsDetailed(event, matches, roster).rows;
+}
+
+export function computeEventStandingsDetailed(event: EventRecord, matches: MatchRecord[], roster: RosterEntry[], options: StandingsOptions = {}): StandingsResult<StandingRow> {
+  if (event.standingsMode === 'no_standings') return { rows: [], resolutions: [], skippedSteps: [], basis: describeTiebreakBasis(options.policy) };
+  const bouts: Bout[] = [];
   const rows = new Map<string, StandingRow>();
   const names = new Map(roster.map(r => [r.id, r.displayName]));
 
@@ -31,6 +61,7 @@ export function computeEventStandings(event: EventRecord, matches: MatchRecord[]
     const r1 = rows.get(side1)!;
     const r2 = rows.get(side2)!;
     const result = match.resultSummary!;
+    bouts.push(toBout(match, side1, side2));
     r1.matches += 1;
     r2.matches += 1;
     r1.pointsFor += result.side1Total;
@@ -42,9 +73,13 @@ export function computeEventStandings(event: EventRecord, matches: MatchRecord[]
     else { r1.draws += 1; r2.draws += 1; r1.standingPoints += 1; r2.standingPoints += 1; }
   }
 
-  return [...rows.values()].map(r => ({ ...r, differential: r.pointsFor - r.pointsAgainst })).sort((a, b) =>
-    b.standingPoints - a.standingPoints || b.differential - a.differential || b.pointsFor - a.pointsFor || a.name.localeCompare(b.name)
+  const list = [...rows.values()].map(r => ({ ...r, differential: r.pointsFor - r.pointsAgainst }));
+  const ranked = rankWithPolicy(
+    list.map(r => ({ id: r.rosterEntryId, row: r })), item => item.row.standingPoints,
+    (a, b) => b.row.standingPoints - a.row.standingPoints || b.row.differential - a.row.differential || b.row.pointsFor - a.row.pointsFor || a.row.name.localeCompare(b.row.name),
+    bouts, options.policy, options.penalties
   );
+  return { rows: ranked.ranked.map(item => item.row), policy: ranked.policy, resolutions: ranked.resolutions, skippedSteps: ranked.skippedSteps, basis: describeTiebreakBasis(options.policy) };
 }
 
 export interface TeamStandingRow {
@@ -74,7 +109,12 @@ export interface TeamStandingRow {
  *     loss, with differential and points scored as deterministic tie-breakers.
  */
 export function computeTeamStandings(event: EventRecord, matches: MatchRecord[], roster: RosterEntry[], teams: EventTeam[]): TeamStandingRow[] {
-  if (event.standingsMode === 'no_standings') return [];
+  return computeTeamStandingsDetailed(event, matches, roster, teams).rows;
+}
+
+export function computeTeamStandingsDetailed(event: EventRecord, matches: MatchRecord[], roster: RosterEntry[], teams: EventTeam[], options: StandingsOptions = {}): StandingsResult<TeamStandingRow> {
+  if (event.standingsMode === 'no_standings') return { rows: [], resolutions: [], skippedSteps: [], basis: describeTiebreakBasis(options.policy) };
+  const bouts: Bout[] = [];
   const entryTeam = new Map(roster.filter(r => r.teamId).map(r => [r.id, r.teamId] as const));
   const teamNames = new Map(teams.map(t => [t.id, t.name]));
   const rows = new Map<string, TeamStandingRow>();
@@ -104,6 +144,7 @@ export function computeTeamStandings(event: EventRecord, matches: MatchRecord[],
     const r1 = rows.get(team1)!;
     const r2 = rows.get(team2)!;
     const result = match.resultSummary!;
+    bouts.push(toBout(match, team1, team2));
     r1.matches += 1;
     r2.matches += 1;
     r1.pointsFor += result.side1Total;
@@ -119,7 +160,11 @@ export function computeTeamStandings(event: EventRecord, matches: MatchRecord[],
     rows.get(teamId)!.fighters = fighterSet.size;
   }
 
-  return [...rows.values()].map(r => ({ ...r, differential: r.pointsFor - r.pointsAgainst })).sort((a, b) =>
-    b.standingPoints - a.standingPoints || b.differential - a.differential || b.pointsFor - a.pointsFor || b.wins - a.wins || a.name.localeCompare(b.name)
+  const list = [...rows.values()].map(r => ({ ...r, differential: r.pointsFor - r.pointsAgainst }));
+  const ranked = rankWithPolicy(
+    list.map(r => ({ id: r.teamId, row: r })), item => item.row.standingPoints,
+    (a, b) => b.row.standingPoints - a.row.standingPoints || b.row.differential - a.row.differential || b.row.pointsFor - a.row.pointsFor || b.row.wins - a.row.wins || a.row.name.localeCompare(b.row.name),
+    bouts, options.policy, options.penalties
   );
+  return { rows: ranked.ranked.map(item => item.row), policy: ranked.policy, resolutions: ranked.resolutions, skippedSteps: ranked.skippedSteps, basis: describeTiebreakBasis(options.policy) };
 }

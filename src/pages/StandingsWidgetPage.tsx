@@ -1,5 +1,6 @@
 import { useAppState } from '../features/AppState';
-import { computeEventStandings } from '../lib/standings';
+import { computeEventStandingsDetailed } from '../lib/standings';
+import { useEventTiebreakPolicy } from '../lib/standingsPolicy';
 
 /**
  * Embeddable standings widget.
@@ -12,9 +13,11 @@ import { computeEventStandings } from '../lib/standings';
  */
 export function StandingsWidgetPage() {
   const { loading, event, matches, roster, dataMode } = useAppState();
+  const { policy } = useEventTiebreakPolicy(event?.id);
   if (loading) return <div className="widget-shell"><div className="widget-state">Loading standings…</div></div>;
   if (!event) return <div className="widget-shell"><div className="widget-state">No event data available.</div></div>;
-  const rows = computeEventStandings(event, matches, roster);
+  const board = computeEventStandingsDetailed(event, matches, roster, { policy });
+  const rows = board.rows;
   return (
     <div className="widget-shell">
       <div className="widget-head">
@@ -45,6 +48,7 @@ export function StandingsWidgetPage() {
           </tbody>
         </table>
       )}
+      {rows.length > 0 ? <div className="widget-foot" title={board.basis}>Ties: {policy ? policy.authority.toUpperCase() + ' tiebreak rules (' + policy.docVersion + ')' : 'points, then differential, then points scored'}</div> : null}
       <div className="widget-foot">Powered by BuhurtOS</div>
     </div>
   );

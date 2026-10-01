@@ -1,18 +1,20 @@
 import { Link } from 'react-router-dom';
 import { useAppState } from '../features/AppState';
-import { computeEventStandings } from '../lib/standings';
+import { computeEventStandingsDetailed } from '../lib/standings';
+import { useEventTiebreakPolicy } from '../lib/standingsPolicy';
 import { resolveStreamEmbed } from '../lib/stream';
 
 export function PublicPage() {
   const scrollToSection=(id:string)=>document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
   const { event, matches, roster, announcements, fightCards } = useAppState();
+  const { policy } = useEventTiebreakPolicy(event?.id);
   if (!event) return null;
 
   const embed = resolveStreamEmbed(event.livestreamUrl);
   const publicAnnouncements = announcements
     .filter(a => a.isPublic && (!a.scheduledFor || new Date(a.scheduledFor).getTime() <= Date.now()))
     .sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
-  const standings = computeEventStandings(event,matches,roster).slice(0,10);
+  const standings = computeEventStandingsDetailed(event,matches,roster,{policy}).rows.slice(0,10);
   const ordered = [...matches].filter(match=>match.status!=='cancelled').sort((a,b)=>a.scheduledOrder-b.scheduledOrder);
   const name = (matchId:string,side:1|2) => {
     const match=matches.find(item=>item.id===matchId);

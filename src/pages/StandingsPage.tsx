@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAppState } from '../features/AppState';
-import { computeEventStandings, computeTeamStandings } from '../lib/standings';
+import { computeEventStandingsDetailed, computeTeamStandingsDetailed } from '../lib/standings';
+import { useEventTiebreakPolicy } from '../lib/standingsPolicy';
 import { downloadText, openPrintableReport, standingsCsv, teamStandingsCsv } from '../lib/export';
 import { buildEmbedUrl, buildIframeCode } from '../lib/embedBuilder';
 
@@ -10,9 +11,14 @@ export function StandingsPage() {
   const { event, matches, roster, teams } = useAppState();
   const [view, setView] = useState<StandingsView>('fighters');
   const [embedMessage, setEmbedMessage] = useState('');
+  const { policy } = useEventTiebreakPolicy(event?.id);
   if (!event) return null;
-  const fighterRows = computeEventStandings(event, matches, roster);
-  const teamRows = computeTeamStandings(event, matches, roster, teams);
+  const fighterBoard = computeEventStandingsDetailed(event, matches, roster, { policy });
+  const teamBoard = computeTeamStandingsDetailed(event, matches, roster, teams, { policy });
+  const fighterRows = fighterBoard.rows;
+  const teamRows = teamBoard.rows;
+  const board = view === 'teams' && teams.length > 0 ? teamBoard : fighterBoard;
+  const unresolvedTies = board.resolutions.filter(r => r.unresolved).length;
   const hasTeams = teams.length > 0;
   const activeView: StandingsView = view === 'teams' && !hasTeams ? 'fighters' : view;
   const shownRows = activeView === 'teams' ? teamRows : fighterRows;
@@ -35,6 +41,11 @@ export function StandingsPage() {
     <section className="section-head"><div><span className="eyebrow">{event.standingsMode.replaceAll('_',' ')}</span><h1>Results & standings</h1><p>Only finalized matches from standings-enabled events are counted. The team board aggregates fighter bouts between opposing teams.</p></div><div className="header-actions"><button onClick={exportCsv}>Export CSV</button><button onClick={print}>Print / PDF</button><button onClick={copyEmbed}>Embed widget</button></div></section>
     {hasTeams && <div className="field-tabs standings-view-toggle" role="tablist" aria-label="Standings view"><button className={activeView==='fighters'?'selected':''} onClick={()=>setView('fighters')}><b>Fighters</b></button><button className={activeView==='teams'?'selected':''} onClick={()=>setView('teams')}><b>Teams</b></button></div>}
     {shownRows.length === 0 ? <div className="state-card">{event.standingsMode === 'no_standings' ? 'This event is configured with no standings.' : activeView === 'teams' ? 'No finalized team-vs-team bouts yet. Intramural or unaffiliated bouts earn neither team any points.' : 'This event is configured with no standings, or no finalized matches exist yet.'}</div> : <div className="table-wrap"><table><thead><tr><th>#</th><th>{activeView === 'teams' ? 'Team' : 'Competitor'}</th>{activeView === 'teams' ? <th>Ftrs</th> : null}<th>W</th><th>L</th><th>D</th><th>PF</th><th>PA</th><th>Diff</th><th>Pts</th></tr></thead><tbody>{shownRows.map((r: any, i) => <tr key={activeView === 'teams' ? r.teamId : r.rosterEntryId}><td>{i+1}</td><td><strong>{r.name}</strong></td>{activeView === 'teams' ? <td>{r.fighters}</td> : null}<td>{r.wins}</td><td>{r.losses}</td><td>{r.draws}</td><td>{r.pointsFor}</td><td>{r.pointsAgainst}</td><td>{r.differential}</td><td><b>{r.standingPoints}</b></td></tr>)}</tbody></table></div>}
+    {shownRows.length > 0 ? <div className="field-hint" role="note" data-testid="tiebreak-basis">
+      <strong>How ties are ordered:</strong> {board.basis}
+      {unresolvedTies > 0 ? <> <strong>{unresolvedTies} tie{unresolvedTies === 1 ? '' : 's'} could not be separated by these rules and need an organizer decision.</strong></> : null}
+      {board.skippedSteps.length > 0 ? <> Not evaluated: {board.skippedSteps.map(s => s.key.replaceAll('_', ' ') + ' (' + s.reason + ')').join(' ')}</> : null}
+    </div> : null}
     {embedMessage ? <div className="auth-message">{embedMessage}</div> : null}
     <details className="embed-block">
       <summary>Embed this standings board as a widget</summary>
