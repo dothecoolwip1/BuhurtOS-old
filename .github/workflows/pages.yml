@@ -107,7 +107,10 @@ jobs:
         env:
           VITE_SUPABASE_URL: https://tapfpboszgoftbwcwsmn.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_Tn67D7wzVsEu7esZZKardw_Zzrx93Fv
-        run: npx vite build --mode github-pages
+        run: |
+          npx vite build --mode github-pages
+          mkdir -p dist/preview/chatgpt
+          cp frontend-v2/chatgpt/index.html dist/preview/chatgpt/index.html
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
