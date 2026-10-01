@@ -111,6 +111,8 @@ jobs:
           npx vite build --mode github-pages
           mkdir -p dist/preview/chatgpt
           cp frontend-v2/chatgpt/index.html dist/preview/chatgpt/index.html
+          mkdir -p dist/preview/claude
+          cp ideas/testing/index.html dist/preview/claude/index.html
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
