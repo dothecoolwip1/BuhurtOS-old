@@ -97,7 +97,7 @@ select lives_ok(
   $$select public.issue_suspension(
     'f0000000-0000-0000-0000-000000000010',
     'f0000000-0000-0000-0000-000000000041',
-    '2026-08-01T00:00:00Z','2026-10-01T00:00:00Z',
+    now() - interval '30 days', now() + interval '30 days',
     'Striking downed opponent',
     'appeal window open',
     'f0000000-0000-0000-0000-000000000030',
@@ -140,19 +140,19 @@ select throws_ok(
 select pg_catalog.set_config('request.jwt.claim.sub','f0000000-0000-0000-0000-000000000001',true);
 
 -- Via the guarded RPC.
-select throws_ok(
+select throws_like(
   $$select public.set_roster_competition_clearance_guarded(
       'f0000000-0000-0000-0000-000000000051',
       (select updated_at from public.event_roster_entries where id='f0000000-0000-0000-0000-000000000051'),
       true)$$,
-  null, 'Fighter is under an active suspension until 2026-10-01',
+  'Fighter is under an active suspension until %',
   'guarded clearance RPC refuses a suspended fighter'
 );
 
 -- Via a direct table write (data-layer trigger).
-select throws_ok(
+select throws_like(
   $$update public.event_roster_entries set competition_cleared=true where id='f0000000-0000-0000-0000-000000000051'$$,
-  null, 'Fighter is under an active suspension until 2026-10-01',
+  'Fighter is under an active suspension until %',
   'direct competition_cleared writes are refused by the enforcement trigger'
 );
 
