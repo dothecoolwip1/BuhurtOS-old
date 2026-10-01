@@ -115,3 +115,17 @@ creating real accounts on the hosted project is not something automation should 
   `/teams/<old-slug>` redirects to the canonical team when the team was reconciled as a duplicate.
 * **Rules** search also returns tournament reference material (tier requirements, structure guidance, tiebreak order, official documents) in a separate group,
   each result labeled with its kind, source and version.
+
+## Update: one event workspace (2026-10-01, `aafe1fc`)
+
+* Inside any event page (`/admin/events/*` except new events and all-events), a single **event header** shows the event, date, venue, public or draft state,
+  registration state, setup progress ("Setup 3 of 9"), the next setup step, and **View public page**. Tabs under it: Overview (setup guide), Details,
+  Registration, Roster, Schedule, Run fights, Results, and More (discipline, notes, build tournament). The sidebar no longer repeats those tools while
+  you are inside an event. The event picker is "Change event" in the header. Component: `src/components/EventHeader.tsx`.
+* Public navigation is six items: Home, Teams, Events, Fighters, Rankings, Rules. Organizations moved to the menu's secondary links.
+* "Manage event" on the public event page appears only for people who can manage that event (it was shown to every signed-in visitor).
+* Label changes: Event setup guide to Event overview, Event settings to Event details, Fighter signups to Registration, My fighter profile to My profile;
+  sections are Events, Teams & organizations, People & access, Rules.
+* Verified: typecheck, 346 tests, build, navigation audit, CI green, live site shows the six-item public navigation. The event header was exercised in
+  demo mode on desktop and at 390px (no horizontal overflow). **Not verified with a real signed-in session**: the setup progress pills and "Next" button
+  need a connected backend and a signed-in account.
