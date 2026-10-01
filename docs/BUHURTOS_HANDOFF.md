@@ -8,7 +8,7 @@
    proven at the database boundary on the real hosted schema (rolled-back test identities); the UI for eligibility, requests, the review queue,
    notifications, competitions and the setup guide has only been exercised signed out, in demo mode, and in unit tests.
    Do this next: two throwaway accounts (one organizer, one fighter) and the walk in `docs/NOV1_READINESS.md`.
-3. Owner decisions waiting (not mine to make): Red Deer Rumble registration scope (today `invite_only`), category (`custom`), registration window,
+3. The 2026-10-01 authenticated pass added the signup privacy fix (`20261025`), signup-to-roster (`20261026`) and the owner-decision panel; see the status section "Authenticated real-session pass". Owner decisions waiting (not mine to make): Red Deer Rumble registration scope (today `invite_only`), category (`custom`), registration window,
    poster description. Details and consequences are in `docs/NOV1_READINESS.md`.
 4. Canonical places: eligibility `private.registration_eligibility`; host team `private.event_host_team`; competitions `event_competitions`
    (`docs/COMPETITION_MODEL_DECISION.md`); media `src/lib/eventMedia.ts`; errors `src/lib/friendlyError.ts`; tiebreaks `src/lib/tiebreak.ts` with the

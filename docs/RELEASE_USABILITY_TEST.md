@@ -38,6 +38,21 @@ The signed-in states of the registration dialog (eligible, permission request, p
 notification bell and list, the setup guide against the real Rumble, and the competitions panel with real data. The server decisions behind them are covered by
 35 scenarios on the real hosted schema (see `NOV1_READINESS.md`), pgTAP and unit tests, but **no one has clicked through them with a real session**.
 
+## Observer sheet (one page, for whoever watches; do not coach)
+
+Say only the task sentence below. Do not point, hint or explain. After 90 seconds of no progress on a step, write "stuck" and ask what they expected to happen, then move on.
+
+| Step | Reached it alone (yes / after hint / no) | Seconds | What they said or tried first |
+|---|---|---|---|
+| Found Red Deer Rumble | | | |
+| Said what they need to register | | | |
+| Knew the next action when signed out with no code | | | |
+| Organizer: found Fighter signups | | | |
+| Organizer: added an accepted signup to the roster | | | |
+| Organizer: opened the setup guide and read the owner decisions | | | |
+
+After: "What was the most confusing word or screen?" and "What did you expect to happen when you tapped the last button?" Record exact words. This sheet is not a result; no newcomer has used it yet.
+
 ## Part B: for the owner, with a real newcomer (about 15 minutes). NOT DONE.
 
 Give someone who has never seen BuhurtOS a phone and say only: "Find out whether you could fight at the Red Deer Rumble."

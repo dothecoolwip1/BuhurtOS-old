@@ -12,9 +12,16 @@ Rumble/HACSA/Reavers records, disposable test identities, transaction rolled bac
 or live API, no sign-in) < **production, signed in** (real account in a real browser). **Nothing is at the last level**: accounts are not
 created by automation and the local Supabase stack needs Docker, which is unavailable. That is the single biggest unverified area.
 
-Latest verified code commit: `ae39f26` (CI workflow green on that exact SHA: navigation audit, typecheck, 342 vitest, build, clean
-`supabase start` and full migration replay, 28 pgTAP suites, then Pages deploy). Documentation commits after it change no code.
-Hosted migrations applied and checked with `list_migrations`: through `20261024000000_team_alias_slugs`.
+Latest code commit: `27d1404` (code `c7e3c12` is CI-green on its exact SHA; `27d1404` adds the owner-decision panel and is verified by the CI run recorded in the handoff).
+Hosted migrations applied and checked with `list_migrations`: through `20261026000000_signup_to_roster` (hosted records the last two as `signup_pii_authority` and `signup_to_roster`).
+
+### Authenticated real-session pass (2026-10-01): what it found and what it could not do
+
+* **Could not do: sign in.** Hosted signup needs email confirmation, automation may not create accounts or type passwords, and the local stack needs Docker. So nothing is *production, signed in* verified. The smallest owner action that unlocks it: sign in once in the in-app Browser pane as the admin account and as the fighter account; I then drive the UI, writing only to a disposable unpublished event.
+* **Defect found and fixed (privacy): any host-team fighter could read, edit and delete every signup submission** (names, emails, phones, emergency contacts). Fixed by `private.is_event_leader` (`20261025`); signup-code issuance is unchanged. pgTAP: `signup_pii_authority`. Hosted: applied.
+* **Product gap found and fixed: accepted signups never reached the roster.** `add_signup_to_roster` (`20261026`, leader-only, idempotent, audited, every clearance starts false) plus an "Add to roster" action on the signup page. pgTAP: `signup_to_roster`. Hosted: applied.
+* **Miniature tournament dry run on the real hosted schema (rolled back, nothing persisted; verified afterwards: no fixture rows, no helper functions).** Six eligible fighters on two test teams signed up with no code; organizer accepted all six and added them to the roster; assigned teams; check-in, waiver, armor, medical, weigh-in and competition clearance applied through the guarded RPCs; the app's own 8-match bracket payload saved; byes auto-finalized; matches moved through on deck, in the hole, active; empty, tied-round and stale-screen results were refused; valid scores finalized matches, advanced winners into the next round, and the final was played; anonymous visitors read all 8 finalized results and `event_standings`, and could not read the signups. Behavior to know: only one match per fight card may hold each field state, so activating a second match returns the first to scheduled. That is by design, not a defect.
+* **Setup guide:** owner decisions (registration access, registration window, event type, ruleset, outside approval, poster description) now appear as a separate "Decisions for the owner" card with plain-English consequences and are never changed for the owner.
 
 | Item | Implemented | Unit / pgTAP | Hosted migration | Verified beyond CI |
 |---|---|---|---|---|
