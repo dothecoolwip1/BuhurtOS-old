@@ -79,8 +79,12 @@ export function EventHeader({ items }: { items: NavItem[] }) {
       <div className="nx-evhead-main">
         <div className="nx-evhead-title">
           <h2>{event.name}</h2>
-          <p>{dateLabel(event.startsAt)}{event.venue ? ' · ' + event.venue : ''}</p>
+          <p>{dateLabel(event.startsAt)}{event.venue ? <span className="nx-evhead-venue"> · {event.venue}</span> : null}</p>
         </div>
+        <details className="nx-evmenu"><summary aria-label="Event actions">⋯</summary><div>
+          <Link to={`/events/${event.id}`}>View public page</Link>
+          {choices && choices.length > 1 ? <EventPicker choices={choices} currentId={currentId} onPick={pick} compact /> : null}
+        </div></details>
         <div className="nx-evhead-facts">
           <span className={'nx-pill ' + (event.status === 'published' || event.status === 'live' ? 'ok' : '')}>{statusLabel[event.status] ?? event.status}</span>
           {registration ? <span className="nx-pill">{registration}</span> : null}
@@ -88,9 +92,9 @@ export function EventHeader({ items }: { items: NavItem[] }) {
         </div>
       </div>
       <div className="nx-evhead-actions">
-        {next ? <Link className="nx-btn primary" to={withEventParam(next.action.to, event.id)}>Next: {next.action.label}</Link> : null}
-        <Link className="nx-btn" to={`/events/${event.id}`}>View public page</Link>
-        {choices && choices.length > 1 ? <EventPicker choices={choices} currentId={currentId} onPick={pick} compact /> : null}
+        {next ? <Link className="nx-btn primary nx-evnext" to={withEventParam(next.action.to, event.id)}>Next: {next.action.label}</Link> : null}
+        <Link className="nx-btn nx-desk-only" to={`/events/${event.id}`}>View public page</Link>
+        {choices && choices.length > 1 ? <span className="nx-desk-only"><EventPicker choices={choices} currentId={currentId} onPick={pick} compact /></span> : null}
       </div>
       {choicesError ? <small role="alert">The event list could not be loaded: {choicesError}</small> : null}
     </div>

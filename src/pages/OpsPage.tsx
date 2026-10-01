@@ -76,7 +76,20 @@ export function OpsPage() {
   if (isPlatformSuperAdmin && !requestedEvent) return <Navigate to="/admin" replace/>;
   if (error) return <div className="state-card error">{error}</div>;
 
+  const nowSides = active ? [participantName(active, 1), participantName(active, 2)] : undefined;
   return <>
+    <section className="ops-now" aria-label="Current fight">
+      <span className="ops-now-label">{active ? 'Fighting now' : 'No fight is active'}{activeField ? ' · ' + (activeField.listName ?? activeField.name) : ''}</span>
+      {active && nowSides ? <>
+        <p className="ops-now-title">{active.label}</p>
+        <div className="ops-now-sides"><strong>{nowSides[0]}</strong><span aria-hidden="true">vs</span><strong>{nowSides[1]}</strong></div>
+        {canScore ? <button type="button" className="ops-now-score" onClick={() => setScoring(active)}>Enter score</button> : <small>You can watch this fight but not score it.</small>}
+      </> : <p className="ops-now-empty">{onDeck ? 'Start the on-deck fight below when the field is ready.' : 'Move a fight to on deck below to get the next one ready.'}</p>}
+      <dl className="ops-now-queue">
+        <div><dt>On deck</dt><dd>{onDeck ? onDeck.label + ': ' + participantName(onDeck, 1) + ' vs ' + participantName(onDeck, 2) : 'None'}</dd></div>
+        <div><dt>In the hole</dt><dd>{inHole ? inHole.label + ': ' + participantName(inHole, 1) + ' vs ' + participantName(inHole, 2) : 'None'}</dd></div>
+      </dl>
+    </section>
     <section className="hero-grid">
       <div className="hero-card"><span className="eyebrow">Fight day</span><h1>Run fights</h1><p>Each field has its own fight order, active match, on-deck match, and bullpen state.</p></div>
       <div className="bullpen"><div><span>NOW</span><strong>{active?.label ?? 'No active match'}</strong></div><div><span>ON DECK</span><strong>{onDeck?.label ?? 'None'}</strong></div><div><span>IN THE HOLE</span><strong>{inHole?.label ?? 'None'}</strong></div></div>

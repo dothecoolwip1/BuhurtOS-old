@@ -160,7 +160,7 @@ export function AppShell({ area, brandSub, sections, bottom, status, header, blo
     const common = section.items.filter(item => !item.advanced);
     const advanced = section.items.filter(item => item.advanced);
     const showAdvanced = advanced.some(item => location.pathname === item.to || location.pathname.startsWith(item.to + '/'));
-    return <div className="nx-group" key={section.id}>
+    return <div className="nx-group" data-section={section.id} key={section.id}>
       {sections.length > 1 && section.id !== 'overview' ? <h2 className="nx-group-title">{section.label}</h2> : null}
       {common.map(item => <ItemLink key={item.id} to={item.to} label={item.label} description={item.description} end={item.to === '/admin' || item.to === '/me'} onClick={onClick} />)}
       {advanced.length ? <details className="nx-more" open={showAdvanced}><summary>More tools</summary>

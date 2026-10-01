@@ -1866,3 +1866,76 @@ main[tabindex="-1"]:focus{outline:none}
 .nx-evmore summary::-webkit-details-marker{display:none}
 .nx-evmore>div{position:absolute;z-index:20;right:0;top:100%;display:grid;min-width:200px;padding:6px;border:1px solid var(--line-strong);border-radius:10px;background:#111a23;box-shadow:0 12px 30px rgba(0,0,0,.45)}
 @media(max-width:700px){.nx-evhead{padding:12px}.nx-evhead-actions .nx-btn{flex:1 1 auto;text-align:center;justify-content:center}.nx-evhead-actions .nx-scope-pick{margin-left:0;width:100%}}
+
+/* Phone: the event is its own small app. Compact context bar, event bottom bar, no wrapped breadcrumbs. */
+.nx-side [data-section="this-event"]{display:none}
+.nx-evmenu{display:none}
+.ops-now{display:none}
+@media(max-width:700px){
+  .nx-desk-only{display:none!important}
+  .nx-evtabs{display:none}
+  .nx-main:has(.nx-evhead) .nx-crumbs{display:none}
+  .nx-evhead{position:sticky;top:58px;z-index:30;margin:-16px -14px 12px;padding:8px 14px;border-radius:0;border-width:0 0 1px;gap:4px;grid-template-columns:1fr auto;align-items:center;background:rgba(15,23,32,.98)}
+  .nx-evhead-main{grid-column:1;gap:2px}
+  .nx-evhead-title h2{font-size:1rem}
+  .nx-evhead-title p{font-size:.74rem}
+  .nx-evhead-venue{display:none}
+  .nx-evhead-facts{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .nx-evhead-facts .nx-pill{white-space:nowrap}
+  .nx-evmenu{display:block;grid-column:2;grid-row:1;position:relative}
+  .nx-evmenu summary{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--line);border-radius:10px;font-size:1.3rem;list-style:none;cursor:pointer}
+  .nx-evmenu summary::-webkit-details-marker{display:none}
+  .nx-evmenu>div{position:absolute;right:0;top:48px;z-index:40;display:grid;gap:8px;min-width:220px;padding:10px;border:1px solid var(--line-strong);border-radius:12px;background:#111a23;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+  .nx-evmenu>div a{display:flex;align-items:center;min-height:44px;color:var(--text);font-weight:700}
+  .nx-evhead-actions{grid-column:1 / -1}
+  .nx-evnext{min-height:48px;width:100%;justify-content:center}
+  .nx-bottom-link{min-height:60px}
+  /* Run fights: the current fight dominates the first screen */
+  .ops-now{display:grid;gap:10px;margin:0 0 14px;padding:16px;border:1px solid var(--line-strong);border-radius:16px;background:#0f1720}
+  .ops-now-label{font-size:.7rem;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+  .ops-now-title{margin:0;color:var(--muted);font-size:.85rem}
+  .ops-now-sides{display:grid;gap:2px;text-align:center}
+  .ops-now-sides strong{font-size:1.35rem;line-height:1.2;overflow-wrap:anywhere}
+  .ops-now-sides span{color:var(--muted);font-size:.8rem;font-weight:800}
+  .ops-now-score{min-height:56px;border:0;border-radius:14px;background:var(--accent);color:#111;font-size:1.1rem;font-weight:900}
+  .ops-now-empty{margin:0;color:var(--soft)}
+  .ops-now-queue{display:grid;gap:6px;margin:4px 0 0}
+  .ops-now-queue div{display:grid;grid-template-columns:84px 1fr;gap:8px;font-size:.82rem}
+  .ops-now-queue dt{color:var(--muted);font-weight:800}
+  .ops-now-queue dd{margin:0;overflow-wrap:anywhere}
+  .hero-grid{display:none}
+}
+
+/* Scoring: big steppers, sticky action bar on phones */
+.score-round{display:grid;gap:8px;margin:10px 0}
+.score-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.score-stepper{display:grid;gap:6px;padding:10px;border:1px solid var(--line);border-radius:14px;background:#0f1720}
+.score-stepper-name{font-size:.8rem;font-weight:800;color:var(--soft);overflow-wrap:anywhere}
+.score-stepper>div{display:grid;grid-template-columns:48px 1fr 48px;gap:6px;align-items:center}
+.score-stepper button{min-height:48px;border:1px solid var(--line-strong);border-radius:12px;background:#18232e;color:var(--text);font-size:1.5rem;font-weight:800}
+.score-stepper button:disabled{opacity:.4}
+.score-stepper input{min-height:48px;width:100%;text-align:center;font-size:1.5rem;font-weight:900;border-radius:12px;border:1px solid var(--line-strong);background:#0b1015;color:var(--text);-moz-appearance:textfield}
+.score-stepper input::-webkit-outer-spin-button,.score-stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+@media(max-width:700px){
+  .dialog .dialog-actions{position:sticky;bottom:0;margin:12px -4px 0;padding:10px 4px calc(10px + env(safe-area-inset-bottom));background:#111a23;border-top:1px solid var(--line)}
+  .dialog .dialog-actions button{min-height:52px;font-size:1rem}
+  .dialog .dialog-actions .primary{flex:2}
+}
+
+/* Phone: compact page heads and roster rows that scan quickly */
+@media(max-width:700px){
+  .nx-main .section-head .eyebrow{display:none}
+  .nx-main .section-head h1{font-size:1.5rem;line-height:1.15}
+  .nx-main .section-head p{font-size:.84rem;margin:4px 0 0}
+  .roster-list{display:grid;gap:8px}
+  .roster-card{padding:12px;gap:8px}
+  .roster-card .check-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .roster-card .check-grid label{display:flex;align-items:center;gap:8px;min-height:48px;padding:0 10px;border:1px solid var(--line);border-radius:10px}
+  .roster-card .check-grid input{width:22px;height:22px}
+  .roster-card .header-actions button{width:100%;min-height:48px}
+  .roster-card .missing-line{font-size:.78rem}
+}
+details.roster-card>summary{list-style:none;cursor:pointer;min-height:48px}
+details.roster-card>summary::-webkit-details-marker{display:none}
+.roster-count{font-weight:600;opacity:.8}
+@media(min-width:701px){details.roster-card>summary{cursor:default}}

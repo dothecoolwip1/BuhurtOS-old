@@ -72,6 +72,17 @@ export function AdminShell() {
   const eventItems = inEvent ? scopedSections(sections, eventId).flatMap(section => section.items).filter(item => isEventScopedPath(item.to)) : [];
   const header = inEvent ? <EventHeader items={eventItems} /> : scopeBar;
 
+  // On a phone, inside an event the bottom bar is the event's own: the four things done most, then Menu for the rest.
+  const phoneTabs: Array<[string, string, string]> = [['event-guide', 'Overview', '◔'], ['event-signups', 'Signups', '✉'], ['event-roster', 'Roster', '☷'], ['event-run', 'Run', '⚔']];
+  const eventBottom: BottomItem[] = phoneTabs
+    .map(([id, label, icon]) => ({ item: eventItems.find(candidate => candidate.id === id), label, icon }))
+    .filter((entry): entry is { item: NavItem; label: string; icon: string } => Boolean(entry.item))
+    .map(entry => ({ to: entry.item.to, label: entry.label, icon: entry.icon }));
+  const bottomItems = inEvent && eventBottom.length >= 3 ? eventBottom : bottom;
+  // The rest of the event's tools are reachable from the phone menu, under "This event".
+  const bottomPaths = new Set(eventBottom.map(item => item.to.split('?')[0]));
+  const thisEvent: NavSection[] = inEvent ? [{ id: 'this-event', label: 'This event', blurb: '', items: eventItems.filter(item => !bottomPaths.has(item.to.split('?')[0])) }] : [];
+
   const status = <div className="nx-status">
     <span className={'nx-chip ' + (online ? 'ok' : 'warn')}>{online ? 'Online' : 'Offline'}</span>
     {dataMode === 'demo' ? <span className="nx-chip">Demo data</span> : null}
@@ -86,5 +97,5 @@ export function AdminShell() {
     else if (!event) blocked = <StateBlock kind="empty" title="There is no event to work on yet">Create one under Seasons &amp; new events, or choose an event above.</StateBlock>;
   }
 
-  return <AppShell area="admin" brandSub="Administration" sections={sidebar} bottom={bottom} status={status} header={header} blocked={blocked} />;
+  return <AppShell area="admin" brandSub="Administration" sections={[...sidebar, ...thisEvent]} bottom={bottomItems} status={status} header={header} blocked={blocked} />;
 }

@@ -129,3 +129,16 @@ creating real accounts on the hosted project is not something automation should 
 * Verified: typecheck, 346 tests, build, navigation audit, CI green, live site shows the six-item public navigation. The event header was exercised in
   demo mode on desktop and at 390px (no horizontal overflow). **Not verified with a real signed-in session**: the setup progress pills and "Next" button
   need a connected backend and a signed-in account.
+
+## Update: phone event workspace (2026-10-01)
+
+Mobile changes (verified in the demo build at 390px by DOM measurement and the browser; not yet with a real signed-in session):
+* Inside an event the page opens with a compact sticky event bar (name, date, status chips, a 44px ⋯ menu holding View public page and Change event) instead of
+  breadcrumbs plus a four-row header; the tab row is replaced by an event bottom bar: Overview, Signups, Roster, Run, Menu. Schedule, Results, Details and the
+  rest are under Menu > "This event".
+* **Run fights** leads with a Current fight panel (who is fighting, field, a 56px Enter score button, then On deck and In the hole). The old hero and strip
+  are hidden on phones. The panel appears first on the screen; before the change, about 650px of header chrome came before any fight.
+* **Scoring** uses 48px minus and plus controls per fighter with names above each score, and the dialog's actions stick to the bottom with safe-area padding.
+* **Roster and check-in** rows collapse to a 92px summary (name, team, cleared state, "n/5 checks") and expand on tap; 16 entries went from 5,700px to about 2,100px.
+* Not done in this pass: registration review rows, filter sheets, searchable pickers, bracket round navigation, destructive-action placement audit, keyboard
+  testing, and widths 360, 375, 412, 430 and 768.

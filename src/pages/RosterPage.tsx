@@ -30,6 +30,7 @@ export function RosterPage() {
     try { await setCompetitionClearance(entryId,value); }
     catch(error){ setMessage(friendlyError(error).message); }
   };
+  const phone = typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 700px)').matches;
   return <>
     <section className="section-head"><div><span className="eyebrow">Entries</span><h1>Roster & check-in</h1><p>Registration approval, physical check in and final competition clearance are separate gates. Only a marshal clearance makes an entry competition ready.</p></div><div className="header-actions"><button onClick={() => downloadText('buhurtos-registration-report.csv', rosterCsv(roster))}>Export roster CSV</button><button onClick={() => openPrintableReport(`${event?.name ?? 'Event'} Registration Report`, htmlTable(['Competitor', 'Entry Type', 'Registration', 'Checked In', 'Armor', 'Medical', 'Waiver', 'Weigh In', 'Cleared To Compete'], roster.map(r => [r.displayName, r.entryType.replaceAll('_', ' '), r.attendanceStatus.replaceAll('_', ' '), r.checkedIn, r.armorCleared, r.medicalCleared, r.waiverConfirmed, r.weighInCleared, Boolean(r.competitionCleared)])))}>Print / PDF</button></div></section>
     {message&&<div className="auth-message">{message}</div>}
@@ -44,10 +45,11 @@ export function RosterPage() {
     <div className="roster-list">{shown.map(entry => {
       const physical = checkPhysicalCompliance(entry);
       const compliance = checkCompliance(entry);
-      return <article className="roster-card" key={entry.id}>
-        <div className="roster-main"><div><strong>{entry.displayName}</strong><small>{[teamName(entry.teamId), entry.entryType.replaceAll('_', ' '), 'registration ' + entry.attendanceStatus.replaceAll('_',' ')].filter(Boolean).join(' · ')}</small></div>
-          <span className={`eligibility ${compliance.eligible ? 'ok' : 'blocked'}`}>{compliance.eligible ? 'CLEARED' : physical.eligible ? 'READY FOR MARSHAL' : 'BLOCKED'}</span>
-        </div>
+      const done = fields.filter(([field]) => entry[field]).length;
+      return <details className="roster-card" key={entry.id} open={!phone}>
+        <summary className="roster-main"><div><strong>{entry.displayName}</strong><small>{[teamName(entry.teamId), entry.entryType.replaceAll('_', ' '), 'registration ' + entry.attendanceStatus.replaceAll('_',' ')].filter(Boolean).join(' · ')}</small></div>
+          <span className={`eligibility ${compliance.eligible ? 'ok' : 'blocked'}`}>{compliance.eligible ? 'CLEARED' : physical.eligible ? 'READY FOR MARSHAL' : 'BLOCKED'}<small className="roster-count"> · {done}/{fields.length} checks</small></span>
+        </summary>
         <div className="check-grid">{fields.map(([field, label]) => <label key={field} className={entry[field] ? 'checked' : ''}><input type="checkbox" checked={entry[field]} disabled={!canManage || entry.attendanceStatus!=='approved'} onChange={e => change(entry.id, field, e.target.checked)}/><span>{label}</span></label>)}</div>
         {!physical.eligible && <div className="missing-line">Physical gate missing: {physical.missing.join(', ')}</div>}
         <div className="header-actions">
@@ -56,7 +58,7 @@ export function RosterPage() {
           </button>
         </div>
         {!compliance.eligible && physical.eligible && !entry.competitionCleared && <div className="missing-line">A marshal must grant final competition clearance.</div>}
-      </article>;
+      </details>;
     })}</div>
   </>;
 }
