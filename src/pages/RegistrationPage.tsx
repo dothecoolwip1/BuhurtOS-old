@@ -4,6 +4,7 @@ import {
   createRegistrationCheckout, listRegistrationDivisions, submitRegistration, uploadWaiver,
   withdrawRegistration, type RegistrationDivisionOption, type RegistrationResult
 } from '../lib/registration';
+import { friendlyError } from '../lib/friendlyError';
 
 function numberOrUndefined(value: string): number | undefined {
   if (!value.trim()) return undefined;
@@ -32,7 +33,7 @@ export function RegistrationPage() {
     listRegistrationDivisions(event.id).then(rows => {
       setDivisions(rows);
       setDivisionId(current => current && rows.some(row => row.id === current) ? current : (rows[0]?.id ?? ''));
-    }).catch(error => setMessage(error instanceof Error ? error.message : 'Unable to load registration divisions.'));
+    }).catch(error => setMessage(friendlyError(error).message));
   }, [event?.id]);
 
   const selected = useMemo(() => divisions.find(row => row.id === divisionId), [divisions, divisionId]);
@@ -74,7 +75,7 @@ export function RegistrationPage() {
       if (file) await uploadWaiver(created, file);
       setResult(created);
       setMessage(created.status === 'waitlisted' ? 'Registration saved to the waitlist.' : 'Registration saved for organizer review.');
-    } catch (e) { setMessage(e instanceof Error ? e.message : 'Registration failed.'); }
+    } catch (e) { setMessage(friendlyError(e).message); }
     finally { setBusy(false); }
   };
 
@@ -86,7 +87,7 @@ export function RegistrationPage() {
       if (url === 'demo://checkout') setMessage('Demo mode: no real charge is made.');
       else if (url) window.location.assign(url);
       else setMessage('No payment is required for this registration.');
-    } catch (e) { setMessage(e instanceof Error ? e.message : 'Unable to start payment.'); }
+    } catch (e) { setMessage(friendlyError(e).message); }
     finally { setBusy(false); }
   };
 
@@ -97,7 +98,7 @@ export function RegistrationPage() {
       await withdrawRegistration(result);
       setResult({ ...result, status: 'withdrawn' });
       setMessage('Registration withdrawn.');
-    } catch (e) { setMessage(e instanceof Error ? e.message : 'Unable to withdraw registration.'); }
+    } catch (e) { setMessage(friendlyError(e).message); }
     finally { setBusy(false); }
   };
 

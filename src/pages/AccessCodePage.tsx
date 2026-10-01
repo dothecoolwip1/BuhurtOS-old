@@ -4,6 +4,7 @@ import { useAccount } from '../features/Account';
 import { useAppState } from '../features/AppState';
 import { redeemAccessCode } from '../lib/accessControl';
 import { redeemDelegatedAccessCode } from '../lib/delegatedAccess';
+import { friendlyError } from '../lib/friendlyError';
 
 export function AccessCodePage() {
   const { user, reload } = useAppState();
@@ -24,7 +25,7 @@ export function AccessCodePage() {
         destination = '/me';
         setMessage('Done. You are now ' + delegated.role.replaceAll('_',' ') + ' of ' + delegated.targetName + '. Opening your workspace to show what changed…');
       } catch (delegatedError) {
-        const text = delegatedError instanceof Error ? delegatedError.message : '';
+        const text = friendlyError(delegatedError).message;
         if (!/not recognized/i.test(text)) throw delegatedError;
         const result = await redeemAccessCode(code);
         setMessage(result.alreadyRedeemed ? 'This code was already active on your account.' : 'BuhurtOS access granted.');
@@ -33,7 +34,7 @@ export function AccessCodePage() {
       account.refresh();
       window.setTimeout(() => { window.location.hash = '#' + destination; }, 350);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'The access code could not be redeemed.');
+      setMessage(friendlyError(error).message);
     } finally {
       setBusy(false);
     }

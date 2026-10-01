@@ -2,12 +2,13 @@ import {useEffect,useState} from 'react';
 import {Link} from 'react-router-dom';
 import {PageHeader,Pill} from '../components/ShowcaseUI';
 import {loadPublicOrganizations,type PublicOrganizationSummary} from '../lib/publicDirectory';
+import { friendlyError } from '../lib/friendlyError';
 
 export function GovernancePage(){
  const [organizations,setOrganizations]=useState<PublicOrganizationSummary[]>([]);
  const [loading,setLoading]=useState(true);
  const [error,setError]=useState('');
- useEffect(()=>{let active=true;loadPublicOrganizations().then(rows=>{if(active)setOrganizations(rows)}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load organizations.')}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[]);
+ useEffect(()=>{let active=true;loadPublicOrganizations().then(rows=>{if(active)setOrganizations(rows)}).catch(err=>{if(active)setError(friendlyError(err).message)}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[]);
  return <>
   <PageHeader eyebrow="PUBLIC ORGANIZATION DIRECTORY" title="Organizations" description="Explore federations, national bodies, regional organizations and local groups represented in BuhurtOS. Open any organization to see what it is and what sits underneath it."/>
   {loading?<div className="state-card">Loading organizations…</div>:error?<div className="state-card"><strong>Unable to load organizations</strong><p>{error}</p></div>:<div className="show-team-grid public-global-grid">{organizations.map(org=><Link className="show-team-card" key={org.key} to={'/organizations/'+org.key}><div className="show-team-banner official"><span>{org.shortName.slice(0,4)}</span><Pill tone="blue">{org.kind}</Pill></div><div className="show-team-body"><small>{org.region}</small><h2>{org.name}</h2><p>{org.description}</p><div className="team-card-stats"><span><b>{org.teamCount}</b><small>teams</small></span><span><b>{org.rosterCount}</b><small>roster records</small></span><span><b>{org.countries}</b><small>countries</small></span></div><div className="team-public-actions"><span>Open organization</span><b>→</b></div></div></Link>)}</div>}

@@ -12,6 +12,7 @@ import { SchedulePlanner, StructureAdvisor, type PlannedSchedule } from '../feat
 import { applySchedule, playoffStart, scheduleMatches, scheduleMetadata } from '../lib/tournamentPlanner';
 import { eventClock } from '../lib/eventTime';
 import type { Bracket, EventDivision, EventRole, EventRulesetSnapshot } from '../types';
+import { friendlyError } from '../lib/friendlyError';
 
 const assignableRoles: Array<{value: EventRole; label: string}> = [
   { value: 'event_organizer', label: 'Event Organizer' },
@@ -67,7 +68,7 @@ export function AdminPage() {
   const loadMembers = async () => {
     if (!event) return;
     try { setMemberships(await listEventMemberships(event.id)); }
-    catch (error) { setMessage(error instanceof Error ? error.message : 'Unable to load event access.'); }
+    catch (error) { setMessage(friendlyError(error).message); }
   };
   const loadCompetitionPolicy = async () => {
     if (!event) return;
@@ -82,7 +83,7 @@ export function AdminPage() {
       setPublishedBrackets(brackets);
       setEventDivisionId(current=>current&&divisions.some(row=>row.id===current)?current:(divisions[0]?.id||''));
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Unable to load event division policy.');
+      setMessage(friendlyError(error).message);
     }
   };
   useEffect(() => { loadMembers(); loadCompetitionPolicy(); }, [event?.id]);
@@ -97,7 +98,7 @@ export function AdminPage() {
     if (!ghostName.trim()) return;
     setBusy(true); setMessage('');
     try { await addGhostFighter(event, ghostName.trim()); setGhostName(''); await reload(); setMessage('Ghost fighter added. Complete compliance before bracket placement.'); }
-    catch (e) { setMessage(e instanceof Error ? e.message : 'Unable to add ghost fighter.'); }
+    catch (e) { setMessage(friendlyError(e).message); }
     finally { setBusy(false); }
   };
   const generationContext = () => {
@@ -156,7 +157,7 @@ export function AdminPage() {
       setMessage('Preview generated. Review seeds, warnings, and match count before publishing.');
     } catch (e) {
       setPreview(null);
-      setMessage(e instanceof Error ? e.message : 'Unable to preview competition structure.');
+      setMessage(friendlyError(e).message);
     } finally {
       setBusy(false);
     }
@@ -196,7 +197,7 @@ export function AdminPage() {
       setSupersedesBracketId('');
       setMessage('Competition published with ' + preview.plan.matches.length + ' matches. Published generation history is immutable.');
     } catch (e) {
-      setMessage(e instanceof Error ? e.message : 'Unable to publish competition structure.');
+      setMessage(friendlyError(e).message);
     } finally {
       setBusy(false);
     }
@@ -264,7 +265,7 @@ export function AdminPage() {
       await loadCompetitionPolicy();
       setMessage('Pool qualifiers seeded into a ' + playoff.matches.length + '-match playoff bracket.' + scheduleNote);
     } catch (e) {
-      setMessage(e instanceof Error ? e.message : 'Unable to advance pool qualifiers.');
+      setMessage(friendlyError(e).message);
     } finally {
       setBusy(false);
     }
@@ -279,13 +280,13 @@ export function AdminPage() {
       await loadMembers();
       setMemberForm({ email:'', displayName:'', role:'field_marshal', teamId:'' });
       setMessage(result.invited ? 'Account access assigned.' : 'Existing account found and event access assigned. No email was sent.');
-    } catch (e) { setMessage(e instanceof Error ? e.message : 'Unable to assign event access.'); }
+    } catch (e) { setMessage(friendlyError(e).message); }
     finally { setBusy(false); }
   };
   const removeMember = async (id: string) => {
     setBusy(true); setMessage('');
     try { await removeEventMembership(id); await loadMembers(); setMessage('Event role removed.'); }
-    catch (e) { setMessage(e instanceof Error ? e.message : 'Unable to remove event role.'); }
+    catch (e) { setMessage(friendlyError(e).message); }
     finally { setBusy(false); }
   };
 

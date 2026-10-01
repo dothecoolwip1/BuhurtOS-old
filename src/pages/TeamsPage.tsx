@@ -4,6 +4,7 @@ import {rememberListSearch,useQueryStates} from '../lib/urlState';
 import {loadFeaturedTeams,loadPublicTeamDirectory,type PublicDirectoryTeam} from '../lib/teamDirectory';
 import {LoadingGrid,PageHeader,Pill,StatePanel} from '../components/ShowcaseUI';
 import {PublicTeamMap} from '../components/PublicTeamMap';
+import { friendlyError } from '../lib/friendlyError';
 
 type Tab='featured'|'bi'|'hacsa'|'worldwide';
 const tabs:{key:Tab;label:string}[]=[{key:'featured',label:'Featured'},{key:'bi',label:'Buhurt International'},{key:'hacsa',label:'HACSA'},{key:'worldwide',label:'All worldwide teams'}];
@@ -14,7 +15,7 @@ export function TeamsPage(){
  const [directory,setDirectory]=useState<PublicDirectoryTeam[]>([]); const [loading,setLoading]=useState(true); const [error,setError]=useState(''); const [attempt,setAttempt]=useState(0); const [visibleCount,setVisibleCount]=useState(60);
  // Featured loads a small list. The large directory loads only for the BI, HACSA and Worldwide tabs, or when someone searches.
  const searching=query.trim().length>0; const scope:'featured'|'bi'|'hacsa'|'all'=searching?'all':tab==='featured'?'featured':tab==='bi'?'bi':tab==='hacsa'?'hacsa':'all';
- useEffect(()=>{let active=true;setLoading(true);setError('');const load=scope==='featured'?loadFeaturedTeams():loadPublicTeamDirectory(scope==='all'?{}:{organizationShortName:scope==='bi'?'BI':'HACSA'});load.then(x=>{if(active)setDirectory(x)}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load the team directory.')}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[attempt,scope]);
+ useEffect(()=>{let active=true;setLoading(true);setError('');const load=scope==='featured'?loadFeaturedTeams():loadPublicTeamDirectory(scope==='all'?{}:{organizationShortName:scope==='bi'?'BI':'HACSA'});load.then(x=>{if(active)setDirectory(x)}).catch(err=>{if(active)setError(friendlyError(err).message)}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[attempt,scope]);
  const orgs=useMemo(()=>[...new Set(directory.map(x=>x.organizationShortName).filter(Boolean))].sort(),[directory]);
  const countries=useMemo(()=>[...new Set(directory.map(x=>x.countryName).filter(x=>x&&x!=='Country pending'))].sort(),[directory]);
  const regions=useMemo(()=>[...new Set(directory.filter(t=>country==='all'||t.countryName===country).map(t=>t.adminAreaName).filter(x=>x&&!x.includes('pending')))].sort(),[directory,country]);

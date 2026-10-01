@@ -16,6 +16,7 @@ import type {
   FighterIdentityMergeReview,
   FoundationFighter
 } from '../types';
+import { friendlyError } from '../lib/friendlyError';
 
 function IdentityReviewInner({ organizationId }: { organizationId: string }) {
   const { user } = useAppState();
@@ -57,7 +58,7 @@ function IdentityReviewInner({ organizationId }: { organizationId: string }) {
 
   useEffect(() => {
     if (!canManage) return;
-    refresh().catch(error => setMessage(error instanceof Error ? error.message : 'Unable to load identity review queue.'));
+    refresh().catch(error => setMessage(friendlyError(error).message));
   }, [organizationId, canManage]);
 
   if (!canManage) return <div className="state-card">Organization administrator access is required for identity review.</div>;
@@ -70,7 +71,7 @@ function IdentityReviewInner({ organizationId }: { organizationId: string }) {
       await refresh();
       setMessage(success);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'The identity review action could not be completed.');
+      setMessage(friendlyError(error).message);
     } finally {
       setBusy(false);
     }

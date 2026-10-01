@@ -4,6 +4,7 @@ import {LoadingGrid,PageHeader,Pill,StatePanel} from '../components/ShowcaseUI';
 import {loadPublicTeamDirectory,type PublicDirectoryTeam} from '../lib/teamDirectory';
 import {availableRankingFormats,buildRankingRows,rankingFormatLabels,rankingSources,resolveRankingFilters} from '../lib/rankings';
 import {useQueryStates} from '../lib/urlState';
+import { friendlyError } from '../lib/friendlyError';
 
 export function ShowcaseRankingsPage(){
  const [teams,setTeams]=useState<PublicDirectoryTeam[]>([]);
@@ -11,7 +12,7 @@ export function ShowcaseRankingsPage(){
  const [error,setError]=useState('');
  const [attempt,setAttempt]=useState(0);
  const [wanted,setWanted]=useQueryStates({format:'',source:'',country:'all'});
- useEffect(()=>{let active=true;loadPublicTeamDirectory().then(rows=>{if(active)setTeams(rows)}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load rankings.')}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[attempt]);
+ useEffect(()=>{let active=true;loadPublicTeamDirectory().then(rows=>{if(active)setTeams(rows)}).catch(err=>{if(active)setError(friendlyError(err).message)}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[attempt]);
  const formats=useMemo(()=>availableRankingFormats(teams),[teams]);
  // Filters live in the URL so a ranking view can be shared and survives reload; unknown values fall back to what the data offers.
  const {format,source:org}=useMemo(()=>resolveRankingFilters(teams,wanted),[teams,wanted]);

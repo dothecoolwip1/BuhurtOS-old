@@ -11,6 +11,7 @@ import { buildBoutsIcs } from '../lib/ics';
 import { groupRowsByArea, scheduleAsText, type ScheduleRow } from '../lib/scheduleText';
 import { useQueryStates } from '../lib/urlState';
 import type { MatchRecord } from '../types';
+import { friendlyError } from '../lib/friendlyError';
 
 type View = 'play' | 'pools' | 'bracket';
 
@@ -83,7 +84,7 @@ export function BracketPage() {
         group.rows.map(r => [r.time || '', r.label, r.side1, r.side2, r.status ?? ''])
       )).join('');
       openPrintableReport(`${event?.name ?? 'Event'} Order of Play`, body);
-    } catch (error) { window.alert(error instanceof Error ? error.message : 'Unable to open the printable report.'); }
+    } catch (error) { window.alert(friendlyError(error).message); }
   };
   const downloadCalendar = () => {
     const bouts = ordered.filter(involves).flatMap(m => {

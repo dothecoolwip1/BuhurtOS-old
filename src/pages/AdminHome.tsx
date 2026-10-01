@@ -6,6 +6,7 @@ import { isEventScopedPath, withEventParam } from '../lib/eventScope';
 import { supabase } from '../lib/supabase';
 import { canSee, type NavGate } from '../lib/navigation';
 import { Card, LinkCard, PageTitle, StateBlock } from '../components/page';
+import { friendlyError } from '../lib/friendlyError';
 
 type Count = { state: 'loading' } | { state: 'error'; message: string } | { state: 'ready'; value: number };
 
@@ -18,7 +19,7 @@ function useCount(run: (() => PromiseLike<{ count: number | null; error: { messa
     Promise.resolve(run()).then(({ count, error }) => {
       if (!active) return;
       setValue(error ? { state: 'error', message: error.message } : { state: 'ready', value: count ?? 0 });
-    }).catch(error => { if (active) setValue({ state: 'error', message: error instanceof Error ? error.message : 'Request failed' }); });
+    }).catch(error => { if (active) setValue({ state: 'error', message: friendlyError(error).message }); });
     return () => { active = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);

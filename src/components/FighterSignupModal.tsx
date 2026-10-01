@@ -125,7 +125,7 @@ export function FighterSignupModal({open,onClose,eventId,eventName}:{open:boolea
     </div>:null}
     {copy.next==='enter_code'||showCodeEntry?codeEntry:null}
     {access?.state==='error'?<button className="show-btn secondary" type="button" onClick={()=>setAccessAttempt(n=>n+1)}>Try again</button>:null}
-    {signedOutHint?<small>Have a BuhurtOS account? <Link to={'/sign-in?next='+encodeURIComponent(location.pathname+location.search)} onClick={onClose}>Sign in</Link> — if you belong to the host organization you may not need a code.</small>:null}
+    {signedOutHint?<div className="form-stack"><small>Have a BuhurtOS account? If you belong to the host organization you may not need a code.</small><Link className="show-btn secondary" to={'/sign-in?next='+encodeURIComponent(location.pathname+location.search)} onClick={onClose}>Sign in</Link></div>:null}
     {copy.next==='none'?<button className="show-btn secondary" type="button" onClick={onClose}>Return to event</button>:null}
   </>;
 

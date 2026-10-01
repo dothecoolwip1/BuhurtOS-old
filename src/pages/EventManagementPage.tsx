@@ -11,6 +11,7 @@ import { downloadText, fightCardCsv } from '../lib/export';
 import { EventMediaPanel } from '../components/EventMediaPanel';
 import { CompetitionsPanel } from '../components/CompetitionsPanel';
 import { isCompetitionCapable } from '../lib/eventCategories';
+import { friendlyError } from '../lib/friendlyError';
 
 const reviewStates: Array<{value: Exclude<RegistrationReviewStatus,'pending'>; label:string}> = [
   { value:'approved', label:'Approve' }, { value:'waitlisted', label:'Waitlist' },
@@ -68,7 +69,7 @@ export function EventManagementPage(){
       setRegistrations(rows);
       setReviewDrafts(Object.fromEntries(rows.map(row=>[row.id,{reason:row.eligibilityOverrideReason??'',notes:row.organizerNotes??''}])));
       setRosterDrafts(Object.fromEntries(rows.filter(row=>row.registrationKind==='team').map(row=>[row.id,{teamName:row.teamName??'',members:row.teamRoster.join('\n')}])));
-    }).catch(error=>setMessage(error instanceof Error?error.message:'Unable to load registrations.'));
+    }).catch(error=>setMessage(friendlyError(error).message));
   },[event?.id]);
 
   useEffect(()=>setFieldDrafts(Object.fromEntries(fightCards.map(card=>[card.id,{name:card.name,status:card.status}]))),[fightCards]);
@@ -91,12 +92,12 @@ export function EventManagementPage(){
         waitlistEnabled:settings.waitlistEnabled,publicDescription:settings.publicDescription,livestreamUrl:settings.livestreamUrl
       });
       await reload();setMessage('Event settings saved.');
-    }catch(error){setMessage(error instanceof Error?error.message:'Unable to save event settings.');}
+    }catch(error){setMessage(friendlyError(error).message);}
     finally{setBusy(false);}
   };
 
-  const addField=async()=>{if(!newFieldName.trim())return;setBusy(true);setMessage('');try{await createFightCard(event.id,newFieldName,fightCards);setNewFieldName('');await reload();setMessage('Field created.');}catch(error){setMessage(error instanceof Error?error.message:'Unable to create field.');}finally{setBusy(false);}};
-  const saveField=async(card:FightCard)=>{const draft=fieldDrafts[card.id];if(!draft)return;setBusy(true);setMessage('');try{await updateFightCard(event.id,card,draft,fightCards);await reload();setMessage('Field updated.');}catch(error){setMessage(error instanceof Error?error.message:'Unable to update field.');}finally{setBusy(false);}};
+  const addField=async()=>{if(!newFieldName.trim())return;setBusy(true);setMessage('');try{await createFightCard(event.id,newFieldName,fightCards);setNewFieldName('');await reload();setMessage('Field created.');}catch(error){setMessage(friendlyError(error).message);}finally{setBusy(false);}};
+  const saveField=async(card:FightCard)=>{const draft=fieldDrafts[card.id];if(!draft)return;setBusy(true);setMessage('');try{await updateFightCard(event.id,card,draft,fightCards);await reload();setMessage('Field updated.');}catch(error){setMessage(friendlyError(error).message);}finally{setBusy(false);}};
 
   const review=async(item:EventRegistrationAdmin,status:Exclude<RegistrationReviewStatus,'pending'>)=>{
     const draft=reviewDrafts[item.id]??{reason:'',notes:''};
@@ -105,7 +106,7 @@ export function EventManagementPage(){
       await reviewRegistration(event,item.id,status,item.updatedAt,draft.reason,draft.notes);
       await refreshRegistrations();await reload();
       setMessage(status==='approved'?'Registration approved. Physical check in and marshal clearance are still required.':'Registration status updated.');
-    }catch(error){setMessage(error instanceof Error?error.message:'Unable to review registration.');}
+    }catch(error){setMessage(friendlyError(error).message);}
     finally{setBusy(false);}
   };
 
@@ -116,12 +117,12 @@ export function EventManagementPage(){
       const members=draft.members.split('\n').map(value=>value.trim()).filter(Boolean);
       await updateRegistrationRoster(item,draft.teamName,members,reviewDrafts[item.id]?.notes);
       await refreshRegistrations();setMessage('Team roster updated and eligibility rechecked.');
-    }catch(error){setMessage(error instanceof Error?error.message:'Unable to update team roster.');}
+    }catch(error){setMessage(friendlyError(error).message);}
     finally{setBusy(false);}
   };
 
-  const postAnnouncement=async()=>{if(!announcement.title.trim()||!announcement.body.trim())return;setBusy(true);setMessage('');try{await createEventAnnouncement(event.id,announcement);setAnnouncement({title:'',body:'',isPublic:true,scheduledFor:''});await reload();setMessage('Announcement saved.');}catch(error){setMessage(error instanceof Error?error.message:'Unable to save announcement.');}finally{setBusy(false);}};
-  const removeAnnouncement=async(id:string)=>{setBusy(true);setMessage('');try{await deleteEventAnnouncement(event.id,id);await reload();setMessage('Announcement removed.');}catch(error){setMessage(error instanceof Error?error.message:'Unable to remove announcement.');}finally{setBusy(false);}};
+  const postAnnouncement=async()=>{if(!announcement.title.trim()||!announcement.body.trim())return;setBusy(true);setMessage('');try{await createEventAnnouncement(event.id,announcement);setAnnouncement({title:'',body:'',isPublic:true,scheduledFor:''});await reload();setMessage('Announcement saved.');}catch(error){setMessage(friendlyError(error).message);}finally{setBusy(false);}};
+  const removeAnnouncement=async(id:string)=>{setBusy(true);setMessage('');try{await deleteEventAnnouncement(event.id,id);await reload();setMessage('Announcement removed.');}catch(error){setMessage(friendlyError(error).message);}finally{setBusy(false);}};
 
   return <>
     <section className="section-head"><div><span className="eyebrow">Event settings</span><h1>Manage {event.name}</h1><p>Govern event publishing, registration, fields, clearances and public communications.</p></div>

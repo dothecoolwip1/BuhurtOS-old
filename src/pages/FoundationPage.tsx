@@ -26,6 +26,7 @@ import { assignEventDivision, evaluateDivisionEligibility, listEventDivisions, p
 import { listRulesets } from '../lib/rulesetAdmin';
 import { requestFighterIdentityMerge } from '../lib/fighterIdentity';
 import type { EventRecord, AffiliationType, Club, CompetitionDivision, EventDivision, FighterAffiliation, FoundationFighter, RulesetRecord, Team } from '../types';
+import { friendlyError } from '../lib/friendlyError';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -97,7 +98,7 @@ function FoundationInner({ organizationId, event }: { organizationId: string; ev
   };
 
   useEffect(() => {
-    refresh().catch(error => setMessage(error instanceof Error ? error.message : 'Unable to load foundation data.'));
+    refresh().catch(error => setMessage(friendlyError(error).message));
   }, [organizationId, event?.id, roster.length]);
 
   if (!canManage) return <div className="state-card">Organization administrator access is required for permanent identity and affiliation management.</div>;
@@ -111,7 +112,7 @@ function FoundationInner({ organizationId, event }: { organizationId: string; ev
       await refresh();
       setMessage(success);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'The requested change could not be completed.');
+      setMessage(friendlyError(error).message);
     } finally {
       setBusy(false);
     }

@@ -5,6 +5,7 @@ import { useAppState } from './AppState';
 import { listSelectableOrganizations, recallOrganization, rememberOrganization, resolveOrganizationChoice, type ScopeOrganization } from '../lib/organizationScope';
 import { useQueryState } from '../lib/urlState';
 import { StateBlock } from '../components/page';
+import { friendlyError } from '../lib/friendlyError';
 
 export interface OrganizationScope {
   status: 'loading' | 'error' | 'empty' | 'ready';
@@ -46,7 +47,7 @@ export function useOrganizationScope(): OrganizationScope {
       setOrganizations(rows); setState('ready');
     }).catch(err => {
       if (mine !== generation.current) return;
-      setError(err instanceof Error ? err.message : 'Organizations could not be loaded.'); setState('error');
+      setError(friendlyError(err).message); setState('error');
     });
   }, [user, accountStatus, contextError, tick, event?.organizationId]);
 

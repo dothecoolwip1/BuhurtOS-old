@@ -27,6 +27,7 @@ import type {
   TeamRole
 } from '../types';
 import { PlatformSettingsPanel } from '../components/PlatformSettingsPanel';
+import { friendlyError } from '../lib/friendlyError';
 
 const organizationKinds: OrganizationKind[] = [
   'international_federation',
@@ -158,11 +159,11 @@ export function PlatformControlPage({ section: fixedSection }: { section?: Platf
 
   useEffect(() => {
     if (!isSuperAdmin) return;
-    refreshOrganizations().catch(error => setMessage(error instanceof Error ? error.message : 'Unable to load platform organizations.'));
+    refreshOrganizations().catch(error => setMessage(friendlyError(error).message));
   }, [isSuperAdmin]);
 
   useEffect(() => {
-    refreshSelected(selectedOrganizationId).catch(error => setMessage(error instanceof Error ? error.message : 'Unable to load organization resources.'));
+    refreshSelected(selectedOrganizationId).catch(error => setMessage(friendlyError(error).message));
   }, [selectedOrganizationId]);
 
   useEffect(() => {
@@ -200,7 +201,7 @@ export function PlatformControlPage({ section: fixedSection }: { section?: Platf
       await refreshSelected(selectedOrganizationId);
       setMessage(success);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'The requested change could not be completed.');
+      setMessage(friendlyError(error).message);
     } finally {
       setBusy(false);
     }

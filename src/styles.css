@@ -1835,3 +1835,6 @@ main[tabindex="-1"]:focus{outline:none}
 .nx-table{width:100%;border-collapse:collapse;min-width:560px}
 .nx-table th,.nx-table td{padding:10px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
 .nx-table thead th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;opacity:.75}
+
+/* Breadcrumb links keep their look but get a comfortable touch area. */
+.nx-crumbs a{display:inline-block;padding:10px 4px;margin:-10px -4px}

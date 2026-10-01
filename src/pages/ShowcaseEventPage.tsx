@@ -15,6 +15,7 @@ import {eventClock,formatEventRange,formatEventTime,zoneLabel} from '../lib/even
 import {loadPublicEventSchedule,type PublicScheduleSlot} from '../lib/publicDirectory';
 import {loadOfficialEventStats} from '../lib/publicStats';
 import type {EventStats} from '../lib/canonicalStats';
+import { friendlyError } from '../lib/friendlyError';
 
 const slugName=(name:string)=>name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'event';
 /** Native share sheet on phones; otherwise copy the link and say so. Never throws at the visitor. */
@@ -170,7 +171,7 @@ export function ShowcaseEventPage(){
         if(result)loadPublicEventSchedule(result.event.id).then(rows=>{if(active)setSchedule(rows)}).catch(()=>undefined);
         if(result)loadOfficialEventStats(result.event.id).then(x=>{if(active)setStats(x)}).catch(()=>{if(active)setStatsError(true)});
       })
-      .catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load this event.')})
+      .catch(err=>{if(active)setError(friendlyError(err).message)})
       .finally(()=>{if(active)setLoading(false)});
     return()=>{active=false};
   },[eventId,attempt]);

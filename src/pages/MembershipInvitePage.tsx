@@ -4,6 +4,7 @@ import { useAccount } from '../features/Account';
 import { useAppState } from '../features/AppState';
 import { acceptMembershipInvitation } from '../lib/organizationAdmin';
 import { Card, PageTitle, StateBlock } from '../components/page';
+import { friendlyError } from '../lib/friendlyError';
 
 /** Accepting an invitation. Needs a signed-in account and the link's token, nothing else. */
 export function MembershipInvitePage() {
@@ -32,7 +33,7 @@ export function MembershipInvitePage() {
       setAccepted(true);
       setMessage({ ok: true, text: 'Invitation accepted. Your new access is active.' });
     } catch (error) {
-      setMessage({ ok: false, text: error instanceof Error ? error.message : 'The invitation could not be accepted.' });
+      setMessage({ ok: false, text: friendlyError(error).message });
     } finally { setBusy(false); }
   };
 

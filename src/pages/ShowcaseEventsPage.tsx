@@ -10,6 +10,7 @@ import {toEventDTO} from '../lib/publicApiV1';
 import {eventPath} from '../lib/publicDirectory';
 import {formatEventRange} from '../lib/eventTime';
 import {eventCategoryLabel,eventCategoryLabels,eventCategoryOrder,eventCategoryTone,eventCta,filterEvents,groupByMonth,normalizeEventCategory,splitUpcomingPast} from '../lib/eventCategories';
+import { friendlyError } from '../lib/friendlyError';
 
 const label=(v:string)=>v.replaceAll('_',' ').replace(/\b\w/g,l=>l.toUpperCase());
 
@@ -29,7 +30,7 @@ export function ShowcaseEventsPage(){
  const [teamId,setTeamId]=useQueryState('team','all');
  const location=useLocation(); useEffect(()=>rememberListSearch('/events',location.search),[location.search]);
  useEffect(()=>{let active=true;
-  loadPublicEvents().then(rows=>{if(active)setEvents(rows)}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load published events.')}).finally(()=>{if(active)setLoading(false)});
+  loadPublicEvents().then(rows=>{if(active)setEvents(rows)}).catch(err=>{if(active)setError(friendlyError(err).message)}).finally(()=>{if(active)setLoading(false)});
   loadPublicOrganizations().then(rows=>{if(active)setOrgs(rows)}).catch(()=>{});
   return()=>{active=false}},[]);
  const orgName=useMemo(()=>new Map(orgs.map(o=>[o.id??'',o.shortName])),[orgs]);

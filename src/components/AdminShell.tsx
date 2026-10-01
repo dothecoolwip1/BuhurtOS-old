@@ -9,6 +9,7 @@ import { primaryTasks } from '../lib/journeys';
 import { accessFromUser, scopeForPath, visibleAdminSections, type NavItem, type NavSection } from '../lib/navigation';
 import { AppShell, ScopeBar, type BottomItem } from './chrome';
 import { StateBlock } from './page';
+import { friendlyError } from '../lib/friendlyError';
 
 const EVENT_STEPS = ['event-settings', 'event-signups', 'event-roster', 'event-bracket', 'event-run', 'event-results'];
 
@@ -52,7 +53,7 @@ function EventScope() {
     const mine = ++generation.current;
     setChoicesError('');
     listWorkableEvents(user).then(rows => { if (mine === generation.current) setChoices(rows); })
-      .catch(err => { if (mine === generation.current) setChoicesError(err instanceof Error ? err.message : 'Events could not be listed.'); });
+      .catch(err => { if (mine === generation.current) setChoicesError(friendlyError(err).message); });
   }, [user]);
 
   const choose = (id: string) => {

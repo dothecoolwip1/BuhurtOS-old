@@ -36,6 +36,7 @@ import type {
   TeamRole,
   TeamStatus
 } from '../types';
+import { friendlyError } from '../lib/friendlyError';
 
 const emptySnapshot: GovernanceSnapshot = {
   organizations: [],
@@ -122,7 +123,7 @@ function OrganizationManagementInner({ organizationId }: { organizationId: strin
   };
 
   useEffect(() => {
-    refresh().catch(error => setMessage(error instanceof Error ? error.message : 'Unable to load organization data.'));
+    refresh().catch(error => setMessage(friendlyError(error).message));
   }, [organizationId]);
 
   useEffect(() => {
@@ -188,7 +189,7 @@ function OrganizationManagementInner({ organizationId }: { organizationId: strin
       await refresh();
       setMessage(success);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'The requested change could not be completed.');
+      setMessage(friendlyError(error).message);
     } finally {
       setBusy(false);
     }

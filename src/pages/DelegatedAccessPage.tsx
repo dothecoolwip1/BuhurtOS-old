@@ -7,6 +7,7 @@ import {
   type DelegatedAccessCodeSummary,
   type DelegatedAccessTarget
 } from '../lib/delegatedAccess';
+import { friendlyError } from '../lib/friendlyError';
 
 const pretty = (value:string) => value.replaceAll('_',' ').replace(/\b\w/g, c => c.toUpperCase());
 
@@ -28,7 +29,7 @@ export function DelegatedAccessPage(){
     setTargetKey(current => current || (targetRows[0] ? [targetRows[0].scope,targetRows[0].targetId,targetRows[0].role].join('|') : ''));
   };
 
-  useEffect(()=>{refresh().catch(error=>setMessage(error instanceof Error?error.message:'Unable to load access-code permissions.'))},[]);
+  useEffect(()=>{refresh().catch(error=>setMessage(friendlyError(error).message))},[]);
 
   const selected = useMemo(()=>targets.find(row=>[row.scope,row.targetId,row.role].join('|')===targetKey),[targets,targetKey]);
   const grouped = useMemo(()=>{
@@ -57,14 +58,14 @@ export function DelegatedAccessPage(){
       await refresh();
       setMessage('Access code created. Copy it now; the full code is only shown once.');
     }catch(error){
-      setMessage(error instanceof Error?error.message:'Unable to create access code.');
+      setMessage(friendlyError(error).message);
     }finally{setBusy(false)}
   };
 
   const disable = async (id:string) => {
     setBusy(true); setMessage('');
     try{ await disableDelegatedAccessCode(id); await refresh(); setMessage('Access code disabled.'); }
-    catch(error){ setMessage(error instanceof Error?error.message:'Unable to disable code.'); }
+    catch(error){ setMessage(friendlyError(error).message); }
     finally{setBusy(false)}
   };
 

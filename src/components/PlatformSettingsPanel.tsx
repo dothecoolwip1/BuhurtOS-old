@@ -3,6 +3,7 @@ import {
   defaultPlatformConfig, eventCreationModes, listClaimRequests, loadPlatformConfigStatus, registrationModes,
   reviewClaimRequest, savePlatformSetting, settingLabels, type ClaimRequestRow, type PlatformConfig
 } from '../lib/platformConfig';
+import { friendlyError } from '../lib/friendlyError';
 
 const claimFlags: Array<[keyof PlatformConfig, string]> = [
   ['organizationClaimsEnabled', 'organization_claims_enabled'],
@@ -29,7 +30,7 @@ export function PlatformSettingsPanel({ isSuperAdmin }: { isSuperAdmin: boolean 
   async function change(key: string, value: string | boolean) {
     setBusy(true); setMessage('');
     try { setConfig(await savePlatformSetting(key, value)); setMessage('Setting saved.'); }
-    catch (err) { setMessage(err instanceof Error ? err.message : 'Could not save the setting.'); }
+    catch (err) { setMessage(friendlyError(err).message); }
     finally { setBusy(false); }
   }
 
@@ -39,7 +40,7 @@ export function PlatformSettingsPanel({ isSuperAdmin }: { isSuperAdmin: boolean 
       await reviewClaimRequest(id, decision);
       setClaims(await listClaimRequests());
       setMessage(decision === 'approved' ? 'Claim approved. Grant the matching role from Teams & people.' : 'Claim rejected.');
-    } catch (err) { setMessage(err instanceof Error ? err.message : 'Could not review the claim.'); }
+    } catch (err) { setMessage(friendlyError(err).message); }
     finally { setBusy(false); }
   }
 

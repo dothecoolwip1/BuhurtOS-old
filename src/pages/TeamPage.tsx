@@ -1,18 +1,19 @@
 import {useDocumentTitle} from '../lib/pageTitle';
-import {useEffect,useState} from 'react';import {Link,useParams} from 'react-router-dom';
-import {loadPublicTeamDetail,loadPublicTeamDirectory,loadPublicTeamRoster,type PublicDirectoryTeam,type PublicRosterMember,type PublicTeamDetail} from '../lib/teamDirectory';
+import {useEffect,useState} from 'react';import {Link,useNavigate,useParams} from 'react-router-dom';
+import {loadPublicTeamDetail,loadPublicTeamDirectory,loadPublicTeamRoster,resolveTeamAliasSlug,type PublicDirectoryTeam,type PublicRosterMember,type PublicTeamDetail} from '../lib/teamDirectory';
 import {Panel,Pill} from '../components/ShowcaseUI';
 import {ListCrumbs} from '../components/chrome';
 import {loadOfficialTeamStats,loadTeamProvenance,provenanceToCard,type PublicTeamStats} from '../lib/publicStats';
 import {summarizeRecord} from '../lib/canonicalStats';
+import { friendlyError } from '../lib/friendlyError';
 const initials=(n:string)=>n.replace(/^The\s+/i,'').split(/\s+/).filter(Boolean).slice(0,3).map(x=>x[0]?.toUpperCase()).join('');
 const val=(v:number|undefined)=>v==null?'—':String(v);
 export function TeamPage(){
- const {teamId=''}=useParams();const [team,setTeam]=useState<PublicDirectoryTeam>();const [detail,setDetail]=useState<PublicTeamDetail>();const [roster,setRoster]=useState<PublicRosterMember[]>([]);const [loading,setLoading]=useState(true);const [error,setError]=useState('');const [stats,setStats]=useState<PublicTeamStats>();const [provenance,setProvenance]=useState<ReturnType<typeof provenanceToCard>>();const [statsError,setStatsError]=useState(false);const [attempt,setAttempt]=useState(0);
+ const navigate=useNavigate();const {teamId=''}=useParams();const [team,setTeam]=useState<PublicDirectoryTeam>();const [detail,setDetail]=useState<PublicTeamDetail>();const [roster,setRoster]=useState<PublicRosterMember[]>([]);const [loading,setLoading]=useState(true);const [error,setError]=useState('');const [stats,setStats]=useState<PublicTeamStats>();const [provenance,setProvenance]=useState<ReturnType<typeof provenanceToCard>>();const [statsError,setStatsError]=useState(false);const [attempt,setAttempt]=useState(0);
  useEffect(()=>{let active=true;
   // A new team id never shows the previous team's profile, record or error.
   setTeam(undefined);setDetail(undefined);setRoster([]);setStats(undefined);setProvenance(undefined);setStatsError(false);setError('');setLoading(true);
-  (async()=>{try{const rows=await loadPublicTeamDirectory({teamSlug:teamId});if(!active)return;setTeam(rows[0]);if(rows[0]){const [r,d]=await Promise.all([loadPublicTeamRoster(rows[0].id),loadPublicTeamDetail(rows[0].id)]);if(active){setRoster(r);setDetail(d)}loadOfficialTeamStats(rows[0].id).then(x=>{if(active)setStats(x)}).catch(()=>{if(active)setStatsError(true)});loadTeamProvenance(rows[0].id).then(x=>{if(active)setProvenance(provenanceToCard(x))}).catch(()=>{if(active)setStatsError(true)})}}catch(err){if(active)setError(err instanceof Error?err.message:'Unable to load this team.')}finally{if(active)setLoading(false)}})();return()=>{active=false}},[teamId,attempt]);
+  (async()=>{try{let rows=await loadPublicTeamDirectory({teamSlug:teamId});if(!active)return;if(!rows[0]){const canonical=await resolveTeamAliasSlug(teamId);if(!active)return;if(canonical&&canonical!==teamId){navigate('/teams/'+canonical,{replace:true});return}}setTeam(rows[0]);if(rows[0]){const [r,d]=await Promise.all([loadPublicTeamRoster(rows[0].id),loadPublicTeamDetail(rows[0].id)]);if(active){setRoster(r);setDetail(d)}loadOfficialTeamStats(rows[0].id).then(x=>{if(active)setStats(x)}).catch(()=>{if(active)setStatsError(true)});loadTeamProvenance(rows[0].id).then(x=>{if(active)setProvenance(provenanceToCard(x))}).catch(()=>{if(active)setStatsError(true)})}}catch(err){if(active)setError(friendlyError(err).message)}finally{if(active)setLoading(false)}})();return()=>{active=false}},[teamId,attempt]);
  useDocumentTitle(team?.name,'Team');
  if(loading)return <div className="state-card" role="status">Loading public team profile…</div>;
  if(error)return <div className="state-card" role="alert"><strong>This team could not be loaded</strong><p>{error}</p><p>This is a connection or server problem, not a missing team.</p><div className="show-actions"><button type="button" className="show-btn" onClick={()=>setAttempt(n=>n+1)}>Try again</button><Link className="show-btn secondary" to="/teams">Back to teams</Link></div></div>;

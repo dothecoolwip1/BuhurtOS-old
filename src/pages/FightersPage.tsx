@@ -4,6 +4,7 @@ import {FighterAvatar} from '../components/FighterAvatar';
 import {rememberListSearch,useQueryState} from '../lib/urlState';
 import {Avatar,LoadingGrid,PageHeader,Pill,StatePanel} from '../components/ShowcaseUI';
 import {loadPublicFighters,type PublicFighterSummary} from '../lib/publicDirectory';
+import { friendlyError } from '../lib/friendlyError';
 
 const initials=(n:string)=>n.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]?.toUpperCase()).join('');
 
@@ -12,7 +13,7 @@ export function FightersPage(){
  const [fighters,setFighters]=useState<PublicFighterSummary[]>([]);
  const [loading,setLoading]=useState(true);
  const [error,setError]=useState('');
- useEffect(()=>{let active=true;loadPublicFighters().then(rows=>{if(active)setFighters(rows)}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load public fighters.')}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[]);
+ useEffect(()=>{let active=true;loadPublicFighters().then(rows=>{if(active)setFighters(rows)}).catch(err=>{if(active)setError(friendlyError(err).message)}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[]);
  const filtered=useMemo(()=>{const q=query.trim().toLowerCase();return fighters.filter(f=>!q||[f.displayName,f.nickname??'',f.publicRegion??'',f.bio??''].some(v=>v.toLowerCase().includes(q)))},[fighters,query]);
  return <>
   <PageHeader eyebrow="PUBLIC ATHLETE DIRECTORY" title="Fighters" description="Real public BuhurtOS fighter identities only. No sample athletes or invented records." actions={<label className="show-search"><span>⌕</span><input aria-label="Search fighters" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search fighters"/></label>}/>

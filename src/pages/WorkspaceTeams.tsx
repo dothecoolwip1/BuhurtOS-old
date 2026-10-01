@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAccount } from '../features/Account';
 import { describeResponsibilities, loadScopeNames, type ScopeNames } from '../lib/workspace';
 import { Card, PageTitle, StateBlock } from '../components/page';
+import { friendlyError } from '../lib/friendlyError';
 
 /** My teams: each team you belong to, with the tools your role allows. No team is assumed. */
 export function WorkspaceTeams() {
@@ -13,7 +14,7 @@ export function WorkspaceTeams() {
   useEffect(() => {
     if (!user) return;
     let active = true;
-    loadScopeNames(user).then(result => { if (active) setNames(result); }).catch(err => { if (active) setError(err instanceof Error ? err.message : 'Names could not be loaded.'); });
+    loadScopeNames(user).then(result => { if (active) setNames(result); }).catch(err => { if (active) setError(friendlyError(err).message); });
     return () => { active = false; };
   }, [user]);
 

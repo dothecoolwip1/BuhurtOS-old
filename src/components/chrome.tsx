@@ -4,6 +4,7 @@ import { useAccount } from '../features/Account';
 import { recallListPath } from '../lib/urlState';
 import { countMyUnreadNotifications } from '../lib/registrationAccess';
 import { areaHome, areaLabel, breadcrumbsFor, hasAdminArea, type Area, type Crumb, type NavSection } from '../lib/navigation';
+import { friendlyError } from '../lib/friendlyError';
 
 export function initialsOf(name: string | undefined): string {
   const parts = (name ?? '').replace(/@.*$/, '').split(/[\s._-]+/).filter(Boolean);
@@ -65,7 +66,7 @@ export function AccountMenu({ current }: { current: Area }) {
   const handleSignOut = async () => {
     setError('');
     try { await signOut(); navigate('/sign-in?reason=signed_out', { replace: true }); }
-    catch (err) { setError(err instanceof Error ? err.message : 'Unable to sign out. Please try again.'); }
+    catch (err) { setError(friendlyError(err).message); }
   };
 
   return <>{status === 'signedIn' ? <NotificationBell /> : null}<div className="nx-account" ref={box}>

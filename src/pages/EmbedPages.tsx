@@ -7,6 +7,7 @@ import { calendar, getEvent, getTeam, getTeamStats, type EventDTO, type TeamDTO,
 import { loadEventSnapshot } from '../lib/repository';
 import { computeEventStandings, type StandingRow } from '../lib/standings';
 import { isSupabaseConfigured } from '../lib/supabase';
+import { friendlyError } from '../lib/friendlyError';
 
 /** Absolute link to a full BuhurtOS page from inside an embed (opens in a new tab). */
 export function siteLink(path: string): string {
@@ -116,7 +117,7 @@ function useLoad<T>(load: () => Promise<T | undefined>, deps: unknown[]): Loaded
     let active = true;
     setValue({ state: 'loading' });
     load().then(result => { if (active) setValue(result === undefined ? { state: 'missing' } : { state: 'ready', value: result }); })
-      .catch(err => { if (active) setValue({ state: 'error', message: err instanceof Error ? err.message : 'Unable to load this widget.' }); });
+      .catch(err => { if (active) setValue({ state: 'error', message: friendlyError(err).message }); });
     return () => { active = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);

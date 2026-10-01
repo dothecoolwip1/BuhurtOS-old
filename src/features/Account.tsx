@@ -4,6 +4,7 @@ import { demoUser } from '../data/demo';
 import { signOut as signOutRequest } from '../lib/auth';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { loadUserContext } from '../lib/userContext';
+import { friendlyError } from '../lib/friendlyError';
 
 /**
  * Who is using the app, available to every area (public site, workspace, administration).
@@ -49,7 +50,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         if (!active || mine !== generation.current) return;
         setUser(null);
-        setContextError(error instanceof Error ? error.message : 'Your roles could not be loaded.');
+        setContextError(friendlyError(error).message);
         setStatus('signedIn');
       }
     };

@@ -5,6 +5,7 @@ import {PageHeader,Pill,Panel} from '../components/ShowcaseUI';
 import {ListCrumbs} from '../components/chrome';
 import {loadPublicOrganization,loadPublicOrganizationEvents,loadPublicOrganizationLinks,relationshipLabel,type PublicEventSummary,type PublicOrganizationLink,type PublicOrganizationSummary} from '../lib/publicDirectory';
 import type {PublicDirectoryTeam} from '../lib/teamDirectory';
+import { friendlyError } from '../lib/friendlyError';
 
 const initials=(n:string)=>n.replace(/^The\s+/i,'').split(/\s+/).filter(Boolean).slice(0,3).map(x=>x[0]?.toUpperCase()).join('');
 
@@ -18,7 +19,7 @@ export function PublicOrganizationPage(){
   const [error,setError]=useState('');
   const [visibleCount,setVisibleCount]=useState(24);
 
-  useEffect(()=>{let active=true;loadPublicOrganization(organizationKey).then(result=>{if(active&&result){setOrganization(result.organization);setTeams(result.teams);Promise.all([loadPublicOrganizationLinks(result.organization.id??''),loadPublicOrganizationEvents(result.organization.id)]).then(([l,e])=>{if(active){setLinks(l);setEvents(e)}}).catch(()=>{})}}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load this organization.')} ).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[organizationKey]);
+  useEffect(()=>{let active=true;loadPublicOrganization(organizationKey).then(result=>{if(active&&result){setOrganization(result.organization);setTeams(result.teams);Promise.all([loadPublicOrganizationLinks(result.organization.id??''),loadPublicOrganizationEvents(result.organization.id)]).then(([l,e])=>{if(active){setLinks(l);setEvents(e)}}).catch(()=>{})}}).catch(err=>{if(active)setError(friendlyError(err).message)} ).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[organizationKey]);
   useEffect(()=>{setVisibleCount(24)},[organizationKey]);
 
   if(loading)return <div className="state-card">Loading organization profile…</div>;

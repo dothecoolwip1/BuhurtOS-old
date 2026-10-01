@@ -5,6 +5,7 @@ import {Pill,StatePanel} from '../components/ShowcaseUI';
 import {eventPath,loadPublicOrganizations,loadPublicEvents,type PublicOrganizationSummary,type PublicEventSummary} from '../lib/publicDirectory';
 import {formatEventDate,eventDayKey} from '../lib/eventTime';
 import {loadFeaturedTeams,type PublicDirectoryTeam} from '../lib/teamDirectory';
+import { friendlyError } from '../lib/friendlyError';
 
 type FormatKey='melee'|'duels'|'outrance';
 type VisitorKey='curious'|'watch'|'fight'|'organize';
@@ -126,11 +127,11 @@ export function ShowcasePublicPage(){
     setOrgsLoading(true);setEventsLoading(true);setOrgsError('');setEventsError('');
     loadPublicOrganizations()
       .then(o=>{if(active)setOrgs(o)})
-      .catch(err=>{if(active)setOrgsError(err instanceof Error?err.message:'Unable to load organizations.')})
+      .catch(err=>{if(active)setOrgsError(friendlyError(err).message)})
       .finally(()=>{if(active)setOrgsLoading(false)});
     loadPublicEvents()
       .then(e=>{if(active)setEvents(e)})
-      .catch(err=>{if(active)setEventsError(err instanceof Error?err.message:'Unable to load events.')})
+      .catch(err=>{if(active)setEventsError(friendlyError(err).message)})
       .finally(()=>{if(active)setEventsLoading(false)});
     return()=>{active=false};
   },[attempt]);
@@ -154,7 +155,7 @@ export function ShowcasePublicPage(){
     setTeamsError('');
     loadFeaturedTeams()
       .then(t=>{if(active)setTeams(t)})
-      .catch(err=>{if(active)setTeamsError(err instanceof Error?err.message:'Unable to load team locations.')})
+      .catch(err=>{if(active)setTeamsError(friendlyError(err).message)})
       .finally(()=>{if(active)setTeamsLoading(false)});
     return()=>{active=false};
   },[mapRequested,teamsAttempt]);

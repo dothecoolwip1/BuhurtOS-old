@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { friendlyError } from '../lib/friendlyError';
 import type { Announcement, EventRecord, EventTeam, FightCard, MatchRecord, MatchStatus, RosterEntry, ScoreRound, UserContext } from '../types';
 import { demoUser } from '../data/demo';
 import { loadEventSnapshot } from '../lib/repository';
@@ -164,7 +165,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setAnnouncements(snap.announcements);
     } catch (err) {
       if (seq !== loadSeq.current) return;
-      setError(err instanceof Error ? err.message : 'Unable to load event data.');
+      setError(friendlyError(err).message);
     } finally {
       if (seq === loadSeq.current) { setLoading(false); setScopeLoading(false); }
     }
@@ -501,7 +502,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!online || pendingCount === 0 || !supabase) return;
-    const timer = window.setTimeout(() => { syncNow().catch(err => setError(err instanceof Error ? err.message : 'Background sync failed.')); }, 350);
+    const timer = window.setTimeout(() => { syncNow().catch(err => setError(friendlyError(err).message)); }, 350);
     return () => window.clearTimeout(timer);
   }, [online, pendingCount, syncNow]);
 

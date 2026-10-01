@@ -1,4 +1,5 @@
 import { publicSupabase, supabase } from './supabase';
+import { friendlyError } from './friendlyError';
 
 /**
  * Single platform configuration layer. Every adoption switch is read from here
@@ -97,7 +98,7 @@ export async function loadPlatformConfigStatus(force = false): Promise<PlatformC
     return status;
   } catch (err) {
     // Keep the last good values if there are any; otherwise launch behavior. Either way the failure is reported, not hidden.
-    const message = err instanceof Error ? err.message : 'The platform settings could not be read.';
+    const message = friendlyError(err).message;
     const status: PlatformConfigStatus = { config: cache?.status.config ?? defaultPlatformConfig, source: cache?.status.source ?? 'default', error: message };
     cache = { at: Date.now(), status };
     return status;

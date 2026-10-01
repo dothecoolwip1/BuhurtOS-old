@@ -4,6 +4,7 @@ import { useAccount } from '../features/Account';
 import { filterTeamRows, listTeamsForAdmin, type TeamListRow } from '../lib/teamAdmin';
 import { useQueryStates } from '../lib/urlState';
 import { Card, PageTitle, StateBlock } from '../components/page';
+import { friendlyError } from '../lib/friendlyError';
 
 /** Teams & rosters: find any team you may work with and open its roster. */
 export function TeamsBrowserPage() {
@@ -18,7 +19,7 @@ export function TeamsBrowserPage() {
     let active = true;
     setError('');
     listTeamsForAdmin(user).then(result => { if (active) setRows(result); })
-      .catch(err => { if (active) setError(err instanceof Error ? err.message : 'Teams could not be loaded.'); });
+      .catch(err => { if (active) setError(friendlyError(err).message); });
     return () => { active = false; };
   }, [user]);
 

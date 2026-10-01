@@ -5,6 +5,7 @@ import {Avatar,Panel,Pill} from '../components/ShowcaseUI';
 import {ListCrumbs} from '../components/chrome';
 import {FighterAvatar} from '../components/FighterAvatar';
 import {loadPublicFighter,type PublicFighterSummary} from '../lib/publicDirectory';
+import { friendlyError } from '../lib/friendlyError';
 
 const initials=(n:string)=>n.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]?.toUpperCase()).join('');
 
@@ -14,7 +15,7 @@ export function FighterProfilePage(){
  const [loading,setLoading]=useState(true);
  const [error,setError]=useState('');
  const [attempt,setAttempt]=useState(0);
- useEffect(()=>{let active=true;setFighter(undefined);setError('');setLoading(true);loadPublicFighter(fighterId).then(row=>{if(active)setFighter(row)}).catch(err=>{if(active)setError(err instanceof Error?err.message:'Unable to load this fighter profile.')}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[fighterId,attempt]);
+ useEffect(()=>{let active=true;setFighter(undefined);setError('');setLoading(true);loadPublicFighter(fighterId).then(row=>{if(active)setFighter(row)}).catch(err=>{if(active)setError(friendlyError(err).message)}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[fighterId,attempt]);
  useDocumentTitle(fighter?.displayName,'Fighter');
  if(loading)return <div className="state-card" role="status">Loading fighter profile…</div>;
  if(error)return <div className="state-card" role="alert"><strong>This fighter profile could not be loaded</strong><p>{error}</p><p>This is a connection or server problem, not a missing profile.</p><div className="show-actions"><button type="button" className="show-btn" onClick={()=>setAttempt(n=>n+1)}>Try again</button><Link className="show-btn secondary" to="/fighters">Back to fighters</Link></div></div>;

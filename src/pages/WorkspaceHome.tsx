@@ -6,6 +6,7 @@ import { describeResponsibilities, loadScopeNames, scopeKindLabel, type ScopeNam
 import { Card, LinkCard, PageTitle, StateBlock } from '../components/page';
 import { personaLabels, personasOf, primaryTasks } from '../lib/journeys';
 import { buildEventChecklist, loadEventSetupFacts, type ChecklistResult } from '../lib/eventChecklist';
+import { friendlyError } from '../lib/friendlyError';
 
 /** Setup progress for the events this person organizes, with a direct way back in. */
 function OrganizerProgress({ eventIds }: { eventIds: string[] }) {
@@ -34,7 +35,7 @@ export function WorkspaceHome() {
     let active = true;
     setNamesError('');
     loadScopeNames(user).then(result => { if (active) setNames(result); })
-      .catch(error => { if (active) setNamesError(error instanceof Error ? error.message : 'Names could not be loaded.'); });
+      .catch(error => { if (active) setNamesError(friendlyError(error).message); });
     return () => { active = false; };
   }, [user]);
 

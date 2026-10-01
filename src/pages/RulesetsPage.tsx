@@ -32,6 +32,7 @@ import type {
   RulesetSourceKind,
   RulesetStatus
 } from '../types';
+import { friendlyError } from '../lib/friendlyError';
 
 const cloneSettings=(settings:RulesetSettings):RulesetSettings=>structuredClone(settings);
 const json=(value:Record<string,unknown>|undefined)=>JSON.stringify(value??{},null,2);
@@ -77,7 +78,7 @@ function RulesetsInner({organizationId,event}:{organizationId:string;event:Event
     setSelectedId(current=>current&&rows.some(row=>row.id===current)?current:(rows[0]?.id||''));
   };
 
-  useEffect(()=>{refresh().catch(error=>setMessage(error instanceof Error?error.message:'Unable to load rulesets.'));},[organizationId,event?.id]);
+  useEffect(()=>{refresh().catch(error=>setMessage(friendlyError(error).message));},[organizationId,event?.id]);
 
   useEffect(()=>{
     const selected=rulesets.find(row=>row.id===selectedId);
@@ -87,7 +88,7 @@ function RulesetsInner({organizationId,event}:{organizationId:string;event:Event
       eligibility:json(selected.eligibilityPolicy),scoring:json(selected.scoringPolicy),
       tournament:json(selected.tournamentPolicy),ranking:json(selected.rankingPolicy)
     });
-    listRulesetSources(selected.id).then(setSources).catch(error=>setMessage(error instanceof Error?error.message:'Unable to load ruleset sources.'));
+    listRulesetSources(selected.id).then(setSources).catch(error=>setMessage(friendlyError(error).message));
   },[selectedId,rulesets]);
 
   const effective=useMemo(()=>draft?resolveRulesetSettings(
@@ -99,7 +100,7 @@ function RulesetsInner({organizationId,event}:{organizationId:string;event:Event
   const run=async(work:()=>Promise<unknown>,success:string)=>{
     setBusy(true);setMessage('');
     try{await work();await reload();await refresh();setMessage(success);}
-    catch(error){setMessage(error instanceof Error?error.message:'The ruleset change could not be completed.');}
+    catch(error){setMessage(friendlyError(error).message);}
     finally{setBusy(false);}
   };
 

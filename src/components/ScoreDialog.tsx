@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { MatchRecord, RosterEntry, ScoreRound } from '../types';
 import { validateScore } from '../lib/scoring';
+import { friendlyError } from '../lib/friendlyError';
 
 export function ScoreDialog({ match, roster, onClose, onSubmit }: { match: MatchRecord; roster: RosterEntry[]; onClose: () => void; onSubmit: (rounds: ScoreRound[], forfeit?: { side: 1 | 2; reason: string }) => Promise<void> }) {
   const [rounds, setRounds] = useState<ScoreRound[]>(Array.from({ length: match.scoringConfig.roundsRequired }, (_, i) => ({ roundNumber: i + 1, side1Score: 0, side2Score: 0 })));
@@ -18,7 +19,7 @@ export function ScoreDialog({ match, roster, onClose, onSubmit }: { match: Match
     if (!validation.valid) return;
     setSubmitting(true); setServerError('');
     try { await onSubmit(rounds, forfeitSide ? { side: Number(forfeitSide) as 1 | 2, reason: forfeitReason } : undefined); onClose(); }
-    catch (e) { setServerError(e instanceof Error ? e.message : 'Unable to submit result.'); }
+    catch (e) { setServerError(friendlyError(e).message); }
     finally { setSubmitting(false); }
   };
   return <div className="dialog-backdrop" role="presentation" onMouseDown={e => e.currentTarget === e.target && onClose()}>

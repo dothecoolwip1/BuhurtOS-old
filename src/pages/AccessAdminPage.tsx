@@ -9,6 +9,7 @@ import {
   type AccessCodeSummary,
   type AccessUserSummary
 } from '../lib/accessControl';
+import { friendlyError } from '../lib/friendlyError';
 
 export function AccessAdminPage() {
   const { user } = useAppState();
@@ -32,7 +33,7 @@ export function AccessAdminPage() {
 
   useEffect(() => {
     if (!isSuperAdmin) return;
-    refresh().catch(error => setMessage(error instanceof Error ? error.message : 'Unable to load access controls.'));
+    refresh().catch(error => setMessage(friendlyError(error).message));
   }, [isSuperAdmin]);
 
   if (!isSuperAdmin) return <div className="state-card">Platform super admin access is required.</div>;
@@ -60,7 +61,7 @@ export function AccessAdminPage() {
       setMessage('Access code created. Copy it now because the full code is not stored or shown again.');
       await refresh();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Unable to create the access code.');
+      setMessage(friendlyError(error).message);
     } finally {
       setBusy(false);
     }
@@ -74,7 +75,7 @@ export function AccessAdminPage() {
       await refresh();
       setMessage('Access code disabled.');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Unable to disable the code.');
+      setMessage(friendlyError(error).message);
     } finally {
       setBusy(false);
     }
@@ -88,7 +89,7 @@ export function AccessAdminPage() {
       await refresh();
       setMessage('User early access revoked.');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Unable to revoke user access.');
+      setMessage(friendlyError(error).message);
     } finally {
       setBusy(false);
     }

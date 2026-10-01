@@ -106,6 +106,14 @@ export async function loadFeaturedTeams():Promise<PublicDirectoryTeam[]>{
  return rows;
 }
 
+/** The canonical team's slug for an old alias address (a reconciled duplicate), or undefined. */
+export async function resolveTeamAliasSlug(slug:string):Promise<string|undefined>{
+ if(!publicSupabase||!slug)return undefined;
+ const {data,error}=await publicSupabase.rpc('resolve_team_alias_slug',{p_slug:slug});
+ if(error)return undefined; // a backend without alias support simply has no aliases
+ return typeof data==='string'&&data?data:undefined;
+}
+
 export async function loadPublicTeamMap():Promise<PublicDirectoryTeam[]>{
  if(!publicSupabase)return hacsaFallbackDirectory().filter(team=>team.latitude!=null&&team.longitude!=null);
  const cached=fresh(mapCache);

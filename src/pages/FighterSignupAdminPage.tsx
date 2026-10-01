@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState} from 'react';
 import {useAppState} from '../features/AppState';
 import {RegistrationAccessPanel} from '../components/RegistrationAccessPanel';
 import {createEventSignupCode,disableEventSignupCode,listEventSignupCodes,listFighterSignups,updateFighterSignup,type EventSignupCode,type FighterEventSignup,type FighterSignupStatus} from '../lib/fighterSignup';
+import { friendlyError } from '../lib/friendlyError';
 
 const statuses:FighterSignupStatus[]=['new','confirmed','declined','contacted','archived'];
 
@@ -24,7 +25,7 @@ export function FighterSignupAdminPage(){
     setNotes(Object.fromEntries(data.map(row=>[row.id,row.organizerNotes??''])));
   };
 
-  useEffect(()=>{refresh().catch(error=>setMessage(error instanceof Error?error.message:'Unable to load fighter signups.'))},[event?.id]);
+  useEffect(()=>{refresh().catch(error=>setMessage(friendlyError(error).message))},[event?.id]);
 
   const filtered=useMemo(()=>filter==='all'?rows:rows.filter(row=>row.status===filter),[rows,filter]);
   const counts=useMemo(()=>rows.reduce<Record<string,number>>((acc,row)=>{acc[row.status]=(acc[row.status]??0)+1;return acc},{}),[rows]);
@@ -39,7 +40,7 @@ export function FighterSignupAdminPage(){
       setNewCode(code);
       await refresh();
       setMessage('Signup code created. Copy the full code now; it is only shown once.');
-    }catch(error){setMessage(error instanceof Error?error.message:'Unable to create signup code.')}
+    }catch(error){setMessage(friendlyError(error).message)}
     finally{setBusy(false)}
   };
 
@@ -49,7 +50,7 @@ export function FighterSignupAdminPage(){
       await updateFighterSignup(row.id,status,notes[row.id]??'');
       await refresh();
       setMessage('Fighter signup updated.');
-    }catch(error){setMessage(error instanceof Error?error.message:'Unable to update fighter signup.')}
+    }catch(error){setMessage(friendlyError(error).message)}
     finally{setBusy(false)}
   };
 

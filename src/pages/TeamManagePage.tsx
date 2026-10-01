@@ -10,6 +10,7 @@ import { loadPublicTeamRoster, type PublicRosterMember } from '../lib/teamDirect
 import { roleLabel } from '../lib/workspace';
 import type { TeamRole } from '../types';
 import { Card, PageTitle, StateBlock } from '../components/page';
+import { friendlyError } from '../lib/friendlyError';
 
 function inviteUrl(token: string): string {
   return `${window.location.origin}${window.location.pathname}#${membershipInvitePath(token)}`;
@@ -41,7 +42,7 @@ export function TeamManagePage() {
       setData(result);
     } catch (error) {
       if (latest.current !== teamId) return;
-      setLoadError(error instanceof Error ? error.message : 'This team could not be loaded.');
+      setLoadError(friendlyError(error).message);
     }
   }, [teamId]);
 
@@ -71,7 +72,7 @@ export function TeamManagePage() {
   const run = async (work: () => Promise<void>, success: string) => {
     setBusy(true); setMessage(undefined);
     try { await work(); await load(); refresh(); setMessage({ ok: true, text: success }); }
-    catch (error) { setMessage({ ok: false, text: error instanceof Error ? error.message : 'That change could not be made.' }); }
+    catch (error) { setMessage({ ok: false, text: friendlyError(error).message }); }
     finally { setBusy(false); }
   };
 

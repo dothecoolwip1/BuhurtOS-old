@@ -4,9 +4,10 @@ import { biRuleEntries, biRuleReferenceVerifiedAt, biRuleSources, biRulesLanding
 import { filterBiRules, formatFromMatchCategory, ruleFilterLabels, type RuleFilter } from '../lib/ruleReference';
 import { PageHeader, Pill } from '../components/ShowcaseUI';
 import { OfficialBiDocuments } from '../components/OfficialBiDocuments';
+import { ReferenceMatches } from '../components/ReferenceMatches';
 
 const filters: RuleFilter[] = ['all','buhurt','3v3','5v5','12v12','30v30','champions_fight','duels','longsword','sword_shield','sword_buckler','polearm','triathlon','outrance'];
-const quickSearches = ['grounded','prohibited strike zone','weapon loss','armor failure','yellow card','appeal'];
+const quickSearches = ['grounded','prohibited strike zone','weapon loss','armor failure','yellow card','appeal','classic','pools','tiebreak'];
 
 function initialFilter(raw: string | null): RuleFilter {
   if (raw && Object.prototype.hasOwnProperty.call(ruleFilterLabels, raw)) return raw as RuleFilter;
@@ -94,6 +95,8 @@ export function ShowcaseRulesPage(){
         <a className="show-btn secondary full" href={source.url} target="_blank" rel="noopener noreferrer">Open official document ↗</a>
       </article>)}</div>
     </section>
+
+    <ReferenceMatches query={query}/>
 
     <OfficialBiDocuments/>
   </>;

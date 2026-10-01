@@ -5,6 +5,7 @@ import { hasPermission } from '../lib/permissions';
 import { filterRoster, rosterCounts, type RosterFilterKey } from '../lib/rosterFilter';
 import { useQueryStates } from '../lib/urlState';
 import { downloadText, htmlTable, openPrintableReport, rosterCsv } from '../lib/export';
+import { friendlyError } from '../lib/friendlyError';
 
 const fields = [
   ['checkedIn', 'Check in'], ['armorCleared', 'Armor'], ['medicalCleared', 'Medical'], ['waiverConfirmed', 'Waiver'], ['weighInCleared', 'Weigh in']
@@ -20,14 +21,14 @@ export function RosterPage() {
   const change = async (id: string, field: (typeof fields)[number][0], value: boolean) => {
     setMessage('');
     try { await updateCompliance(id, field, value); }
-    catch (error) { setMessage(error instanceof Error ? error.message : 'Unable to save that check-in change.'); }
+    catch (error) { setMessage(friendlyError(error).message); }
   };
   const [message,setMessage]=useState('');
   const canManage = Boolean(event && hasPermission(user, 'roster.manage', event.id, event.organizationId));
   const toggleFinal = async (entryId:string,value:boolean) => {
     setMessage('');
     try { await setCompetitionClearance(entryId,value); }
-    catch(error){ setMessage(error instanceof Error?error.message:'Unable to change competition clearance.'); }
+    catch(error){ setMessage(friendlyError(error).message); }
   };
   return <>
     <section className="section-head"><div><span className="eyebrow">Entries</span><h1>Roster & check-in</h1><p>Registration approval, physical check in and final competition clearance are separate gates. Only a marshal clearance makes an entry competition ready.</p></div><div className="header-actions"><button onClick={() => downloadText('buhurtos-registration-report.csv', rosterCsv(roster))}>Export roster CSV</button><button onClick={() => openPrintableReport(`${event?.name ?? 'Event'} Registration Report`, htmlTable(['Competitor', 'Entry Type', 'Registration', 'Checked In', 'Armor', 'Medical', 'Waiver', 'Weigh In', 'Cleared To Compete'], roster.map(r => [r.displayName, r.entryType.replaceAll('_', ' '), r.attendanceStatus.replaceAll('_', ' '), r.checkedIn, r.armorCleared, r.medicalCleared, r.waiverConfirmed, r.weighInCleared, Boolean(r.competitionCleared)])))}>Print / PDF</button></div></section>

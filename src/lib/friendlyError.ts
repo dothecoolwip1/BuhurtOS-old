@@ -43,5 +43,12 @@ export function friendlyError(error: unknown, options: { log?: boolean } = {}): 
   if (/schema cache|could not find the function|PGRST20\d|42883/i.test(text + codeText)) {
     return { message: 'This feature is not available yet on this server. Please try again later or contact the organizer.', action: 'contact_organizer' };
   }
+  // Sign-in and sign-up messages from the auth service ("Invalid login credentials") are written for people.
+  const name = (error as { name?: unknown } | null)?.name;
+  if (typeof name === 'string' && name.startsWith('Auth') && text) return { message: text, action: 'retry' };
+  // A plain Error with no database or API code was written by BuhurtOS itself ("Choose an organization first.") and is meant to be read.
+  const technical = /violates|constraint|does not exist|syntax error|PGRST|duplicate key|null value|invalid input|\brelation\b|\bcolumn\b|\buuid\b|undefined|\[object|stack/i;
+  const { details, hint } = asLike(error);
+  if (!codeText && !details && !hint && text && text.length < 240 && !technical.test(text)) return { message: text, action: 'retry' };
   return { message: 'Something went wrong on our side. Please try again.', action: 'retry' };
 }

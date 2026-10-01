@@ -23,6 +23,7 @@ import type {
   FighterProfileVisibility,
   IdentityAccountRole
 } from '../types';
+import { friendlyError } from '../lib/friendlyError';
 
 const emptyPrivate = (): FighterIdentityPrivateProfile => ({
   identityId: '',
@@ -66,7 +67,7 @@ export function IdentityPage() {
   };
 
   useEffect(() => {
-    refresh().catch(error => setMessage(error instanceof Error ? error.message : 'Unable to load fighter identities.'));
+    refresh().catch(error => setMessage(friendlyError(error).message));
   }, [user?.userId]);
 
   useEffect(() => {
@@ -85,7 +86,7 @@ export function IdentityPage() {
     });
     loadFighterPrivateProfile(selected.id)
       .then(row => setPrivateForm(row || { ...emptyPrivate(), identityId: selected.id }))
-      .catch(error => setMessage(error instanceof Error ? error.message : 'Unable to load private fighter information.'));
+      .catch(error => setMessage(friendlyError(error).message));
     if (!selected.avatarPath) {
       setAvatarUrl(null);
     } else {
@@ -104,7 +105,7 @@ export function IdentityPage() {
       await work();
       setMessage(success);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'The requested identity change could not be completed.');
+      setMessage(friendlyError(error).message);
     } finally {
       setBusy(false);
     }

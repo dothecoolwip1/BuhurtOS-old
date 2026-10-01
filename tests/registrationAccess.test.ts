@@ -53,6 +53,15 @@ describe('friendlyError', () => {
     expect(friendlyError({ message: 'JWT expired' }, quiet).action).toBe('sign_in');
     expect(friendlyError(new TypeError('Failed to fetch'), quiet).action).toBe('retry');
   });
+  it('lets through messages BuhurtOS wrote itself, but not database or API errors', () => {
+    expect(friendlyError(new Error('Choose an organization and a season first.'), quiet).message).toBe('Choose an organization and a season first.');
+    expect(friendlyError({ code: '23505', message: 'duplicate key value violates unique constraint "x"', details: 'Key (id)=(1)' }, quiet).message).toMatch(/something went wrong/i);
+    expect(friendlyError(new Error('relation "public.events" does not exist'), quiet).message).toMatch(/something went wrong|not available/i);
+  });
+  it('lets through auth-service messages meant for people', () => {
+    const authError = Object.assign(new Error('Invalid login credentials'), { name: 'AuthApiError', status: 400, code: 'invalid_credentials' });
+    expect(friendlyError(authError, quiet).message).toBe('Invalid login credentials');
+  });
   it('explains demo mode instead of blaming the server', () => {
     expect(friendlyError(new Error('BuhurtOS is not connected.'), quiet).message).toMatch(/demo mode/i);
   });

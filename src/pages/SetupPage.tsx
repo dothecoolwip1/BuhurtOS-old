@@ -10,6 +10,7 @@ import { isSupabaseConfigured } from '../lib/supabase';
 import type { RulesetRecord } from '../types';
 import { isCompetitionCapable } from '../lib/eventCategories';
 import { NewEventStepper, type NewEventValues } from '../components/NewEventStepper';
+import { friendlyError } from '../lib/friendlyError';
 
 const toIso=(value:string)=>new Date(value).toISOString();
 const initialYear=new Date().getFullYear();
@@ -52,12 +53,12 @@ export function SetupPage(){
     setSeasonId(current=>current&&seasonRows.some(row=>row.id===current)?current:(seasonRows[0]?.id||''));
   };
 
-  useEffect(()=>{if(user)refreshOrgs().catch(e=>setMessage(e instanceof Error?e.message:'Unable to load organizations.'));},[user?.userId]);
+  useEffect(()=>{if(user)refreshOrgs().catch(e=>setMessage(friendlyError(e).message));},[user?.userId]);
   useEffect(()=>{
     const org=organizations.find(item=>item.id===orgId);
     if(org)setOrgEdit({name:org.name,shortName:org.shortName,region:org.region,status:org.status});
     if(!orgId){setSeasons([]);setEvents([]);setRulesets([]);return;}
-    refreshOrgData(orgId).catch(e=>setMessage(e instanceof Error?e.message:'Unable to load organization setup.'));
+    refreshOrgData(orgId).catch(e=>setMessage(friendlyError(e).message));
   },[orgId,organizations.length]);
   useEffect(()=>{
     const season=seasons.find(item=>item.id===seasonId);
@@ -75,7 +76,7 @@ export function SetupPage(){
   const run=async(work:()=>Promise<void>,success:string)=>{
     setBusy(true);setMessage('');
     try{await work();if(orgId)await refreshOrgData(orgId);setMessage(success);}
-    catch(e){setMessage(e instanceof Error?e.message:'The requested setup change could not be completed.');}
+    catch(e){setMessage(friendlyError(e).message);}
     finally{setBusy(false);}
   };
 
