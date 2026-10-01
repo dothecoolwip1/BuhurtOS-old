@@ -1,6 +1,25 @@
 # BuhurtOS Handoff
 
-## Current handoff: November 1 release candidate
+## Start here (2026-10-01)
+
+1. Read `CLAUDE.md` (permanent rules), then the **Reality matrix at the top of `docs/BUHURTOS_STATUS.md`**. It is the only current statement of what
+   is implemented, tested, deployed, applied to hosted and verified. Sections below it and the notes further down this file are history.
+2. The single biggest gap is **signed-in verification**: no authenticated flow has been exercised in a real browser against hosted. Server behavior is
+   proven at the database boundary on the real hosted schema (rolled-back test identities); the UI for eligibility, requests, the review queue,
+   notifications, competitions and the setup guide has only been exercised signed out, in demo mode, and in unit tests.
+   Do this next: two throwaway accounts (one organizer, one fighter) and the walk in `docs/NOV1_READINESS.md`.
+3. Owner decisions waiting (not mine to make): Red Deer Rumble registration scope (today `invite_only`), category (`custom`), registration window,
+   poster description. Details and consequences are in `docs/NOV1_READINESS.md`.
+4. Canonical places: eligibility `private.registration_eligibility`; host team `private.event_host_team`; competitions `event_competitions`
+   (`docs/COMPETITION_MODEL_DECISION.md`); media `src/lib/eventMedia.ts`; errors `src/lib/friendlyError.ts`; tiebreaks `src/lib/tiebreak.ts` with the
+   policy in `tiebreak_policies`; reference search `src/lib/referenceSearch.ts`.
+5. Hosted can drift from the repository (it did: anonymous access to `team_memberships` survived on hosted after a migration revoked it). After any
+   privilege migration, query hosted directly. The method used in the 2026-10-01 pass (a `do $$ ... raise exception` block so everything rolls back, with
+   test identities and `set local role`) is reusable for authorization checks on real data.
+6. Process lessons: poll CI gently (the unauthenticated GitHub API allows 60 requests an hour); edit SQL and regexes with the file tools, not inside
+   JS replace strings or shell quoting (`$$` and `\b` get mangled); pgTAP fixtures must not use fixed future dates (they expire).
+
+## Historical handoff: November 1 release candidate
 
 All ten master-plan packs are complete on `main` at `2ccab64` with CI and the Pages deploy green. **Read the "November 1 release candidate summary" at the end of `docs/BUHURTOS_STATUS.md` first**: it lists what is live, what is verified, the five hosted migrations (`20261014…`–`20261018…`) that still need applying to `tapfpboszgoftbwcwsmn`, what is deferred, and the post-launch priorities. Release freeze rules apply: blocker, security, critical mobile, performance and factual fixes only.
 

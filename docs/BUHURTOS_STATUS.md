@@ -1,33 +1,64 @@
 # BuhurtOS Status
 
-Last updated: 2026-09-30
+Last updated: 2026-10-01
 
-## Product-flow pass (2026-09-30, latest)
+## Reality matrix (audited 2026-10-01): READ THIS FIRST
 
-Planned / implemented / deployed / applied to hosted / verified, per item. "Verified" says how. CI must be green on the exact SHA before anything is called deployed.
+Everything below this section is a historical log. Where it disagrees with this matrix, this matrix is right. It was built by comparing
+code, migrations, tests, the hosted database, the deployed site and these documents, not by trusting any of them.
 
-| Item | Implemented | Hosted migration | Verified |
-|---|---|---|---|
-| Event poster works publicly (thumbnail endpoint is 403 because image transformations are not enabled; original URL now used, with fallback; posters on event cards) | yes | none needed | Real browser at 360 px: hero and card load; original URL 200 |
-| Featured organizations and curated featured teams (display priority only; BI, HACSA; 10 curated teams; cap 24) | yes | `20261019000000_public_prominence` applied | Anonymous API: featured orgs BI, HACSA; 10 featured teams; full directory still 354 public teams |
-| Home leads with BI/HACSA; Teams opens on Featured with BI, HACSA and All worldwide tabs; worldwide loads on demand; search spans everything | yes | same | Real browser: home makes 3 data requests and no directory request; worldwide tab loads 354 on demand; search finds a non-BI/HACSA team; direct worldwide team URL works |
-| Registration access: one server function decides eligibility (account -> fighter identity -> active membership -> event scope); eligible skip the code; request-permission fallback; review queue; in-app notifications with bell | yes | `20261020000000_registration_access` applied | pgTAP (36 assertions incl. authority separation, approval grants event access only, dedupe, privacy); hosted anon probes refuse the new functions; existing code flow unchanged. **Not exercised with a real signed-in account** |
-| Event scope default is `invite_only`; Red Deer Rumble has not been switched | n/a | n/a | Owner decision: set "Organization and its teams and clubs" in Fighter signups to let Reavers fighters skip the code |
-| Competition model: `event_competitions` (decision and evidence in `COMPETITION_MODEL_DECISION.md`) plus source-backed BI reference data (categories, tiers with lead times, structure templates, tiebreak policy, document metadata) | yes | `20261021000000_event_competitions` applied | pgTAP; hosted anon reads return 9 categories, 4 templates for 12-16 entrants, tier lead times 45/45/90/120; anon writes refused |
-| Competitions panel and structure advisor in Event settings (multiple competitions per event, overrides with reason, lead-time advice, external approval recorded not granted) | yes | same | Unit tests (14); **UI not exercised signed in** |
-| Event setup guide for any event, new or existing (9 steps; unknown is never shown as none); two-step new-event flow that lands in the guide | yes | none | Unit tests incl. Red Deer Rumble's real facts (3 of 9); demo mode; **not opened against the real Rumble signed in** |
-| Role-aware journeys: "Start here" in My workspace and Administration, phone tabs by role, organizer setup progress | yes | none | Unit tests (14); demo-mode browser check |
-| Rules page lists official BI documents with versions, check dates and links, the tier table, and the source-conflict note | yes | same as competitions | Real browser against live data: 18 documents, 5 tiers |
-| Friendly errors: one `friendlyError()`, raw detail logged only | yes (registration and competition flows, guide, notifications) | none | Unit tests. Other older screens still show raw messages |
+Levels, weakest to strongest: **implemented** (code exists) < **unit/pgTAP** (CI) < **hosted DB boundary** (real hosted schema and real
+Rumble/HACSA/Reavers records, disposable test identities, transaction rolled back, nothing persisted) < **production, anonymous** (live site
+or live API, no sign-in) < **production, signed in** (real account in a real browser). **Nothing is at the last level**: accounts are not
+created by automation and the local Supabase stack needs Docker, which is unavailable. That is the single biggest unverified area.
 
-### Known gaps (honest list)
+Latest verified code commit: `ae39f26` (CI workflow green on that exact SHA: navigation audit, typecheck, 342 vitest, build, clean
+`supabase start` and full migration replay, 28 pgTAP suites, then Pages deploy). Documentation commits after it change no code.
+Hosted migrations applied and checked with `list_migrations`: through `20261024000000_team_alias_slugs`.
 
-* Not done: `alt_text` and a remove-poster function for event media; tiebreak engine still uses the fixed order in `standings.ts` (the BI policy is stored as data but not yet read by standings); the full nine-step wizard (steps are covered by the guide linking to existing editors); rules page search does not yet cover tier or structure data.
-* Source conflicts recorded, not resolved: League Structure (50/100/150/200% of points) vs Tournament Structure (0.5/1/1.25/1.5) for Regional and Conference.
-* Drive-hosted BI documents (Buhurt Regulations, Duel Regulations, marshal and authenticity documents) were not readable as text; their versions come from the existing marshal reference or are "not stated".
-* Two duplicate rows remain for the Reavers (imported "Reavers" vs native "Red Deer Reavers"); a super admin must run `link_duplicate_team`.
-* Signed-in flows were not exercised in a real browser against the hosted project (accounts are not created by automation).
-* Usability: see `RELEASE_USABILITY_TEST.md`; Part B needs a real newcomer.
+| Item | Implemented | Unit / pgTAP | Hosted migration | Verified beyond CI |
+|---|---|---|---|---|
+| Event poster visible publicly (thumbnail endpoint is 403 because image transformations are off; original URL, fallback, posters on cards) | yes | yes | none | Production anonymous, real browser at 360 px: hero and card load |
+| Poster upload / replace / **remove** | **already existed** (`removeEventImage`, panel button); an earlier note here saying it was missing was wrong | yes | `20261015` | Hosted DB boundary: unrelated admin and no-role user refused; organization admin allowed; anonymous can read, cannot upload |
+| Poster **alt text** (organizer-written, 300 chars, fallback "<event> poster", public, audited) | yes | pgTAP 20 assertions + unit | `20261023` | Production anonymous: fallback text served; hosted boundary 7 checks |
+| Who may change the poster: narrowed to platform admin, organization admin of the chain, event organizer, host-team admin or captain (a plain host-team fighter could before) | yes | pgTAP | `20261023` | Hosted boundary: fighter denied, captain and org admin allowed |
+| Featured organizations and curated featured teams (display priority only) | yes | pgTAP | `20261019` | Production anonymous: featured orgs BI then HACSA; 10 curated teams; directory still 354 |
+| Home leads with BI and HACSA; Teams opens on Featured; worldwide on demand | yes | unit | none | Production anonymous: home 3 requests, no directory fetch; Worldwide tab loads 354 on demand; search and direct URLs work |
+| Registration access: server-side eligibility, code-less signup for eligible fighters, request permission, review, grants | yes | pgTAP 36 + unit | `20261020` | **Hosted DB boundary, 35 scenarios pass** (see `NOV1_READINESS.md`). Signed-in UI not exercised |
+| In-app notifications (unread, read, bell) | yes | pgTAP + unit | `20261020` | Hosted boundary: created, unread count, read, privacy. Bell UI not exercised signed in |
+| Code issuance authority vs request-approval authority kept separate | yes | pgTAP | `20261020` | Hosted boundary: host-team fighter can issue codes, cannot approve |
+| Competition model `event_competitions` + BI reference data | yes | pgTAP + unit | `20261021` | Hosted boundary: organization admin and platform admin create; unrelated admin, host fighter, captain, no-role user refused; draft competitions hidden from anonymous; anonymous reads 9 categories, tiers 45/45/90/120 days |
+| Competitions panel and structure advisor | yes | unit (14) | `20261021` | Demo-mode browser only. **Not used signed in against hosted** |
+| Setup guide (9 steps) and two-step new-event flow | yes | unit (11), includes the Rumble's real facts: 3 of 9 | none | Demo-mode browser only (honest "needs a backend" message). **Not opened against the real Rumble signed in** |
+| Role-aware "Start here", phone tabs by role, organizer progress | yes | unit | none | Demo-mode browser at 360/390/412/768/desktop |
+| **Standings consume the stored tiebreak policy** (fighter and team boards, one engine; policy and version shown; skipped and unresolved steps reported; legacy order when no policy) | yes | unit (21): every stage, skipped, unresolved, no-policy regression | none (reads `tiebreak_policies`) | Not exercised on real data: no competitions or finalized matches exist yet. "Active vs downed" has no data source and is always reported as skipped. The pool-bracket tiebreaks in `bracket.ts` already ran from per-bracket stored criteria and were not changed |
+| Rules and reference search covers tiers, structure guidance, tiebreak order, official documents (labeled by kind, with source and version) | yes | unit (7) | uses `20261021` data | Production anonymous: "classic", "tiebreak", "pools" return correctly labeled groups |
+| Official BI documents list with versions and check dates | yes | n/a | `20261021` | Production anonymous: 18 documents |
+| Friendly errors: BuhurtOS-authored and auth messages pass through; database/API errors become safe text; raw detail logged | yes (44 files) | unit (6) | none | Not exercised through real failures. Sign-in and the offline queue were deliberately left alone |
+| **Duplicate Reavers**: already reconciled on hosted before this pass (alias "Reavers" archived, private, soft-deleted, linked to Red Deer Reavers with reason "owner chose the native record"; no memberships, events, rankings or sources were attached to the alias). It was done by direct SQL, so there is no audit row | n/a | n/a | n/a | Hosted data inspected |
+| **Old alias address `/teams/reavers`** now redirects to the canonical team (`alias_slug`, `resolve_team_alias_slug`) | yes | pgTAP 9 | `20261024` | Production anonymous: redirects |
+| **Anonymous exposure of account ids** found and fixed: `team_memberships` readable by anon (hosted had drifted from `20261011`), creator columns on five public tables | yes | pgTAP | `20261022` | Hosted: dry-run in a rolled-back transaction, applied, re-probed: denied, public paths still work |
+| Mobile: 360, 390, 412, 768, desktop on sign-in, My workspace, Administration, notifications, signups, setup guide, competitions, rules, Rumble | yes | n/a | n/a | Real browser: no horizontal overflow on any checked route; touch targets fixed (breadcrumbs, dropdown, guidance links, dialog sign-in) |
+
+### What is genuinely still missing or unverified
+
+* **Signed-in browser verification** of every authenticated screen (see above). Procedure for the owner is in `RELEASE_USABILITY_TEST.md` Part B and
+  `NOV1_READINESS.md`. Doing it needs two throwaway accounts; I can then drive the UI.
+* Real standings with a policy: needs finalized matches under a competition.
+* A real newcomer observation (Part B).
+* Owner decisions: Rumble registration scope, category, registration window, poster description (`NOV1_READINESS.md`).
+* BI source conflict kept, not resolved: League Structure 50/100/150/200% of points vs Tournament Structure multipliers 0.5/1/1.25/1.5
+  (Regional and Conference). Drive-hosted BI documents could not be read as text.
+* `active_vs_downed` tiebreak has no data source.
+* Supabase leaked-password protection is a dashboard toggle (off).
+* Older internal screens (offline sync, some admin tools) can still surface raw text from places I deliberately did not change.
+
+### Corrections to earlier claims
+
+Earlier versions of these documents said poster removal was missing, the Rumble had no poster, the Reavers duplicate was open, the
+event-media migration was unapplied, and Rumble readiness was as of 2026-09-30. All are corrected here and in `NOV1_READINESS.md`.
+
+## Historical log (superseded where it disagrees with the matrix above)
 
 ## Current state (single table, 2026-09-30)
 
@@ -523,8 +554,8 @@ Release candidate head: `2ccab64` on `main`. Its CI workflow is green end to end
 * Browser, against the hosted backend: embeds pasted into a plain HTML page (desktop and 375px), invalid team/event ids, real Rumble and Reavers data, public-page overflow/tap-target audit at 360/390/412/768/1024px, bad-code signup flow, structural accessibility scan (labels, names, alt text, one h1 per route), request counts.
 * Secret scan: no keys in the repository; the only credential in CI config is the public publishable key; service-role keys are read from environment inside Edge Functions.
 
-### Hosted project: migrations still to apply (security-relevant, do this first)
-The deployed site degrades gracefully without them, but the hosted project `tapfpboszgoftbwcwsmn` does not yet have these forward-only migrations:
+### Hosted project: migrations (RESOLVED 2026-09-30: all five were applied, and `20261019` to `20261024` since)
+Historical note. At the time of Pack 10 the hosted project `tapfpboszgoftbwcwsmn` did not yet have these forward-only migrations:
 
 1. `20261014000000_general_event_model.sql` (event categories, slug, host team, image path)
 2. `20261015000000_event_media.sql` (poster bucket and policies)
@@ -538,14 +569,14 @@ Apply with `supabase link --project-ref tapfpboszgoftbwcwsmn` then `supabase db 
 Capacitor/Android proof, PowerSync, MapLibre rewrite, Lit/web-component embeds, AI rulings, payment provider and webhook (paid registration still fails closed), subscribable live `.ics` URLs (needs an HTTP edge), server-side enforcement of `account_registration_mode` (needs a Supabase Auth hook; the setting currently drives the login UI only), claim submission UI (records and platform review exist).
 
 ### Known non-blocking limitations
-* The HACSA directory lists the Reavers twice ("Reavers" and "Red Deer Reavers"). After migration 4 is applied, link them with `select public.link_duplicate_team('<alias id>', '<canonical id>', 'Same team listed twice');` as a platform super administrator.
-* No Rumble poster is stored: the supplied image was not available in this session. Upload it from Event management, Settings, Event poster once migration 2 is applied.
+* RESOLVED: the Reavers duplicate was linked on hosted (alias "Reavers" to canonical "Red Deer Reavers"), and `20261024` keeps the old address redirecting.
+* RESOLVED: the Rumble poster is attached and loads publicly.
 * The Supabase security advisor could not be run from this session (the Supabase connector needs authorization); the repository-level gate above is the substitute.
 * Owner console, event management and fighter-signup admin pages need sign-in and were not included in the automated mobile audit; the signup review (accept/deny/notes) UI was not re-verified end to end in this pass.
 * The Rumble page shows its real "Main List" fight area in draft status.
 
 ### Next priorities after launch
-Apply and verify the five migrations on the hosted project; run the security advisor; link duplicate team rows; upload the Rumble poster; audit the signed-in admin pages on phones; end-to-end test organizer code creation and signup review with real accounts; enable claims when ready; add the Auth hook for registration modes; add a calendar feed edge function; consider the Android proof.
+Done since: migrations applied, security advisor run (2026-10-01), duplicate team linked, poster uploaded. Still open: audit the signed-in admin pages on phones with a real session; end-to-end test organizer code creation and signup review with real accounts; enable claims when ready; add the Auth hook for registration modes; add a calendar feed edge function; consider the Android proof.
 
 ## Navigation and experience redesign (2026-09-30)
 

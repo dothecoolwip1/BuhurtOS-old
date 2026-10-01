@@ -1,40 +1,72 @@
-# BuhurtOS November 1 readiness (checked 2026-09-30)
+# BuhurtOS November 1 readiness
 
-Measured against the acceptance test in `BUHURTOS_NOV1_RELEASE_BLUEPRINT.txt` section 37. "Verified" means I ran it, and the evidence column says how.
-Code state: `22a2eff` (CI green: navigation audit, typecheck, 253 tests, build, clean database replay with pgTAP, deploy).
+Checked 2026-10-01. This replaces the 2026-09-30 version, several claims of which were stale (it said the Rumble had no poster and
+that registration had no codes or eligibility). The authoritative status table is the top of `BUHURTOS_STATUS.md`.
 
-I cannot sign in to real accounts, so every signed-in scenario below needs a person to walk it once before the release. Steps are listed.
+**How to read "verified".** Each row says where it was proven. The levels are: *pgTAP / unit* (CI), *hosted DB boundary*
+(real hosted schema and real Rumble/HACSA/Reavers records, test identities inside a transaction that was rolled back, nothing
+persisted), *production, anonymous* (real browser or HTTP against the live site and backend), *production, signed in* (a real
+account in a real browser). **No row is "production, signed in".** I do not create accounts, and the local Supabase stack
+needs Docker, which is not available here.
+
+## Scenarios from the release acceptance test
 
 | Scenario | State | Evidence |
 |---|---|---|
-| A. Public visitor (home, organizations, teams, filters, Red Deer Reavers, fighters, events, Rumble, rankings, rules) | Verified | A local build pointed at the production backend (read-only) loaded every page with no error or 404. `#/teams/red-deer-reavers` resolves by slug. Request counts per page: home 2, teams 1, team page 5, fighters 2, others 0 extra |
-| B. Rumble fighter signup | Partly | Wrong code gives "Code not recognized for this event" on production. A valid code, the form and the confirmation are untested because **no signup codes exist yet** (0 codes, 0 signups) |
-| C. Reavers/HACSA user reviews signups | Not verified | Needs a signed-in walk (steps below) |
-| D. Platform super admin | Not verified | Needs a signed-in walk (steps below) |
-| E. Non-competitive event | Code-level only | Unit tests show gatherings and meetings hide divisions, fight cards and standings. Not created on production |
-| F. Embeds | Verified | `/embed/events`, `/embed/event/<id or slug>`, `/embed/team/red-deer-reavers`, `/embed/standings/<event>` render real data with "Powered by BuhurtOS" |
-| G. Mobile 360 | Verified | 10 public routes at 360 px: no horizontal scroll. 375 px checked earlier. 390 and 412 not re-run |
-| H. Performance | Mostly | Public pages make 0 to 5 data requests. Map still loads lazily. No full-directory load for detail pages |
+| A. Public visitor: home, BI and HACSA, teams, Reavers, events, Rumble, rankings, rules | Verified, production anonymous | Real browser on the deployed site at 360 px: home leads with BI and HACSA (3 data requests, no directory fetch); Teams opens on Featured with Red Deer Reavers first and loads all 354 teams only on request; search finds worldwide teams; the old `/teams/reavers` address redirects to the canonical team; the Rumble page and its poster load; rules search finds tiers, structure guidance, the tiebreak order and documents, each labeled by kind |
+| B. Rumble fighter signup | Server behavior verified; UI verified signed out | Hosted DB boundary: 35 scenarios pass (wrong code refused, valid code accepted, eligible fighter registers with no code, out-of-scope and unverifiable fighters need a code or a request, request/approve/deny/notify, no extra roles, closed, already registered, revoked membership). Real browser, signed out: the dialog reads "Enter your event registration code" and a wrong code is recoverable. The signed-in dialog states are unit-tested copy only |
+| C. Organizer reviews requests and signups | DB boundary verified; UI not walked | Reviewer authority and unrelated-admin refusal verified on hosted; the organizer queue UI has not been used with a real session |
+| D. Platform super admin | Not verified | Needs a signed-in walk |
+| E. Non-competitive event | Unit-tested; not created on production | Setup guide and new-event flow skip tournament steps (11 tests) |
+| F. Embeds | Verified earlier (2026-09-30); standings widget now states its tiebreak basis | Not re-run in this pass |
+| G. Mobile | Verified | 360, 390, 412, 768 px and desktop: no horizontal overflow on any checked route; touch targets fixed where found (see `RELEASE_USABILITY_TEST.md`) |
+| H. Performance | Verified | Home 3 data requests; Featured teams one small request; the 354-team directory loads only for the BI, HACSA and Worldwide tabs or a search |
 
-## Data the owner needs to set (I have not changed production data)
+## Red Deer Rumble: actual hosted state (2026-10-01)
 
-1. **Red Deer Rumble is categorized "Custom".** It is a tournament, so set its category to Tournament in Event settings. Custom shows a generic label on the events list, embeds and event page.
-2. **No poster.** Upload one in Event settings.
-3. **Registration is closed** and the page says "Registration is not open". Decide when to open it.
-4. **No divisions, schedule or announcements.** The page says "To be announced" for each, which is correct for unknown facts.
-5. **Create the first signup code** (Fighter signups) so scenario B can be tested end to end.
-6. **Supabase Auth: leaked-password protection is off.** This is a dashboard setting, and it may depend on the plan.
+| Field | Value |
+|---|---|
+| Status | published |
+| Dates | Nov 14 to Nov 16 2026 UTC (America/Edmonton), Horse in Hand Ranch, Blackfalds, Alberta |
+| Host team and organization | Red Deer Reavers (canonical), HACSA |
+| Category | `custom` (legacy label); shows as "Custom" |
+| Poster | attached and publicly loads; poster description not written, so the page announces "Red Deer Rumble poster" |
+| Registration | `registration_open = false`; no opens or closes dates; no capacity |
+| **Registration access scope** | **`invite_only`**: everyone needs a signup code, including Reavers fighters |
+| Ruleset | none assigned |
+| Competitions, divisions | 0 and 0 |
+| Event roles (organizers, marshals) | none recorded |
+| Signup codes, signups, access requests | 0, 0, 0 |
+| Announcements | 1 |
+| Schedule | public page states "to be announced" (`schedule_tba`) |
 
-## Signed-in walk-through (about 20 minutes, use real accounts on production)
+### Owner decisions still needed (not made by me)
 
-C. As a Reavers or HACSA member: open Rumble fighter signups, create a code, sign out, submit a signup with it on your phone, sign back in, accept or deny it. Confirm a different account without event access sees nothing.
-D. As platform admin: Platform Control, then create a test organization, team and event, then create a role code and redeem it with a second account. Delete or archive the test records afterwards.
-E. Create a "Gathering" event. Confirm it appears under Events with the right label and no bracket, standings or fight card sections.
+1. **Who may register without a code.** Today `invite_only`. Setting "Organization and its teams and clubs" (Fighter signups, "Who can register
+   without a code") lets a fighter with a linked BuhurtOS fighter profile and an active membership on any HACSA team register with no code;
+   everyone else still uses a code or asks permission. Only the owner, an organization admin or an event organizer can change it. Hosted has
+   one fighter identity, so today this would affect at most that one person; it matters once more fighters link their profiles.
+2. **Category.** Set the Rumble to "Tournament" if it is one; it shows "Custom" today. (Changing it also enables competition steps.)
+3. **Registration window.** Decide when registration opens and closes (BI Tournament Structure asks registration to close at least 15 days before
+   the event: Oct 30 2026 at the latest).
+4. **Poster description.** Optional but recommended: write one in Event settings.
+5. **Competitions and divisions.** Create the real ones once they are known; none were invented.
 
-## Security advisor review (hosted, 2026-09-30)
+## Security posture (hosted, 2026-10-01)
 
-Nothing new to fix. The warnings are the intended public RPCs and row-level-secured tables being visible to GraphQL, plus two tables with row security on and no policy (`team_public_roster_sources`, `team_source_records`), which is deliberate: they are read only through the public functions. Do not revoke grants from this list without checking each one, since the public pages depend on them.
+* Advisors reviewed in context: the warnings are intentional public RPCs, row-level-secured tables visible to GraphQL, and leaked-password
+  protection (a dashboard toggle, off; owner decision).
+* **Fixed this pass:** hosted still let anonymous visitors read `team_memberships` including account ids, and creator columns on five public
+  tables. Repository migration `20261011` had already revoked it; hosted had drifted. Corrected by `20261022` and proven with pgTAP.
+* Poster and media changes are limited to platform admins, organization admins of the event's chain, event organizers and host-team admins or
+  captains. Previously a plain host-team fighter could replace the poster.
 
-## Deferred on purpose (per the blueprint)
+## Known drift risk
 
-Static ICS subscription URLs (the site is static hosting; the event page offers a file download), Cloudflare migration, PostHog, Sentry, Capacitor, global search, QR codes.
+Hosted migration names do not all match the repository's (some were applied by hand). The repository is the intent; a clean replay is what CI
+proves. When touching privileges, query hosted directly after applying (`has_table_privilege`, `has_column_privilege`), as this pass did.
+
+## Time bombs
+
+Several pgTAP fixtures use 2026 season dates ending 2026-12-31. They will fail after that date regardless of code. Fixtures should use dates
+relative to `now()`; `discipline_suspensions` was fixed this pass because it expired at 2026-10-01T00:00Z.

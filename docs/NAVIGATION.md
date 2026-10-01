@@ -99,3 +99,19 @@ creating real accounts on the hosted project is not something automation should 
 * Role codes vs early access codes are explained on their pages; only a code's first characters are stored, so a lost code is disabled and re-created.
 * Roles refresh immediately after redeeming a code, accepting an invitation or changing a roster (previously the workspace kept showing stale roles).
 * Fighter photos: public pages request a short-lived signed URL from the `fighter-avatar` function, which no longer requires a gateway JWT for anonymous reads (uploads/removals still require the identity's owner).
+
+## Update: role-aware navigation, notifications and the setup guide (2026-10-01)
+
+* **Start here** leads My workspace and the Administration sidebar. Tasks come from `src/lib/journeys.ts`: one task per role in turn (platform owner,
+  organization admin, event organizer, captain or team admin, marshal, fighter), most responsible first, at most six, no destination twice. A destination
+  shown under Start here is not repeated lower in the sidebar, so one page never has two highlighted entries. Menus only reorder: the database still
+  enforces access.
+* **Phone bottom bar in My workspace** is chosen by role: Home, then My event (organizers) or My team (captains) or Events, then Profile, then Alerts.
+* **Notifications** (`/me/notifications`) and a bell with an unread count in the account area. Requests and answers about registration access arrive here.
+* **Event setup guide** (`/admin/events/guide?event=<id>`): nine steps with real progress for any event, new or existing; "could not check" is shown when a
+  lookup fails, never "none"; tournament-only steps are skipped for non-tournaments. A two-step **New event** flow (Basics, then purpose) creates the draft
+  and lands in the guide. Event settings links to the guide and accepts `?tab=competitions`.
+* **Teams** opens on Featured; tabs for Buhurt International, HACSA and All worldwide teams; the full directory loads only for those tabs or a search.
+  `/teams/<old-slug>` redirects to the canonical team when the team was reconciled as a duplicate.
+* **Rules** search also returns tournament reference material (tier requirements, structure guidance, tiebreak order, official documents) in a separate group,
+  each result labeled with its kind, source and version.

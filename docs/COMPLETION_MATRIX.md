@@ -1,5 +1,7 @@
 # BuhurtOS Completion Matrix
 
+> **Current-state pointer (2026-10-01):** for what is implemented, tested, deployed, applied to hosted and verified right now, use the Reality matrix at the top of `docs/BUHURTOS_STATUS.md`. Rows below that predate it can be out of date.
+
 Source of truth: `docs/ORIGINAL_SCOPE.md`. This matrix maps every original scope
 section to its current status **on `main`**, with the evidence to back each row.
 Status key:
