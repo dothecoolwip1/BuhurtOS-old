@@ -149,7 +149,7 @@ export function EventManagementPage(){
         <label>Livestream URL<input value={settings.livestreamUrl} onChange={e=>setSettings(s=>({...s,livestreamUrl:e.target.value}))} placeholder="https://…"/></label>
         <button className="primary big" disabled={busy||event.status==='archived'} onClick={saveSettings}>Save Event Settings</button>
       </div></section>
-      <EventMediaPanel eventId={event.id}/>
+      <EventMediaPanel eventId={event.id} eventName={event.name}/>
     </div>}
 
     {tab==='competitions'&&isCompetitionCapable(event.eventType)&&<CompetitionsPanel eventId={event.id} startsAt={event.startsAt}/>}

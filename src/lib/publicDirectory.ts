@@ -44,6 +44,8 @@ export type PublicEventSummary = {
   slug?:string;
   hostTeamId?:string;
   imagePath?:string;
+  /** Organizer-written description of the poster; absent when none was written. */
+  imageAlt?:string;
 };
 
 export type PublicFighterSummary = {
@@ -135,8 +137,11 @@ export async function loadPublicOrganization(key:string):Promise<{organization:P
 
 const EVENT_BASE_COLUMNS='id,organization_id,name,venue,starts_at,ends_at,organizer_name,event_type,standings_mode,status,timezone,public_description,public_links,registration_open';
 const EVENT_EXTENDED_COLUMNS=EVENT_BASE_COLUMNS+',slug,host_team_id,image_path';
-/** Remembered for the session so a backend without the general-event columns is not probed on every load. */
-let extendedEventColumnsAvailable=true;
+const EVENT_ALT_COLUMNS=EVENT_EXTENDED_COLUMNS+',image_alt';
+/** Newest first. A backend that lacks a newer column falls back one tier at a time, never straight to the legacy list. */
+const EVENT_COLUMN_TIERS=[EVENT_ALT_COLUMNS,EVENT_EXTENDED_COLUMNS,EVENT_BASE_COLUMNS];
+/** Remembered for the session so a backend without newer columns is not probed on every load. */
+let eventColumnTier=0;
 
 /**
  * Postgres 42703 / PostgREST PGRST204 mean "that column does not exist": the backend predates the general-event columns.
@@ -157,7 +162,7 @@ function mapEventRow(row:any):PublicEventSummary{
     organizerName:row.organizer_name??undefined,eventType:row.event_type,standingsMode:row.standings_mode,status:row.status,
     timezone:row.timezone,publicDescription:row.public_description??undefined,
     publicLinks:links,registrationOpen:Boolean(row.registration_open),
-    slug:row.slug??undefined,hostTeamId:row.host_team_id??linkedHost,imagePath:row.image_path??undefined
+    slug:row.slug??undefined,hostTeamId:row.host_team_id??linkedHost,imagePath:row.image_path??undefined,imageAlt:row.image_alt??undefined
   };
 }
 
@@ -170,10 +175,10 @@ export async function loadPublicEvents():Promise<PublicEventSummary[]>{
     .in('status',['published','live','completed','cancelled'])
     .not('published_at','is',null)
     .order('starts_at',{ascending:true});
-  let {data,error}=await query(extendedEventColumnsAvailable?EVENT_EXTENDED_COLUMNS:EVENT_BASE_COLUMNS);
-  if(error&&extendedEventColumnsAvailable&&isMissingColumnError(error)){
-    extendedEventColumnsAvailable=false;
-    ({data,error}=await query(EVENT_BASE_COLUMNS));
+  let {data,error}=await query(EVENT_COLUMN_TIERS[eventColumnTier]);
+  while(error&&eventColumnTier<EVENT_COLUMN_TIERS.length-1&&isMissingColumnError(error)){
+    eventColumnTier++;
+    ({data,error}=await query(EVENT_COLUMN_TIERS[eventColumnTier]));
   }
   if(error)throw error;
   const rows=((data??[]) as any[]).map(mapEventRow);
@@ -232,7 +237,7 @@ export function eventPath(event:{id:string;slug?:string}):string{
 export async function loadPublicEventDetails(identifier:string):Promise<PublicEventDetails|undefined>{
   if(!publicSupabase)return undefined;
   const byId=UUID_PATTERN.test(identifier);
-  if(!byId&&!extendedEventColumnsAvailable)return undefined; // a backend without slugs cannot resolve one
+  if(!byId&&eventColumnTier>=EVENT_COLUMN_TIERS.length-1)return undefined; // a backend without slugs cannot resolve one
   const cached=eventDetailCache.get(identifier);
   if(cached && isFresh(cached.at)) return cached.value;
   const fetchEvent=(columns:string)=>publicSupabase!.from('events')
@@ -241,10 +246,10 @@ export async function loadPublicEventDetails(identifier:string):Promise<PublicEv
     .in('status',['published','live','completed','cancelled'])
     .not('published_at','is',null)
     .maybeSingle();
-  let eventResult:{data:any;error:any}=await fetchEvent((extendedEventColumnsAvailable?EVENT_EXTENDED_COLUMNS:EVENT_BASE_COLUMNS)+',published_at');
-  if(eventResult.error&&extendedEventColumnsAvailable&&isMissingColumnError(eventResult.error)){
-    extendedEventColumnsAvailable=false;
-    eventResult=await fetchEvent(EVENT_BASE_COLUMNS+',published_at');
+  let eventResult:{data:any;error:any}=await fetchEvent(EVENT_COLUMN_TIERS[eventColumnTier]+',published_at');
+  while(eventResult.error&&eventColumnTier<EVENT_COLUMN_TIERS.length-1&&isMissingColumnError(eventResult.error)){
+    eventColumnTier++;
+    eventResult=await fetchEvent(EVENT_COLUMN_TIERS[eventColumnTier]+',published_at');
   }
   const {data:eventRow,error:eventError}=eventResult;
   if(eventError)throw eventError;
@@ -304,7 +309,7 @@ export async function loadPublicEventDetails(identifier:string):Promise<PublicEv
 }
 
 export function clearPublicDirectoryCaches(){
-  extendedEventColumnsAvailable=true;
+  eventColumnTier=0;
   organizationsCache=null;
   eventsCache=null;
   fightersCache=null;

@@ -16,7 +16,7 @@
  *   /api/v1/calendar
  */
 import { eventCategoryLabel, filterEvents, normalizeEventCategory, splitUpcomingPast, type EventCategory } from './eventCategories';
-import { eventImageUrl } from './eventMedia';
+import { eventImageAlt, eventImageUrl } from './eventMedia';
 import { loadPublicEvents, loadPublicOrganizations, type PublicEventSummary, type PublicOrganizationSummary } from './publicDirectory';
 import { loadOfficialTeamStats, loadTeamProvenance, type PublicTeamStats } from './publicStats';
 import { loadPublicTeamDirectory, type PublicDirectoryTeam } from './teamDirectory';
@@ -46,7 +46,7 @@ export type EventDTO = {
   id: string; slug?: string; name: string; category: EventCategory; categoryLabel: string; status: string;
   startsAt: string; endsAt: string; timezone: string; venue: string;
   organization?: { id: string; shortName?: string }; host?: { teamId?: string; name?: string };
-  description?: string; imageUrl?: string; registrationOpen: boolean;
+  description?: string; imageUrl?: string; imageAlt?: string; registrationOpen: boolean;
   links: { facebook?: string; website?: string; livestream?: string };
 };
 
@@ -97,7 +97,7 @@ export function toEventDTO(event: PublicEventSummary, orgShortNames: Map<string,
     startsAt: event.startsAt, endsAt: event.endsAt, timezone: event.timezone, venue: event.venue,
     organization: { id: event.organizationId, shortName: orgShortNames.get(event.organizationId) },
     host: event.hostTeamId || event.organizerName ? { teamId: event.hostTeamId, name: event.organizerName } : undefined,
-    description: event.publicDescription, imageUrl: eventImageUrl(event.imagePath), registrationOpen: Boolean(event.registrationOpen),
+    description: event.publicDescription, imageUrl: eventImageUrl(event.imagePath), imageAlt: event.imagePath ? eventImageAlt(event.name, event.imageAlt) : undefined, registrationOpen: Boolean(event.registrationOpen),
     links
   };
 }

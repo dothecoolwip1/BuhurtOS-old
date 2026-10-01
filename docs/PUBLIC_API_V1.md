@@ -20,6 +20,7 @@ Privacy rules enforced by the mappers (and covered by `tests/pack8Embeds.test.ts
 * Team DTOs never include contact email, contact URLs or map coordinates.
 * Event DTOs expose only `facebook`, `website` and `livestream` links, and only when they are
   `http(s)` URLs. Other `public_links` keys (host team ids, internal flags, tokens) are dropped.
+* `EventDTO.imageAlt` (additive, v1-compatible) carries the organizer-written poster description, or `<event name> poster` when none was written. It is present only when the event has a poster.
 * Stats come from the canonical layer (`official_team_stats`): finalized, valid results only.
 
 ## Iframe embeds

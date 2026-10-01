@@ -67,12 +67,33 @@ describe('event detail loader', () => {
     expect(details?.event.slug).toBe('spring-open');
   });
 
-  it('falls back to legacy columns only when a column is missing', async () => {
-    const { slug, host_team_id, image_path, ...legacy } = row;
-    state.eventReplies = [{ data: null, error: { code: '42703', message: 'column events.slug does not exist' } }, { data: legacy, error: null }];
+  it('keeps the poster when only the newest column (alt text) is missing', async () => {
+    state.eventReplies = [{ data: null, error: { code: '42703', message: 'column events.image_alt does not exist' } }, { data: row, error: null }];
     const details = await loadPublicEventDetails(EVENT_UUID);
     expect(state.calls).toHaveLength(2);
-    expect(state.calls[1]).not.toContain('image_path');
+    expect(state.calls[0]).toContain('image_alt');
+    expect(state.calls[1]).not.toContain('image_alt');
+    expect(state.calls[1]).toContain('image_path');
+    expect(details?.event.imagePath).toBe('posters/spring.png');
+    expect(details?.event.imageAlt).toBeUndefined();
+  });
+
+  it('carries poster alt text through when the backend has it', async () => {
+    state.eventReplies = [{ data: { ...row, image_alt: 'Poster: two armored teams clash' }, error: null }];
+    const details = await loadPublicEventDetails(EVENT_UUID);
+    expect(details?.event.imageAlt).toBe('Poster: two armored teams clash');
+  });
+
+  it('falls back to legacy columns only when columns are missing at every newer tier', async () => {
+    const { slug, host_team_id, image_path, ...legacy } = row;
+    state.eventReplies = [
+      { data: null, error: { code: '42703', message: 'column events.image_alt does not exist' } },
+      { data: null, error: { code: '42703', message: 'column events.slug does not exist' } },
+      { data: legacy, error: null }
+    ];
+    const details = await loadPublicEventDetails(EVENT_UUID);
+    expect(state.calls).toHaveLength(3);
+    expect(state.calls[2]).not.toContain('image_path');
     expect(details?.event.name).toBe('Spring Open');
     expect(details?.event.imagePath).toBeUndefined();
   });

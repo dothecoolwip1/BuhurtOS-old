@@ -80,6 +80,21 @@ export async function uploadEventImage(eventId: string, file: File, previousPath
   return path;
 }
 
+/** The text alternative announced to people who cannot see the poster. Organizer-written when present, otherwise the event name. */
+export function eventImageAlt(eventName: string, alt?: string | null): string {
+  const written = alt?.trim();
+  return written ? written : `${eventName} poster`;
+}
+
+export const EVENT_IMAGE_ALT_MAX = 300;
+
+export async function setEventImageAlt(eventId: string, alt: string): Promise<void> {
+  if (!supabase) throw new Error('Event media needs a connected BuhurtOS backend.');
+  if (alt.trim().length > EVENT_IMAGE_ALT_MAX) throw new Error(`Keep the description under ${EVENT_IMAGE_ALT_MAX} characters.`);
+  const { error } = await supabase.rpc('set_event_image_alt', { p_event: eventId, p_alt: alt.trim() || null });
+  if (error) throw error;
+}
+
 export async function removeEventImage(eventId: string, path: string): Promise<void> {
   if (!supabase) throw new Error('Event media needs a connected BuhurtOS backend.');
   const { error: rpcError } = await supabase.rpc('set_event_image', { p_event: eventId, p_path: null });

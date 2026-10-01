@@ -49,7 +49,7 @@ describe('public data contract v1', () => {
     expect(dto.category).toBe('custom');
     expect(dto.organization).toEqual({ id: 'org1', shortName: 'HACSA' });
     expect(dto.host).toEqual({ teamId: 'e8a655d9-7292-4ee5-b46b-11e80fd57a99', name: 'Red Deer Reavers' });
-    expect(Object.keys(dto).sort()).toEqual(['category', 'categoryLabel', 'description', 'endsAt', 'host', 'id', 'imageUrl', 'links', 'name', 'organization', 'registrationOpen', 'slug', 'startsAt', 'status', 'timezone', 'venue'].sort());
+    expect(Object.keys(dto).sort()).toEqual(['category', 'categoryLabel', 'description', 'endsAt', 'host', 'id', 'imageAlt', 'imageUrl', 'links', 'name', 'organization', 'registrationOpen', 'slug', 'startsAt', 'status', 'timezone', 'venue'].sort());
   });
 
   it('resolves the conceptual /api/v1 routes (no backend configured)', async () => {

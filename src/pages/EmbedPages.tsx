@@ -49,7 +49,7 @@ export function AgendaView({ events }: { events: EventDTO[] }) {
 export function EventCardView({ event }: { event: EventDTO }) {
   const cta = eventCta(event.category, { registrationOpen: event.registrationOpen, hasLink: true, status: event.status });
   return <article className="embed-card">
-    {event.imageUrl ? <img className="embed-poster" src={event.imageUrl} alt={event.name + ' poster'} loading="lazy" decoding="async" /> : null}
+    {event.imageUrl ? <img className="embed-poster" src={event.imageUrl} alt={event.imageAlt ?? event.name + ' poster'} loading="lazy" decoding="async" /> : null}
     <div className="embed-card-body">
       <span className="embed-kicker">{event.categoryLabel}{event.status === 'cancelled' ? ' · Cancelled' : ''}</span>
       <h1>{event.name}</h1>

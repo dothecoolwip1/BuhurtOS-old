@@ -63,3 +63,22 @@ describe('Red Deer Rumble public page', () => {
     expect(html).toContain('Longsword');
   });
 });
+
+describe('poster alt text', () => {
+  it('uses the organizer-written description when there is one', async () => {
+    const { eventImageAlt } = await import('../src/lib/eventMedia');
+    expect(eventImageAlt('Red Deer Rumble', 'Two armored teams meet at a ranch')).toBe('Two armored teams meet at a ranch');
+  });
+  it('falls back to the event name when the description is absent or blank', async () => {
+    const { eventImageAlt } = await import('../src/lib/eventMedia');
+    expect(eventImageAlt('Red Deer Rumble')).toBe('Red Deer Rumble poster');
+    expect(eventImageAlt('Red Deer Rumble', null)).toBe('Red Deer Rumble poster');
+    expect(eventImageAlt('Red Deer Rumble', '   ')).toBe('Red Deer Rumble poster');
+  });
+  it('renders the written description on the public event page, and the fallback otherwise', () => {
+    const withAlt = render(rumble({ imagePath: 'p/x.webp', imageAlt: 'A painted banner with orange splatter' }));
+    expect(withAlt).toContain('alt="A painted banner with orange splatter"');
+    const without = render(rumble({ imagePath: 'p/x.webp' }));
+    expect(without).toContain('alt="Red Deer Rumble poster"');
+  });
+});
