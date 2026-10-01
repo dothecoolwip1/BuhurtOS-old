@@ -1842,3 +1842,27 @@ main[tabindex="-1"]:focus{outline:none}
 /* Touch targets: form selects and the links inside guidance text are comfortable to tap. */
 .panel-card select,.nx-card select{min-height:44px}
 .nx-state a{display:inline-block;padding:10px 4px;margin:-10px -4px}
+
+/* Event workspace header and tabs */
+.nx-evhead{display:grid;gap:12px;margin:0 0 6px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:#0f1720}
+.nx-evhead.warn{border-color:var(--amber)}
+.nx-evhead-main{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+.nx-evhead-title h2{margin:0;font-size:1.15rem;line-height:1.25}
+.nx-evhead-title p{margin:2px 0 0;color:var(--muted);font-size:.82rem}
+.nx-evhead-facts{display:flex;flex-wrap:wrap;gap:6px}
+.nx-pill{display:inline-flex;align-items:center;min-height:26px;padding:0 10px;border-radius:999px;background:#18232e;border:1px solid var(--line);color:var(--soft);font-size:.74rem;font-weight:750}
+.nx-pill.ok{border-color:#2f7d4f;color:#8fd9ae}
+.nx-pill.warn{border-color:var(--amber);color:var(--amber)}
+.nx-evhead-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.nx-evhead-actions .nx-scope-pick{margin-left:auto}
+.nx-evhead-actions .nx-scope-pick.compact select{min-width:180px}
+.nx-evtabs{display:flex;gap:4px;overflow-x:auto;margin:0 0 18px;padding:0 0 2px;border-bottom:1px solid var(--line);scrollbar-width:none}
+.nx-evtabs::-webkit-scrollbar{display:none}
+.nx-evtab{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;color:var(--soft);font-size:.86rem;font-weight:750;white-space:nowrap;border-bottom:3px solid transparent;text-decoration:none}
+.nx-evtab:hover{color:var(--text)}
+.nx-evtab.active{color:var(--text);border-bottom-color:var(--accent)}
+.nx-evmore{position:relative}
+.nx-evmore summary{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;cursor:pointer;color:var(--soft);font-size:.86rem;font-weight:750;list-style:none}
+.nx-evmore summary::-webkit-details-marker{display:none}
+.nx-evmore>div{position:absolute;z-index:20;right:0;top:100%;display:grid;min-width:200px;padding:6px;border:1px solid var(--line-strong);border-radius:10px;background:#111a23;box-shadow:0 12px 30px rgba(0,0,0,.45)}
+@media(max-width:700px){.nx-evhead{padding:12px}.nx-evhead-actions .nx-btn{flex:1 1 auto;text-align:center;justify-content:center}.nx-evhead-actions .nx-scope-pick{margin-left:0;width:100%}}

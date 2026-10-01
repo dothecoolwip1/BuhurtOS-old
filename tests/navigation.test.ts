@@ -36,7 +36,7 @@ describe('navigation model', () => {
   });
 
   it('keeps public primary labels consistent and the mobile bar short', () => {
-    expect(publicPrimary.map(i => i.label)).toEqual(['Discover', 'Teams', 'Events', 'Fighters', 'Rankings', 'Rules', 'Organizations']);
+    expect(publicPrimary.map(i => i.label)).toEqual(['Home', 'Teams', 'Events', 'Fighters', 'Rankings', 'Rules']);
     expect(publicBottom.length).toBe(4);
   });
 
@@ -123,7 +123,7 @@ describe('orientation', () => {
   });
 
   it('builds breadcrumbs for deep pages', () => {
-    expect(breadcrumbsFor('/admin/events/roster').map(c => c.label)).toEqual(['Administration', 'Events & competition', 'Roster & check-in']);
+    expect(breadcrumbsFor('/admin/events/roster').map(c => c.label)).toEqual(['Administration', 'Events', 'Roster & check-in']);
     expect(breadcrumbsFor('/admin/settings').map(c => c.label)).toEqual(['Administration', 'Platform', 'Platform settings']);
     expect(breadcrumbsFor('/me/teams').map(c => c.label)).toEqual(['My workspace', 'My teams']);
     expect(breadcrumbsFor('/admin').length).toBe(1);

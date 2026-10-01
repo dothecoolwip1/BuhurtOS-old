@@ -30,7 +30,7 @@ describe('who someone is here to be', () => {
 
 describe('what each person sees first', () => {
   it('a fighter leads with registering, their profile and notifications', () => {
-    expect(primaryTasks(base).map(t => t.label)).toEqual(['Register for an event', 'My fighter profile', 'My notifications']);
+    expect(primaryTasks(base).map(t => t.label)).toEqual(['Register for an event', 'My profile', 'My notifications']);
   });
   it('an organizer leads with setting up their event, carrying the event id', () => {
     const user: UserContext = { ...base, eventRoles: [{ eventId: EVENT, role: 'event_organizer' }] };

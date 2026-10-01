@@ -48,19 +48,19 @@ export interface NavSection {
 // ---------------------------------------------------------------------------
 
 export const publicPrimary: Array<{ to: string; label: string; icon: string }> = [
-  { to: '/public', label: 'Discover', icon: '◎' },
+  { to: '/public', label: 'Home', icon: '◎' },
   { to: '/teams', label: 'Teams', icon: '♜' },
   { to: '/events', label: 'Events', icon: '⚔' },
   { to: '/fighters', label: 'Fighters', icon: '♟' },
   { to: '/rankings', label: 'Rankings', icon: '↗' },
-  { to: '/rules', label: 'Rules', icon: '§' },
-  { to: '/governance', label: 'Organizations', icon: '⌘' }
+  { to: '/rules', label: 'Rules', icon: '§' }
 ];
 
 /** Mobile bottom bar: four everyday destinations plus the full menu. */
 export const publicBottom = publicPrimary.filter(item => ['/public', '/teams', '/events', '/rules'].includes(item.to));
 
 export const publicSecondary: Array<{ to: string; label: string; description: string }> = [
+  { to: '/governance', label: 'Organizations', description: 'Federations, leagues and the groups teams belong to.' },
   { to: '/embed-builder', label: 'Put BuhurtOS on your website', description: 'Copy a widget for events, a team or standings.' }
 ];
 
@@ -70,7 +70,7 @@ export const publicSecondary: Array<{ to: string; label: string; description: st
 
 export const workspaceItems: NavItem[] = [
   { id: 'home', label: 'Home', to: '/me', description: 'Your responsibilities and what to do next.', gate: 'member' },
-  { id: 'profile', label: 'My fighter profile', to: '/me/profile', description: 'Your sporting identity, public profile and private details.', gate: 'member' },
+  { id: 'profile', label: 'My profile', to: '/me/profile', description: 'Your sporting identity, public profile and private details.', gate: 'member' },
   { id: 'teams', label: 'My teams', to: '/me/teams', description: 'Teams you belong to and the tools your role allows.', gate: 'member' },
   { id: 'notifications', label: 'Notifications', to: '/me/notifications', description: 'Requests and answers that need your attention.', gate: 'member' },
   { id: 'join', label: 'Join with a code', to: '/me/join', description: 'Use an invitation or access code you were given.', gate: 'member' }
@@ -88,12 +88,12 @@ export const adminSections: NavSection[] = [
     ]
   },
   {
-    id: 'events', label: 'Events & competition', blurb: 'Set up an event, take entries, run the day and publish results.',
+    id: 'events', label: 'Events', blurb: 'Set up an event, take entries, run the day and publish results.',
     items: [
       { id: 'event-setup', label: 'Seasons & new events', to: '/admin/events/setup', description: 'Create seasons and events for an organization.', gate: 'orgAdmin' },
-      { id: 'event-guide', label: 'Event setup guide', to: '/admin/events/guide', description: 'Step-by-step progress for setting up the event, with what to do next.', gate: 'eventManage' },
-      { id: 'event-settings', label: 'Event settings', to: '/admin/events/manage', description: 'Dates, registration, fields, announcements and poster.', gate: 'eventManage' },
-      { id: 'event-signups', label: 'Fighter signups', to: '/admin/events/signups', description: 'Signup codes and review of fighters who applied.', gate: 'event' },
+      { id: 'event-guide', label: 'Event overview', to: '/admin/events/guide', description: 'Step-by-step progress for setting up the event, with what to do next.', gate: 'eventManage' },
+      { id: 'event-settings', label: 'Event details', to: '/admin/events/manage', description: 'Dates, registration, fields, announcements and poster.', gate: 'eventManage' },
+      { id: 'event-signups', label: 'Registration', to: '/admin/events/signups', description: 'Signup codes and review of fighters who applied.', gate: 'event' },
       { id: 'event-roster', label: 'Roster & check-in', to: '/admin/events/roster', description: 'Who is entered, checked in and cleared to compete.', gate: 'event' },
       { id: 'event-bracket', label: 'Bracket & schedule', to: '/admin/events/bracket', description: 'Follow the order of play, pools and bracket.', gate: 'event' },
       { id: 'event-run', label: 'Run fights', to: '/admin/events/run', description: 'The live fight queue for marshals and scorekeepers.', gate: 'event' },
@@ -105,7 +105,7 @@ export const adminSections: NavSection[] = [
     ]
   },
   {
-    id: 'organizations', label: 'Organizations & teams', blurb: 'The groups that make up the sport.',
+    id: 'organizations', label: 'Teams & organizations', blurb: 'The groups that make up the sport.',
     items: [
       { id: 'organizations', label: 'Organizations', to: '/admin/organizations', description: 'Create and edit organizations and their relationships.', gate: 'superAdmin' },
       { id: 'teams', label: 'Teams & rosters', to: '/admin/teams', description: 'Find a team, see who is on it, add or remove people.', gate: 'teamManager' },
@@ -122,7 +122,7 @@ export const adminSections: NavSection[] = [
     ]
   },
   {
-    id: 'rules', label: 'Rules & structure', blurb: 'The rulebooks and divisions competition runs on.',
+    id: 'rules', label: 'Rules', blurb: 'The rulebooks and divisions competition runs on.',
     items: [
       { id: 'rules-reference', label: 'Rules reference', to: '/admin/rules/reference', description: 'Search the rulebooks by fight format.', gate: 'member' },
       { id: 'rulesets', label: 'Rulesets', to: '/admin/rules/rulesets', description: 'Publish and version the rules an event uses.', gate: 'orgAdmin' },

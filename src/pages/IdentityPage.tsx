@@ -197,7 +197,7 @@ export function IdentityPage() {
     <section className="section-head">
       <div>
         <span className="eyebrow">My workspace</span>
-        <h1>My fighter profile</h1>
+        <h1>My profile</h1>
         <p>Your fighter ID is independent from your login, display name, team and organization. Public sports details and private administrative information are stored separately.</p>
       </div>
     </section>

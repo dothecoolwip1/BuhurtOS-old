@@ -1,17 +1,15 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { type ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAppState } from '../features/AppState';
 import { useAccount } from '../features/Account';
 import { hasPermission } from '../lib/permissions';
-import { isEventScopedPath, listWorkableEvents, recallEvent, rememberEvent, withEventParam, type SelectableEvent } from '../lib/eventScope';
+import { isEventScopedPath, recallEvent, withEventParam } from '../lib/eventScope';
 import { useAccount as useAcct } from '../features/Account';
 import { primaryTasks } from '../lib/journeys';
 import { accessFromUser, scopeForPath, visibleAdminSections, type NavItem, type NavSection } from '../lib/navigation';
 import { AppShell, ScopeBar, type BottomItem } from './chrome';
 import { StateBlock } from './page';
-import { friendlyError } from '../lib/friendlyError';
-
-const EVENT_STEPS = ['event-settings', 'event-signups', 'event-roster', 'event-bracket', 'event-run', 'event-results'];
+import { EventHeader } from './EventHeader';
 
 /** What this person may see in administration right now (depends on the current event too). */
 export function useAdminAccess() {
@@ -33,50 +31,6 @@ export function scopedSections(sections: NavSection[], eventId: string | undefin
   }));
 }
 
-function eventLabel(event: SelectableEvent): string {
-  const date = new Date(event.startsAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-  return `${event.name} · ${date}`;
-}
-
-/** The event scope line with an explicit, permission-filtered event picker. */
-function EventScope() {
-  const { event, error, scopeLoading } = useAppState();
-  const { user } = useAccount();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [choices, setChoices] = useState<SelectableEvent[]>();
-  const [choicesError, setChoicesError] = useState('');
-  const generation = useRef(0);
-
-  useEffect(() => {
-    if (!user) return;
-    const mine = ++generation.current;
-    setChoicesError('');
-    listWorkableEvents(user).then(rows => { if (mine === generation.current) setChoices(rows); })
-      .catch(err => { if (mine === generation.current) setChoicesError(friendlyError(err).message); });
-  }, [user]);
-
-  const choose = (id: string) => {
-    rememberEvent(id);
-    navigate(withEventParam(location.pathname, id));
-  };
-
-  const currentId = event?.id ?? recallEvent();
-  const detail = scopeLoading ? 'Loading this event…' : event ? event.venue : error ? `Could not open the chosen event: ${error}` : 'No event selected';
-  return <div className={'nx-scope' + (error && !event ? ' warn' : '')} role="note">
-    <span className="nx-scope-kind">Event</span>
-    <strong>{event ? event.name : 'Choose an event'}</strong>
-    <small>{detail}</small>
-    {choices && choices.length > 0 ? <label className="nx-scope-pick">Switch event
-      <select value={choices.some(row => row.id === currentId) ? currentId : ''} onChange={e => choose(e.target.value)}>
-        {!choices.some(row => row.id === currentId) ? <option value="" disabled>Choose an event…</option> : null}
-        {choices.map(row => <option key={row.id} value={row.id}>{eventLabel(row)}</option>)}
-      </select>
-    </label> : null}
-    {choicesError ? <small role="alert">The event list could not be loaded: {choicesError}</small> : null}
-  </div>;
-}
-
 /** Administration: everything a person may manage, grouped by task, with the scope always stated. */
 export function AdminShell() {
   const location = useLocation();
@@ -92,9 +46,10 @@ export function AdminShell() {
     .map(section => ({ ...section, items: section.items.filter(item => !startPaths.has(item.to.split('?')[0])) }))
     .filter(section => section.items.length > 0);
   const scoped = [...startHere, ...rest];
+  const inEventNow = scopeForPath(location.pathname) === 'event' && location.pathname.startsWith('/admin/events/');
+  // Inside an event the event's tools live in the event's own tabs, so the sidebar stops repeating them.
+  const sidebar = inEventNow ? scoped.map(section => ({ ...section, items: section.items.filter(item => !isEventScopedPath(item.to)) })).filter(section => section.items.length > 0) : scoped;
   const visibleItems = scoped.flatMap(section => section.items);
-  const stepsRef = useRef<HTMLElement>(null);
-  useEffect(() => { stepsRef.current?.querySelector<HTMLElement>('.active')?.scrollIntoView({ inline: 'center', block: 'nearest' }); }, [location.pathname]);
 
   const firstOf = (sectionId: string): NavItem | undefined => scoped.find(section => section.id === sectionId)?.items[0];
   const bottom: BottomItem[] = [{ to: '/admin', label: 'Overview', icon: '⌂', end: true }];
@@ -106,23 +61,16 @@ export function AdminShell() {
   const scope = scopeForPath(location.pathname);
   let scopeBar = null;
   if (scope === 'event') {
-    scopeBar = <EventScope />;
+    scopeBar = null;
   } else if (scope === 'organization') {
     scopeBar = <ScopeBar kind="Organization" label="Organization level" detail="Changes here apply to the organization chosen on this page." />;
   } else if (scope === 'platform') {
     scopeBar = <ScopeBar kind="Platform" label="Whole platform" detail="Changes here affect every organization and person." tone="warn" />;
   }
 
-  const steps = location.pathname.startsWith('/admin/events/') && scope === 'event'
-    ? EVENT_STEPS.map(id => visibleItems.find(item => item.id === id)).filter((item): item is NavItem => Boolean(item))
-    : [];
-
-  const header = <>
-    {scopeBar}
-    {steps.length > 1 ? <nav ref={stepsRef} className="nx-steps" aria-label="Event workflow"><ol>
-      {steps.map((item, index) => <li key={item.id}><NavLink to={item.to} className={({ isActive }) => 'nx-step' + (isActive ? ' active' : '')}><span className="nx-step-num" aria-hidden="true">{index + 1}</span>{item.label}</NavLink></li>)}
-    </ol></nav> : null}
-  </>;
+  const inEvent = scope === 'event' && location.pathname.startsWith('/admin/events/');
+  const eventItems = inEvent ? scopedSections(sections, eventId).flatMap(section => section.items).filter(item => isEventScopedPath(item.to)) : [];
+  const header = inEvent ? <EventHeader items={eventItems} /> : scopeBar;
 
   const status = <div className="nx-status">
     <span className={'nx-chip ' + (online ? 'ok' : 'warn')}>{online ? 'Online' : 'Offline'}</span>
@@ -138,5 +86,5 @@ export function AdminShell() {
     else if (!event) blocked = <StateBlock kind="empty" title="There is no event to work on yet">Create one under Seasons &amp; new events, or choose an event above.</StateBlock>;
   }
 
-  return <AppShell area="admin" brandSub="Administration" sections={scoped} bottom={bottom} status={status} header={header} blocked={blocked} />;
+  return <AppShell area="admin" brandSub="Administration" sections={sidebar} bottom={bottom} status={status} header={header} blocked={blocked} />;
 }

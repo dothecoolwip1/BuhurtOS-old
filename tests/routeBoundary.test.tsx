@@ -36,10 +36,11 @@ describe('menu sheet accessibility', () => {
 
 import eventPageSource from '../src/pages/ShowcaseEventPage.tsx?raw';
 describe('event page actions', () => {
-  it('offers calendar download and share, and hides organizer tools from anonymous visitors', () => {
+  it('offers calendar download and share, and shows Manage event only to people who can manage the event', () => {
     expect(eventPageSource).toContain('Add to calendar');
     expect(eventPageSource).toContain('<ShareButton');
-    expect(eventPageSource).toContain("user?'/admin/events/manage?event='");
+    expect(eventPageSource).toContain("hasPermission(user,'event.manage'");
+    expect(eventPageSource).toContain('Manage event');
   });
 });
 

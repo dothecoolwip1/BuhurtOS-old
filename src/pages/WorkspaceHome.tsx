@@ -60,7 +60,7 @@ export function WorkspaceHome() {
 
     <h2 className="nx-more">More</h2>
     <div className="nx-grid">
-      <LinkCard to="/me/profile" title="My fighter profile" text="Keep your sporting identity, public profile and private details up to date." />
+      <LinkCard to="/me/profile" title="My profile" text="Keep your sporting identity, public profile and private details up to date." />
       <LinkCard to="/events" title="Find an event" text="See what is coming up and whether registration is open." />
       <LinkCard to="/me/join" title="Join with a code" text="Use an invitation or access code from an organizer, captain or the platform owner." />
       {hasAdminArea(user) ? <LinkCard to="/admin" title="Administration" text="Manage the events, teams and people you are responsible for." badge="You have access" /> : null}

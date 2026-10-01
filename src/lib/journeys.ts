@@ -82,7 +82,7 @@ export function tasksFor(persona: Persona, user: UserContext): JourneyTask[] {
     default:
       return [
         t('register', 'Register for an event', 'See what is coming up and whether you can sign up.', '/events'),
-        t('profile', 'My fighter profile', 'Your sporting identity, public profile and details.', '/me/profile'),
+        t('profile', 'My profile', 'Your sporting identity, public profile and details.', '/me/profile'),
         t('notifications', 'My notifications', 'Answers to your requests and news for you.', '/me/notifications')
       ];
   }

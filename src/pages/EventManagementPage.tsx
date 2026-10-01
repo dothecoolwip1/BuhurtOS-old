@@ -91,7 +91,7 @@ export function EventManagementPage(){
         registrationCapacity:settings.registrationCapacity?Number(settings.registrationCapacity):undefined,
         waitlistEnabled:settings.waitlistEnabled,publicDescription:settings.publicDescription,livestreamUrl:settings.livestreamUrl
       });
-      await reload();setMessage('Event settings saved.');
+      await reload();setMessage('Event details saved.');
     }catch(error){setMessage(friendlyError(error).message);}
     finally{setBusy(false);}
   };
@@ -125,7 +125,7 @@ export function EventManagementPage(){
   const removeAnnouncement=async(id:string)=>{setBusy(true);setMessage('');try{await deleteEventAnnouncement(event.id,id);await reload();setMessage('Announcement removed.');}catch(error){setMessage(friendlyError(error).message);}finally{setBusy(false);}};
 
   return <>
-    <section className="section-head"><div><span className="eyebrow">Event settings</span><h1>Manage {event.name}</h1><p>Govern event publishing, registration, fields, clearances and public communications.</p></div>
+    <section className="section-head"><div><span className="eyebrow">Event details</span><h1>Manage {event.name}</h1><p>Govern event publishing, registration, fields, clearances and public communications.</p></div>
       <div className="header-actions"><Link className="nx-btn" to={'/admin/events/guide?event='+event.id}>Setup guide</Link><button className={tab==='settings'?'primary':''} onClick={()=>setTab('settings')}>Settings</button>{isCompetitionCapable(event.eventType)&&<button className={tab==='competitions'?'primary':''} onClick={()=>setTab('competitions')}>Competitions</button>}<button className={tab==='fields'?'primary':''} onClick={()=>setTab('fields')}>Fields</button><button className={tab==='registrations'?'primary':''} onClick={()=>setTab('registrations')}>Registrations {registrations.length>0?'('+registrations.length+')':''}</button><button className={tab==='announcements'?'primary':''} onClick={()=>setTab('announcements')}>Announcements</button></div>
     </section>
 

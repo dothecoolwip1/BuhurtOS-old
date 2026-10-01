@@ -11,6 +11,7 @@ import {buildIcs} from '../lib/ics';
 import {toEventDTO} from '../lib/publicApiV1';
 import {downloadText} from '../lib/export';
 import {useAccount} from '../features/Account';
+import {hasPermission} from '../lib/permissions';
 import {eventClock,formatEventRange,formatEventTime,zoneLabel} from '../lib/eventTime';
 import {loadPublicEventSchedule,type PublicScheduleSlot} from '../lib/publicDirectory';
 import {loadOfficialEventStats} from '../lib/publicStats';
@@ -70,7 +71,7 @@ export function EventDetailView({details,onFighterSignup,stats,statsError,organi
         <button type="button" className="show-btn secondary" onClick={()=>downloadText(slugName(event.name)+'.ics',buildIcs([toEventDTO(event)],event.name),'text/calendar;charset=utf-8')}>Add to calendar</button>
         <ShareButton title={event.name}/>
         {facebook?<a className="show-btn secondary" href={facebook} target="_blank" rel="noopener noreferrer">Facebook event ↗</a>:null}
-        {organizerToolsHref?<Link className="show-btn secondary" to={organizerToolsHref}>Organizer tools</Link>:null}
+        {organizerToolsHref?<Link className="show-btn secondary" to={organizerToolsHref}>Manage event</Link>:null}
       </>}
     />
 
@@ -183,6 +184,6 @@ export function ShowcaseEventPage(){
 
   return <>
     <FighterSignupModal open={fighterSignupOpen} onClose={()=>setFighterSignupOpen(false)} eventId={details.event.id} eventName={details.event.name}/>
-    <EventDetailView details={details} onFighterSignup={()=>setFighterSignupOpen(true)} stats={stats} statsError={statsError} schedule={schedule} organizerToolsHref={user?'/admin/events/manage?event='+details.event.id:undefined}/>
+    <EventDetailView details={details} onFighterSignup={()=>setFighterSignupOpen(true)} stats={stats} statsError={statsError} schedule={schedule} organizerToolsHref={hasPermission(user,'event.manage',details.event.id,details.event.organizationId)?'/admin/events/guide?event='+details.event.id:undefined}/>
   </>;
 }
