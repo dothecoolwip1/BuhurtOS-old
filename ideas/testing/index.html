@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BuhurtOS Mock-up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: steel-plate app shell. Sticky top bar on desktop, bottom bar on phones, content in one 1180px column.
+   Signature: the temper band (straw > bronze > purple > blue), the colors steel turns when it is heat-treated. */
+:root{
+  --ground:#E9ECF0; --surface:#F7F8FA; --raised:#FFFFFF; --ink:#11151C; --muted:#586172; --faint:#8A93A3; --line:#D2D7DF;
+  --steel:#2C4A8C; --steel-soft:#DFE6F4; --brass:#9A6B1F; --brass-soft:#F3E8D2;
+  --live:#B42318; --live-soft:#FBE4E1; --win:#23704A; --win-soft:#DDF0E5;
+  --temper:linear-gradient(90deg,#E3C77A 0%,#C9893A 26%,#8E4E6B 52%,#4B4FA6 74%,#2C6BB0 100%);
+  --shadow:0 1px 0 rgba(17,21,28,.04),0 8px 24px -12px rgba(17,21,28,.18);
+  --f-display:"Big Shoulders Display","Arial Narrow","Roboto Condensed",Impact,sans-serif;
+  --f-body:"Instrument Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-data:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --r:10px; --r-sm:6px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0C0F14; --surface:#131821; --raised:#19202B; --ink:#E7EAF0; --muted:#97A1B2; --faint:#687284; --line:#252D3A;
+  --steel:#93ADEB; --steel-soft:#1C2740; --brass:#DDAA55; --brass-soft:#2E2414;
+  --live:#FF6F61; --live-soft:#3A1715; --win:#5FCB90; --win-soft:#132C1F;
+  --shadow:0 1px 0 rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.7); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ground:#0C0F14; --surface:#131821; --raised:#19202B; --ink:#E7EAF0; --muted:#97A1B2; --faint:#687284; --line:#252D3A;
+  --steel:#93ADEB; --steel-soft:#1C2740; --brass:#DDAA55; --brass-soft:#2E2414;
+  --live:#FF6F61; --live-soft:#3A1715; --win:#5FCB90; --win-soft:#132C1F;
+  --shadow:0 1px 0 rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.7); color-scheme:dark}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ground);color:var(--ink);font:16px/1.55 var(--f-body);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+img,svg{max-width:100%}
+:focus-visible{outline:2px solid var(--steel);outline-offset:2px;border-radius:4px}
+h1,h2,h3{font-family:var(--f-display);font-weight:800;line-height:.95;letter-spacing:.005em;margin:0;text-wrap:balance;text-transform:uppercase}
+p{margin:0}
+.mono{font-family:var(--f-data);font-variant-numeric:tabular-nums}
+.eyebrow{font:600 12px/1 var(--f-data);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px}
+@media (max-width:520px){.wrap{padding-inline:16px}}
+
+/* ---------- top bar ---------- */
+.mockflag{background:var(--ink);color:var(--ground);font:500 12px/1 var(--f-data);letter-spacing:.06em;text-align:center;padding:8px 16px}
+.mockflag b{color:var(--brass-soft)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in oklab,var(--surface) 88%,transparent);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:28px;height:64px}
+.brand{min-width:0;display:flex;align-items:center;gap:10px;font:900 24px/1 var(--f-display);letter-spacing:.02em;text-transform:uppercase}
+.brand .os{color:var(--steel)}
+.mark{width:30px;height:34px;flex:none}
+.nav{display:flex;gap:4px}
+.nav a{font-weight:600;font-size:15px;padding:8px 12px;border-radius:999px;color:var(--muted)}
+.nav a:hover{color:var(--ink);background:var(--ground)}
+.nav a[aria-current="page"]{color:var(--ink);background:var(--ground);box-shadow:inset 0 0 0 1px var(--line)}
+.top .spacer{flex:1}
+.search{display:flex;align-items:center;gap:8px;background:var(--ground);border:1px solid var(--line);border-radius:999px;padding:8px 14px;color:var(--faint);font-size:14px;min-width:220px}
+.search kbd{margin-left:auto;font:500 11px var(--f-data);border:1px solid var(--line);border-radius:4px;padding:2px 5px}
+.btn{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;font-weight:600;font-size:15px;white-space:nowrap}
+.btn-ink{background:var(--ink);color:var(--surface)}
+.btn-ink:hover{background:var(--steel);color:var(--surface)}
+.btn-line{border:1px solid var(--line);background:var(--raised)}
+.btn-line:hover{border-color:var(--faint)}
+.icon-btn{flex:none;width:44px;height:44px;border-radius:999px;display:grid;place-items:center;border:1px solid var(--line);background:var(--raised)}
+@media (max-width:980px){.nav,.search{display:none}.top .wrap{gap:12px}}
+
+/* ---------- phone bottom bar ---------- */
+.bottom{display:none}
+@media (max-width:980px){
+  .bottom{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:30;background:color-mix(in oklab,var(--surface) 92%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+  .bottom a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 10px;font-size:11px;font-weight:600;color:var(--faint)}
+  .bottom a svg{width:22px;height:22px}
+  .bottom a[aria-current="page"]{color:var(--ink)}
+  .bottom a[aria-current="page"] svg{color:var(--steel)}
+  main{padding-bottom:84px}
+}
+
+/* ---------- shared pieces ---------- */
+main{padding-block:28px 64px}
+.section{display:grid;gap:18px;margin-top:56px}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.section-head h2{font-size:clamp(30px,4vw,42px)}
+.more{font-weight:600;font-size:14px;color:var(--steel);display:inline-flex;gap:6px;align-items:center}
+.more:hover{text-decoration:underline;text-underline-offset:3px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:999px;font:600 11px/1 var(--f-data);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);color:var(--muted);background:var(--raised);white-space:nowrap}
+.chip.live{color:var(--live);background:var(--live-soft);border-color:transparent}
+.chip.live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--live);animation:pulse 1.6s ease-in-out infinite}
+.chip.win{color:var(--win);background:var(--win-soft);border-color:transparent}
+.chip.steel{color:var(--steel);background:var(--steel-soft);border-color:transparent}
+.chip.brass{color:var(--brass);background:var(--brass-soft);border-color:transparent}
+@keyframes pulse{50%{opacity:.25}}
+.temper{height:4px;background:var(--temper);border-radius:2px}
+.crest{flex:none;display:block}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line);margin-inline:-4px;padding-inline:4px}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{position:relative;padding:14px 14px 15px;font-weight:600;font-size:15px;color:var(--muted);white-space:nowrap;min-height:44px}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--ink)}
+.tabs button[aria-selected="true"]::after{content:"";position:absolute;left:10px;right:10px;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--temper)}
+.seg{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:var(--ground);border:1px solid var(--line);overflow-x:auto;max-width:100%;scrollbar-width:none}
+.seg button{padding:8px 14px;border-radius:999px;font-size:14px;font-weight:600;color:var(--muted);white-space:nowrap;min-height:36px}
+.seg button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:var(--shadow)}
+.src{font:500 11px/1.3 var(--f-data);color:var(--faint);letter-spacing:.02em}
+.grid-2{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px}
+@media (max-width:900px){.grid-2{grid-template-columns:minmax(0,1fr)}}
+.fade-in{animation:fadeIn .35s ease both}
+@keyframes fadeIn{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- home: live hero ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:32px;align-items:center}
+@media (max-width:900px){.hero{grid-template-columns:minmax(0,1fr);gap:24px}}
+.hero h1{font-size:clamp(52px,8.4vw,112px);line-height:.86;font-weight:900}
+.hero h1 .t{background:var(--temper);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .lede{margin-top:20px;font-size:18px;color:var(--muted);max-width:46ch}
+.hero .ctas{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
+.livecard{position:relative;overflow:hidden;padding:22px;display:grid;gap:18px}
+.livecard .row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.versus{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:12px}
+.side{display:grid;justify-items:center;gap:10px;text-align:center;min-width:0}
+.side .name{overflow-wrap:anywhere;font:800 22px/1 var(--f-display);text-transform:uppercase;letter-spacing:.01em}
+.side .from{font-size:13px;color:var(--muted)}
+.bigscore{font:900 64px/1 var(--f-display);display:flex;gap:10px;align-items:center}
+.bigscore .dash{color:var(--faint);font-weight:600}
+.pips{display:flex;gap:5px;justify-content:center}
+.pip{width:12px;height:16px;border-radius:3px 3px 6px 6px;background:var(--ink)}
+.pip.down{background:transparent;box-shadow:inset 0 0 0 1.5px var(--faint)}
+.pipnote{font:500 11px var(--f-data);color:var(--faint);letter-spacing:.04em}
+.versus .side .crest{width:clamp(44px,14vw,64px);height:auto}
+@media (max-width:520px){.livecard{padding:18px 14px}.bigscore{font-size:46px;gap:6px}.side .name{font-size:17px}.side .from{font-size:12px}.versus{gap:6px}.pip{width:9px;height:13px}.mockflag{font-size:11px}}
+.livecard .foot{display:flex;gap:18px;flex-wrap:wrap;padding-top:14px;border-top:1px dashed var(--line);font-size:14px;color:var(--muted)}
+.livecard .foot b{color:var(--ink);font-weight:600}
+
+/* ---------- home: lists ---------- */
+.eventlist{display:grid;gap:12px}
+.eventrow{display:grid;grid-template-columns:88px minmax(0,1fr) auto;gap:20px;align-items:center;padding:16px 20px;transition:transform .15s,border-color .15s}
+.eventrow:hover{transform:translateY(-2px);border-color:var(--faint)}
+.datebox{display:grid;justify-items:center;padding:10px 0;border-radius:var(--r-sm);background:var(--ground);border:1px solid var(--line)}
+.datebox .m{font:600 11px var(--f-data);letter-spacing:.14em;text-transform:uppercase;color:var(--live)}
+.datebox .d{font:900 38px/1 var(--f-display)}
+.datebox .y{font:500 11px var(--f-data);color:var(--faint)}
+.eventrow h3{font-size:26px}
+.eventrow .meta{display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:6px;font-size:14px;color:var(--muted)}
+.eventrow .tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:620px){.eventrow{grid-template-columns:64px minmax(0,1fr);gap:14px;padding:14px}.eventrow .tags{grid-column:1/-1;justify-content:flex-start}.datebox .d{font-size:30px}.eventrow h3{font-size:22px}}
+
+.teamgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.teamcard{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center;padding:16px;transition:transform .15s,border-color .15s}
+.teamcard:hover{transform:translateY(-2px);border-color:var(--faint)}
+.teamcard .n{font:800 21px/1 var(--f-display);text-transform:uppercase}
+.teamcard .l{font-size:13px;color:var(--muted);margin-top:4px}
+.teamcard .s{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+
+.board{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{font:600 11px var(--f-data);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tbody tr{transition:background .12s}
+tbody tr:hover{background:var(--ground)}
+td.num,th.num{text-align:right;font-family:var(--f-data);font-variant-numeric:tabular-nums}
+.rk{font:900 26px/1 var(--f-display);width:44px}
+.mv{font:600 12px var(--f-data);white-space:nowrap}
+.mv.up{color:var(--win)} .mv.dn{color:var(--live)} .mv.eq{color:var(--faint)}
+.who{display:flex;align-items:center;gap:12px;min-width:200px}
+.who b{font-weight:600}
+.who small{display:block;color:var(--muted);font-size:13px}
+.top3 .rk{color:var(--brass)}
+
+/* ---------- event hub ---------- */
+.ehero{position:relative;overflow:hidden;border-radius:14px;background:var(--ink);color:var(--surface);padding:clamp(22px,4vw,44px);display:grid;gap:22px}
+.ehero canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.55}
+.ehero > *:not(canvas){position:relative}
+.ehero h1{font-size:clamp(48px,7.6vw,104px);font-weight:900;line-height:.86;max-width:12ch}
+.ehero .facts{display:flex;gap:10px 28px;flex-wrap:wrap;font-size:15px}
+.ehero .facts span{display:grid;gap:4px}
+.ehero .facts small{font:600 11px var(--f-data);letter-spacing:.12em;text-transform:uppercase;opacity:.6}
+.ehero .acts{display:flex;gap:10px;flex-wrap:wrap}
+.ehero .btn-light{background:var(--surface);color:var(--ink)}
+.ehero .btn-ghost{border:1px solid rgba(255,255,255,.28);color:#fff}
+.ehero .chip{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.18)}
+.ehero .chip.live{background:#B42318;color:#fff}
+.ehero .chip.live::before{background:#fff}
+.ehero{background:#0F131A;color:#F2F4F7}
+.ehero .btn-light{background:#F2F4F7;color:#0F131A}
+
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.fields{grid-template-columns:minmax(0,1fr)}}
+.field{padding:18px;display:grid;gap:14px}
+.field .fh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.field .fh h3{font-size:24px}
+.slot{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px;border-radius:var(--r-sm);background:var(--ground);border:1px solid transparent}
+.slot.now{background:var(--live-soft);border-color:color-mix(in oklab,var(--live) 30%,transparent)}
+.slot .k{font:600 11px var(--f-data);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.slot.now .k{color:var(--live)}
+.slot .t{font-weight:600;font-size:15px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.slot .t i{font-style:normal;color:var(--faint);font-size:13px}
+.slot .sc{font:700 18px var(--f-data)}
+
+/* bracket */
+.bracket-wrap{overflow-x:auto;padding:4px 2px 12px;scroll-snap-type:x mandatory}
+.bracket{display:grid;grid-template-columns:repeat(4,minmax(230px,1fr));gap:0 36px;min-width:1040px}
+.round{display:grid;grid-template-rows:auto 1fr;gap:12px;scroll-snap-align:start}
+.round .rh{font:600 12px var(--f-data);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between}
+.round .ms{display:flex;flex-direction:column;justify-content:space-around;gap:14px}
+.match{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);box-shadow:var(--shadow)}
+.match.live{border-color:var(--live);box-shadow:0 0 0 3px var(--live-soft)}
+.match .mt{display:flex;justify-content:space-between;padding:6px 10px;border-bottom:1px solid var(--line);font:500 11px var(--f-data);color:var(--faint);letter-spacing:.04em}
+.match .tm{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;font-weight:600;font-size:14px}
+.match .tm + .tm{border-top:1px solid var(--line)}
+.match .tm .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.match .tm.lose{color:var(--faint)}
+.match .tm.lose svg{opacity:.45}
+.match .tm .r{font:700 15px var(--f-data);min-width:18px;text-align:right}
+.match .tm.winner .r{color:var(--win)}
+.match .tm.tbd{color:var(--faint);font-weight:500;font-style:italic}
+.round:not(:last-child) .match::after{content:"";position:absolute;right:-37px;top:50%;width:36px;height:1px;background:var(--line)}
+.champion{display:grid;place-items:center;gap:10px;text-align:center;padding:20px;border-radius:var(--r);border:1px dashed var(--brass);background:var(--brass-soft)}
+.champion .n{font:900 24px var(--f-display);text-transform:uppercase;color:var(--brass)}
+.bracket-hint{display:none;font-size:13px;color:var(--muted)}
+@media (max-width:760px){.bracket-hint{display:block}}
+
+.stat-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.stat-strip div{background:var(--surface);padding:16px 18px;display:grid;gap:4px}
+.stat-strip b{font:900 36px/1 var(--f-display)}
+.stat-strip span{font-size:13px;color:var(--muted)}
+@media (max-width:620px){.stat-strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.info{padding:20px;display:grid;gap:14px}
+.info h3{font-size:24px}
+.dl{display:grid;gap:10px;margin:0}
+.dl div{display:flex;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid var(--line);font-size:15px}
+.dl div:last-child{border:0;padding:0}
+.dl dt{color:var(--muted)} .dl dd{margin:0;font-weight:600;text-align:right}
+.timeline{display:grid;gap:0}
+.tl{display:grid;grid-template-columns:64px 18px minmax(0,1fr);gap:12px;align-items:start;padding-bottom:16px}
+.tl .h{font:600 13px var(--f-data);color:var(--muted);padding-top:1px}
+.tl .d{position:relative;width:11px;height:11px;border-radius:50%;margin:5px auto 0;background:var(--surface);border:2px solid var(--faint)}
+.tl .d.on{border-color:var(--live);background:var(--live)}
+.tl .d.done{border-color:var(--win);background:var(--win)}
+.tl b{font-weight:600}
+.tl p{font-size:14px;color:var(--muted)}
+
+/* ---------- profiles ---------- */
+.phead{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:28px;align-items:center;padding:clamp(20px,3.6vw,36px)}
+.phead h1{font-size:clamp(46px,7vw,92px);font-weight:900}
+.phead .sub{display:flex;gap:8px 16px;flex-wrap:wrap;color:var(--muted);margin-top:10px;font-size:15px}
+.phead .acts{display:flex;gap:10px;flex-wrap:wrap}
+@media (max-width:760px){.phead{grid-template-columns:auto minmax(0,1fr)}.phead .acts{grid-column:1/-1}.phead .crest{width:84px;height:96px}}
+.avatar{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;font:900 46px var(--f-display);color:#fff;background:conic-gradient(from 200deg,#2C4A8C,#8E4E6B,#C9893A,#2C4A8C);box-shadow:inset 0 0 0 4px rgba(255,255,255,.18)}
+@media (max-width:760px){.avatar{width:84px;height:84px;font-size:32px}}
+.roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.person{display:flex;gap:12px;align-items:center;padding:12px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--surface)}
+.person:hover{border-color:var(--faint)}
+.person .av{width:42px;height:42px;border-radius:50%;flex:none;display:grid;place-items:center;font:800 16px var(--f-display);background:var(--steel-soft);color:var(--steel)}
+.person b{display:block;font-weight:600;font-size:15px}
+.person small{color:var(--muted);font-size:13px}
+.record{display:flex;gap:6px;flex-wrap:wrap}
+.wl{width:28px;height:28px;border-radius:6px;display:grid;place-items:center;font:700 12px var(--f-data)}
+.wl.w{background:var(--win-soft);color:var(--win)} .wl.l{background:var(--live-soft);color:var(--live)}
+.histrow td:first-child{white-space:nowrap}
+.cat-bars{display:grid;gap:14px}
+.cat-bars .cb{display:grid;gap:6px}
+.cat-bars .cb div:first-child{display:flex;justify-content:space-between;font-size:14px}
+.bar{height:8px;border-radius:4px;background:var(--ground);overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%;background:var(--steel);border-radius:4px}
+
+/* ---------- rules ---------- */
+.rulesearch{display:flex;align-items:center;gap:12px;padding:6px 6px 6px 18px;border-radius:999px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.rulesearch input{flex:1;min-width:0;border:0;background:none;font:500 18px var(--f-body);color:var(--ink);height:48px;outline:none}
+.rule{padding:18px 20px;display:grid;gap:8px}
+.rule .rt{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.rule h3{font-size:22px}
+.rule p{color:var(--muted);max-width:70ch}
+.rule mark{background:var(--brass-soft);color:var(--ink);border-radius:3px;padding:0 2px}
+
+/* ---------- marshal scoring ---------- */
+.marshal{max-width:520px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.mhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.mboard{padding:18px;display:grid;gap:18px}
+.mteams{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.mteam{display:grid;gap:12px;justify-items:center;text-align:center;padding:14px 8px;border-radius:var(--r);background:var(--ground)}
+.mteam .n{font:800 20px/1 var(--f-display);text-transform:uppercase}
+.rounds{display:flex;gap:6px}
+.rounds i{width:22px;height:8px;border-radius:4px;background:var(--line)}
+.rounds i.on{background:var(--win)}
+.fighters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;width:100%}
+.ft{height:56px;border-radius:8px;display:grid;place-items:center;font:700 13px var(--f-data);background:var(--ink);color:var(--surface);border:2px solid var(--ink);min-height:44px}
+.ft.down{background:transparent;color:var(--faint);border:2px dashed var(--faint);text-decoration:line-through}
+.mcount{font:900 44px/1 var(--f-display)}
+.mcount small{display:block;font:500 11px var(--f-data);letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:4px}
+.prompt{padding:14px;border-radius:var(--r);background:var(--brass-soft);display:grid;gap:10px}
+.prompt b{color:var(--brass)}
+.mactions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mactions .btn{min-height:56px;border-radius:12px}
+.btn-win{background:var(--win);color:var(--surface)}
+.clock{font:600 30px var(--f-data);letter-spacing:.02em}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--line);margin-top:72px;padding-block:28px 40px;color:var(--muted);font-size:14px}
+footer .wrap{display:flex;gap:16px;justify-content:space-between;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<div class="mockflag">DESIGN MOCK-UP · <b>All teams, fighters, events and scores on these pages are invented sample data.</b></div>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#home" aria-label="BuhurtOS home">
+      <svg class="mark" viewBox="0 0 30 34" aria-hidden="true"><defs><linearGradient id="mk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E3C77A"/><stop offset=".35" stop-color="#C9893A"/><stop offset=".65" stop-color="#8E4E6B"/><stop offset="1" stop-color="#2C6BB0"/></linearGradient></defs><path d="M2 2h26v14c0 8-6 13-13 16C8 29 2 24 2 16Z" fill="url(#mk)"/><path d="M9 9v15M21 9v15M6 14h18" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity=".92"/></svg>
+      <span>Buhurt<span class="os">OS</span></span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+    <div class="spacer"></div>
+    <div class="search" role="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Teams, fighters, events<kbd>/</kbd></div>
+    <button class="icon-btn" id="themeBtn" aria-label="Switch light or dark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></button>
+    <a class="btn btn-ink" href="#marshal">Marshal</a>
+  </div>
+</header>
+
+<main class="wrap" id="app"></main>
+
+<footer><div class="wrap"><span>BuhurtOS · built for the people who fight, run and follow armored combat.</span><span class="mono">Mock-up v0.1 · sample data</span></div></footer>
+
+<nav class="bottom" id="bottom" aria-label="Main"></nav>
+
+<script>
+/* ======================= sample data (invented) ======================= */
+const T = {
+  ironwardens:{name:"Iron Wardens",place:"Calgary, Alberta",country:"CA",tinct:["#2C4A8C","#E9ECEF"],div:"pale",ch:"W",pts:1840,rec:[14,4]},
+  northgate:{name:"Northgate Company",place:"Kamloops, British Columbia",country:"CA",tinct:["#B42318","#D4A63A"],div:"chevron",ch:"N",pts:1765,rec:[12,5]},
+  greyfen:{name:"Grey Fen Brotherhood",place:"Duluth, Minnesota",country:"US",tinct:["#1A1D22","#D4A63A"],div:"bend",ch:"G",pts:1610,rec:[11,6]},
+  saltmarsh:{name:"Saltmarsh Lions",place:"Norfolk, England",country:"UK",tinct:["#2F7A4F","#E9ECEF"],div:"quarterly",ch:"S",pts:1588,rec:[10,6]},
+  ravenmoor:{name:"Ravenmoor",place:"Winnipeg, Manitoba",country:"CA",tinct:["#6B3F8C","#E9ECEF"],div:"fess",ch:"R",pts:1502,rec:[9,7]},
+  emberhold:{name:"Emberhold",place:"Boise, Idaho",country:"US",tinct:["#C9622A","#1A1D22"],div:"saltire",ch:"E",pts:1455,rec:[8,7]},
+  coldharbor:{name:"Cold Harbor Guard",place:"Halifax, Nova Scotia",country:"CA",tinct:["#2C4A8C","#D4A63A"],div:"chevron",ch:"C",pts:1390,rec:[7,8]},
+  thornwick:{name:"Thornwick",place:"Spokane, Washington",country:"US",tinct:["#1A1D22","#E9ECEF"],div:"quarterly",ch:"T",pts:1322,rec:[6,8]},
+};
+const EVENT = {name:"Prairie Steel Open",dates:"Sat 17 – Sun 18 Oct 2026",venue:"Example Fairgrounds, Alberta",host:"ironwardens",ruleset:"Sample ruleset v2.1"};
+const EVENTS = [
+  {m:"Oct",d:"17",y:"2026",name:"Prairie Steel Open",meta:["Example Fairgrounds, AB","5v5 · 3v3 · Duels","8 teams"],tags:[["live","Live now"],["steel","Tournament"]],href:"#event"},
+  {m:"Nov",d:"07",y:"2026",name:"Northern Lists Training Day",meta:["Kamloops, BC","Open practice","Hosted by Northgate Company"],tags:[["","Practice"],["win","Open to all"]],href:"#event"},
+  {m:"Nov",d:"21",y:"2026",name:"Harbor Profight Night",meta:["Halifax, NS","Profight · Duels","12 bouts"],tags:[["brass","Registration open"],["steel","Tournament"]],href:"#event"},
+  {m:"Jan",d:"16",y:"2027",name:"Winter Melee Clinic",meta:["Winnipeg, MB","Clinic · beginners welcome"],tags:[["","Clinic"]],href:"#event"},
+];
+const FIGHTERS = [
+  {id:"mara",name:"Mara Kessling",team:"ironwardens",role:"Captain · Striker",init:"MK"},
+  {id:"owen",name:"Owen Dabrowski",team:"ironwardens",role:"Grappler",init:"OD"},
+  {id:"jun",name:"Jun Takeda-Ross",team:"ironwardens",role:"Striker",init:"JT"},
+  {id:"liv",name:"Liv Arneson",team:"ironwardens",role:"Runner",init:"LA"},
+  {id:"bram",name:"Bram Okafor",team:"ironwardens",role:"Grappler",init:"BO"},
+  {id:"teo",name:"Teo Villanueva",team:"ironwardens",role:"Reserve",init:"TV"},
+  {id:"isla",name:"Isla Brennan",team:"ironwardens",role:"Reserve",init:"IB"},
+];
+const RANK = {
+  "5v5 Teams":["ironwardens","northgate","greyfen","saltmarsh","ravenmoor","emberhold","coldharbor","thornwick"],
+  "3v3 Teams":["northgate","saltmarsh","ironwardens","emberhold","greyfen","thornwick","ravenmoor","coldharbor"],
+  "Profight":["Mara Kessling","Dane Holloway","Ruth Achterberg","Sami Väisänen","Coll MacRae","Ines Duarte","Petr Novak","Ana Lund"],
+  "Sword & Shield":["Coll MacRae","Ruth Achterberg","Mara Kessling","Ines Duarte","Dane Holloway","Ana Lund","Petr Novak","Sami Väisänen"],
+};
+const MOVES=[["up",2],["eq",0],["up",1],["dn",3],["up",4],["dn",1],["eq",0],["dn",2]];
+const RULES = [
+  {t:"When is a fighter out?",k:"5v5 · Grounding",r:"Sample ruleset v2.1",s:"§ 4.2",b:"A fighter is out of the round when a third point of contact, other than the feet, touches the ground. A marshal calls it and the fighter leaves the list."},
+  {t:"Winning a 5v5 fight",k:"5v5 · Format",r:"Sample ruleset v2.1",s:"§ 3.1",b:"A fight is best of three rounds. A team wins a round when every opposing fighter is out. The first team to two rounds wins the fight."},
+  {t:"Forbidden strikes",k:"All formats · Safety",r:"Sample ruleset v2.1",s:"§ 6.4",b:"Strikes to the back of the head, the neck, the groin, the back of the knee and the feet are forbidden. A marshal may stop the round and warn, or remove the fighter."},
+  {t:"Equipment check",k:"All formats · Kit",r:"Sample ruleset v2.1",s:"§ 2.3",b:"Every fighter passes a kit check before the event: helmet, gorget, gauntlets and weapons. A failed item must be fixed and re-checked before the fighter's first fight."},
+  {t:"Tiebreaks in pools",k:"Pools · Standings",r:"Sample ruleset v2.1",s:"§ 8.2",b:"Teams level on wins are separated by head-to-head result, then rounds won, then rounds lost. If still level, the marshals decide by a single deciding round."},
+  {t:"Profight scoring",k:"Profight · Scoring",r:"Sample ruleset v2.1",s:"§ 10.1",b:"Profight bouts are scored by judges on clean strikes, takedowns and control across three rounds. A knockdown that ends the bout is scored as a win."},
+];
+
+/* ======================= helpers ======================= */
+let crestN=0;
+function crest(key,size=44){
+  const t=T[key]; const id="c"+(crestN++); const [a,b]=t.tinct; const w=size, h=Math.round(size*1.12);
+  const shield="M4 3h56v28c0 19-14 32-28 38C18 63 4 50 4 31Z";
+  const div={
+    pale:`<rect x="32" y="0" width="32" height="72" fill="${b}"/>`,
+    fess:`<rect x="0" y="24" width="64" height="18" fill="${b}"/>`,
+    bend:`<path d="M0 6 10 0 64 54 64 66Z" fill="${b}"/>`,
+    chevron:`<path d="M0 54 32 22 64 54 64 70 32 38 0 70Z" fill="${b}"/>`,
+    quarterly:`<rect x="32" y="0" width="32" height="34" fill="${b}"/><rect x="0" y="34" width="32" height="40" fill="${b}"/>`,
+    saltire:`<path d="M-4 4 4 -4 68 60 60 68ZM60 -4 68 4 4 68 -4 60Z" fill="${b}"/>`,
+  }[t.div];
+  const light=["#E9ECEF","#D4A63A"].includes(a)&&t.div!=="pale";
+  return `<svg class="crest" width="${w}" height="${h}" viewBox="0 0 64 72" role="img" aria-label="${t.name} crest"><defs><clipPath id="${id}"><path d="${shield}"/></clipPath><linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient></defs><g clip-path="url(#${id})"><rect width="64" height="72" fill="${a}"/>${div}<circle cx="32" cy="32" r="13" fill="${light?"#1A1D22":"#fff"}" opacity=".94"/><text x="32" y="38.5" text-anchor="middle" font-family="Big Shoulders Display,Impact,sans-serif" font-weight="900" font-size="18" fill="${light?"#fff":a==="#E9ECEF"?b:a}">${t.ch}</text><rect width="64" height="72" fill="url(#${id}g)"/></g><path d="${shield}" fill="none" stroke="currentColor" stroke-opacity=".22" stroke-width="1.5"/></svg>`;
+}
+const pips=(up,total=5)=>`<div class="pips" aria-label="${up} of ${total} standing">${Array.from({length:total},(_,i)=>`<i class="pip ${i<up?"":"down"}"></i>`).join("")}</div>`;
+const chip=(c,t)=>`<span class="chip ${c}">${t}</span>`;
+const $=s=>document.querySelector(s);
+const ICON={
+  home:'<path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1Z"/>',
+  events:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  teams:'<path d="M5 3h14v8c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10Z"/>',
+  rankings:'<path d="M5 21V11M12 21V4M19 21v-7"/>',
+  rules:'<path d="M5 4h11l3 3v13H5Z"/><path d="M9 11h6M9 15h6"/>',
+};
+const NAV=[["home","Home"],["event","Events"],["teams","Teams"],["rankings","Rankings"],["rules","Rules"]];
+
+/* ======================= views ======================= */
+function viewHome(){
+  return `
+  <section class="hero fade-in">
+    <div>
+      <p class="eyebrow">Armored combat, in one place</p>
+      <h1 style="margin-top:14px">Every list.<br>Every fight.<br><span class="t">Every result.</span></h1>
+      <p class="lede">Find events near you, follow your team through the bracket, and look up any rule while the fight is still on.</p>
+      <div class="ctas"><a class="btn btn-ink" href="#event">Follow the Prairie Steel Open</a><a class="btn btn-line" href="#teams">Find a team near you</a></div>
+    </div>
+    ${liveCard()}
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Coming up</h2><a class="more" href="#event">All events →</a></div>
+    <div class="eventlist">${EVENTS.map(e=>`
+      <a class="panel eventrow" href="${e.href}">
+        <div class="datebox"><span class="m">${e.m}</span><span class="d">${e.d}</span><span class="y">${e.y}</span></div>
+        <div style="min-width:0"><h3>${e.name}</h3><div class="meta">${e.meta.map(m=>`<span>${m}</span>`).join("")}</div></div>
+        <div class="tags">${e.tags.map(([c,t])=>chip(c,t)).join("")}</div>
+      </a>`).join("")}</div>
+  </section>
+
+  <section class="section grid-2" style="align-items:start">
+    <div style="display:grid;gap:18px">
+      <div class="section-head"><h2>5v5 standings</h2><a class="more" href="#rankings">Full rankings →</a></div>
+      ${rankTable("5v5 Teams",5)}
+    </div>
+    <div style="display:grid;gap:18px">
+      <div class="section-head"><h2>Teams</h2><a class="more" href="#teams">Directory →</a></div>
+      <div style="display:grid;gap:10px">${["ironwardens","northgate","saltmarsh","greyfen"].map(teamCard).join("")}</div>
+    </div>
+  </section>`;
+}
+function liveCard(){
+  return `<a class="panel livecard fade-in" href="#event" style="animation-delay:.08s">
+    <div class="temper" style="position:absolute;left:0;right:0;top:0;border-radius:0"></div>
+    <div class="row"><span class="chip live">Live · Field 1</span><span class="eyebrow">Semifinal · 5v5 · Round 3</span></div>
+    <div class="versus">
+      <div class="side">${crest("ironwardens",64)}<div><div class="name">Iron Wardens</div><div class="from">Calgary, AB</div></div>${pips(3)}</div>
+      <div class="bigscore mono" aria-label="Rounds 1 to 1"><span>1</span><span class="dash">–</span><span>1</span></div>
+      <div class="side">${crest("northgate",64)}<div><div class="name">Northgate Co.</div><div class="from">Kamloops, BC</div></div>${pips(2)}</div>
+    </div>
+    <p class="pipnote" style="text-align:center">FIGHTERS STILL STANDING · ROUNDS WON SHOWN CENTRE</p>
+    <div class="foot"><span>Prairie Steel Open</span><span>On deck: <b>Grey Fen v Saltmarsh</b></span></div>
+  </a>`;
+}
+function teamCard(k){const t=T[k];return `<a class="panel teamcard" href="#team">${crest(k,48)}<div style="min-width:0"><div class="n">${t.name}</div><div class="l">${t.place}</div><div class="s">${chip("", t.rec[0]+"–"+t.rec[1])}${chip("steel",t.pts+" pts")}</div></div></a>`}
+function rankTable(cat,limit=8){
+  const list=RANK[cat].slice(0,limit); const isTeam=cat.includes("Teams");
+  return `<div class="panel board"><table>
+    <thead><tr><th>#</th><th>${isTeam?"Team":"Fighter"}</th><th class="num">Pts</th><th class="num">Moved</th></tr></thead>
+    <tbody>${list.map((x,i)=>{const [d,n]=MOVES[i];const p=isTeam?T[x].pts:2100-i*83;
+      const who=isTeam?`<a class="who" href="#team">${crest(x,32)}<span><b>${T[x].name}</b><small>${T[x].place}</small></span></a>`
+        :`<a class="who" href="#fighter"><span class="person" style="padding:0;border:0;background:none"><span class="av">${x.split(" ").map(s=>s[0]).join("")}</span></span><span><b>${x}</b><small>${["Iron Wardens","Northgate Company","Saltmarsh Lions","Grey Fen Brotherhood"][i%4]}</small></span></a>`;
+      return `<tr class="${i<3?"top3":""}"><td class="rk">${i+1}</td><td>${who}</td><td class="num">${p.toLocaleString()}</td><td class="num"><span class="mv ${d}">${d==="up"?"▲ "+n:d==="dn"?"▼ "+n:"—"}</span></td></tr>`}).join("")}</tbody>
+  </table></div>`;
+}
+
+let eventTab="Live";
+function viewEvent(){
+  const tabs=["Live","Bracket","Schedule","Teams","Info"];
+  return `
+  <section class="ehero fade-in"><canvas id="sparks" aria-hidden="true"></canvas>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">${chip("live","Live now")}${chip("","Tournament")}${chip("","Hosted by Iron Wardens")}</div>
+    <h1>${EVENT.name}</h1>
+    <div class="facts"><span><small>When</small>${EVENT.dates}</span><span><small>Where</small>${EVENT.venue}</span><span><small>Rules</small>${EVENT.ruleset}</span></div>
+    <div class="acts"><button class="btn btn-light" data-follow>☆ Follow event</button><a class="btn btn-ghost" href="#rules">Look up a rule</a><button class="btn btn-ghost">Add to calendar</button></div>
+  </section>
+  <div class="tabs" role="tablist" style="margin-top:20px">${tabs.map(t=>`<button role="tab" aria-selected="${t===eventTab}" data-etab="${t}">${t}</button>`).join("")}</div>
+  <div id="etab" class="fade-in" style="margin-top:22px">${eventBody()}</div>`;
+}
+function eventBody(){
+  if(eventTab==="Live") return `
+    <div class="fields">
+      ${field("Field 1",[["now","Now","ironwardens","northgate","1 – 1","Semifinal · R3"],["deck","On deck","greyfen","saltmarsh","","Semifinal"],["hole","Next","","","","3v3 Pool B · 2 fights"]])}
+      ${field("Field 2",[["now","Now",null,null,"2:14","Duel · Sword & Shield · Kessling v Brennan"],["deck","On deck",null,null,"","Duel · Longsword · Holloway v Lund"],["hole","Next",null,null,"","Profight · Heavy · Novak v Duarte"]])}
+    </div>
+    <div class="stat-strip" style="margin-top:20px"><div><b class="mono">23</b><span>fights finished</span></div><div><b class="mono">9</b><span>still to fight</span></div><div><b class="mono">2</b><span>fields running</span></div><div><b class="mono">~4:40</b><span>expected finish</span></div></div>`;
+  if(eventTab==="Bracket") return bracket();
+  if(eventTab==="Schedule") return `<div class="grid-2"><div class="panel info"><h3>Saturday</h3><div class="timeline">${[
+      ["09:00","done","Kit check and weigh-in","Main tent. Bring helmet, gorget, gauntlets and weapons."],
+      ["10:30","done","5v5 quarterfinals","Field 1. Four fights, best of three rounds."],
+      ["13:00","done","Duels · first round","Field 2. Sword & shield, longsword, polearm."],
+      ["14:30","on","5v5 semifinals","Field 1. Happening now."],
+      ["16:00","","3v3 pools","Field 1 and 2."],
+      ["18:00","","Profight night","Field 2. Six bouts."]].map(([h,s,b,p])=>`<div class="tl"><span class="h mono">${h}</span><span class="d ${s}"></span><div><b>${b}</b><p>${p}</p></div></div>`).join("")}</div></div>
+      <div class="panel info"><h3>Sunday</h3><div class="timeline">${[["10:00","","5v5 final and 3rd place","Field 1."],["12:00","","Duel finals","Field 2."],["14:00","","Awards","Main tent."]].map(([h,s,b,p])=>`<div class="tl"><span class="h mono">${h}</span><span class="d ${s}"></span><div><b>${b}</b><p>${p}</p></div></div>`).join("")}</div></div></div>`;
+  if(eventTab==="Teams") return `<div class="teamgrid">${Object.keys(T).map(teamCard).join("")}</div>`;
+  return `<div class="grid-2"><div class="panel info"><h3>About this event</h3><p style="color:var(--muted)">A two-day open tournament with 5v5 and 3v3 team fights, duels in three weapon categories and a profight night. Spectators welcome; bring a chair. Food trucks on site.</p>
+    <dl class="dl"><div><dt>Registration</dt><dd>Closed · 8 teams, 31 duelists</dd></div><div><dt>Rules</dt><dd>${EVENT.ruleset}</dd></div><div><dt>Host</dt><dd>Iron Wardens</dd></div><div><dt>Entry for spectators</dt><dd>Free</dd></div></dl></div>
+    <div class="panel info"><h3>Getting there</h3><dl class="dl"><div><dt>Venue</dt><dd>Example Fairgrounds</dd></div><div><dt>Parking</dt><dd>North lot</dd></div><div><dt>Lists open</dt><dd class="mono">09:00</dd></div></dl></div></div>`;
+}
+function field(name,slots){
+  return `<div class="panel field"><div class="fh"><h3>${name}</h3>${chip("live","Running")}</div>${slots.map(([c,k,a,b,sc,sub])=>`
+    <div class="slot ${c==="now"?"now":""}"><span class="k">${k}</span>
+      <div style="min-width:0"><div class="t">${a?`${crest(a,22)}${T[a].name}<i>v</i>${crest(b,22)}${T[b].name}`:sub}</div>${a?`<div class="src">${sub}</div>`:""}</div>
+      <span class="sc">${sc}</span></div>`).join("")}</div>`;
+}
+function bracket(){
+  const m=(id,a,b,ra,rb,st,meta)=>{const w=st==="done"?(ra>rb?"a":"b"):"";
+    const tm=(k,r,side)=>k?`<div class="tm ${w?(w===side?"winner":"lose"):""}">${crest(k,22)}<span class="nm">${T[k].name}</span><span class="r">${r??""}</span></div>`:`<div class="tm tbd"><span style="width:22px"></span><span>${side==="a"?"Winner SF1":"Winner SF2"}</span><span></span></div>`;
+    return `<div class="match ${st==="live"?"live":""}"><div class="mt"><span>${id}</span><span>${st==="live"?'<span style="color:var(--live);font-weight:600">● LIVE</span>':meta}</span></div>${tm(a,ra,"a")}${tm(b,rb,"b")}</div>`};
+  return `<p class="bracket-hint" style="margin-bottom:10px">Swipe sideways to follow the bracket →</p>
+  <div class="bracket-wrap"><div class="bracket">
+    <div class="round"><div class="rh"><span>Quarterfinals</span><span>Sat</span></div><div class="ms">
+      ${m("QF1","ironwardens","thornwick",2,0,"done","Final")}${m("QF2","saltmarsh","ravenmoor",2,1,"done","Final")}${m("QF3","greyfen","emberhold",2,1,"done","Final")}${m("QF4","northgate","coldharbor",2,0,"done","Final")}</div></div>
+    <div class="round"><div class="rh"><span>Semifinals</span><span>Sat</span></div><div class="ms">
+      ${m("SF1","ironwardens","northgate",1,1,"live","")}${m("SF2","greyfen","saltmarsh",null,null,"next","Field 1 · next")}</div></div>
+    <div class="round"><div class="rh"><span>Final</span><span>Sun 10:00</span></div><div class="ms">${m("F",null,null,null,null,"next","Field 1")}</div></div>
+    <div class="round"><div class="rh"><span>Champion</span><span></span></div><div class="ms"><div class="champion"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="color:var(--brass)"><path d="M7 4h10v4a5 5 0 0 1-10 0Z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M9 17h6"/></svg><span class="n">To be decided</span><span class="src">Sunday · Field 1</span></div></div></div>
+  </div></div>`;
+}
+
+function viewTeams(){
+  return `<section class="fade-in" style="display:grid;gap:22px">
+    <div class="section-head"><div><p class="eyebrow">Directory</p><h1 style="font-size:clamp(46px,7vw,88px);margin-top:10px">Teams &amp; fighters</h1></div></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><div class="seg" role="group" aria-label="Region">${["All","Canada","United States","United Kingdom"].map((r,i)=>`<button aria-pressed="${i===0}">${r}</button>`).join("")}</div><span class="src">8 sample teams · map view coming</span></div>
+    <div class="teamgrid">${Object.keys(T).map(teamCard).join("")}</div>
+  </section>`;
+}
+
+function viewTeam(){
+  const t=T.ironwardens;
+  return `<section class="panel phead fade-in">${crest("ironwardens",120)}
+      <div style="min-width:0"><p class="eyebrow">Team · 5v5 and 3v3</p><h1 style="margin-top:8px">${t.name}</h1><div class="sub"><span>${t.place}</span><span>Founded 2017</span><span>Practices Tue &amp; Thu</span></div></div>
+      <div class="acts"><button class="btn btn-ink" data-follow>☆ Follow</button><button class="btn btn-line">Ask to join</button></div>
+    </section>
+    <div class="stat-strip" style="margin-top:16px"><div><b>#1</b><span>5v5 sample ranking</span></div><div><b class="mono">14–4</b><span>fight record this season</span></div><div><b class="mono">7</b><span>fighters on roster</span></div><div><b class="mono">5</b><span>events this season</span></div></div>
+    <section class="section grid-2" style="align-items:start;margin-top:36px">
+      <div style="display:grid;gap:16px"><h2 style="font-size:34px">Roster</h2>
+        <div class="roster">${FIGHTERS.map(f=>`<a class="person" href="#fighter"><span class="av">${f.init}</span><span><b>${f.name}</b><small>${f.role}</small></span></a>`).join("")}</div>
+        <p class="src">Roster maintained by the team captain in BuhurtOS.</p>
+      </div>
+      <div style="display:grid;gap:16px"><h2 style="font-size:34px">Recent fights</h2>
+        <div class="panel info" style="gap:0">${[["W","Thornwick","2–0","Prairie Steel Open · QF"],["W","Emberhold","2–1","Harvest Melee · F"],["L","Northgate Company","1–2","Harvest Melee · SF"],["W","Cold Harbor Guard","2–0","Harvest Melee · QF"],["W","Ravenmoor","2–1","Spring Lists · F"]].map(([r,o,s,e])=>`<div style="display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)"><span class="wl ${r.toLowerCase()}">${r}</span><span style="min-width:0"><b style="font-weight:600">v ${o}</b><br><small style="color:var(--muted)">${e}</small></span><span class="mono" style="font-weight:600">${s}</span></div>`).join("")}</div>
+      </div>
+    </section>`;
+}
+
+function viewFighter(){
+  return `<section class="panel phead fade-in"><div class="avatar">MK</div>
+      <div style="min-width:0"><p class="eyebrow">Fighter · Captain, Iron Wardens</p><h1 style="margin-top:8px">Mara Kessling</h1><div class="sub"><span>Calgary, Alberta</span><span>Fighting since 2016</span><span>Heavy · 84 kg</span></div></div>
+      <div class="acts"><button class="btn btn-ink" data-follow>☆ Follow</button></div>
+    </section>
+    <section class="section grid-2" style="align-items:start;margin-top:28px">
+      <div style="display:grid;gap:16px"><h2 style="font-size:34px">Fight history</h2>
+        <div class="panel board"><table><thead><tr><th>Date</th><th>Event</th><th>Category</th><th class="num">Result</th></tr></thead><tbody>
+        ${[["17 Oct 26","Prairie Steel Open","Sword & Shield","W","2–0","BuhurtOS"],["17 Oct 26","Prairie Steel Open","5v5","W","2–0","BuhurtOS"],["12 Sep 26","Harvest Melee","5v5","L","1–2","BuhurtOS"],["12 Sep 26","Harvest Melee","Profight","W","Dec.","BuhurtOS"],["03 May 26","Spring Lists","5v5","W","2–1","Imported · organizer sheet"]].map(([d,e,c,r,s,src])=>`<tr class="histrow"><td class="mono" style="font-size:13px">${d}</td><td><b style="font-weight:600">${e}</b><div class="src">${src}</div></td><td>${c}</td><td class="num"><span class="wl ${r.toLowerCase()}" style="display:inline-grid;margin-right:8px">${r}</span>${s}</td></tr>`).join("")}
+        </tbody></table></div>
+        <p class="src">Every result shows where it came from. Imported results are labelled and kept separate from official ones.</p>
+      </div>
+      <div style="display:grid;gap:16px"><h2 style="font-size:34px">By category</h2>
+        <div class="panel info"><div class="cat-bars">${[["5v5","18–6",75],["Sword & Shield","11–3",79],["Profight","4–2",67],["Longsword","2–3",40]].map(([c,r,p])=>`<div class="cb"><div><b style="font-weight:600">${c}</b><span class="mono">${r} · ${p}%</span></div><div class="bar"><i style="width:${p}%"></i></div></div>`).join("")}</div></div>
+        <div class="panel info"><h3>Last ten</h3><div class="record">${"WWLWWWLWWW".split("").map(x=>`<span class="wl ${x.toLowerCase()}">${x}</span>`).join("")}</div></div>
+      </div>
+    </section>`;
+}
+
+let rankCat="5v5 Teams";
+function viewRankings(){
+  return `<section class="fade-in" style="display:grid;gap:22px">
+    <div><p class="eyebrow">Season 2026</p><h1 style="font-size:clamp(46px,7vw,88px);margin-top:10px">Rankings</h1></div>
+    <div class="seg" role="group" aria-label="Category">${Object.keys(RANK).map(c=>`<button aria-pressed="${c===rankCat}" data-rcat="${c}">${c}</button>`).join("")}</div>
+    <div id="rtable">${rankTable(rankCat)}</div>
+    <p class="src">Sample ranking for the mock-up. Real rankings will name their source, method and the date they were last updated.</p>
+  </section>`;
+}
+
+function viewRules(q=""){
+  return `<section class="fade-in" style="display:grid;gap:22px;max-width:860px;margin:0 auto">
+    <div><p class="eyebrow">Rules lookup</p><h1 style="font-size:clamp(46px,7vw,88px);margin-top:10px">Find a rule fast</h1><p style="color:var(--muted);margin-top:12px;font-size:17px">Built for the side of the list: type a few words, get the answer with its section and version.</p></div>
+    <label class="rulesearch"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--faint)"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="rq" value="${q}" placeholder="Try “grounding”, “forbidden”, “tiebreak”" aria-label="Search rules"></label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">${["5v5","Duels","Profight","Safety","Kit"].map(x=>`<button class="chip" data-q="${x}" style="height:32px;padding:0 12px">${x}</button>`).join("")}</div>
+    <div id="rres" style="display:grid;gap:12px">${ruleResults(q)}</div>
+    <p class="src">Rule text on this page is placeholder copy for the mock-up, not an official ruleset.</p>
+  </section>`;
+}
+function ruleResults(q){
+  const s=q.trim().toLowerCase();
+  const hits=RULES.filter(r=>!s||(r.t+r.k+r.b).toLowerCase().includes(s));
+  if(!hits.length) return `<div class="panel rule"><h3>No rule matches “${q}”</h3><p>Try a shorter word, or browse by format above.</p></div>`;
+  const hl=t=>s?t.replace(new RegExp("("+s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig"),"<mark>$1</mark>"):t;
+  return hits.map(r=>`<article class="panel rule"><div class="rt"><span class="eyebrow">${r.k}</span><span class="chip steel">${r.r} · ${r.s}</span></div><h3>${hl(r.t)}</h3><p>${hl(r.b)}</p></article>`).join("");
+}
+
+/* marshal scoring */
+const M={a:5,b:5,ra:1,rb:1,round:3,secs:134};
+let mDown={a:[false,false,true,true,false],b:[true,false,true,false,true]};
+function viewMarshal(){
+  return `<section class="marshal fade-in">
+    <div class="mhead"><div><p class="eyebrow">Marshal view · Field 1</p><h1 style="font-size:40px;margin-top:6px">Semifinal 1</h1></div><span class="chip live">Round ${M.round}</span></div>
+    <div class="panel mboard" id="mboard">${marshalBoard()}</div>
+    <p class="src" style="text-align:center">Tap a fighter when the marshal calls them out. Works offline; syncs when the signal is back.</p>
+  </section>`;
+}
+function marshalBoard(){
+  const up=k=>mDown[k].filter(x=>!x).length;
+  const side=(k,key)=>`<div class="mteam">${crest(key,52)}<div class="n">${T[key].name}</div><div class="rounds">${[0,1].map(i=>`<i class="${i<(k==="a"?M.ra:M.rb)?"on":""}"></i>`).join("")}</div>
+    <div class="mcount mono">${up(k)}<small>standing</small></div>
+    <div class="fighters">${mDown[k].map((d,i)=>`<button class="ft ${d?"down":""}" data-ft="${k}${i}" aria-pressed="${d}" aria-label="Fighter ${i+1} ${d?"out":"standing"}">${i+1}</button>`).join("")}</div></div>`;
+  const out=up("a")===0?"a":up("b")===0?"b":null;
+  return `<div style="display:flex;justify-content:space-between;align-items:center"><span class="eyebrow">Rounds 1 – 1</span><span class="clock mono" id="clock">${fmt(M.secs)}</span></div>
+    <div class="mteams">${side("a","ironwardens")}${side("b","northgate")}</div>
+    ${out?`<div class="prompt"><span><b>${T[out==="a"?"ironwardens":"northgate"].name} are all out.</b> Give round ${M.round} to ${T[out==="a"?"northgate":"ironwardens"].name}?</span><button class="btn btn-win" data-confirm>Confirm round</button></div>`:""}
+    <div class="mactions"><button class="btn btn-line" data-reset>Undo last call</button><button class="btn btn-ink">Stop the round</button></div>`;
+}
+const fmt=s=>`${String(Math.floor(s/60)).padStart(1,"0")}:${String(s%60).padStart(2,"0")}`;
+
+/* ======================= router ======================= */
+const VIEWS={home:viewHome,event:viewEvent,teams:viewTeams,team:viewTeam,fighter:viewFighter,rankings:viewRankings,rules:viewRules,marshal:viewMarshal};
+const SECTION={home:"home",event:"event",teams:"teams",team:"teams",fighter:"teams",rankings:"rankings",rules:"rules",marshal:""};
+let lastHistory=[];
+function render(){
+  const r=(location.hash.slice(1)||"home"); const key=VIEWS[r]?r:"home";
+  crestN=0; $("#app").innerHTML=VIEWS[key]();
+  const cur=SECTION[key];
+  $("#nav").innerHTML=NAV.map(([k,l])=>`<a href="#${k}" ${k===cur?'aria-current="page"':""}>${l}</a>`).join("");
+  $("#bottom").innerHTML=NAV.map(([k,l])=>`<a href="#${k==="event"?"event":k}" ${k===cur?'aria-current="page"':""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">${ICON[k==="event"?"events":k]}</svg>${l}</a>`).join("");
+  document.title=({home:"BuhurtOS",event:EVENT.name,teams:"Teams",team:"Iron Wardens",fighter:"Mara Kessling",rankings:"Rankings",rules:"Rules",marshal:"Marshal"}[key])+" · BuhurtOS Mock-up";
+  if(key==="event") sparks();
+  window.scrollTo({top:0});
+}
+addEventListener("hashchange",render);
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  if(b.dataset.etab){eventTab=b.dataset.etab;document.querySelectorAll("[data-etab]").forEach(x=>x.setAttribute("aria-selected",x===b));$("#etab").innerHTML=eventBody();$("#etab").classList.remove("fade-in");void $("#etab").offsetWidth;$("#etab").classList.add("fade-in")}
+  if(b.dataset.rcat){rankCat=b.dataset.rcat;document.querySelectorAll("[data-rcat]").forEach(x=>x.setAttribute("aria-pressed",x===b));$("#rtable").innerHTML=rankTable(rankCat)}
+  if(b.dataset.q){$("#rq").value=b.dataset.q;$("#rres").innerHTML=ruleResults(b.dataset.q)}
+  if(b.hasAttribute("data-follow")){const on=b.textContent.includes("☆");b.textContent=on?"★ Following":"☆ Follow"+(b.closest(".ehero")?" event":"")}
+  if(b.dataset.ft){const k=b.dataset.ft[0],i=+b.dataset.ft[1];mDown[k][i]=!mDown[k][i];$("#mboard").innerHTML=marshalBoard()}
+  if(b.hasAttribute("data-reset")){mDown={a:[false,false,true,true,false],b:[true,false,true,false,true]};$("#mboard").innerHTML=marshalBoard()}
+  if(b.hasAttribute("data-confirm")){const aOut=mDown.a.every(Boolean);aOut?M.rb++:M.ra++;$("#mboard").innerHTML=`<div style="text-align:center;display:grid;gap:12px;padding:20px 0">${crest(aOut?"northgate":"ironwardens",80).replace('class="crest"','class="crest" style="margin:0 auto"')}<span class="chip win" style="justify-self:center">Fight result saved</span><h2 style="font-size:40px">${T[aOut?"northgate":"ironwardens"].name} win 2–1</h2><p style="color:var(--muted)">They go through to the final on Sunday, Field 1.</p><button class="btn btn-line" data-reset style="justify-self:center">Back to the round</button></div>`;M.ra=1;M.rb=1}
+  if(b.id==="themeBtn"){const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=dark?"light":"dark";try{localStorage.setItem("bos-theme",r.dataset.theme)}catch(_){}}
+});
+document.addEventListener("input",e=>{if(e.target.id==="rq")$("#rres").innerHTML=ruleResults(e.target.value)});
+setInterval(()=>{if(M.secs>0&&$("#clock")){M.secs--;$("#clock").textContent=fmt(M.secs)}},1000);
+try{const t=localStorage.getItem("bos-theme");if(t)document.documentElement.dataset.theme=t}catch(_){}
+
+/* event hero: drifting sparks in temper colours, like a grinder on steel */
+let sparkRAF;
+function sparks(){
+  cancelAnimationFrame(sparkRAF);
+  const c=$("#sparks"); if(!c) return; const x=c.getContext("2d"); const dpr=Math.min(devicePixelRatio||1,2);
+  const size=()=>{c.width=c.offsetWidth*dpr;c.height=c.offsetHeight*dpr}; size();
+  const cols=["#E3C77A","#C9893A","#8E4E6B","#4B4FA6","#2C6BB0"];
+  const P=Array.from({length:70},()=>({x:Math.random(),y:Math.random(),v:.0006+Math.random()*.0016,r:.6+Math.random()*1.8,c:cols[Math.floor(Math.random()*cols.length)],a:Math.random()*Math.PI*2}));
+  const still=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const draw=()=>{ if(!c.isConnected) return; if(c.width!==c.offsetWidth*dpr) size();
+    x.clearRect(0,0,c.width,c.height);
+    const g=x.createRadialGradient(c.width*.85,c.height*.2,0,c.width*.85,c.height*.2,c.width*.6);g.addColorStop(0,"rgba(201,137,58,.35)");g.addColorStop(.5,"rgba(75,79,166,.18)");g.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=g;x.fillRect(0,0,c.width,c.height);
+    for(const p of P){ if(!still){p.y-=p.v;p.x+=Math.sin(p.a+=.01)*.0006; if(p.y<-.02){p.y=1.02;p.x=Math.random()}}
+      x.globalAlpha=.85;x.fillStyle=p.c;x.beginPath();x.arc(p.x*c.width,p.y*c.height,p.r*dpr,0,7);x.fill()}
+    x.globalAlpha=1; if(!still) sparkRAF=requestAnimationFrame(draw)};
+  draw();
+}
+render();
+</script>
+</body>
+</html>
