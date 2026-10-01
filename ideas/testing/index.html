@@ -42,6 +42,8 @@ img,svg{max-width:100%}
 :focus-visible{outline:2px solid var(--steel);outline-offset:2px;border-radius:4px}
 h1,h2,h3{font-family:var(--f-display);font-weight:800;line-height:.95;letter-spacing:.005em;margin:0;text-wrap:balance;text-transform:uppercase}
 p{margin:0}
+main section>*,main .two>*,main .grid-2>*,main .fields>*{min-width:0}
+h1,h2,h3{overflow-wrap:anywhere}
 .mono{font-family:var(--f-data);font-variant-numeric:tabular-nums}
 .eyebrow{font:600 12px/1 var(--f-data);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .wrap{max-width:1180px;margin:0 auto;padding-inline:20px}
@@ -51,7 +53,7 @@ p{margin:0}
 .mockflag{background:var(--ink);color:var(--ground);font:500 12px/1 var(--f-data);letter-spacing:.06em;text-align:center;padding:8px 16px}
 .mockflag b{color:var(--brass-soft)}
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in oklab,var(--surface) 88%,transparent);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
-.top .wrap{display:flex;align-items:center;gap:28px;height:64px}
+.top .wrap{display:flex;align-items:center;gap:20px;height:64px}
 .brand{min-width:0;display:flex;align-items:center;gap:10px;font:900 24px/1 var(--f-display);letter-spacing:.02em;text-transform:uppercase}
 .brand .os{color:var(--steel)}
 .mark{width:30px;height:34px;flex:none}
@@ -68,7 +70,8 @@ p{margin:0}
 .btn-line{border:1px solid var(--line);background:var(--raised)}
 .btn-line:hover{border-color:var(--faint)}
 .icon-btn{flex:none;width:44px;height:44px;border-radius:999px;display:grid;place-items:center;border:1px solid var(--line);background:var(--raised)}
-@media (max-width:980px){.nav,.search{display:none}.top .wrap{gap:12px}}
+@media (max-width:1180px){.search{display:none}}
+@media (max-width:980px){.nav{display:none}.top .wrap{gap:12px}}
 
 /* ---------- phone bottom bar ---------- */
 .bottom{display:none}
@@ -277,6 +280,7 @@ td.num,th.num{text-align:right;font-family:var(--f-data);font-variant-numeric:ta
 .rulesearch input{flex:1;min-width:0;border:0;background:none;font:500 18px var(--f-body);color:var(--ink);height:48px;outline:none}
 .rule{padding:18px 20px;display:grid;gap:8px}
 .rule .rt{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.rule .chip{white-space:normal;height:auto;min-height:24px;padding:5px 9px;line-height:1.35;text-align:left}
 .rule h3{font-size:22px}
 .rule p{color:var(--muted);max-width:70ch}
 .rule mark{background:var(--brass-soft);color:var(--ink);border-radius:3px;padding:0 2px}
@@ -285,7 +289,7 @@ td.num,th.num{text-align:right;font-family:var(--f-data);font-variant-numeric:ta
 .marshal{max-width:520px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
 .mhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .mboard{padding:18px;display:grid;gap:18px}
-.mteams{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.mteams{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:start}
 .mteam{display:grid;gap:12px;justify-items:center;text-align:center;padding:14px 8px;border-radius:var(--r);background:var(--ground)}
 .mteam .n{font:800 20px/1 var(--f-display);text-transform:uppercase}
 .rounds{display:flex;gap:6px}
@@ -302,6 +306,115 @@ td.num,th.num{text-align:right;font-family:var(--f-data);font-variant-numeric:ta
 .mactions .btn{min-height:56px;border-radius:12px}
 .btn-win{background:var(--win);color:var(--surface)}
 .clock{font:600 30px var(--f-data);letter-spacing:.02em}
+
+
+/* ---------- formats & tournaments ---------- */
+.lg-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:900px){.lg-cards{grid-template-columns:minmax(0,1fr)}}
+.lgcard{position:relative;text-align:left;padding:22px;display:grid;gap:14px;align-content:start;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow);transition:transform .15s,border-color .15s;width:100%}
+.lgcard:hover{transform:translateY(-2px);border-color:var(--faint)}
+.lgcard[aria-pressed="true"]{border-color:var(--steel);box-shadow:0 0 0 2px var(--steel),var(--shadow)}
+.lgcard .ic{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;background:var(--ground);color:var(--steel)}
+.lgcard h3{font-size:36px}
+.lgcard p{color:var(--muted);font-size:15px}
+.lgcard .cats{display:flex;gap:6px;flex-wrap:wrap}
+.lgcard .go{font-weight:600;font-size:14px;color:var(--steel)}
+.facts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.fact{padding:16px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);display:grid;gap:6px;align-content:start}
+.fact small{font:600 11px var(--f-data);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.fact b{font:800 26px/1.05 var(--f-display);text-transform:uppercase}
+.fact span{font-size:14px;color:var(--muted)}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.two{grid-template-columns:minmax(0,1fr)}}
+.bul{margin:0;padding:0;list-style:none;display:grid;gap:10px;font-size:15px}
+.bul li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;align-items:start}
+.bul li::before{content:"";width:8px;height:8px;margin-top:8px;border-radius:2px;background:var(--steel)}
+.bul.no li::before{background:var(--live)}
+.bul.ok li::before{background:var(--win)}
+.fig-wrap{display:grid;grid-template-columns:180px minmax(0,1fr);gap:28px;align-items:center;padding:22px}
+@media (max-width:640px){.fig-wrap{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:left}.fig-wrap>div:last-child{justify-self:stretch}}
+.zfig{width:160px;height:auto}
+.z2{fill:var(--steel);stroke:var(--steel)}
+.z1{fill:var(--steel-soft);stroke:var(--steel)}
+.z0{fill:var(--ground);stroke:var(--faint);stroke-dasharray:3 3}
+.zx{fill:none;stroke:var(--live);stroke-dasharray:3 3}
+.zt{font:700 12px var(--f-data);fill:var(--surface)}
+.zt1{font:700 12px var(--f-data);fill:var(--steel)}
+.legend{display:flex;gap:8px 16px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:4px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+.tmpl{display:grid;gap:4px}
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:12px}
+.tier{padding:18px;display:grid;gap:12px;align-content:start}
+.tier h3{font-size:30px}
+.tier .pct{font:900 44px/1 var(--f-display);color:var(--steel)}
+.tier dl{margin:0;display:grid;gap:8px;font-size:14px}
+.tier dt{font:600 11px var(--f-data);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.tier dd{margin:0;color:var(--ink)}
+.conflict{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;padding:14px 16px;border-radius:var(--r-sm);background:var(--brass-soft);border:1px solid color-mix(in oklab,var(--brass) 35%,transparent);font-size:14px}
+.conflict b{font-weight:600}
+.range{width:100%;accent-color:var(--steel);height:44px}
+.nbig{font:900 72px/1 var(--f-display)}
+.flow{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.pool{padding:10px 14px;border-radius:var(--r-sm);background:var(--ground);border:1px solid var(--line);display:grid;gap:2px;text-align:center;min-width:84px}
+.pool b{font:900 26px/1 var(--f-display)}
+.pool small{font:500 11px var(--f-data);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.arrow{align-self:center;color:var(--faint);font:600 12px var(--f-data);text-align:center;max-width:110px}
+.stage{padding:10px 14px;border-radius:var(--r-sm);background:var(--steel-soft);color:var(--ink);display:grid;gap:3px;min-width:140px;border:1px solid color-mix(in oklab,var(--steel) 30%,transparent)}
+.stage b{font-weight:600;font-size:14px}.stage small{color:var(--muted);font-size:12px}
+.opt{padding:16px;display:grid;gap:12px}
+.opt h3{font-size:22px}
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:stretch}
+@media (max-width:760px){.calc{grid-template-columns:minmax(0,1fr)}}
+.field-in{display:grid;gap:6px;font-size:14px;color:var(--muted)}
+.field-in input,.field-in select{height:44px;border-radius:8px;border:1px solid var(--line);background:var(--raised);color:var(--ink);font:500 16px var(--f-body);padding:0 12px;width:100%}
+.result{display:grid;gap:8px;align-content:center;justify-items:start;padding:22px;border-radius:var(--r);background:var(--ink);color:var(--surface)}
+:root .result .eyebrow{color:var(--faint)}
+.result .nbig{color:var(--surface)}
+.steps{display:grid;gap:10px;counter-reset:s}
+.step{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;padding:14px 16px;align-items:start}
+.step::before{counter-increment:s;content:counter(s);font:900 34px/1 var(--f-display);color:var(--brass)}
+.step b{font-weight:600}.step p{font-size:14px;color:var(--muted)}
+.cards3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.cardtile{padding:14px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start}
+.cc{width:20px;height:28px;border-radius:3px;margin-top:2px;box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.2)}
+.cc.y{background:#E2B93B}.cc.r{background:#D1392B}.cc.g{background:#2E9E62}.cc.v{background:transparent;box-shadow:inset 0 0 0 2px var(--faint)}
+.cardtile b{font-weight:600}.cardtile p{font-size:13px;color:var(--muted)}
+.scoreband{display:grid;gap:8px}
+.sband{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:12px;align-items:center;font-size:14px}
+.sband .bar i{background:var(--brass)}
+.tbl{overflow-x:auto}
+.cat-line{display:flex;gap:6px;flex-wrap:wrap}
+.evfilter{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.lgdot{display:inline-flex;align-items:center;gap:6px;font:600 11px var(--f-data);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.compcard{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:16px;text-align:left;width:100%;transition:transform .15s,border-color .15s}
+.compcard:hover{transform:translateY(-2px);border-color:var(--faint)}
+.compcard .ic{width:44px;height:44px;border-radius:12px;background:var(--ground);display:grid;place-items:center;color:var(--steel)}
+.compcard h3{font-size:24px}
+.compcard .m{font-size:13px;color:var(--muted);margin-top:4px;display:flex;gap:4px 12px;flex-wrap:wrap}
+@media (max-width:620px){.compcard{grid-template-columns:auto minmax(0,1fr)}.compcard>.chip{grid-column:2;justify-self:start}}
+.bout{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+.bout:last-child{border:0}
+.bout .no{font:900 26px var(--f-display);color:var(--faint)}
+.bout .vs{display:flex;gap:6px 10px;flex-wrap:wrap;align-items:baseline;font-weight:600}
+.bout .vs i{font-style:normal;color:var(--faint);font-weight:400}
+.bout .rs{text-align:right;font:600 13px var(--f-data);display:grid;gap:3px}
+.bout .w{color:var(--win)}
+.seg-note{font-size:13px;color:var(--muted)}
+/* duel and profight marshal */
+.dside{display:grid;gap:10px;align-content:start;justify-items:center;padding:14px 8px;border-radius:var(--r);background:var(--ground);text-align:center}
+.dside .n{font:800 20px/1 var(--f-display);text-transform:uppercase}
+.dscore{font:900 64px/1 var(--f-display)}
+.rchips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.rchip{font:600 12px var(--f-data);padding:3px 8px;border-radius:6px;background:var(--raised);border:1px solid var(--line)}
+.rchip.cur{border-color:var(--steel);color:var(--steel)}
+.pbtn{min-height:56px;border-radius:12px;font-weight:700;font-size:15px;width:100%;padding:0 8px}
+.pbtn.s2{background:var(--ink);color:var(--surface)}
+.pbtn.s1{background:var(--raised);border:1px solid var(--line)}
+.stepper{display:grid;grid-template-columns:48px minmax(0,1fr) 48px;gap:6px;align-items:center;width:100%}
+.stepper button{height:48px;border-radius:10px;border:1px solid var(--line);background:var(--raised);font:700 22px var(--f-data)}
+.stepper output{font:900 40px/1 var(--f-display);text-align:center}
+.sc10{font:900 52px/1 var(--f-display);display:flex;gap:10px;justify-content:center;align-items:center}
+@media (max-width:420px){.sband{grid-template-columns:78px minmax(0,1fr) auto}.nbig{font-size:56px}}
 
 /* ---------- footer ---------- */
 footer{border-top:1px solid var(--line);margin-top:72px;padding-block:28px 40px;color:var(--muted);font-size:14px}
@@ -346,10 +459,12 @@ const T = {
 };
 const EVENT = {name:"Prairie Steel Open",dates:"Sat 17 – Sun 18 Oct 2026",venue:"Example Fairgrounds, Alberta",host:"ironwardens",ruleset:"Sample ruleset v2.1"};
 const EVENTS = [
-  {m:"Oct",d:"17",y:"2026",name:"Prairie Steel Open",meta:["Example Fairgrounds, AB","5v5 · 3v3 · Duels","8 teams"],tags:[["live","Live now"],["steel","Tournament"]],href:"#event"},
-  {m:"Nov",d:"07",y:"2026",name:"Northern Lists Training Day",meta:["Kamloops, BC","Open practice","Hosted by Northgate Company"],tags:[["","Practice"],["win","Open to all"]],href:"#event"},
-  {m:"Nov",d:"21",y:"2026",name:"Harbor Profight Night",meta:["Halifax, NS","Profight · Duels","12 bouts"],tags:[["brass","Registration open"],["steel","Tournament"]],href:"#event"},
-  {m:"Jan",d:"16",y:"2027",name:"Winter Melee Clinic",meta:["Winnipeg, MB","Clinic · beginners welcome"],tags:[["","Clinic"]],href:"#event"},
+  {m:"Oct",d:"17",y:"2026",name:"Prairie Steel Open",meta:["Example Fairgrounds, AB","5 competitions","Hosted by Iron Wardens"],lg:["buhurt","duels","outrance"],tier:"Classic",tags:[["live","Live now"]],href:"#event"},
+  {m:"Nov",d:"07",y:"2026",name:"Northern Lists Training Day",meta:["Kamloops, BC","Open practice, all formats","Hosted by Northgate Company"],lg:["buhurt","duels"],tier:"Practice",tags:[["win","Open to all"]],href:"#event"},
+  {m:"Nov",d:"14",y:"2026",name:"Cascade Source Cup",meta:["Spokane, WA","Men's 5v5 · 4 teams","Developing-region event"],lg:["buhurt"],tier:"Source",tags:[["brass","Registration open"]],href:"#event"},
+  {m:"Nov",d:"21",y:"2026",name:"Harbor Profight Night",meta:["Halifax, NS","Matched fights · 12 bouts"],lg:["outrance"],tier:"Matched fights",tags:[["brass","Registration open"]],href:"#event"},
+  {m:"Feb",d:"06",y:"2027",name:"Great Lakes Regional Duels",meta:["Duluth, MN","Longsword · Sword & Shield · Polearm"],lg:["duels"],tier:"Regional",tags:[["","Opens Dec 1"]],href:"#event"},
+  {m:"Jun",d:"19",y:"2027",name:"North America Conference Cup",meta:["Location to be announced","Group fight and duels"],lg:["buhurt","duels"],tier:"Conference",tags:[["","Submitted to BI"]],href:"#event"},
 ];
 const FIGHTERS = [
   {id:"mara",name:"Mara Kessling",team:"ironwardens",role:"Captain · Striker",init:"MK"},
@@ -361,19 +476,41 @@ const FIGHTERS = [
   {id:"isla",name:"Isla Brennan",team:"ironwardens",role:"Reserve",init:"IB"},
 ];
 const RANK = {
-  "5v5 Teams":["ironwardens","northgate","greyfen","saltmarsh","ravenmoor","emberhold","coldharbor","thornwick"],
-  "3v3 Teams":["northgate","saltmarsh","ironwardens","emberhold","greyfen","thornwick","ravenmoor","coldharbor"],
-  "Profight":["Mara Kessling","Dane Holloway","Ruth Achterberg","Sami Väisänen","Coll MacRae","Ines Duarte","Petr Novak","Ana Lund"],
-  "Sword & Shield":["Coll MacRae","Ruth Achterberg","Mara Kessling","Ines Duarte","Dane Holloway","Ana Lund","Petr Novak","Sami Väisänen"],
+  "Men's 5v5":{kind:"team",rows:["ironwardens","northgate","greyfen","saltmarsh","ravenmoor","emberhold","coldharbor","thornwick"]},
+  "Women's 5v5":{kind:"team",rows:["saltmarsh","northgate","emberhold","ravenmoor","coldharbor"]},
+  "Men's 3v3":{kind:"team",rows:["northgate","saltmarsh","ironwardens","emberhold","greyfen","thornwick","ravenmoor","coldharbor"]},
+  "Longsword":{kind:"duel",rows:["Coll MacRae","Ruth Achterberg","Mara Kessling","Ines Duarte","Dane Holloway","Ana Lund","Petr Novak","Sami Väisänen"]},
+  "Sword & Shield":{kind:"duel",rows:["Mara Kessling","Dane Holloway","Coll MacRae","Ruth Achterberg","Ines Duarte","Ana Lund","Petr Novak","Sami Väisänen"]},
+  "Sword & Buckler":{kind:"duel",rows:["Ines Duarte","Ana Lund","Dane Holloway","Sami Väisänen","Mara Kessling","Petr Novak","Coll MacRae","Ruth Achterberg"]},
+  "Polearm":{kind:"duel",rows:["Petr Novak","Sami Väisänen","Ruth Achterberg","Dane Holloway","Coll MacRae","Ines Duarte","Ana Lund","Mara Kessling"]},
+  "Profight · Heavyweight":{kind:"pro",rows:["Dane Holloway","Petr Novak","Sami Väisänen","Coll MacRae","Ines Duarte","Ana Lund"]},
 };
+const FCLUB={"Mara Kessling":"Iron Wardens","Dane Holloway":"Northgate Company","Ruth Achterberg":"Saltmarsh Lions","Sami Väisänen":"Grey Fen Brotherhood","Coll MacRae":"Saltmarsh Lions","Ines Duarte":"Cold Harbor Guard","Petr Novak":"Ravenmoor","Ana Lund":"Emberhold","Teo Villanueva":"Iron Wardens","Bram Okafor":"Iron Wardens"};
+const PROREC=[[9,1],[7,2],[6,3],[5,3],[4,4],[2,5]];
 const MOVES=[["up",2],["eq",0],["up",1],["dn",3],["up",4],["dn",1],["eq",0],["dn",2]];
 const RULES = [
-  {t:"When is a fighter out?",k:"5v5 · Grounding",r:"Sample ruleset v2.1",s:"§ 4.2",b:"A fighter is out of the round when a third point of contact, other than the feet, touches the ground. A marshal calls it and the fighter leaves the list."},
-  {t:"Winning a 5v5 fight",k:"5v5 · Format",r:"Sample ruleset v2.1",s:"§ 3.1",b:"A fight is best of three rounds. A team wins a round when every opposing fighter is out. The first team to two rounds wins the fight."},
-  {t:"Forbidden strikes",k:"All formats · Safety",r:"Sample ruleset v2.1",s:"§ 6.4",b:"Strikes to the back of the head, the neck, the groin, the back of the knee and the feet are forbidden. A marshal may stop the round and warn, or remove the fighter."},
-  {t:"Equipment check",k:"All formats · Kit",r:"Sample ruleset v2.1",s:"§ 2.3",b:"Every fighter passes a kit check before the event: helmet, gorget, gauntlets and weapons. A failed item must be fixed and re-checked before the fighter's first fight."},
-  {t:"Tiebreaks in pools",k:"Pools · Standings",r:"Sample ruleset v2.1",s:"§ 8.2",b:"Teams level on wins are separated by head-to-head result, then rounds won, then rounds lost. If still level, the marshals decide by a single deciding round."},
-  {t:"Profight scoring",k:"Profight · Scoring",r:"Sample ruleset v2.1",s:"§ 10.1",b:"Profight bouts are scored by judges on clean strikes, takedowns and control across three rounds. A knockdown that ends the bout is scored as a win."},
+  {t:"When is a fighter grounded?",k:"Group fight",g:"buhurt",r:"Buhurt Rules V.26.4.1",s:"§1.3.1",b:"A fighter is grounded when the torso, hip, arm, hand, knee or shield touches the ground, with only the two feet allowed. Also grounded: leaning on a grounded fighter with downward pressure, armour failure that removes its protective function, attacking, pushing or grappling without a weapon in hand, and yielding by kneeling."},
+  {t:"When a fighter is not grounded",k:"Group fight",g:"buhurt",r:"Buhurt Rules V.26.4.1",s:"§1.3.2",b:"Not grounded: touching the ground with the edge of the shield, an open hand or a fist during or just after a successful takedown; touching the opponent they are falling with, except with torso, hips or buttocks; armour failure the remaining protection can compensate for; any part of a weapon touching the ground."},
+  {t:"What wins a group fight",k:"Group fight",g:"buhurt",r:"Buhurt Rules V.26.4.1",s:"§1.2",b:"The grounded position of all the opposing team's fighters is the main victory criterion in group battles."},
+  {t:"Thrusting is prohibited",k:"Group fight · Duels",g:"safety",r:"Buhurt Rules V.26.4.1",s:"§4.2",b:"Any thrusting action with a weapon is prohibited, and so is the threat of one. The penalty applies regardless of intent: a verbal warning, yellow card or red card."},
+  {t:"Prohibited strike zones",k:"All formats · Safety",g:"safety",r:"Buhurt Rules V.26.4.1",s:"§6",b:"No strikes to the front or back of the neck, the base of the skull (bottom third of the back of the helmet), the back of the knee, the groin, or the feet and ankles. Any body part that has lost its protection also becomes a prohibited zone."},
+  {t:"Intentional passivity and inactive clinches",k:"Group fight",g:"buhurt",r:"Buhurt Rules V.26.4.1",s:"§4.10",b:"Stalling is prohibited. A clinch is inactive when the fighters throw weak strikes or no grappling aimed at grounding the opponent for 10 seconds or longer. Strikes with a fist, knees or shield do not count."},
+  {t:"Losing a weapon",k:"Group fight",g:"buhurt",r:"Buhurt Rules V.26.4.1",s:"§3.5",b:"A fighter must hold a weapon with at least one hand. Without one they are disarmed and may not attack until the grip is restored. They may defend, take a reserve weapon they carry, take one from an ungrounded teammate or the distribution zone, or yield by kneeling."},
+  {t:"Grounded fighters stay down",k:"Group fight",g:"buhurt",r:"Buhurt Rules V.26.4.1",s:"§5.2",b:"Grounded fighters stay on the ground until the Knight Marshal calls 'All Rise', may not interfere with the fight, and keep a comfortable seated or lying position as a signal that they are not injured."},
+  {t:"Scoring: Sword and Shield",k:"Duels",g:"duels",r:"Duels rules V.26.4",s:"§2.1.1",b:"Head and torso strikes score 2 points. Legs, arms and hands score 1. Only blade strikes to legal zones count, and only when clear, deliberate and not effectively countered."},
+  {t:"Scoring: Sword and Buckler",k:"Duels",g:"duels",r:"Duels rules V.26.4",s:"§2.1.2 · §2.2.1",b:"Every legal strike scores 1 point. A round goes to the first fighter to 5 points, or the higher score at the 1-minute limit. The first fighter to win 2 rounds wins the match. There is no break between rounds."},
+  {t:"Scoring: Longsword",k:"Duels",g:"duels",r:"Duels rules V.26.4",s:"§2.1.4",b:"With two hands on the grip, head and torso score 2 and arms, legs and hands score 1. With one hand on the grip, every legal zone scores 1."},
+  {t:"Scoring: Polearm",k:"Duels",g:"duels",r:"Duels rules V.26.4",s:"§2.1.3",b:"The full length of the cutting edge counts as the blade. Haft strikes do not score. The grip must be held with two hands. Hands score 0 and every other legal zone scores 1."},
+  {t:"How a Sword and Shield, Longsword or Polearm match is won",k:"Duels",g:"duels",r:"Duels rules V.26.4",s:"§2.2.2",b:"Two main rounds of 1 minute. The match goes to whoever leads by at least 2 points over the total. If the gap is under 2, extra 30-second rounds are fought until it is reached. 30-second break between rounds."},
+  {t:"Technical win",k:"Duels",g:"duels",r:"Duels rules V.26.4",s:"§2.3",b:"Awarded when the opponent withdraws, fails to report, cannot fix equipment within 1 minute, is injured by an illegal strike, or is disqualified (2 yellow cards or 1 red). The score is 5–0 for both rounds in Sword and Buckler and 10–0 per round otherwise."},
+  {t:"Profight: rounds and breaks",k:"Profight",g:"outrance",r:"Outrance Rules V.26.4",s:"§4",b:"Matched fights in Division 1 are 3 rounds of 2 minutes with 1-minute breaks. Tournament fights are 2 rounds of 2 minutes with a 45-second break, and a third round if the fight is level. Division 2 rounds are 1 minute 30."},
+  {t:"Profight: the 10-point must system",k:"Profight",g:"outrance",r:"Outrance Rules V.26.4",s:"§15.3",b:"Each line marshal scores every round. Out-striking by 6 to 10 strike points is 10–9, by 11 to 15 is 10–8, and by 16 or more is 10–7. A yellow card, armour failure or weapon loss costs one point each. KO and TKO score 10–7."},
+  {t:"Profight: what judges weigh, in order",k:"Profight",g:"outrance",r:"Outrance Rules V.26.4",s:"§15.2",b:"Effective striking, effective grappling, list control, aggression and defence. Each clean legal strike with a weapon, leg, arm or shield is one strike point. Head strikes award none."},
+  {t:"Profight weight classes",k:"Profight",g:"outrance",r:"Outrance Rules V.26.4",s:"§1.2",b:"Men: lightweight to 75 kg, middleweight to 85, light heavyweight to 95, heavyweight to 105, super heavyweight to 115, ultra heavyweight above. Women: featherweight to 60 kg, lightweight to 70, middleweight to 80, light heavyweight to 90, heavyweight above."},
+  {t:"Tie in a pool or round robin",k:"Tournaments",g:"tournaments",r:"Tournament Structure and Formats (Jan 2026)",s:"§3",b:"Break ties in order: head-to-head result when two are tied; round wins minus losses (group fights and buckler) or hits earned against hits received (other duels); active against downed competitors; fewest penalties."},
+  {t:"Choosing a format for 6 to 12 entrants",k:"Tournaments",g:"tournaments",r:"Tournament Structure and Formats (Jan 2026)",s:"§1.4",b:"Either one round robin, or pools of 3 to 6 where the top two from each advance to the semifinals. The final four then play a round robin or a single-elimination bracket with a 3rd and 4th place match."},
+  {t:"Registration deadlines",k:"Tournaments",g:"tournaments",r:"Tournament Structure and Formats (Jan 2026)",s:"§1.1",b:"Registration closes at least 15 days before the event. Events register with BI at least six weeks before they start. A double-elimination bracket must be declared before fees are collected."},
+  {t:"List size and safety zone",k:"Group fight · Duels · Profight",g:"safety",r:"Buhurt Regulations V.26.4 · Duels Regulations V.26.4",s:"§1.2",b:"Rail height is 0.9 to 1.3 m and a fenced 2 m safety zone surrounds the list. Group fight lists: 3v3 7–20 × 5–15 m, 5v5 9–20 × 7–15 m, 12v12 15–20 × 7–15 m, 30v30 25–30 × 12.5–20 m. Duel and profight lists are 5 to 10 m."},
 ];
 
 /* ======================= helpers ======================= */
@@ -401,36 +538,74 @@ const ICON={
   teams:'<path d="M5 3h14v8c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10Z"/>',
   rankings:'<path d="M5 21V11M12 21V4M19 21v-7"/>',
   rules:'<path d="M5 4h11l3 3v13H5Z"/><path d="M9 11h6M9 15h6"/>',
+  formats:'<path d="M5 19 19 5M19 5l-1 4M19 5l-4 1M19 19 5 5M5 5l1 4M5 5l4 1"/>',
 };
-const NAV=[["home","Home"],["event","Events"],["teams","Teams"],["rankings","Rankings"],["rules","Rules"]];
+const NAV=[["home","Home"],["events","Events"],["formats","Formats"],["teams","Teams"],["rankings","Rankings"],["rules","Rules"]];
+const PHONE_NAV=["home","events","formats","teams","rules"];
 
 /* ======================= views ======================= */
+
+/* ----- leagues (from Buhurt International documents; see source tags) ----- */
+const LEAGUES=[
+ {id:"buhurt",name:"Buhurt",tag:"Group fight",sum:"Teams fight at the same time on one list. A fighter is out when grounded, and a team wins when every opposing fighter is grounded.",cats:["3v3","5v5","12v12","30v30"],src:"Buhurt Rules V.26.4.1 §1.2"},
+ {id:"duels",name:"Duels",tag:"One on one",sum:"Two fighters, no weight classes. Line marshals count clean blade strikes, and each of the four categories scores differently.",cats:["Sword & Shield","Sword & Buckler","Longsword","Polearm"],src:"Duels rules V.26.4"},
+ {id:"outrance",name:"Profight",tag:"Outrance",sum:"Full-contact bouts with strikes, grappling and takedowns, judged round by round on the 10-point must system and fought in weight classes.",cats:["Men: 6 classes","Women: 5 classes","Division 1 and 2"],src:"Outrance Rules V.26.4"},
+];
+const LGNAME={buhurt:"Group fight",duels:"Duels",outrance:"Profight"};
+function lgIcon(id,sz=30){
+  const a=`width="${sz}" height="${sz}" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"`;
+  if(id==="buhurt") return `<svg ${a}><path d="M4 16h11v9c0 5-3 8-5.500 9C7 33 4 30 4 25Z"/><path d="M18.500 10h11v11c0 6-3 9.500-5.500 10.500-2.500-1-5.500-4.500-5.500-10.500Z"/><path d="M33 16h11v9c0 5-3 8-5.500 9-2.500-1-5.500-4-5.500-9Z"/></svg>`;
+  if(id==="duels") return `<svg ${a}><path d="M9 39 35 13M35 13l5-1-1 5M39 39 13 13M13 13 8 12l1 5M7 41l5-5M41 41l-5-5"/></svg>`;
+  return `<svg ${a}><path d="M16 6h16l10 10v16L32 42H16L6 32V16Z"/><path d="M17 20l7 7 7-7"/></svg>`;
+}
+const TIERS=[
+ {k:"Exhibition",a:0,b:0,pa:"No points",adv:"No submission needed",mar:"None required",buh:"No minimum",duel:"No minimum",str:"Not required",note:"Promotion only. Can be a small festival where one club attends for fun fights."},
+ {k:"Source",a:.5,b:.5,pa:"50%",adv:"45 days",mar:"1 Regional-accredited marshal (National Org may waive)",buh:"3 or more teams (3v3 or 5v5)",duel:"3 or more duellists per category",str:"Not stated",note:"For developing regions. BI Committee approval needed. No Division 1 teams."},
+ {k:"Classic",a:1,b:1,pa:"100%",adv:"45 days",mar:"1 Conference-accredited marshal (waiver may be requested)",buh:"4 registered men's 5v5 teams, or 3 women's",duel:"6 men or 3 women per category, from at least 2 clubs",str:"Video recording; livestream recommended",note:"Division 1, Division 2 or Open."},
+ {k:"Regional",a:1.5,b:1.25,pa:"150%",adv:"90 days",mar:"1 International-accredited and 2 Regional-accredited marshals",buh:"8 registered men's 5v5 teams, or 5 women's",duel:"8 men or 5 women per category, from at least 3 clubs",str:"Video required; livestream recommended",note:"One per region, or two if over 80 competitors are registered there."},
+ {k:"Conference",a:2,b:1.5,pa:"200%",adv:"120 days",mar:"3 International-accredited marshals",buh:"10 men's teams (8 with Council approval), or 7 women's (5)",duel:"10 men or 7 women per category, from at least 5 clubs",str:"Livestream and recording mandatory",note:"One per conference. Needs 60/40 approval from the National Orgs in that conference."},
+];
+const TIERMULT_B={Exhibition:0,Source:.5,Classic:1,Regional:1.25,Conference:1.5};
+const TIERMULT_A={Exhibition:0,Source:.5,Classic:1,Regional:1.5,Conference:2};
+function lgChips(e){return e.lg.map(l=>`<span class="chip">${LGNAME[l]}</span>`).join("")}
+function tierChip(t){const c={Classic:"steel",Regional:"brass",Conference:"brass",Source:"win"}[t]||"";return `<span class="chip ${c}">${t}</span>`}
+
+/* ======================= views ======================= */
+function eventRow(e){return `
+  <a class="panel eventrow" href="${e.href}">
+    <div class="datebox"><span class="m">${e.m}</span><span class="d">${e.d}</span><span class="y">${e.y}</span></div>
+    <div style="min-width:0"><h3>${e.name}</h3><div class="meta">${e.meta.map(m=>`<span>${m}</span>`).join("")}</div></div>
+    <div class="tags">${e.tags.map(([c,t])=>chip(c,t)).join("")}${tierChip(e.tier)}${lgChips(e)}</div>
+  </a>`}
 function viewHome(){
   return `
   <section class="hero fade-in">
     <div>
       <p class="eyebrow">Armored combat, in one place</p>
       <h1 style="margin-top:14px">Every list.<br>Every fight.<br><span class="t">Every result.</span></h1>
-      <p class="lede">Find events near you, follow your team through the bracket, and look up any rule while the fight is still on.</p>
-      <div class="ctas"><a class="btn btn-ink" href="#event">Follow the Prairie Steel Open</a><a class="btn btn-line" href="#teams">Find a team near you</a></div>
+      <p class="lede">Group fights, duels and profights. Find events near you, follow the bracket, and look up the rule while the fight is still on.</p>
+      <div class="ctas"><a class="btn btn-ink" href="#event">Follow the Prairie Steel Open</a><a class="btn btn-line" href="#formats">How each style works</a></div>
     </div>
     ${liveCard()}
   </section>
 
   <section class="section">
-    <div class="section-head"><h2>Coming up</h2><a class="more" href="#event">All events →</a></div>
-    <div class="eventlist">${EVENTS.map(e=>`
-      <a class="panel eventrow" href="${e.href}">
-        <div class="datebox"><span class="m">${e.m}</span><span class="d">${e.d}</span><span class="y">${e.y}</span></div>
-        <div style="min-width:0"><h3>${e.name}</h3><div class="meta">${e.meta.map(m=>`<span>${m}</span>`).join("")}</div></div>
-        <div class="tags">${e.tags.map(([c,t])=>chip(c,t)).join("")}</div>
-      </a>`).join("")}</div>
+    <div class="section-head"><h2>Pick your fight</h2><a class="more" href="#formats">All formats and tournament tiers →</a></div>
+    <div class="lg-cards">${LEAGUES.map(l=>`
+      <a class="lgcard" href="#formats" data-lglink="${l.id}"><span class="ic">${lgIcon(l.id)}</span>
+        <div><p class="eyebrow">${l.tag}</p><h3 style="margin-top:6px">${l.name}</h3></div>
+        <p>${l.sum}</p><div class="cats">${l.cats.map(c=>chip("",c)).join("")}</div><span class="go">How it works →</span></a>`).join("")}</div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Coming up</h2><a class="more" href="#events">All events →</a></div>
+    <div class="eventlist">${EVENTS.slice(0,4).map(eventRow).join("")}</div>
   </section>
 
   <section class="section grid-2" style="align-items:start">
     <div style="display:grid;gap:18px">
-      <div class="section-head"><h2>5v5 standings</h2><a class="more" href="#rankings">Full rankings →</a></div>
-      ${rankTable("5v5 Teams",5)}
+      <div class="section-head"><h2>Men's 5v5 standings</h2><a class="more" href="#rankings">Full rankings →</a></div>
+      ${rankTable("Men's 5v5",5)}
     </div>
     <div style="display:grid;gap:18px">
       <div class="section-head"><h2>Teams</h2><a class="more" href="#teams">Directory →</a></div>
@@ -453,24 +628,46 @@ function liveCard(){
 }
 function teamCard(k){const t=T[k];return `<a class="panel teamcard" href="#team">${crest(k,48)}<div style="min-width:0"><div class="n">${t.name}</div><div class="l">${t.place}</div><div class="s">${chip("", t.rec[0]+"–"+t.rec[1])}${chip("steel",t.pts+" pts")}</div></div></a>`}
 function rankTable(cat,limit=8){
-  const list=RANK[cat].slice(0,limit); const isTeam=cat.includes("Teams");
+  const R=RANK[cat]; const list=R.rows.slice(0,limit); const k=R.kind;
+  const head=k==="pro"?`<th class="num">Record</th><th class="num">Status</th>`:`<th class="num">Pts</th><th class="num">Moved</th>`;
   return `<div class="panel board"><table>
-    <thead><tr><th>#</th><th>${isTeam?"Team":"Fighter"}</th><th class="num">Pts</th><th class="num">Moved</th></tr></thead>
-    <tbody>${list.map((x,i)=>{const [d,n]=MOVES[i];const p=isTeam?T[x].pts:2100-i*83;
-      const who=isTeam?`<a class="who" href="#team">${crest(x,32)}<span><b>${T[x].name}</b><small>${T[x].place}</small></span></a>`
-        :`<a class="who" href="#fighter"><span class="person" style="padding:0;border:0;background:none"><span class="av">${x.split(" ").map(s=>s[0]).join("")}</span></span><span><b>${x}</b><small>${["Iron Wardens","Northgate Company","Saltmarsh Lions","Grey Fen Brotherhood"][i%4]}</small></span></a>`;
-      return `<tr class="${i<3?"top3":""}"><td class="rk">${i+1}</td><td>${who}</td><td class="num">${p.toLocaleString()}</td><td class="num"><span class="mv ${d}">${d==="up"?"▲ "+n:d==="dn"?"▼ "+n:"—"}</span></td></tr>`}).join("")}</tbody>
+    <thead><tr><th>#</th><th>${k==="team"?"Team":"Fighter"}</th>${head}</tr></thead>
+    <tbody>${list.map((x,i)=>{const [d,n]=MOVES[i%MOVES.length];const p=(k==="team"?T[x].pts:2100-i*83);
+      const who=k==="team"?`<a class="who" href="#team">${crest(x,32)}<span><b>${T[x].name}</b><small>${T[x].place}</small></span></a>`
+        :`<a class="who" href="#fighter"><span class="person" style="padding:0;border:0;background:none"><span class="av">${x.split(" ").map(s=>s[0]).join("")}</span></span><span><b>${x}</b><small>${FCLUB[x]||""}</small></span></a>`;
+      const tail=k==="pro"?`<td class="num">${PROREC[i][0]}–${PROREC[i][1]}</td><td class="num"><span class="mv ${i<2?"up":"eq"}">${i<2?"Active":"Active"}</span></td>`
+        :`<td class="num">${p.toLocaleString()}</td><td class="num"><span class="mv ${d}">${d==="up"?"▲ "+n:d==="dn"?"▼ "+n:"—"}</span></td>`;
+      return `<tr class="${i<3?"top3":""}"><td class="rk">${i+1}</td><td>${who}</td>${tail}</tr>`}).join("")}</tbody>
   </table></div>`;
 }
 
-let eventTab="Live";
+let evFilter="all";
+function viewEvents(){
+  const f=[["all","All"],["buhurt","Group fight"],["duels","Duels"],["outrance","Profight"]];
+  return `<section class="fade-in" style="display:grid;gap:22px">
+    <div><p class="eyebrow">Calendar</p><h1 style="font-size:clamp(46px,7vw,88px);margin-top:10px">Events</h1>
+    <p style="color:var(--muted);margin-top:12px;font-size:17px;max-width:62ch">One event can run several competitions: a men's 5v5, a women's 5v5, three duel categories and a profight card, each with its own tier and bracket.</p></div>
+    <div class="evfilter"><div class="seg" role="group" aria-label="Format">${f.map(([k,l])=>`<button aria-pressed="${k===evFilter}" data-evf="${k}">${l}</button>`).join("")}</div><a class="more" href="#formats">What are the tiers? →</a></div>
+    <div class="eventlist" id="evlist">${evList()}</div>
+  </section>`;
+}
+function evList(){const l=EVENTS.filter(e=>evFilter==="all"||e.lg.includes(evFilter));return l.length?l.map(eventRow).join(""):`<div class="panel info"><h3>No events for this format yet</h3><p style="color:var(--muted)">Organizers can submit one from their event page.</p></div>`}
+
+const COMPS=[
+ {id:"m5",name:"Men's 5v5",lg:"buhurt",tier:"Classic",div:"Open",n:"8 teams",st:"Two rounds: elimination bracket",stat:["live","Semifinals live"]},
+ {id:"w5",name:"Women's 5v5",lg:"buhurt",tier:"Classic",div:"Division 1",n:"5 teams",st:"Round robin",stat:["","Starts Sat 16:00"]},
+ {id:"lsw",name:"Longsword",lg:"duels",tier:"Classic",div:"Open",n:"10 duellists",st:"Two pools, then semifinals",stat:["live","Pools running"]},
+ {id:"sas",name:"Sword & Shield",lg:"duels",tier:"Classic",div:"Open",n:"5 duellists",st:"Round robin",stat:["win","Finished"]},
+ {id:"pf",name:"Profight · Heavyweight",lg:"outrance",tier:"Tournament fights",div:"Division 1",n:"6 bouts",st:"2 rounds of 2:00, 10-point must",stat:["","Sat 18:00"]},
+];
+let eventTab="Live", compSel="m5";
 function viewEvent(){
-  const tabs=["Live","Bracket","Schedule","Teams","Info"];
+  const tabs=["Live","Competitions","Bracket","Schedule","Entrants","Info"];
   return `
   <section class="ehero fade-in"><canvas id="sparks" aria-hidden="true"></canvas>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">${chip("live","Live now")}${chip("","Tournament")}${chip("","Hosted by Iron Wardens")}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">${chip("live","Live now")}${chip("","Classic tier")}${chip("","5 competitions")}${chip("","Hosted by Iron Wardens")}</div>
     <h1>${EVENT.name}</h1>
-    <div class="facts"><span><small>When</small>${EVENT.dates}</span><span><small>Where</small>${EVENT.venue}</span><span><small>Rules</small>${EVENT.ruleset}</span></div>
+    <div class="facts"><span><small>When</small>${EVENT.dates}</span><span><small>Where</small>${EVENT.venue}</span><span><small>Formats</small>Group fight · Duels · Profight</span></div>
     <div class="acts"><button class="btn btn-light" data-follow>☆ Follow event</button><a class="btn btn-ghost" href="#rules">Look up a rule</a><button class="btn btn-ghost">Add to calendar</button></div>
   </section>
   <div class="tabs" role="tablist" style="margin-top:20px">${tabs.map(t=>`<button role="tab" aria-selected="${t===eventTab}" data-etab="${t}">${t}</button>`).join("")}</div>
@@ -479,29 +676,56 @@ function viewEvent(){
 function eventBody(){
   if(eventTab==="Live") return `
     <div class="fields">
-      ${field("Field 1",[["now","Now","ironwardens","northgate","1 – 1","Semifinal · R3"],["deck","On deck","greyfen","saltmarsh","","Semifinal"],["hole","Next","","","","3v3 Pool B · 2 fights"]])}
-      ${field("Field 2",[["now","Now",null,null,"2:14","Duel · Sword & Shield · Kessling v Brennan"],["deck","On deck",null,null,"","Duel · Longsword · Holloway v Lund"],["hole","Next",null,null,"","Profight · Heavy · Novak v Duarte"]])}
+      ${field("Field 1 · Group fight",[["now","Now","ironwardens","northgate","1 – 1","Men's 5v5 · Semifinal 1 · Round 3"],["deck","On deck","greyfen","saltmarsh","","Men's 5v5 · Semifinal 2"],["hole","Next",null,null,"","Women's 5v5 · Round robin · 2 fights"]])}
+      ${field("Field 2 · Duels",[["now","Now",null,null,"3 – 2","Longsword · Pool B · Holloway v Lund · Round 2 · 0:41"],["deck","On deck",null,null,"","Longsword · Pool B · Achterberg v Väisänen"],["hole","Next",null,null,"","Sword & Shield · Round robin · Lund v Achterberg"]])}
     </div>
-    <div class="stat-strip" style="margin-top:20px"><div><b class="mono">23</b><span>fights finished</span></div><div><b class="mono">9</b><span>still to fight</span></div><div><b class="mono">2</b><span>fields running</span></div><div><b class="mono">~4:40</b><span>expected finish</span></div></div>`;
-  if(eventTab==="Bracket") return bracket();
+    <div class="stat-strip" style="margin-top:20px"><div><b class="mono">23</b><span>fights finished</span></div><div><b class="mono">19</b><span>to fight</span></div><div><b class="mono">2</b><span>fields running</span></div><div><b class="mono">~4:40</b><span>expected finish</span></div></div>`;
+  if(eventTab==="Competitions") return `<div style="display:grid;gap:12px">${COMPS.map(c=>`
+    <button class="panel compcard" data-comp="${c.id}"><span class="ic">${lgIcon(c.lg,24)}</span>
+      <div style="min-width:0"><h3>${c.name}</h3><div class="m"><span>${LGNAME[c.lg]}</span><span>${c.tier}</span><span>${c.div}</span><span>${c.n}</span></div><div class="m"><span>${c.st}</span></div></div>
+      ${chip(c.stat[0],c.stat[1])}</button>`).join("")}
+    <p class="src">An event holds many competitions. Each one has its own tier, division, structure and ranking, so a single weekend can award points for several categories.</p></div>`;
+  if(eventTab==="Bracket") return `
+    <div class="seg" role="group" aria-label="Competition" style="margin-bottom:18px">${COMPS.map(c=>`<button aria-pressed="${c.id===compSel}" data-comp="${c.id}">${c.name}</button>`).join("")}</div>
+    <div id="compbody">${compBody()}</div>`;
   if(eventTab==="Schedule") return `<div class="grid-2"><div class="panel info"><h3>Saturday</h3><div class="timeline">${[
       ["09:00","done","Kit check and weigh-in","Main tent. Bring helmet, gorget, gauntlets and weapons."],
-      ["10:30","done","5v5 quarterfinals","Field 1. Four fights, best of three rounds."],
-      ["13:00","done","Duels · first round","Field 2. Sword & shield, longsword, polearm."],
-      ["14:30","on","5v5 semifinals","Field 1. Happening now."],
-      ["16:00","","3v3 pools","Field 1 and 2."],
-      ["18:00","","Profight night","Field 2. Six bouts."]].map(([h,s,b,p])=>`<div class="tl"><span class="h mono">${h}</span><span class="d ${s}"></span><div><b>${b}</b><p>${p}</p></div></div>`).join("")}</div></div>
-      <div class="panel info"><h3>Sunday</h3><div class="timeline">${[["10:00","","5v5 final and 3rd place","Field 1."],["12:00","","Duel finals","Field 2."],["14:00","","Awards","Main tent."]].map(([h,s,b,p])=>`<div class="tl"><span class="h mono">${h}</span><span class="d ${s}"></span><div><b>${b}</b><p>${p}</p></div></div>`).join("")}</div></div></div>`;
-  if(eventTab==="Teams") return `<div class="teamgrid">${Object.keys(T).map(teamCard).join("")}</div>`;
-  return `<div class="grid-2"><div class="panel info"><h3>About this event</h3><p style="color:var(--muted)">A two-day open tournament with 5v5 and 3v3 team fights, duels in three weapon categories and a profight night. Spectators welcome; bring a chair. Food trucks on site.</p>
-    <dl class="dl"><div><dt>Registration</dt><dd>Closed · 8 teams, 31 duelists</dd></div><div><dt>Rules</dt><dd>${EVENT.ruleset}</dd></div><div><dt>Host</dt><dd>Iron Wardens</dd></div><div><dt>Entry for spectators</dt><dd>Free</dd></div></dl></div>
-    <div class="panel info"><h3>Getting there</h3><dl class="dl"><div><dt>Venue</dt><dd>Example Fairgrounds</dd></div><div><dt>Parking</dt><dd>North lot</dd></div><div><dt>Lists open</dt><dd class="mono">09:00</dd></div></dl></div></div>`;
+      ["10:30","done","Men's 5v5 · quarterfinals","Field 1. Four fights."],
+      ["11:00","done","Sword & Shield · round robin","Field 2. Five duellists."],
+      ["13:00","on","Longsword · pools","Field 2. Happening now."],
+      ["14:30","on","Men's 5v5 · semifinals","Field 1. Happening now."],
+      ["16:00","","Women's 5v5 · round robin","Field 1."],
+      ["18:00","","Profight · heavyweight card","Field 2. Six bouts, three line marshals."]].map(([h,s,b,p])=>`<div class="tl"><span class="h mono">${h}</span><span class="d ${s}"></span><div><b>${b}</b><p>${p}</p></div></div>`).join("")}</div></div>
+      <div class="panel info"><h3>Sunday</h3><div class="timeline">${[["10:00","","Men's 5v5 · final and 3rd place","Field 1."],["11:30","","Longsword · semifinals and final","Field 2."],["14:00","","Awards","Main tent."]].map(([h,s,b,p])=>`<div class="tl"><span class="h mono">${h}</span><span class="d ${s}"></span><div><b>${b}</b><p>${p}</p></div></div>`).join("")}</div></div></div>`;
+  if(eventTab==="Entrants") return `<div style="display:grid;gap:22px"><div><h2 style="font-size:30px;margin-bottom:14px">Teams</h2><div class="teamgrid">${Object.keys(T).map(teamCard).join("")}</div></div>
+    <div><h2 style="font-size:30px;margin-bottom:14px">Duellists</h2><div class="roster">${Object.keys(FCLUB).map(n=>`<a class="person" href="#fighter"><span class="av">${n.split(" ").map(x=>x[0]).join("")}</span><span><b>${n}</b><small>${FCLUB[n]}</small></span></a>`).join("")}</div></div></div>`;
+  return `<div class="grid-2"><div class="panel info"><h3>About this event</h3><p style="color:var(--muted)">A two-day open with group fights, three duel categories and a profight card. Spectators welcome; bring a chair. Food trucks on site.</p>
+    <dl class="dl"><div><dt>Tier</dt><dd>Classic (sample)</dd></div><div><dt>Registration</dt><dd>Closed · 13 teams, 15 duellists</dd></div><div><dt>Rules</dt><dd>Buhurt Rules V.26.4.1 · Duels V.26.4 · Outrance V.26.4</dd></div><div><dt>Host</dt><dd>Iron Wardens</dd></div><div><dt>Spectators</dt><dd>Free</dd></div></dl></div>
+    <div class="panel info"><h3>What a Classic tier needs</h3><dl class="dl"><div><dt>Marshals</dt><dd>1 Conference-accredited</dd></div><div><dt>Submitted to BI</dt><dd>45 days ahead</dd></div><div><dt>Streaming</dt><dd>Video recording</dd></div></dl><p class="src">From League Structure V2026.1 §2.3.3. This event is sample data.</p></div></div>`;
 }
 function field(name,slots){
   return `<div class="panel field"><div class="fh"><h3>${name}</h3>${chip("live","Running")}</div>${slots.map(([c,k,a,b,sc,sub])=>`
     <div class="slot ${c==="now"?"now":""}"><span class="k">${k}</span>
       <div style="min-width:0"><div class="t">${a?`${crest(a,22)}${T[a].name}<i>v</i>${crest(b,22)}${T[b].name}`:sub}</div>${a?`<div class="src">${sub}</div>`:""}</div>
       <span class="sc">${sc}</span></div>`).join("")}</div>`;
+}
+function compBody(){
+  const c=COMPS.find(x=>x.id===compSel);
+  const head=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center"><span class="lgdot">${lgIcon(c.lg,18)} ${LGNAME[c.lg]}</span>${tierChip(c.tier)}${chip("",c.div)}${chip("",c.n)}<span class="src">${c.st}</span></div>`;
+  if(compSel==="m5") return head+bracket();
+  if(compSel==="w5") return head+rrTable("Round robin",[["northgate",4,0,"+8"],["saltmarsh",3,1,"+5"],["emberhold",2,2,"+1"],["ravenmoor",1,3,"-4"],["coldharbor",0,4,"-10"]],"teams")+tiebreakNote("Northgate Co. and Saltmarsh Lions are not tied here. Had they been, step 1 (head-to-head) would decide.");
+  if(compSel==="lsw") return head+`<div class="two">${poolT("Pool A",[["Mara Kessling",4,0,"2.4"],["Coll MacRae",3,1,"1.6"],["Ines Duarte",2,2,"1.1"],["Petr Novak",1,3,"0.8"],["Teo Villanueva",0,4,"0.4"]])}${poolT("Pool B",[["Ruth Achterberg",3,1,"1.8"],["Dane Holloway",3,1,"1.5"],["Sami Väisänen",2,2,"1.0"],["Ana Lund",1,3,"0.7"],["Bram Okafor",1,3,"0.6"]])}</div>
+     <div class="panel info" style="margin-top:16px"><h3>Semifinals</h3><p style="color:var(--muted)">Top two from each pool advance: <b>Kessling v Achterberg</b> and <b>MacRae v Holloway</b>. Pool B has a 3–1 tie decided by step 2: hits earned against hits received (1.8 against 1.5).</p></div>`;
+  if(compSel==="sas") return head+poolT("Round robin",[["Mara Kessling",4,0,"2.2"],["Dane Holloway",3,1,"1.7"],["Coll MacRae",2,2,"1.0"],["Ruth Achterberg",1,3,"0.7"],["Ana Lund",0,4,"0.3"]],true);
+  return head+proCard();
+}
+function poolT(title,rows,wide){return `<div class="panel board"><table><thead><tr><th colspan="2">${title}</th><th class="num">W</th><th class="num">L</th><th class="num">Hits ratio</th></tr></thead><tbody>${rows.map((r,i)=>`<tr class="${i<2?"top3":""}"><td class="rk" style="width:34px;font-size:22px">${i+1}</td><td><b style="font-weight:600">${r[0]}</b><div class="src">${FCLUB[r[0]]||""}</div></td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td class="num">${r[3]}</td></tr>`).join("")}</tbody></table></div>`}
+function rrTable(title,rows){return `<div class="panel board"><table><thead><tr><th colspan="2">${title}</th><th class="num">W</th><th class="num">L</th><th class="num">Round diff</th></tr></thead><tbody>${rows.map((r,i)=>`<tr class="${i<2?"top3":""}"><td class="rk" style="width:34px;font-size:22px">${i+1}</td><td><span class="who">${crest(r[0],28)}<b style="font-weight:600">${T[r[0]].name}</b></span></td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td class="num">${r[3]}</td></tr>`).join("")}</tbody></table></div>`}
+function tiebreakNote(t){return `<p class="src" style="margin-top:12px">${t}</p>`}
+function proCard(){
+  const B=[["1","Light","Ines Duarte","Ana Lund","Ines Duarte","UD 20–18","3 marshals agree"],["2","Heavy","Petr Novak","Sami Väisänen","Sami Väisänen","SD 19–19, 19–18","Split decision"],["3","Heavy","Coll MacRae","Dane Holloway","","Sat 18:40","Next up"],["4","Heavy","Mara Kessling","Ruth Achterberg","","Sat 19:05",""]];
+  return `<div class="panel" style="overflow:hidden">${B.map(b=>`<div class="bout"><span class="no">${b[0]}</span><div><div class="vs"><span ${b[4]===b[2]?'class="w"':""}>${b[2]}</span><i>v</i><span ${b[4]===b[3]?'class="w"':""}>${b[3]}</span></div><div class="src">${b[6]||"Heavyweight · tournament fight"}</div></div><div class="rs"><span>${b[5]}</span>${b[4]?`<span class="w">Winner: ${b[4].split(" ")[1]}</span>`:""}</div></div>`).join("")}</div>
+  <p class="src" style="margin-top:12px">Decisions use the win types in Outrance Rules §15.4: unanimous, majority and split decisions, draws, TKO and KO. Names and results here are sample data.</p>`;
 }
 function bracket(){
   const m=(id,a,b,ra,rb,st,meta)=>{const w=st==="done"?(ra>rb?"a":"b"):"";
@@ -516,6 +740,128 @@ function bracket(){
     <div class="round"><div class="rh"><span>Final</span><span>Sun 10:00</span></div><div class="ms">${m("F",null,null,null,null,"next","Field 1")}</div></div>
     <div class="round"><div class="rh"><span>Champion</span><span></span></div><div class="ms"><div class="champion"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="color:var(--brass)"><path d="M7 4h10v4a5 5 0 0 1-10 0Z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M9 17h6"/></svg><span class="n">To be decided</span><span class="src">Sunday · Field 1</span></div></div></div>
   </div></div>`;
+}
+
+
+/* ======================= formats page ======================= */
+let fmtTab="Fighting styles", fmtLg="buhurt", dCat="sas", dGrip="two";
+const DCATS=[["sas","Sword & Shield"],["buck","Sword & Buckler"],["lsw","Longsword"],["pole","Polearm"]];
+function zoneVals(c,g){
+  if(c==="sas")return{head:2,torso:2,arms:1,hands:1,legs:1};
+  if(c==="buck")return{head:1,torso:1,arms:1,hands:1,legs:1};
+  if(c==="lsw")return g==="one"?{head:1,torso:1,arms:1,hands:1,legs:1}:{head:2,torso:2,arms:1,hands:1,legs:1};
+  return{head:1,torso:1,arms:1,hands:0,legs:1};
+}
+function zoneFig(v){
+  const z=n=>"z"+n; const lab=(x,y,n)=>n===2?`<text class="zt" x="${x}" y="${y}" text-anchor="middle">2</text>`:n===1?`<text class="zt1" x="${x}" y="${y}" text-anchor="middle">1</text>`:`<text class="zt1" x="${x}" y="${y}" text-anchor="middle" style="fill:var(--faint)">0</text>`;
+  return `<svg class="zfig" viewBox="0 0 160 300" role="img" aria-label="Scoring zones: head ${v.head}, torso ${v.torso}, arms ${v.arms}, hands ${v.hands}, legs ${v.legs}">
+   <circle class="${z(v.head)}" cx="80" cy="30" r="21" stroke-width="2"/>${lab(80,35,v.head)}
+   <rect class="${z(v.torso)}" x="52" y="58" width="56" height="88" rx="12" stroke-width="2"/>${lab(80,108,v.torso)}
+   <rect class="${z(v.arms)}" x="26" y="62" width="22" height="108" rx="11" stroke-width="2"/><rect class="${z(v.arms)}" x="112" y="62" width="22" height="108" rx="11" stroke-width="2"/>${lab(37,120,v.arms)}${lab(123,120,v.arms)}
+   <circle class="${z(v.hands)}" cx="37" cy="190" r="12" stroke-width="2"/><circle class="${z(v.hands)}" cx="123" cy="190" r="12" stroke-width="2"/>${lab(37,195,v.hands)}${lab(123,195,v.hands)}
+   <rect class="${z(v.legs)}" x="54" y="152" width="24" height="112" rx="11" stroke-width="2"/><rect class="${z(v.legs)}" x="82" y="152" width="24" height="112" rx="11" stroke-width="2"/>${lab(66,212,v.legs)}${lab(94,212,v.legs)}
+   <rect class="zx" x="52" y="268" width="28" height="22" rx="6" stroke-width="1.6"/><rect class="zx" x="80" y="268" width="28" height="22" rx="6" stroke-width="1.6"/>
+   <rect class="zx" x="70" y="46" width="20" height="10" rx="4" stroke-width="1.6"/></svg>`;
+}
+function dDetail(){
+  const v=zoneVals(dCat,dGrip);
+  const F={
+   sas:{t:"Sword & Shield",r:["2 main rounds of 1 minute; the match goes to a lead of 2 or more points over the total.","Under a 2-point lead: extra 30-second rounds until it is reached.","30-second break between rounds."],x:["Shield pushes, hooks and covers are allowed.","Strikes with the edge of the shield are not."]},
+   buck:{t:"Sword & Buckler",r:["A round goes to the first to 5 points, or the higher score at 1 minute. Maximum 5 per round.","The first to win 2 rounds wins the match.","No break between rounds."],x:["Strikes with the flat of the buckler are allowed.","Strikes with the edge of the buckler are not."]},
+   lsw:{t:"Longsword",r:["2 main rounds of 1 minute; the match goes to a lead of 2 or more points over the total.","Under a 2-point lead: extra 30-second rounds until it is reached.","30-second break between rounds."],x:["Pushing with the blade or arms is allowed.","Pommel and cross-guard strikes are not."]},
+   pole:{t:"Polearm",r:["2 main rounds of 1 minute; the match goes to a lead of 2 or more points over the total.","Under a 2-point lead: extra 30-second rounds until it is reached.","Both hands must hold the grip for a strike to count; haft strikes score nothing."],x:["A free-hand strike is allowed if the other hand holds the weapon.","Hands, elbows and legs are otherwise prohibited."]},
+  }[dCat];
+  return `<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><div class="seg" role="group" aria-label="Duel category">${DCATS.map(([k,l])=>`<button aria-pressed="${k===dCat}" data-dcat="${k}">${l}</button>`).join("")}</div>
+    ${dCat==="lsw"?`<div class="seg" role="group" aria-label="Grip">${[["two","Two hands on grip"],["one","One hand"]].map(([k,l])=>`<button aria-pressed="${k===dGrip}" data-dgrip="${k}">${l}</button>`).join("")}</div>`:""}</div>
+    <div class="panel fig-wrap" style="margin-top:14px"><div>${zoneFig(v)}</div>
+      <div style="display:grid;gap:14px"><h3 style="font-size:32px">${F.t}: points per clean strike</h3>
+        <div class="legend"><span><i style="background:var(--steel)"></i>2 points</span><span><i style="background:var(--steel-soft);box-shadow:inset 0 0 0 1px var(--steel)"></i>1 point</span><span><i style="background:var(--ground);box-shadow:inset 0 0 0 1px var(--faint)"></i>0 points</span><span><i style="box-shadow:inset 0 0 0 1.5px var(--live)"></i>Illegal: neck, base of skull, back of knee, groin, feet</span></div>
+        <p style="color:var(--muted);font-size:15px">A strike counts when it is clear and deliberate and the opponent did not counter it. Only the blade scores in these categories, and thrusting is prohibited.</p></div></div>
+    <div class="two" style="margin-top:16px"><div class="panel info"><h3>How a match is won</h3><ul class="bul">${F.r.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+      <div class="panel info"><h3>Techniques</h3><ul class="bul">${F.x.map(x=>`<li>${x}</li>`).join("")}<li>Grappling, throws, head, foot and knee strikes are prohibited in duels.</li></ul></div></div>
+    <div class="facts-grid" style="margin-top:16px"><div class="fact"><small>List</small><b>5 to 10 m</b><span>Rail 0.9 to 1.3 m, with a fenced 2 m safety zone.</span></div><div class="fact"><small>Weight classes</small><b>None</b><span>Duels are open weight.</span></div><div class="fact"><small>Officials</small><b>1 + 4</b><span>Knight Marshal plus four line marshals, timekeeper, AC rep and video supervisor.</span></div><div class="fact"><small>Technical win</small><b>${dCat==="buck"?"5–0 × 2":"10–0 per round"}</b><span>Withdrawal, no-show, injury from an illegal strike, or 2 yellow / 1 red card.</span></div></div>
+    <p class="src" style="margin-top:12px">Source: Duels rules V.26.4 §1 to §4. The duel regulations also name a Triathlon category; no rules for it were in the files provided.</p>`;
+}
+function bDetail(){
+  return `<div class="two"><div class="panel info"><h3>A fighter is grounded when…</h3><ul class="bul no"><li>Torso, hip, arm, hand, knee or shield touches the ground. Only the two feet may.</li><li>They lean on a grounded fighter with downward pressure.</li><li>An armour element fails and cannot protect any more.</li><li>They attack, push or grapple without a weapon in hand.</li><li>They yield by kneeling.</li></ul></div>
+    <div class="panel info"><h3>…but not when</h3><ul class="bul ok"><li>They touch down with the shield edge, an open hand or a fist during or just after a successful takedown.</li><li>They touch the opponent they are falling with, except with torso, hips or buttocks.</li><li>Remaining armour covers the failed piece.</li><li>Any part of a weapon touches the ground.</li></ul></div></div>
+    <div class="panel info" style="margin-top:16px"><h3>List sizes by format</h3><div class="tbl"><table><thead><tr><th>Format</th><th class="num">Length</th><th class="num">Width</th><th>Registered by a team</th></tr></thead><tbody>
+      <tr><td><b>3v3</b></td><td class="num">7 to 20 m</td><td class="num">5 to 15 m</td><td>Men 3 to 5 · Women 3 to 5</td></tr>
+      <tr><td><b>5v5</b></td><td class="num">9 to 20 m</td><td class="num">7 to 15 m</td><td>Men 5 to 8 · Women 3 to 8</td></tr>
+      <tr><td><b>12v12</b></td><td class="num">15 to 20 m</td><td class="num">7 to 15 m</td><td>12 to 20 licensed competitors</td></tr>
+      <tr><td><b>30v30</b></td><td class="num">25 to 30 m</td><td class="num">12.5 to 20 m</td><td>Not stated in the files provided</td></tr></tbody></table></div></div>
+    <div class="facts-grid" style="margin-top:16px"><div class="fact"><small>Weight classes</small><b>None</b><span>No weight categories in group fights.</span></div><div class="fact"><small>Rail and safety zone</small><b>0.9 to 1.3 m</b><span>Rail height, with a fenced 2 m safety zone around the list.</span></div><div class="fact"><small>Team size</small><b>5 to 20</b><span>Men. Women's teams may have 3 to 20. A fighter can be on only one team's roster.</span></div><div class="fact"><small>Officials</small><b>Knight + line</b><span>Knight Marshal, field marshals, line marshals, secretary and an Authenticity Committee rep.</span></div></div>
+    <div class="panel info" style="margin-top:16px"><h3>Stopped immediately</h3><ul class="bul no"><li>Thrusts, or threatening one.</li><li>Strikes to the neck, base of the skull, back of the knee, groin, feet and ankles.</li><li>Striking a grounded fighter, joint locks, suplex-style throws and spikes on the head or neck.</li><li>An inactive clinch lasting 10 seconds or more.</li></ul></div>
+    <p class="src" style="margin-top:12px">Sources: Buhurt Rules V.26.4.1 §1, §4, §6; Buhurt Regulations V.26.4 §1 to §3; League Structure V2026.1 §3.1. The round and match structure (Regulations §4) was not readable in the files provided, so it is not shown.</p>`;
+}
+function oDetail(){
+  const bands=[["10–10","Even","Strike gap of 5 or less and no other criteria decide it",0],["10–9","Slight","Out-struck by 6 to 10 strike points (or won on other criteria)",35],["10–8","Moderate","Out-struck by 11 to 15",65],["10–7","Dominant","Out-struck by 16 or more. KO and TKO also score this",100]];
+  return `<div class="two"><div class="panel info"><h3>Men's weight classes</h3><dl class="dl">${[["Lightweight","to 75 kg"],["Middleweight","75 to 85 kg"],["Light heavyweight","85 to 95 kg"],["Heavyweight","95 to 105 kg"],["Super heavyweight","105 to 115 kg"],["Ultra heavyweight","over 115 kg"]].map(r=>`<div><dt>${r[0]}</dt><dd>${r[1]}</dd></div>`).join("")}</dl></div>
+    <div class="panel info"><h3>Women's weight classes</h3><dl class="dl">${[["Featherweight","to 60 kg"],["Lightweight","60 to 70 kg"],["Middleweight","70 to 80 kg"],["Light heavyweight","80 to 90 kg"],["Heavyweight","over 90 kg"]].map(r=>`<div><dt>${r[0]}</dt><dd>${r[1]}</dd></div>`).join("")}</dl></div></div>
+    <div class="panel info" style="margin-top:16px"><h3>Round time by division</h3><div class="tbl"><table><thead><tr><th></th><th>Matched fight</th><th>Tournament fight</th></tr></thead><tbody>
+      <tr><td><b>Division 1</b><div class="src">over 2 years competing, or international experience</div></td><td>3 rounds of 2:00, 1:00 breaks</td><td>2 rounds of 2:00, 45 s break</td></tr>
+      <tr><td><b>Division 2</b><div class="src">under 2 years, little international experience</div></td><td>3 rounds of 1:30, 1:00 breaks</td><td>2 rounds of 1:30, 45 s break</td></tr></tbody></table></div><p class="src">A level tournament fight gets a third round. Division 2 fighters may choose to fight in Division 1.</p></div>
+    <div class="panel info" style="margin-top:16px"><h3>How each round is scored (10-point must)</h3><div class="scoreband">${bands.map(b=>`<div class="sband"><b class="mono">${b[0]}</b><div class="bar"><i style="width:${b[3]||4}%"></i></div><span>${b[1]}</span></div><p class="src" style="margin:-4px 0 4px 108px">${b[2]}</p>`).join("")}</div>
+      <p style="color:var(--muted);font-size:14px;margin-top:6px">Each strike point is one clean legal blow with a weapon, leg, arm or shield. Yellow cards, armour failures and weapon losses each cost one point. Line marshals score alone, and the secretary averages them.</p></div>
+    <div class="two" style="margin-top:16px"><div class="panel info"><h3>What judges weigh, in order</h3><ul class="bul"><li>Effective striking</li><li>Effective grappling: takedowns, reversals, clinch control</li><li>Effective list control</li><li>Effective aggression</li><li>Effective defence</li></ul></div>
+      <div class="panel info"><h3>How a fight can end</h3><ul class="bul"><li>Unanimous, majority or split decision</li><li>Unanimous, majority or split draw</li><li>Technical knockout (TKO), including corner stoppage</li><li>Knockout (KO)</li></ul></div></div>
+    <p class="src" style="margin-top:12px">Source: Outrance Rules and Regulations V.26.4 §1, §4, §13, §15, §17. Profight rankings track win/loss record within a weight class; a fighter inactive for 1 year becomes retired.</p>`;
+}
+function tournaments(){
+  return `<div style="display:grid;gap:36px">
+   <section style="display:grid;gap:16px"><div><h2 style="font-size:40px">Five tournament tiers</h2><p style="color:var(--muted);margin-top:8px;max-width:64ch">A tier decides how many points an event awards, how far ahead it must be submitted, and what marshals, entrants and streaming it needs. One event can run several tiers at once.</p></div>
+    <div class="tiers">${TIERS.map(t=>`<div class="panel tier"><div><h3>${t.k}</h3></div><div class="pct">${t.pa}</div><p class="src">${t.note}</p><dl><div><dt>Submit to BI</dt><dd>${t.adv} ahead</dd></div><div><dt>Marshals</dt><dd>${t.mar}</dd></div><div><dt>Group fight entrants</dt><dd>${t.buh}</dd></div><div><dt>Duel entrants</dt><dd>${t.duel}</dd></div><div><dt>Video</dt><dd>${t.str}</dd></div></dl></div>`).join("")}</div>
+    <div class="conflict"><span class="chip brass">Sources disagree</span><p><b>Two multipliers are in the documents.</b> League Structure §2.3 gives Regional 150% and Conference 200% of points. Its §3.3.2 and the Tournament Structure document give ×1.25 and ×1.5. Both are shown in the calculator below until the owner decides which BuhurtOS follows.</p></div></section>
+   <section style="display:grid;gap:16px"><div><h2 style="font-size:40px">Which structure for how many entrants?</h2><p style="color:var(--muted);margin-top:8px">Drag to set the number of teams or duellists. The options follow the Tournament Structure document.</p></div>
+    <div class="panel info"><label class="field-in" for="nEnt"><span>Entrants (teams or duellists)</span></label><div style="display:flex;gap:18px;align-items:center"><input class="range" id="nEnt" type="range" min="3" max="24" value="${advN}" aria-label="Number of entrants"><span class="nbig mono" id="nVal" style="min-width:2ch;text-align:right">${advN}</span></div></div>
+    <div id="advOut" style="display:grid;gap:14px">${advice(advN)}</div></section>
+   <section style="display:grid;gap:16px"><div><h2 style="font-size:40px">League points calculator</h2><p style="color:var(--muted);margin-top:8px">1 point per pool or round-robin win, 2 per elimination win, plus 2, 4 or 6 for 3rd, 2nd or 1st. Then the tier multiplier.</p></div>
+    <div class="calc"><div class="panel info">
+      <div class="field-in"><span>Tier</span><select id="cTier" aria-label="Tier">${TIERS.map(t=>`<option ${t.k===calc.tier?"selected":""}>${t.k}</option>`).join("")}</select></div>
+      <div class="field-in"><span>Multiplier source</span><select id="cScheme" aria-label="Multiplier source"><option value="B" ${calc.scheme==="B"?"selected":""}>Tournament Structure §4.2 (×1.25 Regional, ×1.5 Conference)</option><option value="A" ${calc.scheme==="A"?"selected":""}>League Structure §2.3 (150% Regional, 200% Conference)</option></select></div>
+      <div class="field-in"><span>Pool or round-robin wins</span><input id="cPool" type="number" min="0" max="12" value="${calc.pool}"></div>
+      <div class="field-in"><span>Elimination wins</span><input id="cElim" type="number" min="0" max="6" value="${calc.elim}"></div>
+      <div class="field-in"><span>Placement</span><select id="cPlace" aria-label="Placement"><option value="0">Did not place</option><option value="2" ${calc.place==2?"selected":""}>3rd place (+2)</option><option value="4" ${calc.place==4?"selected":""}>2nd place (+4)</option><option value="6" ${calc.place==6?"selected":""}>1st place (+6)</option></select></div></div>
+     <div class="result" id="cOut">${calcOut()}</div></div></section>
+   <section style="display:grid;gap:16px"><div><h2 style="font-size:40px">Breaking a tie</h2><p style="color:var(--muted);margin-top:8px">In order, until the tie is resolved.</p></div>
+    <div class="steps">${[["Head-to-head","Only when two are tied: the winner of their match ranks higher."],["Round or hit ratio","Group fights and buckler: round wins minus losses. Other duels: hits earned against hits received."],["Active against downed","Difference between fighters still standing and fighters grounded at the end of each round."],["Fewest penalties","The team or duellist with the fewest penalties ranks higher."]].map(([a,b])=>`<div class="panel step"><div><b>${a}</b><p>${b}</p></div></div>`).join("")}</div></section>
+   <section style="display:grid;gap:16px"><div><h2 style="font-size:40px">Cards and penalties</h2></div>
+    <div class="cards3">${[["v","Verbal warning","Minor violation. Three verbal warnings in a profight become a yellow card."],["y","Yellow card","Systematic violations or a serious one. Costs a point in a profight. Affects only the tournament it happens in."],["r","Red card","Disqualification. A second yellow becomes a red. In duels, opponents then get technical wins."],["g","Green card","Breach of authenticity rules. Follows the competitor from tournament to tournament."]].map(([c,a,b])=>`<div class="panel cardtile"><span class="cc ${c}"></span><div><b>${a}</b><p>${b}</p></div></div>`).join("")}</div></section>
+   <section style="display:grid;gap:16px"><div><h2 style="font-size:40px">The season</h2></div>
+    <div class="facts-grid"><div class="fact"><small>Season</small><b>Jan 15 – Dec 1</b><span>Licences can be renewed from Nov 1.</span></div><div class="fact"><small>Transfer window</small><b>Dec 1 – Jan 14</b><span>Teams get 6 transfer tokens per season.</span></div><div class="fact"><small>Season score</small><b>Top 3 events</b><span>Average of the best three tournaments. Counts as 0 until three are done.</span></div><div class="fact"><small>Dropping out</small><b>−5 points</b><span>For leaving a tournament within 72 hours of its start.</span></div><div class="fact"><small>Conferences</small><b>4</b><span>North America, South America, APAC, Europe. Each country is a region.</span></div><div class="fact"><small>Divisions</small><b>1 and 2</b><span>Set by National Organisations for 2026, confirmed by the BI Committee.</span></div></div>
+    <p class="src">Sources: League Structure V2026.1; Tournament Structure and Formats (Jan 2026); Marshal accreditation levels: Trainee (4), Regional (3), Conference (2), International (1).</p></section></div>`;
+}
+let advN=10, calc={tier:"Classic",scheme:"B",pool:3,elim:2,place:4};
+function split(n,p){const a=[];let r=n;for(let i=0;i<p;i++){const x=Math.ceil(r/(p-i));a.push(x);r-=x}return a}
+function poolsFlow(sizes,advNum,after){return `<div class="flow">${sizes.map((z,i)=>`<div class="pool"><small>Pool ${String.fromCharCode(65+i)}</small><b>${z}</b></div>`).join("")}<div class="arrow">top 2 from each pool →</div><div class="stage"><b>${advNum} advance</b><small>${after}</small></div></div>`}
+function advice(n){
+  if(n<4) return `<div class="panel opt"><h3>Under 4 entrants</h3><p style="color:var(--muted)">The structure document starts at 4 entrants. The organizer decides how to run smaller categories.</p></div>`;
+  const o=[];
+  if(n<=6) o.push({t:"Round robin",d:"Everyone fights everyone the same number of times. Ranked by matches won.",f:`<div class="flow"><div class="pool"><small>One group</small><b>${n}</b></div><div class="arrow">all play all →</div><div class="stage"><b>Ranked by wins</b><small>Tie rules apply</small></div></div>`});
+  else if(n<=12){o.push({t:"Option 1: round robin",d:"One group. Ranked by matches won.",f:`<div class="flow"><div class="pool"><small>One group</small><b>${n}</b></div><div class="arrow">all play all →</div><div class="stage"><b>Ranked by wins</b><small>Tie rules apply</small></div></div>`});
+    o.push({t:"Option 2: pools, then the final four",d:"Pools of 3 to 6. The top two from each pool reach the semifinals. Then either a round robin of four, or a single-elimination bracket with a 3rd and 4th place match.",f:poolsFlow(split(n,2),4,"Round robin, or bracket + 3rd place match")});}
+  else if(n<=16){o.push({t:"Option 1: two pools of 6 to 8",d:"Top two from each pool reach the semifinals, then a round robin of four or a bracket with a 3rd and 4th place match.",f:poolsFlow(split(n,2),4,"Round robin, or bracket + 3rd place match")});
+    o.push({t:"Option 2: three pools of 4 to 6",d:"Top two from each pool, six in all. A round robin of six is recommended; a six-team bracket is not.",f:poolsFlow(split(n,3),6,"Round robin of six (bracket not recommended)")});}
+  else if(n<=20){o.push({t:"Option 1: two pools of 8 to 10",d:"Top two from each pool reach the semifinals, then a round robin of four or a bracket.",f:poolsFlow(split(n,2),4,"Round robin, or bracket + 3rd place match")});
+    o.push({t:"Option 2: four pools of 4 to 5",d:"Top two from each pool, eight in all. A bracket is the practical choice; a round robin of eight is not recommended for length.",f:poolsFlow(split(n,4),8,"Single-elimination bracket + 3rd place match")});}
+  else o.push({t:"20 or more entrants",d:"Follow the same pattern and continue it: more pools, top two from each into an elimination stage. The organizer may add a losers bracket, but those matches earn no league points.",f:poolsFlow(split(n,Math.ceil(n/5)),Math.ceil(n/5)*2,"Elimination stage")});
+  return `<div class="chip steel" style="justify-self:start">${n<=6?"4–6":n<=12?"6–12":n<=16?"12–16":n<=20?"16–20":"20+"} entrants</div>`+o.map(x=>`<div class="panel opt"><h3>${x.t}</h3><p style="color:var(--muted);font-size:15px;max-width:70ch">${x.d}</p>${x.f}</div>`).join("")+`<p class="src">Source: Tournament Structure and Formats §1.2 to §1.7. Registration closes at least 15 days before an event.</p>`;
+}
+function calcOut(){const m=(calc.scheme==="A"?TIERMULT_A:TIERMULT_B)[calc.tier];const base=calc.pool+2*calc.elim+calc.place;const tot=base*m;
+  return `<p class="eyebrow">League points</p><div class="nbig mono">${(Math.round(tot*100)/100).toString()}</div><p style="font-size:14px;opacity:.8">(${calc.pool} pool + ${calc.elim}×2 elimination + ${calc.place} placement) = ${base}, × ${m}</p>${m===0?'<p style="font-size:13px;opacity:.8">Exhibition events award no points.</p>':""}`}
+function viewFormats(){
+  const L=LEAGUES.find(x=>x.id===fmtLg);
+  return `<section class="fade-in" style="display:grid;gap:26px">
+    <div><p class="eyebrow">How the sport works</p><h1 style="font-size:clamp(46px,7vw,92px);margin-top:10px">Formats</h1>
+      <p style="color:var(--muted);margin-top:12px;font-size:17px;max-width:62ch">Three leagues, each with its own rules and scoring, and a shared tournament and points system on top.</p></div>
+    <div class="tabs" role="tablist">${["Fighting styles","Tournaments and points"].map(t=>`<button role="tab" aria-selected="${t===fmtTab}" data-ftab="${t}">${t}</button>`).join("")}</div>
+    <div id="fbody" style="display:grid;gap:22px">${fmtTab==="Fighting styles"?fmtStyles():tournaments()}</div>
+  </section>`;
+}
+function fmtStyles(){
+  const L=LEAGUES.find(x=>x.id===fmtLg);
+  return `<div class="lg-cards">${LEAGUES.map(l=>`<button class="lgcard" aria-pressed="${l.id===fmtLg}" data-lg="${l.id}"><span class="ic">${lgIcon(l.id)}</span><div><p class="eyebrow">${l.tag}</p><h3 style="margin-top:6px">${l.name}</h3></div><p>${l.sum}</p><div class="cats">${l.cats.map(c=>chip("",c)).join("")}</div></button>`).join("")}</div>
+   <div id="lgdetail" class="fade-in" style="display:grid;gap:0">${fmtLg==="buhurt"?bDetail():fmtLg==="duels"?dDetail():oDetail()}</div>`;
 }
 
 function viewTeams(){
@@ -563,43 +909,53 @@ function viewFighter(){
     </section>`;
 }
 
-let rankCat="5v5 Teams";
+let rankCat="Men's 5v5";
 function viewRankings(){
+  const k=RANK[rankCat].kind;
   return `<section class="fade-in" style="display:grid;gap:22px">
     <div><p class="eyebrow">Season 2026</p><h1 style="font-size:clamp(46px,7vw,88px);margin-top:10px">Rankings</h1></div>
     <div class="seg" role="group" aria-label="Category">${Object.keys(RANK).map(c=>`<button aria-pressed="${c===rankCat}" data-rcat="${c}">${c}</button>`).join("")}</div>
     <div id="rtable">${rankTable(rankCat)}</div>
-    <p class="src">Sample ranking for the mock-up. Real rankings will name their source, method and the date they were last updated.</p>
+    <p class="src" id="rnote">${rankNote(rankCat)}</p>
   </section>`;
 }
+function rankNote(c){const k=RANK[c].kind;return k==="pro"?"Profight rankings track win/loss record within a weight class. A fighter who has not fought for 1 year becomes retired. Sample data.":k==="duel"?"Duel and group-fight rankings add league points from every tournament, scaled by tier, and average the best three events. Sample data.":"Group-fight rankings add league points from every tournament, scaled by tier, and average the best three events. Sample data. Real rankings will name their source and last update."}
 
+let ruleG="all";
 function viewRules(q=""){
+  const G=[["all","All"],["buhurt","Group fight"],["duels","Duels"],["outrance","Profight"],["tournaments","Tournaments"],["safety","Safety"]];
   return `<section class="fade-in" style="display:grid;gap:22px;max-width:860px;margin:0 auto">
-    <div><p class="eyebrow">Rules lookup</p><h1 style="font-size:clamp(46px,7vw,88px);margin-top:10px">Find a rule fast</h1><p style="color:var(--muted);margin-top:12px;font-size:17px">Built for the side of the list: type a few words, get the answer with its section and version.</p></div>
-    <label class="rulesearch"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--faint)"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="rq" value="${q}" placeholder="Try “grounding”, “forbidden”, “tiebreak”" aria-label="Search rules"></label>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">${["5v5","Duels","Profight","Safety","Kit"].map(x=>`<button class="chip" data-q="${x}" style="height:32px;padding:0 12px">${x}</button>`).join("")}</div>
+    <div><p class="eyebrow">Rules lookup</p><h1 style="font-size:clamp(46px,7vw,88px);margin-top:10px">Find a rule fast</h1><p style="color:var(--muted);margin-top:12px;font-size:17px">Built for the side of the list: type a few words, get the answer with its document, section and version.</p></div>
+    <label class="rulesearch"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--faint)"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="rq" value="${q}" placeholder="Try “grounded”, “longsword”, “10-point”, “tiebreak”" aria-label="Search rules"></label>
+    <div class="seg" role="group" aria-label="Format">${G.map(([k,l])=>`<button aria-pressed="${k===ruleG}" data-rg="${k}">${l}</button>`).join("")}</div>
     <div id="rres" style="display:grid;gap:12px">${ruleResults(q)}</div>
-    <p class="src">Rule text on this page is placeholder copy for the mock-up, not an official ruleset.</p>
+    <p class="src">Summaries paraphrase Buhurt International documents (versions shown on each result). They are not the official text; check the source document before relying on one, and a ruleset may be changed by the event's regulations.</p>
   </section>`;
 }
 function ruleResults(q){
   const s=q.trim().toLowerCase();
-  const hits=RULES.filter(r=>!s||(r.t+r.k+r.b).toLowerCase().includes(s));
-  if(!hits.length) return `<div class="panel rule"><h3>No rule matches “${q}”</h3><p>Try a shorter word, or browse by format above.</p></div>`;
+  const hits=RULES.filter(r=>(ruleG==="all"||r.g===ruleG)&&(!s||(r.t+r.k+r.b).toLowerCase().includes(s)));
+  if(!hits.length) return `<div class="panel rule"><h3>No rule matches “${q}”</h3><p>Try a shorter word, or switch the format filter.</p></div>`;
   const hl=t=>s?t.replace(new RegExp("("+s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig"),"<mark>$1</mark>"):t;
   return hits.map(r=>`<article class="panel rule"><div class="rt"><span class="eyebrow">${r.k}</span><span class="chip steel">${r.r} · ${r.s}</span></div><h3>${hl(r.t)}</h3><p>${hl(r.b)}</p></article>`).join("");
 }
 
 /* marshal scoring */
 const M={a:5,b:5,ra:1,rb:1,round:3,secs:134};
+let mMode="group";
 let mDown={a:[false,false,true,true,false],b:[true,false,true,false,true]};
+const DU={a:[0],b:[0],log:[],done:false};
+const PR={r:[{sa:0,sb:0,da:0,db:0,ctl:"none"}],i:0};
 function viewMarshal(){
+  const T2={group:["Group fight · Field 1","Semifinal 1"],duel:["Duels · Field 2","Longsword · Pool B"],pro:["Profight · line marshal","Heavyweight · Bout 3"]}[mMode];
   return `<section class="marshal fade-in">
-    <div class="mhead"><div><p class="eyebrow">Marshal view · Field 1</p><h1 style="font-size:40px;margin-top:6px">Semifinal 1</h1></div><span class="chip live">Round ${M.round}</span></div>
-    <div class="panel mboard" id="mboard">${marshalBoard()}</div>
-    <p class="src" style="text-align:center">Tap a fighter when the marshal calls them out. Works offline; syncs when the signal is back.</p>
+    <div class="seg" role="group" aria-label="Format" style="justify-self:start">${[["group","Group fight"],["duel","Duel"],["pro","Profight"]].map(([k,l])=>`<button aria-pressed="${k===mMode}" data-mm="${k}">${l}</button>`).join("")}</div>
+    <div class="mhead"><div><p class="eyebrow">${T2[0]}</p><h1 style="font-size:40px;margin-top:6px">${T2[1]}</h1></div></div>
+    <div id="mbody" style="display:grid;gap:14px">${mBody()}</div>
+    <p class="src" style="text-align:center">${mMode==="group"?"Tap a fighter when the marshal calls them out.":mMode==="duel"?"Tap the strike value the line marshals agree on.":"Enter strike points for the round; the score follows the 10-point must rules."} Works offline; syncs when the signal is back.</p>
   </section>`;
 }
+function mBody(){return mMode==="group"?`<div class="panel mboard" id="mboard">${marshalBoard()}</div>`:mMode==="duel"?duelBoard():proBoard()}
 function marshalBoard(){
   const up=k=>mDown[k].filter(x=>!x).length;
   const side=(k,key)=>`<div class="mteam">${crest(key,52)}<div class="n">${T[key].name}</div><div class="rounds">${[0,1].map(i=>`<i class="${i<(k==="a"?M.ra:M.rb)?"on":""}"></i>`).join("")}</div>
@@ -612,34 +968,98 @@ function marshalBoard(){
     <div class="mactions"><button class="btn btn-line" data-reset>Undo last call</button><button class="btn btn-ink">Stop the round</button></div>`;
 }
 const fmt=s=>`${String(Math.floor(s/60)).padStart(1,"0")}:${String(s%60).padStart(2,"0")}`;
+/* duel: points per strike, win by 2 over the match (Duels rules 2.2.2) */
+const sum=a=>a.reduce((x,y)=>x+y,0);
+function duelBoard(){
+  const ta=sum(DU.a),tb=sum(DU.b),r=DU.a.length-1,diff=ta-tb;
+  const side=(k,n,club)=>`<div class="dside"><div class="n">${n}</div><span class="src">${club}</span><div class="dscore mono">${sum(DU[k])}</div>
+    <div class="rchips">${DU[k].map((x,i)=>`<span class="rchip ${i===r?"cur":""}">R${i+1} · ${x}</span>`).join("")}</div>
+    <button class="pbtn s2" data-dp="${k}2" ${DU.done?"disabled":""}>Head or torso +2</button><button class="pbtn s1" data-dp="${k}1" ${DU.done?"disabled":""}>Arm, leg or hand +1</button></div>`;
+  const msg=DU.done?`${diff>0?"Mara Kessling":"Ines Duarte"} wins the match`:r<1?"Round 1 of 2 · 1:00":r===1?"Round 2 of 2 · 1:00":"Extra round · 30 s · lead of 2 needed";
+  return `<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span class="chip ${DU.done?"win":"live"}">${msg}</span><span class="clock mono">${DU.done?"Final":(r<2?"0:41":"0:12")}</span></div>
+    <div class="mteams">${side("a","Mara Kessling","Iron Wardens")}${side("b","Ines Duarte","Cold Harbor Guard")}</div>
+    <div class="panel info" style="gap:8px"><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Match total</span><b class="mono">${ta} – ${tb}</b></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Lead needed to win</span><b class="mono">2 points ${r>=1&&Math.abs(diff)>=2?"✓":"(now "+Math.abs(diff)+")"}</b></div></div>
+    <div class="mactions"><button class="btn btn-line" data-dundo>Undo last strike</button><button class="btn btn-ink" data-dend ${DU.done?"disabled":""}>End round</button></div>
+    ${DU.done?`<button class="btn btn-line" data-dreset style="width:100%">Start a new match</button>`:""}`;
+}
+/* profight: 10-point must, one marshal (Outrance rules 15.3) */
+function proScore(x){
+  const gap=Math.abs(x.sa-x.sb), lead=x.sa>x.sb?"a":x.sa<x.sb?"b":"none";
+  let w="none",loss=10,label="Even";
+  if(gap<=5){ if(x.ctl!=="none"){w=x.ctl;loss=9;label="Won on other criteria"} }
+  else if(gap<=10){w=lead;loss=9;label="Slight"} else if(gap<=15){w=lead;loss=8;label="Moderate"} else {w=lead;loss=7;label="Dominant"}
+  let a=w==="b"?loss:10, b=w==="a"?loss:10;
+  a-=x.da; b-=x.db; return {a,b,label};
+}
+function proBoard(){
+  const cur=PR.r[PR.i]; const sc=proScore(cur); const tot=PR.r.reduce((t,x)=>{const y=proScore(x);return[t[0]+y.a,t[1]+y.b]},[0,0]);
+  const col=(k,name,club)=>`<div class="dside"><div class="n">${name}</div><span class="src">${club}</span>
+    <span class="eyebrow">Strike points</span><div class="stepper"><button data-ps="${k}-" aria-label="Fewer strike points for ${name}">−</button><output>${cur["s"+k]}</output><button data-ps="${k}+" aria-label="More strike points for ${name}">+</button></div>
+    <span class="eyebrow">Point deductions</span><div class="stepper"><button data-pd="${k}-" aria-label="Remove deduction">−</button><output>${cur["d"+k]}</output><button data-pd="${k}+" aria-label="Add deduction">+</button></div></div>`;
+  return `<div class="seg" role="group" aria-label="Round">${PR.r.map((_,i)=>`<button aria-pressed="${i===PR.i}" data-pr="${i}">Round ${i+1}</button>`).join("")}${PR.r.length<3?`<button data-padd>+ Round</button>`:""}</div>
+    <div class="mteams">${col("a","Coll MacRae","Saltmarsh Lions")}${col("b","Dane Holloway","Northgate Co.")}</div>
+    ${Math.abs(cur.sa-cur.sb)<=5?`<div class="panel info" style="gap:8px"><span style="font-size:14px;color:var(--muted)">Strike gap is 5 or less. Do grappling, list control, aggression and defence favour one fighter?</span><div class="seg" role="group" aria-label="Other criteria">${[["a","MacRae"],["none","Neither"],["b","Holloway"]].map(([k,l])=>`<button aria-pressed="${cur.ctl===k}" data-pc="${k}">${l}</button>`).join("")}</div></div>`:""}
+    <div class="panel info" style="gap:6px;text-align:center"><span class="eyebrow">Round ${PR.i+1} score · ${sc.label}</span><div class="sc10 mono"><span>${sc.a}</span><span style="color:var(--faint)">–</span><span>${sc.b}</span></div></div>
+    <div class="panel info" style="gap:6px;text-align:center"><span class="eyebrow">Fight total, this marshal</span><div class="sc10 mono" style="font-size:36px"><span>${tot[0]}</span><span style="color:var(--faint)">–</span><span>${tot[1]}</span></div><span class="src">A tournament fight totals between 14 and 20. The secretary averages all marshals.</span></div>`;
+}
 
 /* ======================= router ======================= */
-const VIEWS={home:viewHome,event:viewEvent,teams:viewTeams,team:viewTeam,fighter:viewFighter,rankings:viewRankings,rules:viewRules,marshal:viewMarshal};
-const SECTION={home:"home",event:"event",teams:"teams",team:"teams",fighter:"teams",rankings:"rankings",rules:"rules",marshal:""};
-let lastHistory=[];
+const VIEWS={home:viewHome,events:viewEvents,event:viewEvent,formats:viewFormats,teams:viewTeams,team:viewTeam,fighter:viewFighter,rankings:viewRankings,rules:viewRules,marshal:viewMarshal};
+const SECTION={home:"home",events:"events",event:"events",formats:"formats",teams:"teams",team:"teams",fighter:"teams",rankings:"rankings",rules:"rules",marshal:""};
 function render(){
   const r=(location.hash.slice(1)||"home"); const key=VIEWS[r]?r:"home";
   crestN=0; $("#app").innerHTML=VIEWS[key]();
   const cur=SECTION[key];
   $("#nav").innerHTML=NAV.map(([k,l])=>`<a href="#${k}" ${k===cur?'aria-current="page"':""}>${l}</a>`).join("");
-  $("#bottom").innerHTML=NAV.map(([k,l])=>`<a href="#${k==="event"?"event":k}" ${k===cur?'aria-current="page"':""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">${ICON[k==="event"?"events":k]}</svg>${l}</a>`).join("");
-  document.title=({home:"BuhurtOS",event:EVENT.name,teams:"Teams",team:"Iron Wardens",fighter:"Mara Kessling",rankings:"Rankings",rules:"Rules",marshal:"Marshal"}[key])+" · BuhurtOS Mock-up";
+  $("#bottom").innerHTML=NAV.filter(([k])=>PHONE_NAV.includes(k)).map(([k,l])=>`<a href="#${k}" ${k===cur?'aria-current="page"':""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">${ICON[k]}</svg>${l}</a>`).join("");
+  document.title=({home:"BuhurtOS",events:"Events",event:EVENT.name,formats:"Formats",teams:"Teams",team:"Iron Wardens",fighter:"Mara Kessling",rankings:"Rankings",rules:"Rules",marshal:"Marshal"}[key])+" · BuhurtOS Mock-up";
   if(key==="event") sparks();
   window.scrollTo({top:0});
 }
 addEventListener("hashchange",render);
+const rer=(sel,fn)=>{const el=$(sel);if(el)el.innerHTML=fn()};
+const pressed=(attr,b)=>document.querySelectorAll("["+attr+"]").forEach(x=>x.setAttribute("aria-pressed",x===b));
 document.addEventListener("click",e=>{
+  const lk=e.target.closest("[data-lglink]"); if(lk){fmtLg=lk.dataset.lglink;fmtTab="Fighting styles"}
   const b=e.target.closest("button"); if(!b) return;
-  if(b.dataset.etab){eventTab=b.dataset.etab;document.querySelectorAll("[data-etab]").forEach(x=>x.setAttribute("aria-selected",x===b));$("#etab").innerHTML=eventBody();$("#etab").classList.remove("fade-in");void $("#etab").offsetWidth;$("#etab").classList.add("fade-in")}
-  if(b.dataset.rcat){rankCat=b.dataset.rcat;document.querySelectorAll("[data-rcat]").forEach(x=>x.setAttribute("aria-pressed",x===b));$("#rtable").innerHTML=rankTable(rankCat)}
-  if(b.dataset.q){$("#rq").value=b.dataset.q;$("#rres").innerHTML=ruleResults(b.dataset.q)}
+  const d=b.dataset;
+  if(d.etab){eventTab=d.etab;document.querySelectorAll("[data-etab]").forEach(x=>x.setAttribute("aria-selected",x===b));rer("#etab",eventBody);const t=$("#etab");t.classList.remove("fade-in");void t.offsetWidth;t.classList.add("fade-in")}
+  if(d.comp){compSel=d.comp;if(eventTab!=="Bracket"){eventTab="Bracket";document.querySelectorAll("[data-etab]").forEach(x=>x.setAttribute("aria-selected",x.dataset.etab==="Bracket"))}rer("#etab",eventBody);window.scrollTo({top:$("#etab").offsetTop-120,behavior:"smooth"})}
+  if(d.evf){evFilter=d.evf;pressed("data-evf",b);rer("#evlist",evList)}
+  if(d.rcat){rankCat=d.rcat;pressed("data-rcat",b);rer("#rtable",()=>rankTable(rankCat));rer("#rnote",()=>rankNote(rankCat))}
+  if(d.rg){ruleG=d.rg;pressed("data-rg",b);rer("#rres",()=>ruleResults($("#rq").value))}
+  if(d.ftab){fmtTab=d.ftab;document.querySelectorAll("[data-ftab]").forEach(x=>x.setAttribute("aria-selected",x===b));rer("#fbody",()=>fmtTab==="Fighting styles"?fmtStyles():tournaments())}
+  if(d.lg){fmtLg=d.lg;pressed("data-lg",b);rer("#lgdetail",()=>fmtLg==="buhurt"?bDetail():fmtLg==="duels"?dDetail():oDetail())}
+  if(d.dcat){dCat=d.dcat;rer("#lgdetail",dDetail)}
+  if(d.dgrip){dGrip=d.dgrip;rer("#lgdetail",dDetail)}
   if(b.hasAttribute("data-follow")){const on=b.textContent.includes("☆");b.textContent=on?"★ Following":"☆ Follow"+(b.closest(".ehero")?" event":"")}
-  if(b.dataset.ft){const k=b.dataset.ft[0],i=+b.dataset.ft[1];mDown[k][i]=!mDown[k][i];$("#mboard").innerHTML=marshalBoard()}
-  if(b.hasAttribute("data-reset")){mDown={a:[false,false,true,true,false],b:[true,false,true,false,true]};$("#mboard").innerHTML=marshalBoard()}
+  /* marshal */
+  if(d.mm){mMode=d.mm;render()}
+  if(d.ft){const k=d.ft[0],i=+d.ft[1];mDown[k][i]=!mDown[k][i];rer("#mboard",marshalBoard)}
+  if(b.hasAttribute("data-reset")){mDown={a:[false,false,true,true,false],b:[true,false,true,false,true]};rer("#mboard",marshalBoard)}
   if(b.hasAttribute("data-confirm")){const aOut=mDown.a.every(Boolean);aOut?M.rb++:M.ra++;$("#mboard").innerHTML=`<div style="text-align:center;display:grid;gap:12px;padding:20px 0">${crest(aOut?"northgate":"ironwardens",80).replace('class="crest"','class="crest" style="margin:0 auto"')}<span class="chip win" style="justify-self:center">Fight result saved</span><h2 style="font-size:40px">${T[aOut?"northgate":"ironwardens"].name} win 2–1</h2><p style="color:var(--muted)">They go through to the final on Sunday, Field 1.</p><button class="btn btn-line" data-reset style="justify-self:center">Back to the round</button></div>`;M.ra=1;M.rb=1}
+  if(d.dp){const k=d.dp[0],v=+d.dp[1];DU[k][DU[k].length-1]+=v;DU.log.push([k,v]);rer("#mbody",duelBoard)}
+  if(b.hasAttribute("data-dundo")){const l=DU.log.pop();if(l)DU[l[0]][DU[l[0]].length-1]-=l[1];rer("#mbody",duelBoard)}
+  if(b.hasAttribute("data-dend")){const diff=sum(DU.a)-sum(DU.b);if(DU.a.length>=2&&Math.abs(diff)>=2)DU.done=true;else{DU.a.push(0);DU.b.push(0)}DU.log=[];rer("#mbody",duelBoard)}
+  if(b.hasAttribute("data-dreset")){DU.a=[0];DU.b=[0];DU.log=[];DU.done=false;rer("#mbody",duelBoard)}
+  if(d.ps){const k=d.ps[0],c=PR.r[PR.i];c["s"+k]=Math.max(0,c["s"+k]+(d.ps[1]==="+"?1:-1));rer("#mbody",proBoard)}
+  if(d.pd){const k=d.pd[0],c=PR.r[PR.i];c["d"+k]=Math.max(0,c["d"+k]+(d.pd[1]==="+"?1:-1));rer("#mbody",proBoard)}
+  if(d.pc){PR.r[PR.i].ctl=d.pc;rer("#mbody",proBoard)}
+  if(d.pr!==undefined){PR.i=+d.pr;rer("#mbody",proBoard)}
+  if(b.hasAttribute("data-padd")){PR.r.push({sa:0,sb:0,da:0,db:0,ctl:"none"});PR.i=PR.r.length-1;rer("#mbody",proBoard)}
   if(b.id==="themeBtn"){const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=dark?"light":"dark";try{localStorage.setItem("bos-theme",r.dataset.theme)}catch(_){}}
 });
-document.addEventListener("input",e=>{if(e.target.id==="rq")$("#rres").innerHTML=ruleResults(e.target.value)});
+document.addEventListener("input",e=>{
+  const id=e.target.id;
+  if(id==="rq")rer("#rres",()=>ruleResults(e.target.value));
+  if(id==="nEnt"){advN=+e.target.value;$("#nVal").textContent=advN;rer("#advOut",()=>advice(advN))}
+  if(id==="cTier")calc.tier=e.target.value;
+  if(id==="cScheme")calc.scheme=e.target.value;
+  if(id==="cPool")calc.pool=Math.max(0,+e.target.value||0);
+  if(id==="cElim")calc.elim=Math.max(0,+e.target.value||0);
+  if(id==="cPlace")calc.place=+e.target.value;
+  if(["cTier","cScheme","cPool","cElim","cPlace"].includes(id))rer("#cOut",calcOut);
+});
 setInterval(()=>{if(M.secs>0&&$("#clock")){M.secs--;$("#clock").textContent=fmt(M.secs)}},1000);
 try{const t=localStorage.getItem("bos-theme");if(t)document.documentElement.dataset.theme=t}catch(_){}
 
